@@ -1,3 +1,6 @@
 [submodule "submodules/metaplex-program-library"]
 	path = submodules/metaplex-program-library
 	url = git@github.com:metaplex-foundation/metaplex-program-library.git
+[submodule "submodules/mpl-token-auth-rules"]
+	path = submodules/mpl-token-auth-rules
+	url = git@github.com:metaplex-foundation/mpl-token-auth-rules.git
