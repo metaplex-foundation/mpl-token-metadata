@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "cargo build-bpf",
+    "test": "cargo test-bpf"
+  }
+}

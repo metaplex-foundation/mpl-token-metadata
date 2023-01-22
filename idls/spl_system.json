@@ -1,0 +1,68 @@
+{
+  "version": "0.0.1",
+  "name": "spl_system",
+  "instructions": [
+    {
+      "name": "createAccount",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "newAccount",
+          "isMut": true,
+          "isSigner": true
+        }
+      ],
+      "discriminant": {
+        "value": 0,
+        "type": "u32"
+      },
+      "args": [
+        {
+          "name": "lamports",
+          "type": "u64"
+        },
+        {
+          "name": "space",
+          "type": "u64"
+        },
+        {
+          "name": "programId",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "transferSol",
+      "accounts": [
+        {
+          "name": "source",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "discriminant": {
+        "value": 2,
+        "type": "u32"
+      },
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "address": "11111111111111111111111111111111",
+    "origin": "shank"
+  }
+}

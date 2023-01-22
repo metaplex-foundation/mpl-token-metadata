@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "workspaces": [
+    "programs/*",
+    "clients/*"
+  ],
+  "scripts": {
+    "make": "pnpm generate && pnpm build && pnpm test",
+    "generate": "pnpm generate:idls && pnpm generate:clients",
+    "generate:idls": "node ./infra/shank.cjs",
+    "generate:clients": "node ./infra/kinobi.cjs",
+    "build": "pnpm run -r build",
+    "test": "pnpm run -r test",
+    "bump": "pnpm run -r --enable-pre-post-scripts bump",
+    "deploy": "pnpm run -r deploy",
+    "validator": "CI=1 amman start --config ./infra/validator.cjs",
+    "validator:devnet": "CI=1 amman start --config ./infra/validator.devnet.cjs",
+    "validator:mainnet": "CI=1 amman start --config ./infra/validator.mainnet.cjs",
+    "validator:stop": "amman stop"
+  },
+  "devDependencies": {
+    "@lorisleiva/kinobi": "^0.0.36",
+    "@lorisleiva/shank-js": "^0.0.1",
+    "@metaplex-foundation/amman": "^0.12.1",
+    "typescript": "^4.9.4"
+  }
+}

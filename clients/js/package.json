@@ -1,0 +1,58 @@
+{
+  "name": "@lorisleiva/mpl-essentials",
+  "version": "0.0.1",
+  "description": "Auto-generated essential Solana and Metaplex programs",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc -p tsconfig.json",
+    "test": "ava",
+    "bump": "pnpm version",
+    "deploy": "pnpm build && pnpm test && pnpm publish",
+    "postversion": "git tag $npm_package_name@$npm_package_version",
+    "build:docs": "typedoc",
+    "lint": "eslint --ext js,ts,tsx src",
+    "lint:fix": "eslint --fix --ext js,ts,tsx src",
+    "format": "prettier --write src/ && prettier --write test/"
+  },
+  "files": [
+    "/dist/src"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "homepage": "https://metaplex.com",
+  "repository": "https://github.com/metaplex-foundation/mpl-candy-guard.git",
+  "author": "Metaplex Maintainers <contact@metaplex.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@lorisleiva/js-core": "^0.0.43"
+  },
+  "devDependencies": {
+    "@ava/typescript": "^3.0.1",
+    "@lorisleiva/js-test": "^0.0.43",
+    "@solana/web3.js": "^1.73.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.46.1",
+    "ava": "^5.1.0",
+    "eslint": "^8.0.1",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "typedoc": "^0.23.16",
+    "typescript": "^4.6.2"
+  },
+  "ava": {
+    "typescript": {
+      "compile": false,
+      "rewritePaths": {
+        "src/": "dist/src/",
+        "test/": "dist/test/"
+      }
+    }
+  }
+}

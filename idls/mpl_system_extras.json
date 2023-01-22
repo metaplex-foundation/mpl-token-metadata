@@ -1,0 +1,98 @@
+{
+  "version": "0.1.0",
+  "name": "mpl_system_extras",
+  "instructions": [
+    {
+      "name": "CreateAccountWithRent",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account paying for the storage"
+        },
+        {
+          "name": "newAccount",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The account being created"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ],
+      "args": [
+        {
+          "name": "space",
+          "type": "u64"
+        },
+        {
+          "name": "programId",
+          "type": "publicKey"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "TransferAllSol",
+      "accounts": [
+        {
+          "name": "source",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "The source account sending all its lamports"
+        },
+        {
+          "name": "destination",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The destination account receiving the lamports"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "name": "DummyChallenge",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 0,
+      "name": "InvalidSystemProgram",
+      "msg": "Invalid System Program"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "SysExL2WDyJi9aRZrXorrjHJut3JwHQ7R9bTyctbNNG",
+    "binaryVersion": "0.0.12",
+    "libVersion": "0.0.12"
+  }
+}
