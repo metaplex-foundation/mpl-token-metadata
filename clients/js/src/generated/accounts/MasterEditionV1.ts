@@ -16,12 +16,12 @@ import {
   assertAccountExists,
   deserializeAccount,
 } from '@lorisleiva/js-core';
-import { Key, getKeySerializer } from '../types';
+import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
 export type MasterEditionV1 = Account<MasterEditionV1AccountData>;
 
 export type MasterEditionV1AccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   supply: bigint;
   maxSupply: Option<bigint>;
   printingMint: PublicKey;
@@ -29,7 +29,7 @@ export type MasterEditionV1AccountData = {
 };
 
 export type MasterEditionV1AccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   supply: number | bigint;
   maxSupply: Option<number | bigint>;
   printingMint: PublicKey;
@@ -71,7 +71,7 @@ export function getMasterEditionV1AccountDataSerializer(
   const s = context.serializer;
   return s.struct<MasterEditionV1AccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['supply', s.u64],
       ['maxSupply', s.option(s.u64)],
       ['printingMint', s.publicKey],

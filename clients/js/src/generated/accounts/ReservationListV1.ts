@@ -17,23 +17,23 @@ import {
   deserializeAccount,
 } from '@lorisleiva/js-core';
 import {
-  Key,
   ReservationV1,
-  getKeySerializer,
+  TokenMetadataKey,
   getReservationV1Serializer,
+  getTokenMetadataKeySerializer,
 } from '../types';
 
 export type ReservationListV1 = Account<ReservationListV1AccountData>;
 
 export type ReservationListV1AccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   masterEdition: PublicKey;
   supplySnapshot: Option<bigint>;
   reservations: Array<ReservationV1>;
 };
 
 export type ReservationListV1AccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   masterEdition: PublicKey;
   supplySnapshot: Option<number | bigint>;
   reservations: Array<ReservationV1>;
@@ -74,7 +74,7 @@ export function getReservationListV1AccountDataSerializer(
   const s = context.serializer;
   return s.struct<ReservationListV1AccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['masterEdition', s.publicKey],
       ['supplySnapshot', s.option(s.u64)],
       ['reservations', s.vec(getReservationV1Serializer(context))],

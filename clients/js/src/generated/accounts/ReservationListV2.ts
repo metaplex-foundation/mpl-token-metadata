@@ -17,17 +17,17 @@ import {
   deserializeAccount,
 } from '@lorisleiva/js-core';
 import {
-  Key,
   Reservation,
   ReservationArgs,
-  getKeySerializer,
+  TokenMetadataKey,
   getReservationSerializer,
+  getTokenMetadataKeySerializer,
 } from '../types';
 
 export type ReservationListV2 = Account<ReservationListV2AccountData>;
 
 export type ReservationListV2AccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   masterEdition: PublicKey;
   supplySnapshot: Option<bigint>;
   reservations: Array<Reservation>;
@@ -36,7 +36,7 @@ export type ReservationListV2AccountData = {
 };
 
 export type ReservationListV2AccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   masterEdition: PublicKey;
   supplySnapshot: Option<number | bigint>;
   reservations: Array<ReservationArgs>;
@@ -79,7 +79,7 @@ export function getReservationListV2AccountDataSerializer(
   const s = context.serializer;
   return s.struct<ReservationListV2AccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['masterEdition', s.publicKey],
       ['supplySnapshot', s.option(s.u64)],
       ['reservations', s.vec(getReservationSerializer(context))],

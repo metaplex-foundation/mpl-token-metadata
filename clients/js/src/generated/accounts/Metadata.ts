@@ -21,16 +21,16 @@ import {
   CollectionDetails,
   CollectionDetailsArgs,
   Data,
-  Key,
   ProgrammableConfig,
+  TokenMetadataKey,
   TokenStandard,
   Uses,
   UsesArgs,
   getCollectionDetailsSerializer,
   getCollectionSerializer,
   getDataSerializer,
-  getKeySerializer,
   getProgrammableConfigSerializer,
+  getTokenMetadataKeySerializer,
   getTokenStandardSerializer,
   getUsesSerializer,
 } from '../types';
@@ -38,7 +38,7 @@ import {
 export type Metadata = Account<MetadataAccountData>;
 
 export type MetadataAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   updateAuthority: PublicKey;
   mint: PublicKey;
   data: Data;
@@ -53,7 +53,7 @@ export type MetadataAccountData = {
 };
 
 export type MetadataAccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   updateAuthority: PublicKey;
   mint: PublicKey;
   data: Data;
@@ -102,7 +102,7 @@ export function getMetadataAccountDataSerializer(
   const s = context.serializer;
   return s.struct<MetadataAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['updateAuthority', s.publicKey],
       ['mint', s.publicKey],
       ['data', getDataSerializer(context)],

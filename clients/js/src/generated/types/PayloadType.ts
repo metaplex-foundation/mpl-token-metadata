@@ -14,22 +14,22 @@ import {
   Serializer,
 } from '@lorisleiva/js-core';
 import {
-  LeafInfo,
+  ProofInfo,
   SeedsVec,
-  getLeafInfoSerializer,
+  getProofInfoSerializer,
   getSeedsVecSerializer,
 } from '.';
 
 export type PayloadType =
   | { __kind: 'Pubkey'; fields: [PublicKey] }
   | { __kind: 'Seeds'; fields: [SeedsVec] }
-  | { __kind: 'MerkleProof'; fields: [LeafInfo] }
+  | { __kind: 'MerkleProof'; fields: [ProofInfo] }
   | { __kind: 'Number'; fields: [bigint] };
 
 export type PayloadTypeArgs =
   | { __kind: 'Pubkey'; fields: [PublicKey] }
   | { __kind: 'Seeds'; fields: [SeedsVec] }
-  | { __kind: 'MerkleProof'; fields: [LeafInfo] }
+  | { __kind: 'MerkleProof'; fields: [ProofInfo] }
   | { __kind: 'Number'; fields: [number | bigint] };
 
 export function getPayloadTypeSerializer(
@@ -55,7 +55,7 @@ export function getPayloadTypeSerializer(
       [
         'MerkleProof',
         s.struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>(
-          [['fields', s.tuple([getLeafInfoSerializer(context)])]],
+          [['fields', s.tuple([getProofInfoSerializer(context)])]],
           'MerkleProof'
         ),
       ],

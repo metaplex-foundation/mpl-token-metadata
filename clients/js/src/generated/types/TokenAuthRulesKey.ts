@@ -8,25 +8,14 @@
 
 import { Context, Serializer } from '@lorisleiva/js-core';
 
-export enum Key {
+export enum TokenAuthRulesKey {
   Uninitialized,
-  EditionV1,
-  MasterEditionV1,
-  ReservationListV1,
-  MetadataV1,
-  ReservationListV2,
-  MasterEditionV2,
-  EditionMarker,
-  UseAuthorityRecord,
-  CollectionAuthorityRecord,
-  TokenOwnedEscrow,
-  TokenRecord,
-  MetadataDelegate,
+  Frequency,
 }
 
-export function getKeySerializer(
+export function getTokenAuthRulesKeySerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Key> {
+): Serializer<TokenAuthRulesKey> {
   const s = context.serializer;
-  return s.enum<Key>(Key, 'Key');
+  return s.enum<TokenAuthRulesKey>(TokenAuthRulesKey, 'TokenAuthRulesKey');
 }

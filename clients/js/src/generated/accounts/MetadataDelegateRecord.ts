@@ -15,12 +15,12 @@ import {
   assertAccountExists,
   deserializeAccount,
 } from '@lorisleiva/js-core';
-import { Key, getKeySerializer } from '../types';
+import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
 export type MetadataDelegateRecord = Account<MetadataDelegateRecordAccountData>;
 
 export type MetadataDelegateRecordAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   bump: number;
   mint: PublicKey;
   delegate: PublicKey;
@@ -62,7 +62,7 @@ export function getMetadataDelegateRecordAccountDataSerializer(
   const s = context.serializer;
   return s.struct<MetadataDelegateRecordAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['bump', s.u8],
       ['mint', s.publicKey],
       ['delegate', s.publicKey],

@@ -17,15 +17,15 @@ import {
 } from '@lorisleiva/js-core';
 import {
   EscrowAuthority,
-  Key,
+  TokenMetadataKey,
   getEscrowAuthoritySerializer,
-  getKeySerializer,
+  getTokenMetadataKeySerializer,
 } from '../types';
 
 export type TokenOwnedEscrow = Account<TokenOwnedEscrowAccountData>;
 
 export type TokenOwnedEscrowAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   baseToken: PublicKey;
   authority: EscrowAuthority;
   bump: number;
@@ -66,7 +66,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
   const s = context.serializer;
   return s.struct<TokenOwnedEscrowAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['baseToken', s.publicKey],
       ['authority', getEscrowAuthoritySerializer(context)],
       ['bump', s.u8],

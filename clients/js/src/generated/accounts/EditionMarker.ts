@@ -15,11 +15,14 @@ import {
   assertAccountExists,
   deserializeAccount,
 } from '@lorisleiva/js-core';
-import { Key, getKeySerializer } from '../types';
+import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
 export type EditionMarker = Account<EditionMarkerAccountData>;
 
-export type EditionMarkerAccountData = { key: Key; ledger: Array<number> };
+export type EditionMarkerAccountData = {
+  key: TokenMetadataKey;
+  ledger: Array<number>;
+};
 
 export async function fetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -56,7 +59,7 @@ export function getEditionMarkerAccountDataSerializer(
   const s = context.serializer;
   return s.struct<EditionMarkerAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['ledger', s.array(s.u8, 31)],
     ],
     'EditionMarker'

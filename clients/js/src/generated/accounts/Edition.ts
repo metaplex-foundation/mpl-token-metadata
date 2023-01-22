@@ -15,18 +15,18 @@ import {
   assertAccountExists,
   deserializeAccount,
 } from '@lorisleiva/js-core';
-import { Key, getKeySerializer } from '../types';
+import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
 export type Edition = Account<EditionAccountData>;
 
 export type EditionAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   parent: PublicKey;
   edition: bigint;
 };
 
 export type EditionAccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   parent: PublicKey;
   edition: number | bigint;
 };
@@ -64,7 +64,7 @@ export function getEditionAccountDataSerializer(
   const s = context.serializer;
   return s.struct<EditionAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['parent', s.publicKey],
       ['edition', s.u64],
     ],

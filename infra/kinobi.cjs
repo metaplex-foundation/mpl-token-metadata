@@ -13,12 +13,26 @@ const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 
 // Instanciate Kinobi.
-const kinobi = new Kinobi([path.join(idlDir, "mpl_token_metadata.json")]);
+const kinobi = new Kinobi([
+  path.join(idlDir, "mpl_token_auth_rules.json"),
+  path.join(idlDir, "mpl_token_metadata.json"),
+]);
 
 // Rename nodes.
 kinobi.update(
   new RenameNodesVisitor({
-    mplTokenMetadata: { prefix: "Tm" },
+    mplTokenAuthRules: {
+      prefix: "Ta",
+      types: { Key: "TokenAuthRulesKey" },
+    },
+    mplTokenMetadata: {
+      prefix: "Tm",
+      types: {
+        Key: "TokenMetadataKey",
+        Payload: "TmPayload",
+        PayloadType: "TmPayloadType",
+      },
+    },
   })
 );
 

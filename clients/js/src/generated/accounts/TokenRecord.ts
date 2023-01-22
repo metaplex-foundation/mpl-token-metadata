@@ -17,18 +17,18 @@ import {
   deserializeAccount,
 } from '@lorisleiva/js-core';
 import {
-  Key,
   TokenDelegateRole,
+  TokenMetadataKey,
   TokenState,
-  getKeySerializer,
   getTokenDelegateRoleSerializer,
+  getTokenMetadataKeySerializer,
   getTokenStateSerializer,
 } from '../types';
 
 export type TokenRecord = Account<TokenRecordAccountData>;
 
 export type TokenRecordAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   bump: number;
   state: TokenState;
   ruleSetRevision: Option<bigint>;
@@ -37,7 +37,7 @@ export type TokenRecordAccountData = {
 };
 
 export type TokenRecordAccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   bump: number;
   state: TokenState;
   ruleSetRevision: Option<number | bigint>;
@@ -80,7 +80,7 @@ export function getTokenRecordAccountDataSerializer(
   const s = context.serializer;
   return s.struct<TokenRecordAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['bump', s.u8],
       ['state', getTokenStateSerializer(context)],
       ['ruleSetRevision', s.option(s.u64)],

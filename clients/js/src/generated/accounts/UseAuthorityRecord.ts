@@ -15,18 +15,18 @@ import {
   assertAccountExists,
   deserializeAccount,
 } from '@lorisleiva/js-core';
-import { Key, getKeySerializer } from '../types';
+import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
 export type UseAuthorityRecord = Account<UseAuthorityRecordAccountData>;
 
 export type UseAuthorityRecordAccountData = {
-  key: Key;
+  key: TokenMetadataKey;
   allowedUses: bigint;
   bump: number;
 };
 
 export type UseAuthorityRecordAccountArgs = {
-  key: Key;
+  key: TokenMetadataKey;
   allowedUses: number | bigint;
   bump: number;
 };
@@ -66,7 +66,7 @@ export function getUseAuthorityRecordAccountDataSerializer(
   const s = context.serializer;
   return s.struct<UseAuthorityRecordAccountData>(
     [
-      ['key', getKeySerializer(context)],
+      ['key', getTokenMetadataKeySerializer(context)],
       ['allowedUses', s.u64],
       ['bump', s.u8],
     ],

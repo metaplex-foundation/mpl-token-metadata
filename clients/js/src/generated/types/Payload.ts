@@ -7,32 +7,18 @@
  */
 
 import { Context, Serializer } from '@lorisleiva/js-core';
-import {
-  PayloadKey,
-  PayloadType,
-  PayloadTypeArgs,
-  getPayloadKeySerializer,
-  getPayloadTypeSerializer,
-} from '.';
+import { PayloadType, PayloadTypeArgs, getPayloadTypeSerializer } from '.';
 
-export type Payload = { map: Map<PayloadKey, PayloadType> };
+export type Payload = { map: Map<string, PayloadType> };
 
-export type PayloadArgs = { map: Map<PayloadKey, PayloadTypeArgs> };
+export type PayloadArgs = { map: Map<string, PayloadTypeArgs> };
 
 export function getPayloadSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<PayloadArgs, Payload> {
   const s = context.serializer;
   return s.struct<Payload>(
-    [
-      [
-        'map',
-        s.map(
-          getPayloadKeySerializer(context),
-          getPayloadTypeSerializer(context)
-        ),
-      ],
-    ],
+    [['map', s.map(s.string(), getPayloadTypeSerializer(context))]],
     'Payload'
   ) as Serializer<PayloadArgs, Payload>;
 }
