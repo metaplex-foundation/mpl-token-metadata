@@ -13,3 +13,12 @@ generateIdl({
   binaryInstallDir,
   programDir: path.join(programDir, "token-metadata"),
 });
+
+generateIdl({
+  generator: "shank",
+  programName: "mpl_token_auth_rules",
+  programId: "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg",
+  idlDir,
+  binaryInstallDir,
+  programDir: path.join(programDir, "token-auth-rules"),
+});
