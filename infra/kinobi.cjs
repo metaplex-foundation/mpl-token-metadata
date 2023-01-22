@@ -6,6 +6,7 @@ const {
   SetLeafWrappersVisitor,
   RenameNodesVisitor,
   SetInstructionBytesCreatedOnChainVisitor,
+  DeleteNodesVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -29,11 +30,19 @@ kinobi.update(
       prefix: "Tm",
       types: {
         Key: "TokenMetadataKey",
-        Payload: "TmPayload",
-        PayloadType: "TmPayloadType",
+        // Payload: "TmPayload",
+        // PayloadType: "TmPayloadType",
       },
     },
   })
+);
+
+// Remove duplicate type nodes.
+kinobi.update(
+  new DeleteNodesVisitor([
+    { type: "definedType", name: "Payload", program: "mplTokenMetadata" },
+    { type: "definedType", name: "PayloadType", program: "mplTokenMetadata" },
+  ])
 );
 
 // Wrap leaves.

@@ -43,8 +43,6 @@ export * from './RuleSetRevisionMapV1';
 export * from './RuleSetToggle';
 export * from './SeedsVec';
 export * from './SetCollectionSizeArgs';
-export * from './TmPayload';
-export * from './TmPayloadType';
 export * from './TokenAuthRulesKey';
 export * from './TokenDelegateRole';
 export * from './TokenMetadataKey';
