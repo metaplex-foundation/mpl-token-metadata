@@ -8,25 +8,11 @@
 
 import { Context, Serializer } from '@lorisleiva/js-core';
 
-export enum Key {
-  Uninitialized,
-  EditionV1,
-  MasterEditionV1,
-  ReservationListV1,
-  MetadataV1,
-  ReservationListV2,
-  MasterEditionV2,
-  EditionMarker,
-  UseAuthorityRecord,
-  CollectionAuthorityRecord,
-  TokenOwnedEscrow,
-  TokenRecord,
-  MetadataDelegate,
-}
+export type SeedsVec = { seeds: Array<Uint8Array> };
 
-export function getKeySerializer(
+export function getSeedsVecSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Key> {
+): Serializer<SeedsVec> {
   const s = context.serializer;
-  return s.enum<Key>(Key, 'Key');
+  return s.struct<SeedsVec>([['seeds', s.vec(s.bytes)]], 'SeedsVec');
 }

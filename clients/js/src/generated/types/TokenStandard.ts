@@ -13,6 +13,7 @@ export enum TokenStandard {
   FungibleAsset,
   Fungible,
   NonFungibleEdition,
+  ProgrammableNonFungible,
 }
 
 export function getTokenStandardSerializer(

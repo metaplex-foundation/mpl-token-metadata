@@ -8,25 +8,19 @@
 
 import { Context, Serializer } from '@lorisleiva/js-core';
 
-export enum Key {
-  Uninitialized,
-  EditionV1,
-  MasterEditionV1,
-  ReservationListV1,
-  MetadataV1,
-  ReservationListV2,
-  MasterEditionV2,
-  EditionMarker,
-  UseAuthorityRecord,
-  CollectionAuthorityRecord,
-  TokenOwnedEscrow,
-  TokenRecord,
-  MetadataDelegate,
+export enum RevokeArgs {
+  CollectionV1,
+  SaleV1,
+  TransferV1,
+  UpdateV1,
+  UtilityV1,
+  StakingV1,
+  StandardV1,
 }
 
-export function getKeySerializer(
+export function getRevokeArgsSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Key> {
+): Serializer<RevokeArgs> {
   const s = context.serializer;
-  return s.enum<Key>(Key, 'Key');
+  return s.enum<RevokeArgs>(RevokeArgs, 'RevokeArgs');
 }

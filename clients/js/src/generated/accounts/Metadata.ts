@@ -22,6 +22,7 @@ import {
   CollectionDetailsArgs,
   Data,
   Key,
+  ProgrammableConfig,
   TokenStandard,
   Uses,
   UsesArgs,
@@ -29,6 +30,7 @@ import {
   getCollectionSerializer,
   getDataSerializer,
   getKeySerializer,
+  getProgrammableConfigSerializer,
   getTokenStandardSerializer,
   getUsesSerializer,
 } from '../types';
@@ -47,6 +49,7 @@ export type MetadataAccountData = {
   collection: Option<Collection>;
   uses: Option<Uses>;
   collectionDetails: Option<CollectionDetails>;
+  programmableConfig: Option<ProgrammableConfig>;
 };
 
 export type MetadataAccountArgs = {
@@ -61,6 +64,7 @@ export type MetadataAccountArgs = {
   collection: Option<Collection>;
   uses: Option<UsesArgs>;
   collectionDetails: Option<CollectionDetailsArgs>;
+  programmableConfig: Option<ProgrammableConfig>;
 };
 
 export async function fetchMetadata(
@@ -109,6 +113,10 @@ export function getMetadataAccountDataSerializer(
       ['collection', s.option(getCollectionSerializer(context))],
       ['uses', s.option(getUsesSerializer(context))],
       ['collectionDetails', s.option(getCollectionDetailsSerializer(context))],
+      [
+        'programmableConfig',
+        s.option(getProgrammableConfigSerializer(context)),
+      ],
     ],
     'Metadata'
   ) as Serializer<MetadataAccountArgs, MetadataAccountData>;

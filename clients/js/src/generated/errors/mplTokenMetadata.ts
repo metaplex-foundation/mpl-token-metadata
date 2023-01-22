@@ -1177,14 +1177,14 @@ nameToErrorMap.set(
   TmIsMutableCanOnlyBeFlippedToFalseError
 );
 
-/** CollectionCannotBeVerifiedInThisInstruction: 'Cannont Verify Collection in this Instruction' */
+/** CollectionCannotBeVerifiedInThisInstruction: 'Collection cannot be verified in this instruction' */
 export class TmCollectionCannotBeVerifiedInThisInstructionError extends ProgramError {
   readonly name: string = 'CollectionCannotBeVerifiedInThisInstruction';
 
   readonly code: number = 0x4a; // 74
 
   constructor(program: Program, cause?: Error) {
-    super('Cannont Verify Collection in this Instruction', program, cause);
+    super('Collection cannot be verified in this instruction', program, cause);
   }
 }
 codeToErrorMap.set(0x4a, TmCollectionCannotBeVerifiedInThisInstructionError);
@@ -1782,7 +1782,7 @@ nameToErrorMap.set(
   TmBorshDeserializationErrorError
 );
 
-/** CannotUpdateVerifiedCollection: 'Cannot update a verified colleciton in this command' */
+/** CannotUpdateVerifiedCollection: 'Cannot update a verified collection in this command' */
 export class TmCannotUpdateVerifiedCollectionError extends ProgramError {
   readonly name: string = 'CannotUpdateVerifiedCollection';
 
@@ -1790,7 +1790,7 @@ export class TmCannotUpdateVerifiedCollectionError extends ProgramError {
 
   constructor(program: Program, cause?: Error) {
     super(
-      'Cannot update a verified colleciton in this command',
+      'Cannot update a verified collection in this command',
       program,
       cause
     );
@@ -2089,6 +2089,453 @@ export class TmEscrowParentHasDelegateError extends ProgramError {
 }
 codeToErrorMap.set(0x85, TmEscrowParentHasDelegateError);
 nameToErrorMap.set('EscrowParentHasDelegate', TmEscrowParentHasDelegateError);
+
+/** MintIsNotSigner: 'Mint needs to be signer to initialize the account' */
+export class TmMintIsNotSignerError extends ProgramError {
+  readonly name: string = 'MintIsNotSigner';
+
+  readonly code: number = 0x86; // 134
+
+  constructor(program: Program, cause?: Error) {
+    super('Mint needs to be signer to initialize the account', program, cause);
+  }
+}
+codeToErrorMap.set(0x86, TmMintIsNotSignerError);
+nameToErrorMap.set('MintIsNotSigner', TmMintIsNotSignerError);
+
+/** InvalidTokenStandard: 'Invalid token standard' */
+export class TmInvalidTokenStandardError extends ProgramError {
+  readonly name: string = 'InvalidTokenStandard';
+
+  readonly code: number = 0x87; // 135
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid token standard', program, cause);
+  }
+}
+codeToErrorMap.set(0x87, TmInvalidTokenStandardError);
+nameToErrorMap.set('InvalidTokenStandard', TmInvalidTokenStandardError);
+
+/** InvalidMintForTokenStandard: 'Invalid mint account for specified token standard' */
+export class TmInvalidMintForTokenStandardError extends ProgramError {
+  readonly name: string = 'InvalidMintForTokenStandard';
+
+  readonly code: number = 0x88; // 136
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid mint account for specified token standard', program, cause);
+  }
+}
+codeToErrorMap.set(0x88, TmInvalidMintForTokenStandardError);
+nameToErrorMap.set(
+  'InvalidMintForTokenStandard',
+  TmInvalidMintForTokenStandardError
+);
+
+/** InvalidAuthorizationRules: 'Invalid authorization rules account' */
+export class TmInvalidAuthorizationRulesError extends ProgramError {
+  readonly name: string = 'InvalidAuthorizationRules';
+
+  readonly code: number = 0x89; // 137
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid authorization rules account', program, cause);
+  }
+}
+codeToErrorMap.set(0x89, TmInvalidAuthorizationRulesError);
+nameToErrorMap.set(
+  'InvalidAuthorizationRules',
+  TmInvalidAuthorizationRulesError
+);
+
+/** MissingAuthorizationRules: 'Missing authorization rules account' */
+export class TmMissingAuthorizationRulesError extends ProgramError {
+  readonly name: string = 'MissingAuthorizationRules';
+
+  readonly code: number = 0x8a; // 138
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing authorization rules account', program, cause);
+  }
+}
+codeToErrorMap.set(0x8a, TmMissingAuthorizationRulesError);
+nameToErrorMap.set(
+  'MissingAuthorizationRules',
+  TmMissingAuthorizationRulesError
+);
+
+/** MissingProgrammableConfig: 'Missing programmable configuration' */
+export class TmMissingProgrammableConfigError extends ProgramError {
+  readonly name: string = 'MissingProgrammableConfig';
+
+  readonly code: number = 0x8b; // 139
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing programmable configuration', program, cause);
+  }
+}
+codeToErrorMap.set(0x8b, TmMissingProgrammableConfigError);
+nameToErrorMap.set(
+  'MissingProgrammableConfig',
+  TmMissingProgrammableConfigError
+);
+
+/** InvalidProgrammableConfig: 'Invalid programmable configuration' */
+export class TmInvalidProgrammableConfigError extends ProgramError {
+  readonly name: string = 'InvalidProgrammableConfig';
+
+  readonly code: number = 0x8c; // 140
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid programmable configuration', program, cause);
+  }
+}
+codeToErrorMap.set(0x8c, TmInvalidProgrammableConfigError);
+nameToErrorMap.set(
+  'InvalidProgrammableConfig',
+  TmInvalidProgrammableConfigError
+);
+
+/** DelegateAlreadyExists: 'Delegate already exists' */
+export class TmDelegateAlreadyExistsError extends ProgramError {
+  readonly name: string = 'DelegateAlreadyExists';
+
+  readonly code: number = 0x8d; // 141
+
+  constructor(program: Program, cause?: Error) {
+    super('Delegate already exists', program, cause);
+  }
+}
+codeToErrorMap.set(0x8d, TmDelegateAlreadyExistsError);
+nameToErrorMap.set('DelegateAlreadyExists', TmDelegateAlreadyExistsError);
+
+/** DelegateNotFound: 'Delegate not found' */
+export class TmDelegateNotFoundError extends ProgramError {
+  readonly name: string = 'DelegateNotFound';
+
+  readonly code: number = 0x8e; // 142
+
+  constructor(program: Program, cause?: Error) {
+    super('Delegate not found', program, cause);
+  }
+}
+codeToErrorMap.set(0x8e, TmDelegateNotFoundError);
+nameToErrorMap.set('DelegateNotFound', TmDelegateNotFoundError);
+
+/** MissingAccountInBuilder: 'Required account not set in instruction builder' */
+export class TmMissingAccountInBuilderError extends ProgramError {
+  readonly name: string = 'MissingAccountInBuilder';
+
+  readonly code: number = 0x8f; // 143
+
+  constructor(program: Program, cause?: Error) {
+    super('Required account not set in instruction builder', program, cause);
+  }
+}
+codeToErrorMap.set(0x8f, TmMissingAccountInBuilderError);
+nameToErrorMap.set('MissingAccountInBuilder', TmMissingAccountInBuilderError);
+
+/** MissingArgumentInBuilder: 'Required argument not set in instruction builder' */
+export class TmMissingArgumentInBuilderError extends ProgramError {
+  readonly name: string = 'MissingArgumentInBuilder';
+
+  readonly code: number = 0x90; // 144
+
+  constructor(program: Program, cause?: Error) {
+    super('Required argument not set in instruction builder', program, cause);
+  }
+}
+codeToErrorMap.set(0x90, TmMissingArgumentInBuilderError);
+nameToErrorMap.set('MissingArgumentInBuilder', TmMissingArgumentInBuilderError);
+
+/** FeatureNotSupported: 'Feature not supported currently' */
+export class TmFeatureNotSupportedError extends ProgramError {
+  readonly name: string = 'FeatureNotSupported';
+
+  readonly code: number = 0x91; // 145
+
+  constructor(program: Program, cause?: Error) {
+    super('Feature not supported currently', program, cause);
+  }
+}
+codeToErrorMap.set(0x91, TmFeatureNotSupportedError);
+nameToErrorMap.set('FeatureNotSupported', TmFeatureNotSupportedError);
+
+/** InvalidSystemWallet: 'Invalid system wallet' */
+export class TmInvalidSystemWalletError extends ProgramError {
+  readonly name: string = 'InvalidSystemWallet';
+
+  readonly code: number = 0x92; // 146
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid system wallet', program, cause);
+  }
+}
+codeToErrorMap.set(0x92, TmInvalidSystemWalletError);
+nameToErrorMap.set('InvalidSystemWallet', TmInvalidSystemWalletError);
+
+/** OnlySaleDelegateCanTransfer: 'Only the sale delegate can transfer while its set' */
+export class TmOnlySaleDelegateCanTransferError extends ProgramError {
+  readonly name: string = 'OnlySaleDelegateCanTransfer';
+
+  readonly code: number = 0x93; // 147
+
+  constructor(program: Program, cause?: Error) {
+    super('Only the sale delegate can transfer while its set', program, cause);
+  }
+}
+codeToErrorMap.set(0x93, TmOnlySaleDelegateCanTransferError);
+nameToErrorMap.set(
+  'OnlySaleDelegateCanTransfer',
+  TmOnlySaleDelegateCanTransferError
+);
+
+/** MissingTokenAccount: 'Missing token account' */
+export class TmMissingTokenAccountError extends ProgramError {
+  readonly name: string = 'MissingTokenAccount';
+
+  readonly code: number = 0x94; // 148
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing token account', program, cause);
+  }
+}
+codeToErrorMap.set(0x94, TmMissingTokenAccountError);
+nameToErrorMap.set('MissingTokenAccount', TmMissingTokenAccountError);
+
+/** MissingSplTokenProgram: 'Missing SPL token program' */
+export class TmMissingSplTokenProgramError extends ProgramError {
+  readonly name: string = 'MissingSplTokenProgram';
+
+  readonly code: number = 0x95; // 149
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing SPL token program', program, cause);
+  }
+}
+codeToErrorMap.set(0x95, TmMissingSplTokenProgramError);
+nameToErrorMap.set('MissingSplTokenProgram', TmMissingSplTokenProgramError);
+
+/** MissingAuthorizationRulesProgram: 'Missing authorization rules program' */
+export class TmMissingAuthorizationRulesProgramError extends ProgramError {
+  readonly name: string = 'MissingAuthorizationRulesProgram';
+
+  readonly code: number = 0x96; // 150
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing authorization rules program', program, cause);
+  }
+}
+codeToErrorMap.set(0x96, TmMissingAuthorizationRulesProgramError);
+nameToErrorMap.set(
+  'MissingAuthorizationRulesProgram',
+  TmMissingAuthorizationRulesProgramError
+);
+
+/** InvalidDelegateRoleForTransfer: 'Invalid delegate role for transfer' */
+export class TmInvalidDelegateRoleForTransferError extends ProgramError {
+  readonly name: string = 'InvalidDelegateRoleForTransfer';
+
+  readonly code: number = 0x97; // 151
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid delegate role for transfer', program, cause);
+  }
+}
+codeToErrorMap.set(0x97, TmInvalidDelegateRoleForTransferError);
+nameToErrorMap.set(
+  'InvalidDelegateRoleForTransfer',
+  TmInvalidDelegateRoleForTransferError
+);
+
+/** InvalidTransferAuthority: 'Invalid transfer authority' */
+export class TmInvalidTransferAuthorityError extends ProgramError {
+  readonly name: string = 'InvalidTransferAuthority';
+
+  readonly code: number = 0x98; // 152
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid transfer authority', program, cause);
+  }
+}
+codeToErrorMap.set(0x98, TmInvalidTransferAuthorityError);
+nameToErrorMap.set('InvalidTransferAuthority', TmInvalidTransferAuthorityError);
+
+/** InstructionNotSupported: 'Instruction not supported for ProgrammableNonFungible assets' */
+export class TmInstructionNotSupportedError extends ProgramError {
+  readonly name: string = 'InstructionNotSupported';
+
+  readonly code: number = 0x99; // 153
+
+  constructor(program: Program, cause?: Error) {
+    super(
+      'Instruction not supported for ProgrammableNonFungible assets',
+      program,
+      cause
+    );
+  }
+}
+codeToErrorMap.set(0x99, TmInstructionNotSupportedError);
+nameToErrorMap.set('InstructionNotSupported', TmInstructionNotSupportedError);
+
+/** KeyMismatch: 'Public key does not match expected value' */
+export class TmKeyMismatchError extends ProgramError {
+  readonly name: string = 'KeyMismatch';
+
+  readonly code: number = 0x9a; // 154
+
+  constructor(program: Program, cause?: Error) {
+    super('Public key does not match expected value', program, cause);
+  }
+}
+codeToErrorMap.set(0x9a, TmKeyMismatchError);
+nameToErrorMap.set('KeyMismatch', TmKeyMismatchError);
+
+/** LockedToken: 'Token is locked' */
+export class TmLockedTokenError extends ProgramError {
+  readonly name: string = 'LockedToken';
+
+  readonly code: number = 0x9b; // 155
+
+  constructor(program: Program, cause?: Error) {
+    super('Token is locked', program, cause);
+  }
+}
+codeToErrorMap.set(0x9b, TmLockedTokenError);
+nameToErrorMap.set('LockedToken', TmLockedTokenError);
+
+/** UnlockedToken: 'Token is unlocked' */
+export class TmUnlockedTokenError extends ProgramError {
+  readonly name: string = 'UnlockedToken';
+
+  readonly code: number = 0x9c; // 156
+
+  constructor(program: Program, cause?: Error) {
+    super('Token is unlocked', program, cause);
+  }
+}
+codeToErrorMap.set(0x9c, TmUnlockedTokenError);
+nameToErrorMap.set('UnlockedToken', TmUnlockedTokenError);
+
+/** MissingDelegateRole: 'Missing delegate role' */
+export class TmMissingDelegateRoleError extends ProgramError {
+  readonly name: string = 'MissingDelegateRole';
+
+  readonly code: number = 0x9d; // 157
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing delegate role', program, cause);
+  }
+}
+codeToErrorMap.set(0x9d, TmMissingDelegateRoleError);
+nameToErrorMap.set('MissingDelegateRole', TmMissingDelegateRoleError);
+
+/** InvalidAuthorityType: 'Invalid authority type' */
+export class TmInvalidAuthorityTypeError extends ProgramError {
+  readonly name: string = 'InvalidAuthorityType';
+
+  readonly code: number = 0x9e; // 158
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid authority type', program, cause);
+  }
+}
+codeToErrorMap.set(0x9e, TmInvalidAuthorityTypeError);
+nameToErrorMap.set('InvalidAuthorityType', TmInvalidAuthorityTypeError);
+
+/** MissingTokenRecord: 'Missing token record account' */
+export class TmMissingTokenRecordError extends ProgramError {
+  readonly name: string = 'MissingTokenRecord';
+
+  readonly code: number = 0x9f; // 159
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing token record account', program, cause);
+  }
+}
+codeToErrorMap.set(0x9f, TmMissingTokenRecordError);
+nameToErrorMap.set('MissingTokenRecord', TmMissingTokenRecordError);
+
+/** MintSupplyMustBeZero: 'Mint supply must be zero for programmable assets' */
+export class TmMintSupplyMustBeZeroError extends ProgramError {
+  readonly name: string = 'MintSupplyMustBeZero';
+
+  readonly code: number = 0xa0; // 160
+
+  constructor(program: Program, cause?: Error) {
+    super('Mint supply must be zero for programmable assets', program, cause);
+  }
+}
+codeToErrorMap.set(0xa0, TmMintSupplyMustBeZeroError);
+nameToErrorMap.set('MintSupplyMustBeZero', TmMintSupplyMustBeZeroError);
+
+/** DataIsEmptyOrZeroed: 'Data is empty or zeroed' */
+export class TmDataIsEmptyOrZeroedError extends ProgramError {
+  readonly name: string = 'DataIsEmptyOrZeroed';
+
+  readonly code: number = 0xa1; // 161
+
+  constructor(program: Program, cause?: Error) {
+    super('Data is empty or zeroed', program, cause);
+  }
+}
+codeToErrorMap.set(0xa1, TmDataIsEmptyOrZeroedError);
+nameToErrorMap.set('DataIsEmptyOrZeroed', TmDataIsEmptyOrZeroedError);
+
+/** MissingTokenOwnerAccount: 'Missing token owner' */
+export class TmMissingTokenOwnerAccountError extends ProgramError {
+  readonly name: string = 'MissingTokenOwnerAccount';
+
+  readonly code: number = 0xa2; // 162
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing token owner', program, cause);
+  }
+}
+codeToErrorMap.set(0xa2, TmMissingTokenOwnerAccountError);
+nameToErrorMap.set('MissingTokenOwnerAccount', TmMissingTokenOwnerAccountError);
+
+/** InvalidMasterEditionAccountLength: 'Master edition account has an invalid length' */
+export class TmInvalidMasterEditionAccountLengthError extends ProgramError {
+  readonly name: string = 'InvalidMasterEditionAccountLength';
+
+  readonly code: number = 0xa3; // 163
+
+  constructor(program: Program, cause?: Error) {
+    super('Master edition account has an invalid length', program, cause);
+  }
+}
+codeToErrorMap.set(0xa3, TmInvalidMasterEditionAccountLengthError);
+nameToErrorMap.set(
+  'InvalidMasterEditionAccountLength',
+  TmInvalidMasterEditionAccountLengthError
+);
+
+/** IncorrectTokenState: 'Incorrect token state' */
+export class TmIncorrectTokenStateError extends ProgramError {
+  readonly name: string = 'IncorrectTokenState';
+
+  readonly code: number = 0xa4; // 164
+
+  constructor(program: Program, cause?: Error) {
+    super('Incorrect token state', program, cause);
+  }
+}
+codeToErrorMap.set(0xa4, TmIncorrectTokenStateError);
+nameToErrorMap.set('IncorrectTokenState', TmIncorrectTokenStateError);
+
+/** InvalidDelegateRole: 'Invalid delegate role' */
+export class TmInvalidDelegateRoleError extends ProgramError {
+  readonly name: string = 'InvalidDelegateRole';
+
+  readonly code: number = 0xa5; // 165
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid delegate role', program, cause);
+  }
+}
+codeToErrorMap.set(0xa5, TmInvalidDelegateRoleError);
+nameToErrorMap.set('InvalidDelegateRole', TmInvalidDelegateRoleError);
 
 /**
  * Attempts to resolve a custom program error from the provided error code.
