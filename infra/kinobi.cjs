@@ -29,15 +29,21 @@ kinobi.update(
     mplTokenMetadata: {
       prefix: "Tm",
       types: { Key: "TokenMetadataKey" },
+      accounts: { MasterEditionV2: "MasterEdition" },
     },
   })
 );
 
-// Remove duplicate type nodes.
+// Remove nodes.
 kinobi.update(
   new DeleteNodesVisitor([
+    // Duplicated from token auth rules.
     { type: "definedType", name: "Payload", program: "mplTokenMetadata" },
     { type: "definedType", name: "PayloadType", program: "mplTokenMetadata" },
+    // Deprecated nodes.
+    { type: "account", name: "ReservationListV1", program: "mplTokenMetadata" },
+    { type: "account", name: "ReservationListV2", program: "mplTokenMetadata" },
+    { type: "account", name: "MasterEditionV1", program: "mplTokenMetadata" },
   ])
 );
 

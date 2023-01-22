@@ -18,65 +18,65 @@ import {
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
-export type MasterEditionV2 = Account<MasterEditionV2AccountData>;
+export type MasterEdition = Account<MasterEditionAccountData>;
 
-export type MasterEditionV2AccountData = {
+export type MasterEditionAccountData = {
   key: TokenMetadataKey;
   supply: bigint;
   maxSupply: Option<bigint>;
 };
 
-export type MasterEditionV2AccountArgs = {
+export type MasterEditionAccountArgs = {
   key: TokenMetadataKey;
   supply: number | bigint;
   maxSupply: Option<number | bigint>;
 };
 
-export async function fetchMasterEditionV2(
+export async function fetchMasterEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
   publicKey: PublicKey
-): Promise<MasterEditionV2> {
+): Promise<MasterEdition> {
   const maybeAccount = await context.rpc.getAccount(publicKey);
-  assertAccountExists(maybeAccount, 'MasterEditionV2');
-  return deserializeMasterEditionV2(context, maybeAccount);
+  assertAccountExists(maybeAccount, 'MasterEdition');
+  return deserializeMasterEdition(context, maybeAccount);
 }
 
-export async function safeFetchMasterEditionV2(
+export async function safeFetchMasterEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
   publicKey: PublicKey
-): Promise<MasterEditionV2 | null> {
+): Promise<MasterEdition | null> {
   const maybeAccount = await context.rpc.getAccount(publicKey);
   return maybeAccount.exists
-    ? deserializeMasterEditionV2(context, maybeAccount)
+    ? deserializeMasterEdition(context, maybeAccount)
     : null;
 }
 
-export function deserializeMasterEditionV2(
+export function deserializeMasterEdition(
   context: Pick<Context, 'serializer'>,
   rawAccount: RpcAccount
-): MasterEditionV2 {
+): MasterEdition {
   return deserializeAccount(
     rawAccount,
-    getMasterEditionV2AccountDataSerializer(context)
+    getMasterEditionAccountDataSerializer(context)
   );
 }
 
-export function getMasterEditionV2AccountDataSerializer(
+export function getMasterEditionAccountDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MasterEditionV2AccountArgs, MasterEditionV2AccountData> {
+): Serializer<MasterEditionAccountArgs, MasterEditionAccountData> {
   const s = context.serializer;
-  return s.struct<MasterEditionV2AccountData>(
+  return s.struct<MasterEditionAccountData>(
     [
       ['key', getTokenMetadataKeySerializer(context)],
       ['supply', s.u64],
       ['maxSupply', s.option(s.u64)],
     ],
-    'MasterEditionV2'
-  ) as Serializer<MasterEditionV2AccountArgs, MasterEditionV2AccountData>;
+    'MasterEdition'
+  ) as Serializer<MasterEditionAccountArgs, MasterEditionAccountData>;
 }
 
-export function getMasterEditionV2Size(
+export function getMasterEditionSize(
   context: Pick<Context, 'serializer'>
 ): number | null {
-  return getMasterEditionV2AccountDataSerializer(context).fixedSize;
+  return getMasterEditionAccountDataSerializer(context).fixedSize;
 }
