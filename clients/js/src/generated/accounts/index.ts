@@ -6,7 +6,13 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-export * from './DummyChallenge';
-export * from './Mint';
-export * from './Multisig';
-export * from './Token';
+export * from './CollectionAuthorityRecord';
+export * from './Edition';
+export * from './EditionMarker';
+export * from './MasterEditionV1';
+export * from './MasterEditionV2';
+export * from './Metadata';
+export * from './ReservationListV1';
+export * from './ReservationListV2';
+export * from './TokenOwnedEscrow';
+export * from './UseAuthorityRecord';

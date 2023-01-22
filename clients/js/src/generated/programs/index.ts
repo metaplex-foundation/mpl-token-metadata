@@ -6,9 +6,4 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-export * from './mplSystemExtras';
-export * from './mplTokenExtras';
-export * from './splAssociatedToken';
-export * from './splMemo';
-export * from './splSystem';
-export * from './splToken';
+export * from './mplTokenMetadata';
