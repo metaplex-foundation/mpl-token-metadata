@@ -8,7 +8,7 @@ import {
   getSplTokenProgram,
 } from './generated';
 
-export const mplEssentials = (): MetaplexPlugin => ({
+export const mplDigitalAsset = (): MetaplexPlugin => ({
   install(metaplex) {
     metaplex.programs.add(getSplSystemProgram(), false);
     metaplex.programs.add(getSplMemoProgram(), false);

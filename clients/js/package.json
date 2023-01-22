@@ -1,7 +1,7 @@
 {
-  "name": "@lorisleiva/mpl-essentials",
+  "name": "@lorisleiva/mpl-digital-asset",
   "version": "0.0.1",
-  "description": "Auto-generated essential Solana and Metaplex programs",
+  "description": "JavaScript client for handling Digital Assets on Solana",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {

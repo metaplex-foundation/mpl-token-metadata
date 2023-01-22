@@ -1,3 +1,3 @@
-# mpl-essentials
+# mpl-digital-asset
 
 TODO
