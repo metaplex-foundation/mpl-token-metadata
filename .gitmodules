@@ -1,0 +1,3 @@
+[submodule "metaplex-program-library"]
+	path = metaplex-program-library
+	url = git@github.com:metaplex-foundation/metaplex-program-library.git
