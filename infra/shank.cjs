@@ -7,18 +7,9 @@ const programDir = path.join(__dirname, "..", "programs");
 
 generateIdl({
   generator: "shank",
-  programName: "mpl_system_extras",
-  programId: "SysExL2WDyJi9aRZrXorrjHJut3JwHQ7R9bTyctbNNG",
+  programName: "mpl_token_metadata",
+  programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
   idlDir,
   binaryInstallDir,
-  programDir: path.join(programDir, "system-extras"),
-});
-
-generateIdl({
-  generator: "shank",
-  programName: "mpl_token_extras",
-  programId: "TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SAc2p",
-  idlDir,
-  binaryInstallDir,
-  programDir: path.join(programDir, "token-extras"),
+  programDir: path.join(programDir, "token-metadata"),
 });
