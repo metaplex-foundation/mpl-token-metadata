@@ -28,11 +28,7 @@ kinobi.update(
     },
     mplTokenMetadata: {
       prefix: "Tm",
-      types: {
-        Key: "TokenMetadataKey",
-        // Payload: "TmPayload",
-        // PayloadType: "TmPayloadType",
-      },
+      types: { Key: "TokenMetadataKey" },
     },
   })
 );
