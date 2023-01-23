@@ -14,6 +14,7 @@ import {
   Signer,
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
+  isSigner,
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
@@ -26,7 +27,7 @@ export type CreateInstructionAccounts = {
   /** Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition'] */
   masterEdition?: PublicKey;
   /** Mint of token asset */
-  mint: PublicKey;
+  mint: PublicKey | Signer;
   /** Mint authority */
   authority?: Signer;
   /** Payer */
@@ -117,9 +118,12 @@ export function create(
   }
 
   // Mint.
+  if (isSigner(mintAccount)) {
+    signers.push(mintAccount);
+  }
   keys.push({
-    pubkey: mintAccount,
-    isSigner: false,
+    pubkey: publicKey(mintAccount),
+    isSigner: isSigner(mintAccount),
     isWritable: isWritable(mintAccount, true),
   });
 

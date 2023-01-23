@@ -9,6 +9,9 @@ const {
   DeleteNodesVisitor,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
+  TransformNodesVisitor,
+  assertInstructionNode,
+  InstructionNode,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -90,6 +93,24 @@ kinobi.update(
     "mplTokenMetadata.Metadata": ["data"],
     "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
   })
+);
+
+// Mark mint account has optional signer on Create instruction.
+kinobi.update(
+  new TransformNodesVisitor([
+    {
+      selector: { type: "instruction", name: "Create" },
+      transformer: (node) => {
+        assertInstructionNode(node);
+        const newAccounts = node.accounts.map((account) => {
+          return account.name === "mint"
+            ? { ...account, isOptionalSigner: true }
+            : account;
+        });
+        return new InstructionNode(node.metadata, newAccounts, node.args);
+      },
+    },
+  ])
 );
 
 // Render JavaScript.
