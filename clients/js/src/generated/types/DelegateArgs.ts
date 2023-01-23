@@ -20,55 +20,52 @@ import {
 } from '.';
 
 export type DelegateArgs =
-  | { __kind: 'CollectionV1'; authorization_data: Option<AuthorizationData> }
+  | { __kind: 'CollectionV1'; authorizationData: Option<AuthorizationData> }
   | {
       __kind: 'SaleV1';
       amount: bigint;
-      authorization_data: Option<AuthorizationData>;
+      authorizationData: Option<AuthorizationData>;
     }
   | {
       __kind: 'TransferV1';
       amount: bigint;
-      authorization_data: Option<AuthorizationData>;
+      authorizationData: Option<AuthorizationData>;
     }
-  | { __kind: 'UpdateV1'; authorization_data: Option<AuthorizationData> }
+  | { __kind: 'UpdateV1'; authorizationData: Option<AuthorizationData> }
   | {
       __kind: 'UtilityV1';
       amount: bigint;
-      authorization_data: Option<AuthorizationData>;
+      authorizationData: Option<AuthorizationData>;
     }
   | {
       __kind: 'StakingV1';
       amount: bigint;
-      authorization_data: Option<AuthorizationData>;
+      authorizationData: Option<AuthorizationData>;
     }
   | { __kind: 'StandardV1'; amount: bigint };
 
 export type DelegateArgsArgs =
-  | {
-      __kind: 'CollectionV1';
-      authorization_data: Option<AuthorizationDataArgs>;
-    }
+  | { __kind: 'CollectionV1'; authorizationData: Option<AuthorizationDataArgs> }
   | {
       __kind: 'SaleV1';
       amount: number | bigint;
-      authorization_data: Option<AuthorizationDataArgs>;
+      authorizationData: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'TransferV1';
       amount: number | bigint;
-      authorization_data: Option<AuthorizationDataArgs>;
+      authorizationData: Option<AuthorizationDataArgs>;
     }
-  | { __kind: 'UpdateV1'; authorization_data: Option<AuthorizationDataArgs> }
+  | { __kind: 'UpdateV1'; authorizationData: Option<AuthorizationDataArgs> }
   | {
       __kind: 'UtilityV1';
       amount: number | bigint;
-      authorization_data: Option<AuthorizationDataArgs>;
+      authorizationData: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'StakingV1';
       amount: number | bigint;
-      authorization_data: Option<AuthorizationDataArgs>;
+      authorizationData: Option<AuthorizationDataArgs>;
     }
   | { __kind: 'StandardV1'; amount: number | bigint };
 
@@ -83,7 +80,7 @@ export function getDelegateArgsSerializer(
         s.struct<GetDataEnumKindContent<DelegateArgs, 'CollectionV1'>>(
           [
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
@@ -96,7 +93,7 @@ export function getDelegateArgsSerializer(
           [
             ['amount', s.u64],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
@@ -109,7 +106,7 @@ export function getDelegateArgsSerializer(
           [
             ['amount', s.u64],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
@@ -121,7 +118,7 @@ export function getDelegateArgsSerializer(
         s.struct<GetDataEnumKindContent<DelegateArgs, 'UpdateV1'>>(
           [
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
@@ -134,7 +131,7 @@ export function getDelegateArgsSerializer(
           [
             ['amount', s.u64],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
@@ -147,7 +144,7 @@ export function getDelegateArgsSerializer(
           [
             ['amount', s.u64],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],

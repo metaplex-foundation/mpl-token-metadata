@@ -21,12 +21,12 @@ import {
 
 export type BurnArgs = {
   __kind: 'V1';
-  authorization_data: Option<AuthorizationData>;
+  authorizationData: Option<AuthorizationData>;
 };
 
 export type BurnArgsArgs = {
   __kind: 'V1';
-  authorization_data: Option<AuthorizationDataArgs>;
+  authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getBurnArgsSerializer(
@@ -40,7 +40,7 @@ export function getBurnArgsSerializer(
         s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>(
           [
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],

@@ -22,13 +22,13 @@ import {
 export type MintArgs = {
   __kind: 'V1';
   amount: bigint;
-  authorization_data: Option<AuthorizationData>;
+  authorizationData: Option<AuthorizationData>;
 };
 
 export type MintArgsArgs = {
   __kind: 'V1';
   amount: number | bigint;
-  authorization_data: Option<AuthorizationDataArgs>;
+  authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getMintArgsSerializer(
@@ -43,7 +43,7 @@ export function getMintArgsSerializer(
           [
             ['amount', s.u64],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],

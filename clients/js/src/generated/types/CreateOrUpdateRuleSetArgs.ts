@@ -15,7 +15,7 @@ import {
 
 export type CreateOrUpdateRuleSetArgs = {
   __kind: 'V1';
-  serialized_rule_set: Uint8Array;
+  serializedRuleSet: Uint8Array;
 };
 
 export function getCreateOrUpdateRuleSetArgsSerializer(
@@ -27,7 +27,7 @@ export function getCreateOrUpdateRuleSetArgsSerializer(
       [
         'V1',
         s.struct<GetDataEnumKindContent<CreateOrUpdateRuleSetArgs, 'V1'>>(
-          [['serialized_rule_set', s.bytes]],
+          [['serializedRuleSet', s.bytes]],
           'V1'
         ),
       ],

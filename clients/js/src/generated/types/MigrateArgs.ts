@@ -18,8 +18,8 @@ import { MigrationType, getMigrationTypeSerializer } from '.';
 
 export type MigrateArgs = {
   __kind: 'V1';
-  migration_type: MigrationType;
-  rule_set: Option<PublicKey>;
+  migrationType: MigrationType;
+  ruleSet: Option<PublicKey>;
 };
 
 export function getMigrateArgsSerializer(
@@ -32,8 +32,8 @@ export function getMigrateArgsSerializer(
         'V1',
         s.struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>(
           [
-            ['migration_type', getMigrationTypeSerializer(context)],
-            ['rule_set', s.option(s.publicKey)],
+            ['migrationType', getMigrationTypeSerializer(context)],
+            ['ruleSet', s.option(s.publicKey)],
           ],
           'V1'
         ),

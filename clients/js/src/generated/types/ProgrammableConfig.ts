@@ -15,7 +15,7 @@ import {
   Serializer,
 } from '@lorisleiva/js-core';
 
-export type ProgrammableConfig = { __kind: 'V1'; rule_set: Option<PublicKey> };
+export type ProgrammableConfig = { __kind: 'V1'; ruleSet: Option<PublicKey> };
 
 export function getProgrammableConfigSerializer(
   context: Pick<Context, 'serializer'>
@@ -26,7 +26,7 @@ export function getProgrammableConfigSerializer(
       [
         'V1',
         s.struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>(
-          [['rule_set', s.option(s.publicKey)]],
+          [['ruleSet', s.option(s.publicKey)]],
           'V1'
         ),
       ],

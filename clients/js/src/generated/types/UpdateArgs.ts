@@ -34,28 +34,28 @@ import {
 
 export type UpdateArgs = {
   __kind: 'V1';
-  new_update_authority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   data: Option<Data>;
-  primary_sale_happened: Option<boolean>;
-  is_mutable: Option<boolean>;
+  primarySaleHappened: Option<boolean>;
+  isMutable: Option<boolean>;
   collection: CollectionToggle;
-  collection_details: CollectionDetailsToggle;
+  collectionDetails: CollectionDetailsToggle;
   uses: UsesToggle;
-  rule_set: RuleSetToggle;
-  authorization_data: Option<AuthorizationData>;
+  ruleSet: RuleSetToggle;
+  authorizationData: Option<AuthorizationData>;
 };
 
 export type UpdateArgsArgs = {
   __kind: 'V1';
-  new_update_authority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   data: Option<Data>;
-  primary_sale_happened: Option<boolean>;
-  is_mutable: Option<boolean>;
+  primarySaleHappened: Option<boolean>;
+  isMutable: Option<boolean>;
   collection: CollectionToggle;
-  collection_details: CollectionDetailsToggleArgs;
+  collectionDetails: CollectionDetailsToggleArgs;
   uses: UsesToggleArgs;
-  rule_set: RuleSetToggle;
-  authorization_data: Option<AuthorizationDataArgs>;
+  ruleSet: RuleSetToggle;
+  authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getUpdateArgsSerializer(
@@ -68,19 +68,19 @@ export function getUpdateArgsSerializer(
         'V1',
         s.struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>(
           [
-            ['new_update_authority', s.option(s.publicKey)],
+            ['newUpdateAuthority', s.option(s.publicKey)],
             ['data', s.option(getDataSerializer(context))],
-            ['primary_sale_happened', s.option(s.bool())],
-            ['is_mutable', s.option(s.bool())],
+            ['primarySaleHappened', s.option(s.bool())],
+            ['isMutable', s.option(s.bool())],
             ['collection', getCollectionToggleSerializer(context)],
             [
-              'collection_details',
+              'collectionDetails',
               getCollectionDetailsToggleSerializer(context),
             ],
             ['uses', getUsesToggleSerializer(context)],
-            ['rule_set', getRuleSetToggleSerializer(context)],
+            ['ruleSet', getRuleSetToggleSerializer(context)],
             [
-              'authorization_data',
+              'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],

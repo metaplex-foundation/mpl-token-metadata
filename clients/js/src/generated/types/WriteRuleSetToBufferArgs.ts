@@ -15,7 +15,7 @@ import {
 
 export type WriteRuleSetToBufferArgs = {
   __kind: 'V1';
-  serialized_rule_set: Uint8Array;
+  serializedRuleSet: Uint8Array;
   overwrite: boolean;
 };
 
@@ -29,7 +29,7 @@ export function getWriteRuleSetToBufferArgsSerializer(
         'V1',
         s.struct<GetDataEnumKindContent<WriteRuleSetToBufferArgs, 'V1'>>(
           [
-            ['serialized_rule_set', s.bytes],
+            ['serializedRuleSet', s.bytes],
             ['overwrite', s.bool()],
           ],
           'V1'

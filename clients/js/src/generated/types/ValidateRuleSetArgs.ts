@@ -19,16 +19,16 @@ export type ValidateRuleSetArgs = {
   __kind: 'V1';
   operation: string;
   payload: Payload;
-  update_rule_state: boolean;
-  rule_set_revision: Option<bigint>;
+  updateRuleState: boolean;
+  ruleSetRevision: Option<bigint>;
 };
 
 export type ValidateRuleSetArgsArgs = {
   __kind: 'V1';
   operation: string;
   payload: PayloadArgs;
-  update_rule_state: boolean;
-  rule_set_revision: Option<number | bigint>;
+  updateRuleState: boolean;
+  ruleSetRevision: Option<number | bigint>;
 };
 
 export function getValidateRuleSetArgsSerializer(
@@ -43,8 +43,8 @@ export function getValidateRuleSetArgsSerializer(
           [
             ['operation', s.string()],
             ['payload', getPayloadSerializer(context)],
-            ['update_rule_state', s.bool()],
-            ['rule_set_revision', s.option(s.u64)],
+            ['updateRuleState', s.bool()],
+            ['ruleSetRevision', s.option(s.u64)],
           ],
           'V1'
         ),
