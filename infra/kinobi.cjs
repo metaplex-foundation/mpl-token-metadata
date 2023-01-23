@@ -4,7 +4,6 @@ const {
   RenderJavaScriptVisitor,
   SetInstructionAccountDefaultValuesVisitor,
   SetLeafWrappersVisitor,
-  DeleteNodesVisitor,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
   UpdateProgramsVisitor,
@@ -36,6 +35,10 @@ kinobi.update(
   new UpdateAccountsVisitor({
     "mplTokenAuthRules.FrequencyAccount": { name: "RuleSetFrequency" },
     "mplTokenMetadata.MasterEditionV2": { name: "MasterEdition" },
+    // Deprecated nodes.
+    "mplTokenMetadata.ReservationListV1": { delete: true },
+    "mplTokenMetadata.ReservationListV2": { delete: true },
+    "mplTokenMetadata.MasterEditionV1": { delete: true },
   })
 );
 
@@ -63,20 +66,10 @@ kinobi.update(
     },
     "mplTokenAuthRules.ValidateArgs": { name: "ValidateRuleSetArgs" },
     "mplTokenAuthRules.WriteToBufferArgs": { name: "WriteRuleSetToBufferArgs" },
+    // Duplicated types.
+    "mplTokenMetadata.Payload": { delete: true },
+    "mplTokenMetadata.PayloadType": { delete: true },
   })
-);
-
-// Remove nodes.
-kinobi.update(
-  new DeleteNodesVisitor([
-    // Duplicated from token auth rules.
-    { type: "definedType", name: "Payload", program: "mplTokenMetadata" },
-    { type: "definedType", name: "PayloadType", program: "mplTokenMetadata" },
-    // Deprecated nodes.
-    { type: "account", name: "ReservationListV1", program: "mplTokenMetadata" },
-    { type: "account", name: "ReservationListV2", program: "mplTokenMetadata" },
-    { type: "account", name: "MasterEditionV1", program: "mplTokenMetadata" },
-  ])
 );
 
 // Wrap leaves.
