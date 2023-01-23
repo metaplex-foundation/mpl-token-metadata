@@ -17,7 +17,7 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
 } from '@lorisleiva/js-core';
-import { Data, getDataSerializer } from '../types';
+import { Creator, getCreatorSerializer } from '../types';
 
 // Accounts.
 export type UpdateMetadataAccountInstructionAccounts = {
@@ -30,13 +30,25 @@ export type UpdateMetadataAccountInstructionAccounts = {
 // Arguments.
 export type UpdateMetadataAccountInstructionData = {
   discriminator: number;
-  data: Option<Data>;
+  data: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  }>;
   updateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
 };
 
 export type UpdateMetadataAccountInstructionArgs = {
-  data: Option<Data>;
+  data: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  }>;
   updateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
 };
@@ -56,7 +68,21 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
     s.struct<UpdateMetadataAccountInstructionData>(
       [
         ['discriminator', s.u8],
-        ['data', s.option(getDataSerializer(context))],
+        [
+          'data',
+          s.option(
+            s.struct<any>(
+              [
+                ['name', s.string()],
+                ['symbol', s.string()],
+                ['uri', s.string()],
+                ['sellerFeeBasisPoints', s.u16],
+                ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+              ],
+              'Data'
+            )
+          ),
+        ],
         ['updateAuthority', s.option(s.publicKey)],
         ['primarySaleHappened', s.option(s.bool())],
       ],

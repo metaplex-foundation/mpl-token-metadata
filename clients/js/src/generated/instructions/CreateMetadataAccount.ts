@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Option,
   PublicKey,
   Serializer,
   Signer,
@@ -17,7 +18,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { Data, getDataSerializer } from '../types';
+import { Creator, getCreatorSerializer } from '../types';
 
 // Accounts.
 export type CreateMetadataAccountInstructionAccounts = {
@@ -40,12 +41,20 @@ export type CreateMetadataAccountInstructionAccounts = {
 // Arguments.
 export type CreateMetadataAccountInstructionData = {
   discriminator: number;
-  data: Data;
+  name: string;
+  symbol: string;
+  uri: string;
+  sellerFeeBasisPoints: number;
+  creators: Option<Array<Creator>>;
   isMutable: boolean;
 };
 
 export type CreateMetadataAccountInstructionArgs = {
-  data: Data;
+  name: string;
+  symbol: string;
+  uri: string;
+  sellerFeeBasisPoints: number;
+  creators: Option<Array<Creator>>;
   isMutable: boolean;
 };
 
@@ -64,7 +73,11 @@ export function getCreateMetadataAccountInstructionDataSerializer(
     s.struct<CreateMetadataAccountInstructionData>(
       [
         ['discriminator', s.u8],
-        ['data', getDataSerializer(context)],
+        ['name', s.string()],
+        ['symbol', s.string()],
+        ['uri', s.string()],
+        ['sellerFeeBasisPoints', s.u16],
+        ['creators', s.option(s.vec(getCreatorSerializer(context)))],
         ['isMutable', s.bool()],
       ],
       'CreateMetadataAccountInstructionArgs'

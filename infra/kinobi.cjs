@@ -7,10 +7,8 @@ const {
   RenameNodesVisitor,
   SetInstructionBytesCreatedOnChainVisitor,
   DeleteNodesVisitor,
-  TransformNodesVisitor,
-  assertAccountNode,
-  TypeStructNode,
-  isTypeStructNode,
+  UnwrapStructVisitor,
+  UnwrapDefinedTypesVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -86,12 +84,13 @@ kinobi.update(
 );
 
 // Unwrap data attribute of Metadata account.
-// kinobi.update(new UnwrapDefinedTypesVisitor(['Data']));
-// kinobi.update(
-//   new UnwrapStructVisitor({
-//     'mplTokenMetadata.Metadata': ['Data'],
-//   })
-// );
+kinobi.update(new UnwrapDefinedTypesVisitor(["Data"]));
+kinobi.update(
+  new UnwrapStructVisitor({
+    "mplTokenMetadata.Metadata": ["data"],
+    "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
+  })
+);
 
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js", "src", "generated");

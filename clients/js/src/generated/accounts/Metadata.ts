@@ -20,7 +20,7 @@ import {
   Collection,
   CollectionDetails,
   CollectionDetailsArgs,
-  Data,
+  Creator,
   ProgrammableConfig,
   TokenMetadataKey,
   TokenStandard,
@@ -28,7 +28,7 @@ import {
   UsesArgs,
   getCollectionDetailsSerializer,
   getCollectionSerializer,
-  getDataSerializer,
+  getCreatorSerializer,
   getProgrammableConfigSerializer,
   getTokenMetadataKeySerializer,
   getTokenStandardSerializer,
@@ -41,7 +41,11 @@ export type MetadataAccountData = {
   key: TokenMetadataKey;
   updateAuthority: PublicKey;
   mint: PublicKey;
-  data: Data;
+  name: string;
+  symbol: string;
+  uri: string;
+  sellerFeeBasisPoints: number;
+  creators: Option<Array<Creator>>;
   primarySaleHappened: boolean;
   isMutable: boolean;
   editionNonce: Option<number>;
@@ -56,7 +60,11 @@ export type MetadataAccountArgs = {
   key: TokenMetadataKey;
   updateAuthority: PublicKey;
   mint: PublicKey;
-  data: Data;
+  name: string;
+  symbol: string;
+  uri: string;
+  sellerFeeBasisPoints: number;
+  creators: Option<Array<Creator>>;
   primarySaleHappened: boolean;
   isMutable: boolean;
   editionNonce: Option<number>;
@@ -105,7 +113,11 @@ export function getMetadataAccountDataSerializer(
       ['key', getTokenMetadataKeySerializer(context)],
       ['updateAuthority', s.publicKey],
       ['mint', s.publicKey],
-      ['data', getDataSerializer(context)],
+      ['name', s.string()],
+      ['symbol', s.string()],
+      ['uri', s.string()],
+      ['sellerFeeBasisPoints', s.u16],
+      ['creators', s.option(s.vec(getCreatorSerializer(context)))],
       ['primarySaleHappened', s.bool()],
       ['isMutable', s.bool()],
       ['editionNonce', s.option(s.u8)],

@@ -18,7 +18,6 @@ export * from './CreateArgs';
 export * from './CreateMasterEditionArgs';
 export * from './CreateOrUpdateRuleSetArgs';
 export * from './Creator';
-export * from './Data';
 export * from './DataV2';
 export * from './DelegateArgs';
 export * from './EscrowAuthority';

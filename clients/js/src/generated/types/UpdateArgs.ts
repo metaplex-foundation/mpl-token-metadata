@@ -20,14 +20,14 @@ import {
   CollectionDetailsToggle,
   CollectionDetailsToggleArgs,
   CollectionToggle,
-  Data,
+  Creator,
   RuleSetToggle,
   UsesToggle,
   UsesToggleArgs,
   getAuthorizationDataSerializer,
   getCollectionDetailsToggleSerializer,
   getCollectionToggleSerializer,
-  getDataSerializer,
+  getCreatorSerializer,
   getRuleSetToggleSerializer,
   getUsesToggleSerializer,
 } from '.';
@@ -35,7 +35,13 @@ import {
 export type UpdateArgs = {
   __kind: 'V1';
   newUpdateAuthority: Option<PublicKey>;
-  data: Option<Data>;
+  data: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  }>;
   primarySaleHappened: Option<boolean>;
   isMutable: Option<boolean>;
   collection: CollectionToggle;
@@ -48,7 +54,13 @@ export type UpdateArgs = {
 export type UpdateArgsArgs = {
   __kind: 'V1';
   newUpdateAuthority: Option<PublicKey>;
-  data: Option<Data>;
+  data: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  }>;
   primarySaleHappened: Option<boolean>;
   isMutable: Option<boolean>;
   collection: CollectionToggle;
@@ -69,7 +81,24 @@ export function getUpdateArgsSerializer(
         s.struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>(
           [
             ['newUpdateAuthority', s.option(s.publicKey)],
-            ['data', s.option(getDataSerializer(context))],
+            [
+              'data',
+              s.option(
+                s.struct<any>(
+                  [
+                    ['name', s.string()],
+                    ['symbol', s.string()],
+                    ['uri', s.string()],
+                    ['sellerFeeBasisPoints', s.u16],
+                    [
+                      'creators',
+                      s.option(s.vec(getCreatorSerializer(context))),
+                    ],
+                  ],
+                  'Data'
+                )
+              ),
+            ],
             ['primarySaleHappened', s.option(s.bool())],
             ['isMutable', s.option(s.bool())],
             ['collection', getCollectionToggleSerializer(context)],
