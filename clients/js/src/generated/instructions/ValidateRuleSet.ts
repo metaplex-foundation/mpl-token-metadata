@@ -23,7 +23,7 @@ import {
 } from '../types';
 
 // Accounts.
-export type ValidateInstructionAccounts = {
+export type ValidateRuleSetInstructionAccounts = {
   /** The PDA account where the RuleSet is stored */
   ruleSetPda: PublicKey;
   /** Mint of token asset */
@@ -39,37 +39,41 @@ export type ValidateInstructionAccounts = {
 };
 
 // Arguments.
-export type ValidateInstructionData = {
+export type ValidateRuleSetInstructionData = {
   discriminator: number;
   validateArgs: ValidateArgs;
 };
 
-export type ValidateInstructionArgs = { validateArgs: ValidateArgsArgs };
+export type ValidateRuleSetInstructionArgs = { validateArgs: ValidateArgsArgs };
 
-export function getValidateInstructionDataSerializer(
+export function getValidateRuleSetInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<ValidateInstructionArgs, ValidateInstructionData> {
+): Serializer<ValidateRuleSetInstructionArgs, ValidateRuleSetInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    ValidateInstructionArgs,
-    ValidateInstructionData,
-    ValidateInstructionData
+    ValidateRuleSetInstructionArgs,
+    ValidateRuleSetInstructionData,
+    ValidateRuleSetInstructionData
   >(
-    s.struct<ValidateInstructionData>(
+    s.struct<ValidateRuleSetInstructionData>(
       [
         ['discriminator', s.u8],
         ['validateArgs', getValidateArgsSerializer(context)],
       ],
-      'ValidateInstructionArgs'
+      'ValidateRuleSetInstructionArgs'
     ),
-    (value) => ({ discriminator: 1, ...value } as ValidateInstructionData)
-  ) as Serializer<ValidateInstructionArgs, ValidateInstructionData>;
+    (value) =>
+      ({ discriminator: 1, ...value } as ValidateRuleSetInstructionData)
+  ) as Serializer<
+    ValidateRuleSetInstructionArgs,
+    ValidateRuleSetInstructionData
+  >;
 }
 
 // Instruction.
-export function validate(
+export function validateRuleSet(
   context: Pick<Context, 'serializer' | 'programs'>,
-  input: ValidateInstructionAccounts & ValidateInstructionArgs
+  input: ValidateRuleSetInstructionAccounts & ValidateRuleSetInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -140,7 +144,8 @@ export function validate(
   }
 
   // Data.
-  const data = getValidateInstructionDataSerializer(context).serialize(input);
+  const data =
+    getValidateRuleSetInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

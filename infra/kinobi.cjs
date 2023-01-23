@@ -25,6 +25,14 @@ kinobi.update(
     mplTokenAuthRules: {
       prefix: "Ta",
       types: { Key: "TokenAuthRulesKey" },
+      accounts: {
+        FrequencyAccount: "RuleSetFrequency",
+      },
+      instructions: {
+        CreateOrUpdate: "CreateOrUpdateRuleSet",
+        Validate: "ValidateRuleSet",
+        WriteToBuffer: "WriteRuleSetToBuffer",
+      },
     },
     mplTokenMetadata: {
       prefix: "Tm",

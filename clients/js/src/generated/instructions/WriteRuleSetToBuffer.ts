@@ -16,54 +16,60 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
 } from '@lorisleiva/js-core';
-import { CreateOrUpdateArgs, getCreateOrUpdateArgsSerializer } from '../types';
+import { WriteToBufferArgs, getWriteToBufferArgsSerializer } from '../types';
 
 // Accounts.
-export type CreateOrUpdateInstructionAccounts = {
+export type WriteRuleSetToBufferInstructionAccounts = {
   /** Payer and creator of the RuleSet */
   payer?: Signer;
-  /** The PDA account where the RuleSet is stored */
-  ruleSetPda: PublicKey;
+  /** The PDA account where the RuleSet buffer is stored */
+  bufferPda: PublicKey;
   /** System program */
   systemProgram?: PublicKey;
-  /** The buffer to copy a complete ruleset from */
-  bufferPda?: PublicKey;
 };
 
 // Arguments.
-export type CreateOrUpdateInstructionData = {
+export type WriteRuleSetToBufferInstructionData = {
   discriminator: number;
-  createOrUpdateArgs: CreateOrUpdateArgs;
+  writeToBufferArgs: WriteToBufferArgs;
 };
 
-export type CreateOrUpdateInstructionArgs = {
-  createOrUpdateArgs: CreateOrUpdateArgs;
+export type WriteRuleSetToBufferInstructionArgs = {
+  writeToBufferArgs: WriteToBufferArgs;
 };
 
-export function getCreateOrUpdateInstructionDataSerializer(
+export function getWriteRuleSetToBufferInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CreateOrUpdateInstructionArgs, CreateOrUpdateInstructionData> {
+): Serializer<
+  WriteRuleSetToBufferInstructionArgs,
+  WriteRuleSetToBufferInstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    CreateOrUpdateInstructionArgs,
-    CreateOrUpdateInstructionData,
-    CreateOrUpdateInstructionData
+    WriteRuleSetToBufferInstructionArgs,
+    WriteRuleSetToBufferInstructionData,
+    WriteRuleSetToBufferInstructionData
   >(
-    s.struct<CreateOrUpdateInstructionData>(
+    s.struct<WriteRuleSetToBufferInstructionData>(
       [
         ['discriminator', s.u8],
-        ['createOrUpdateArgs', getCreateOrUpdateArgsSerializer(context)],
+        ['writeToBufferArgs', getWriteToBufferArgsSerializer(context)],
       ],
-      'CreateOrUpdateInstructionArgs'
+      'WriteRuleSetToBufferInstructionArgs'
     ),
-    (value) => ({ discriminator: 0, ...value } as CreateOrUpdateInstructionData)
-  ) as Serializer<CreateOrUpdateInstructionArgs, CreateOrUpdateInstructionData>;
+    (value) =>
+      ({ discriminator: 2, ...value } as WriteRuleSetToBufferInstructionData)
+  ) as Serializer<
+    WriteRuleSetToBufferInstructionArgs,
+    WriteRuleSetToBufferInstructionData
+  >;
 }
 
 // Instruction.
-export function createOrUpdate(
+export function writeRuleSetToBuffer(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
-  input: CreateOrUpdateInstructionAccounts & CreateOrUpdateInstructionArgs
+  input: WriteRuleSetToBufferInstructionAccounts &
+    WriteRuleSetToBufferInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -74,12 +80,11 @@ export function createOrUpdate(
 
   // Resolved accounts.
   const payerAccount = input.payer ?? context.payer;
-  const ruleSetPdaAccount = input.ruleSetPda;
+  const bufferPdaAccount = input.bufferPda;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,
   };
-  const bufferPdaAccount = input.bufferPda;
 
   // Payer.
   signers.push(payerAccount);
@@ -89,11 +94,11 @@ export function createOrUpdate(
     isWritable: isWritable(payerAccount, true),
   });
 
-  // Rule Set Pda.
+  // Buffer Pda.
   keys.push({
-    pubkey: ruleSetPdaAccount,
+    pubkey: bufferPdaAccount,
     isSigner: false,
-    isWritable: isWritable(ruleSetPdaAccount, true),
+    isWritable: isWritable(bufferPdaAccount, true),
   });
 
   // System Program.
@@ -103,18 +108,9 @@ export function createOrUpdate(
     isWritable: isWritable(systemProgramAccount, false),
   });
 
-  // Buffer Pda (optional).
-  if (bufferPdaAccount) {
-    keys.push({
-      pubkey: bufferPdaAccount,
-      isSigner: false,
-      isWritable: isWritable(bufferPdaAccount, false),
-    });
-  }
-
   // Data.
   const data =
-    getCreateOrUpdateInstructionDataSerializer(context).serialize(input);
+    getWriteRuleSetToBufferInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

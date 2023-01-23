@@ -17,63 +17,63 @@ import {
 } from '@lorisleiva/js-core';
 import { TokenAuthRulesKey, getTokenAuthRulesKeySerializer } from '../types';
 
-export type FrequencyAccount = Account<FrequencyAccountAccountData>;
+export type RuleSetFrequency = Account<RuleSetFrequencyAccountData>;
 
-export type FrequencyAccountAccountData = {
+export type RuleSetFrequencyAccountData = {
   key: TokenAuthRulesKey;
   lastUpdate: bigint;
   period: bigint;
 };
 
-export type FrequencyAccountAccountArgs = {
+export type RuleSetFrequencyAccountArgs = {
   key: TokenAuthRulesKey;
   lastUpdate: number | bigint;
   period: number | bigint;
 };
 
-export async function fetchFrequencyAccount(
+export async function fetchRuleSetFrequency(
   context: Pick<Context, 'rpc' | 'serializer'>,
   publicKey: PublicKey
-): Promise<FrequencyAccount> {
+): Promise<RuleSetFrequency> {
   const maybeAccount = await context.rpc.getAccount(publicKey);
-  assertAccountExists(maybeAccount, 'FrequencyAccount');
-  return deserializeFrequencyAccount(context, maybeAccount);
+  assertAccountExists(maybeAccount, 'RuleSetFrequency');
+  return deserializeRuleSetFrequency(context, maybeAccount);
 }
 
-export async function safeFetchFrequencyAccount(
+export async function safeFetchRuleSetFrequency(
   context: Pick<Context, 'rpc' | 'serializer'>,
   publicKey: PublicKey
-): Promise<FrequencyAccount | null> {
+): Promise<RuleSetFrequency | null> {
   const maybeAccount = await context.rpc.getAccount(publicKey);
   return maybeAccount.exists
-    ? deserializeFrequencyAccount(context, maybeAccount)
+    ? deserializeRuleSetFrequency(context, maybeAccount)
     : null;
 }
 
-export function deserializeFrequencyAccount(
+export function deserializeRuleSetFrequency(
   context: Pick<Context, 'serializer'>,
   rawAccount: RpcAccount
-): FrequencyAccount {
+): RuleSetFrequency {
   return deserializeAccount(
     rawAccount,
-    getFrequencyAccountAccountDataSerializer(context)
+    getRuleSetFrequencyAccountDataSerializer(context)
   );
 }
 
-export function getFrequencyAccountAccountDataSerializer(
+export function getRuleSetFrequencyAccountDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<FrequencyAccountAccountArgs, FrequencyAccountAccountData> {
+): Serializer<RuleSetFrequencyAccountArgs, RuleSetFrequencyAccountData> {
   const s = context.serializer;
-  return s.struct<FrequencyAccountAccountData>(
+  return s.struct<RuleSetFrequencyAccountData>(
     [
       ['key', getTokenAuthRulesKeySerializer(context)],
       ['lastUpdate', s.i64],
       ['period', s.i64],
     ],
-    'FrequencyAccount'
-  ) as Serializer<FrequencyAccountAccountArgs, FrequencyAccountAccountData>;
+    'RuleSetFrequency'
+  ) as Serializer<RuleSetFrequencyAccountArgs, RuleSetFrequencyAccountData>;
 }
 
-export function getFrequencyAccountSize(_context = {}): number {
+export function getRuleSetFrequencySize(_context = {}): number {
   return 17;
 }
