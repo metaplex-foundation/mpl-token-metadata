@@ -4,14 +4,16 @@ const {
   RenderJavaScriptVisitor,
   SetInstructionAccountDefaultValuesVisitor,
   SetLeafWrappersVisitor,
-  RenameNodesVisitor,
-  SetInstructionBytesCreatedOnChainVisitor,
   DeleteNodesVisitor,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
   TransformNodesVisitor,
   assertInstructionNode,
   InstructionNode,
+  UpdateProgramsVisitor,
+  UpdateAccountsVisitor,
+  UpdateDefinedTypesVisitor,
+  UpdateInstructionsVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -24,31 +26,41 @@ const kinobi = new Kinobi([
   path.join(idlDir, "mpl_token_metadata.json"),
 ]);
 
-// Rename nodes.
+// Update Programs.
 kinobi.update(
-  new RenameNodesVisitor({
-    mplTokenAuthRules: {
-      prefix: "Ta",
-      accounts: {
-        FrequencyAccount: "RuleSetFrequency",
-      },
-      instructions: {
-        CreateOrUpdate: "CreateOrUpdateRuleSet",
-        Validate: "ValidateRuleSet",
-        WriteToBuffer: "WriteRuleSetToBuffer",
-      },
-      types: {
-        Key: "TokenAuthRulesKey",
-        CreateOrUpdateArgs: "CreateOrUpdateRuleSetArgs",
-        ValidateArgs: "ValidateRuleSetArgs",
-        WriteToBufferArgs: "WriteRuleSetToBufferArgs",
-      },
+  new UpdateProgramsVisitor({
+    mplTokenAuthRules: { prefix: "Ta" },
+    mplTokenMetadata: { prefix: "Tm" },
+  })
+);
+
+// Update Accounts.
+kinobi.update(
+  new UpdateAccountsVisitor({
+    "mplTokenAuthRules.FrequencyAccount": { name: "RuleSetFrequency" },
+    "mplTokenAuthRules.MasterEditionV2": { name: "MasterEdition" },
+  })
+);
+
+// Update Instructions.
+kinobi.update(
+  new UpdateInstructionsVisitor({
+    "mplTokenAuthRules.CreateOrUpdate": { name: "CreateOrUpdateRuleSet" },
+    "mplTokenAuthRules.Validate": { name: "ValidateRuleSet" },
+    "mplTokenAuthRules.WriteToBuffer": { name: "WriteRuleSetToBuffer" },
+  })
+);
+
+// Update Types.
+kinobi.update(
+  new UpdateDefinedTypesVisitor({
+    "mplTokenMetadata.Key": { name: "TokenMetadataKey" },
+    "mplTokenAuthRules.Key": { name: "TokenAuthRulesKey" },
+    "mplTokenAuthRules.CreateOrUpdateArgs": {
+      name: "CreateOrUpdateRuleSetArgs",
     },
-    mplTokenMetadata: {
-      prefix: "Tm",
-      types: { Key: "TokenMetadataKey" },
-      accounts: { MasterEditionV2: "MasterEdition" },
-    },
+    "mplTokenAuthRules.ValidateArgs": { name: "ValidateRuleSetArgs" },
+    "mplTokenAuthRules.WriteToBufferArgs": { name: "WriteRuleSetToBufferArgs" },
   })
 );
 
@@ -77,13 +89,6 @@ kinobi.update(
   new SetInstructionAccountDefaultValuesVisitor([
     // { instruction: "TransferSol", account: "source", kind: "identity" },
   ])
-);
-
-// Set instruction bytes created on chain.
-kinobi.update(
-  new SetInstructionBytesCreatedOnChainVisitor({
-    // CreateAccount: { kind: "arg", name: "space" },
-  })
 );
 
 // Unwrap data attribute of Metadata account.
