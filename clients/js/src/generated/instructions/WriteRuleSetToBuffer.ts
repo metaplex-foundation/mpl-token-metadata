@@ -16,7 +16,10 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
 } from '@lorisleiva/js-core';
-import { WriteToBufferArgs, getWriteToBufferArgsSerializer } from '../types';
+import {
+  WriteRuleSetToBufferArgs,
+  getWriteRuleSetToBufferArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type WriteRuleSetToBufferInstructionAccounts = {
@@ -31,11 +34,11 @@ export type WriteRuleSetToBufferInstructionAccounts = {
 // Arguments.
 export type WriteRuleSetToBufferInstructionData = {
   discriminator: number;
-  writeToBufferArgs: WriteToBufferArgs;
+  writeToBufferArgs: WriteRuleSetToBufferArgs;
 };
 
 export type WriteRuleSetToBufferInstructionArgs = {
-  writeToBufferArgs: WriteToBufferArgs;
+  writeToBufferArgs: WriteRuleSetToBufferArgs;
 };
 
 export function getWriteRuleSetToBufferInstructionDataSerializer(
@@ -53,7 +56,7 @@ export function getWriteRuleSetToBufferInstructionDataSerializer(
     s.struct<WriteRuleSetToBufferInstructionData>(
       [
         ['discriminator', s.u8],
-        ['writeToBufferArgs', getWriteToBufferArgsSerializer(context)],
+        ['writeToBufferArgs', getWriteRuleSetToBufferArgsSerializer(context)],
       ],
       'WriteRuleSetToBufferInstructionArgs'
     ),

@@ -24,7 +24,6 @@ kinobi.update(
   new RenameNodesVisitor({
     mplTokenAuthRules: {
       prefix: "Ta",
-      types: { Key: "TokenAuthRulesKey" },
       accounts: {
         FrequencyAccount: "RuleSetFrequency",
       },
@@ -32,6 +31,12 @@ kinobi.update(
         CreateOrUpdate: "CreateOrUpdateRuleSet",
         Validate: "ValidateRuleSet",
         WriteToBuffer: "WriteRuleSetToBuffer",
+      },
+      types: {
+        Key: "TokenAuthRulesKey",
+        CreateOrUpdateArgs: "CreateOrUpdateRuleSetArgs",
+        ValidateArgs: "ValidateRuleSetArgs",
+        WriteToBufferArgs: "WriteRuleSetToBufferArgs",
       },
     },
     mplTokenMetadata: {

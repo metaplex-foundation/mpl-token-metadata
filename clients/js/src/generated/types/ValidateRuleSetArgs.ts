@@ -15,7 +15,7 @@ import {
 } from '@lorisleiva/js-core';
 import { Payload, PayloadArgs, getPayloadSerializer } from '.';
 
-export type ValidateArgs = {
+export type ValidateRuleSetArgs = {
   __kind: 'V1';
   operation: string;
   payload: Payload;
@@ -23,7 +23,7 @@ export type ValidateArgs = {
   rule_set_revision: Option<bigint>;
 };
 
-export type ValidateArgsArgs = {
+export type ValidateRuleSetArgsArgs = {
   __kind: 'V1';
   operation: string;
   payload: PayloadArgs;
@@ -31,15 +31,15 @@ export type ValidateArgsArgs = {
   rule_set_revision: Option<number | bigint>;
 };
 
-export function getValidateArgsSerializer(
+export function getValidateRuleSetArgsSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<ValidateArgsArgs, ValidateArgs> {
+): Serializer<ValidateRuleSetArgsArgs, ValidateRuleSetArgs> {
   const s = context.serializer;
-  return s.dataEnum<ValidateArgs>(
+  return s.dataEnum<ValidateRuleSetArgs>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<ValidateArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<ValidateRuleSetArgs, 'V1'>>(
           [
             ['operation', s.string()],
             ['payload', getPayloadSerializer(context)],
@@ -52,25 +52,25 @@ export function getValidateArgsSerializer(
     ],
     undefined,
     'ValidateArgs'
-  ) as Serializer<ValidateArgsArgs, ValidateArgs>;
+  ) as Serializer<ValidateRuleSetArgsArgs, ValidateRuleSetArgs>;
 }
 
 // Data Enum Helpers.
-export function validateArgs(
+export function validateRuleSetArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<ValidateArgs, 'V1'>
-): GetDataEnumKind<ValidateArgs, 'V1'>;
-export function validateArgs<K extends ValidateArgs['__kind']>(
+  data: GetDataEnumKindContent<ValidateRuleSetArgs, 'V1'>
+): GetDataEnumKind<ValidateRuleSetArgs, 'V1'>;
+export function validateRuleSetArgs<K extends ValidateRuleSetArgs['__kind']>(
   kind: K,
   data?: any
-): ValidateArgs & { __kind: K } {
+): ValidateRuleSetArgs & { __kind: K } {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };
 }
-export function isValidateArgs<K extends ValidateArgs['__kind']>(
+export function isValidateRuleSetArgs<K extends ValidateRuleSetArgs['__kind']>(
   kind: K,
-  value: ValidateArgs
-): value is ValidateArgs & { __kind: K } {
+  value: ValidateRuleSetArgs
+): value is ValidateRuleSetArgs & { __kind: K } {
   return value.__kind === kind;
 }

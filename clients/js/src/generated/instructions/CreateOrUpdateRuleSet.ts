@@ -16,7 +16,10 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
 } from '@lorisleiva/js-core';
-import { CreateOrUpdateArgs, getCreateOrUpdateArgsSerializer } from '../types';
+import {
+  CreateOrUpdateRuleSetArgs,
+  getCreateOrUpdateRuleSetArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type CreateOrUpdateRuleSetInstructionAccounts = {
@@ -33,11 +36,11 @@ export type CreateOrUpdateRuleSetInstructionAccounts = {
 // Arguments.
 export type CreateOrUpdateRuleSetInstructionData = {
   discriminator: number;
-  createOrUpdateArgs: CreateOrUpdateArgs;
+  createOrUpdateArgs: CreateOrUpdateRuleSetArgs;
 };
 
 export type CreateOrUpdateRuleSetInstructionArgs = {
-  createOrUpdateArgs: CreateOrUpdateArgs;
+  createOrUpdateArgs: CreateOrUpdateRuleSetArgs;
 };
 
 export function getCreateOrUpdateRuleSetInstructionDataSerializer(
@@ -55,7 +58,7 @@ export function getCreateOrUpdateRuleSetInstructionDataSerializer(
     s.struct<CreateOrUpdateRuleSetInstructionData>(
       [
         ['discriminator', s.u8],
-        ['createOrUpdateArgs', getCreateOrUpdateArgsSerializer(context)],
+        ['createOrUpdateArgs', getCreateOrUpdateRuleSetArgsSerializer(context)],
       ],
       'CreateOrUpdateRuleSetInstructionArgs'
     ),

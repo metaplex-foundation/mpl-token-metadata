@@ -17,9 +17,9 @@ import {
   mapSerializer,
 } from '@lorisleiva/js-core';
 import {
-  ValidateArgs,
-  ValidateArgsArgs,
-  getValidateArgsSerializer,
+  ValidateRuleSetArgs,
+  ValidateRuleSetArgsArgs,
+  getValidateRuleSetArgsSerializer,
 } from '../types';
 
 // Accounts.
@@ -41,10 +41,12 @@ export type ValidateRuleSetInstructionAccounts = {
 // Arguments.
 export type ValidateRuleSetInstructionData = {
   discriminator: number;
-  validateArgs: ValidateArgs;
+  validateArgs: ValidateRuleSetArgs;
 };
 
-export type ValidateRuleSetInstructionArgs = { validateArgs: ValidateArgsArgs };
+export type ValidateRuleSetInstructionArgs = {
+  validateArgs: ValidateRuleSetArgsArgs;
+};
 
 export function getValidateRuleSetInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
@@ -58,7 +60,7 @@ export function getValidateRuleSetInstructionDataSerializer(
     s.struct<ValidateRuleSetInstructionData>(
       [
         ['discriminator', s.u8],
-        ['validateArgs', getValidateArgsSerializer(context)],
+        ['validateArgs', getValidateRuleSetArgsSerializer(context)],
       ],
       'ValidateRuleSetInstructionArgs'
     ),

@@ -13,21 +13,21 @@ import {
   Serializer,
 } from '@lorisleiva/js-core';
 
-export type WriteToBufferArgs = {
+export type WriteRuleSetToBufferArgs = {
   __kind: 'V1';
   serialized_rule_set: Uint8Array;
   overwrite: boolean;
 };
 
-export function getWriteToBufferArgsSerializer(
+export function getWriteRuleSetToBufferArgsSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<WriteToBufferArgs> {
+): Serializer<WriteRuleSetToBufferArgs> {
   const s = context.serializer;
-  return s.dataEnum<WriteToBufferArgs>(
+  return s.dataEnum<WriteRuleSetToBufferArgs>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<WriteToBufferArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<WriteRuleSetToBufferArgs, 'V1'>>(
           [
             ['serialized_rule_set', s.bytes],
             ['overwrite', s.bool()],
@@ -42,21 +42,22 @@ export function getWriteToBufferArgsSerializer(
 }
 
 // Data Enum Helpers.
-export function writeToBufferArgs(
+export function writeRuleSetToBufferArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<WriteToBufferArgs, 'V1'>
-): GetDataEnumKind<WriteToBufferArgs, 'V1'>;
-export function writeToBufferArgs<K extends WriteToBufferArgs['__kind']>(
-  kind: K,
-  data?: any
-): WriteToBufferArgs & { __kind: K } {
+  data: GetDataEnumKindContent<WriteRuleSetToBufferArgs, 'V1'>
+): GetDataEnumKind<WriteRuleSetToBufferArgs, 'V1'>;
+export function writeRuleSetToBufferArgs<
+  K extends WriteRuleSetToBufferArgs['__kind']
+>(kind: K, data?: any): WriteRuleSetToBufferArgs & { __kind: K } {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };
 }
-export function isWriteToBufferArgs<K extends WriteToBufferArgs['__kind']>(
+export function isWriteRuleSetToBufferArgs<
+  K extends WriteRuleSetToBufferArgs['__kind']
+>(
   kind: K,
-  value: WriteToBufferArgs
-): value is WriteToBufferArgs & { __kind: K } {
+  value: WriteRuleSetToBufferArgs
+): value is WriteRuleSetToBufferArgs & { __kind: K } {
   return value.__kind === kind;
 }

@@ -13,20 +13,20 @@ import {
   Serializer,
 } from '@lorisleiva/js-core';
 
-export type CreateOrUpdateArgs = {
+export type CreateOrUpdateRuleSetArgs = {
   __kind: 'V1';
   serialized_rule_set: Uint8Array;
 };
 
-export function getCreateOrUpdateArgsSerializer(
+export function getCreateOrUpdateRuleSetArgsSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CreateOrUpdateArgs> {
+): Serializer<CreateOrUpdateRuleSetArgs> {
   const s = context.serializer;
-  return s.dataEnum<CreateOrUpdateArgs>(
+  return s.dataEnum<CreateOrUpdateRuleSetArgs>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<CreateOrUpdateArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<CreateOrUpdateRuleSetArgs, 'V1'>>(
           [['serialized_rule_set', s.bytes]],
           'V1'
         ),
@@ -38,21 +38,22 @@ export function getCreateOrUpdateArgsSerializer(
 }
 
 // Data Enum Helpers.
-export function createOrUpdateArgs(
+export function createOrUpdateRuleSetArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<CreateOrUpdateArgs, 'V1'>
-): GetDataEnumKind<CreateOrUpdateArgs, 'V1'>;
-export function createOrUpdateArgs<K extends CreateOrUpdateArgs['__kind']>(
-  kind: K,
-  data?: any
-): CreateOrUpdateArgs & { __kind: K } {
+  data: GetDataEnumKindContent<CreateOrUpdateRuleSetArgs, 'V1'>
+): GetDataEnumKind<CreateOrUpdateRuleSetArgs, 'V1'>;
+export function createOrUpdateRuleSetArgs<
+  K extends CreateOrUpdateRuleSetArgs['__kind']
+>(kind: K, data?: any): CreateOrUpdateRuleSetArgs & { __kind: K } {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };
 }
-export function isCreateOrUpdateArgs<K extends CreateOrUpdateArgs['__kind']>(
+export function isCreateOrUpdateRuleSetArgs<
+  K extends CreateOrUpdateRuleSetArgs['__kind']
+>(
   kind: K,
-  value: CreateOrUpdateArgs
-): value is CreateOrUpdateArgs & { __kind: K } {
+  value: CreateOrUpdateRuleSetArgs
+): value is CreateOrUpdateRuleSetArgs & { __kind: K } {
   return value.__kind === kind;
 }
