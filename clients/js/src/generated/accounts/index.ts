@@ -6,13 +6,13 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-export * from './CollectionAuthorityRecord';
-export * from './Edition';
-export * from './EditionMarker';
-export * from './MasterEdition';
-export * from './Metadata';
-export * from './MetadataDelegateRecord';
-export * from './RuleSetFrequency';
-export * from './TokenOwnedEscrow';
-export * from './TokenRecord';
-export * from './UseAuthorityRecord';
+export * from './collectionAuthorityRecord';
+export * from './edition';
+export * from './editionMarker';
+export * from './masterEdition';
+export * from './metadata';
+export * from './metadataDelegateRecord';
+export * from './ruleSetFrequency';
+export * from './tokenOwnedEscrow';
+export * from './tokenRecord';
+export * from './useAuthorityRecord';

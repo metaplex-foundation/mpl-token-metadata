@@ -38,7 +38,7 @@ kinobi.update(
 kinobi.update(
   new UpdateAccountsVisitor({
     "mplTokenAuthRules.FrequencyAccount": { name: "RuleSetFrequency" },
-    "mplTokenAuthRules.MasterEditionV2": { name: "MasterEdition" },
+    "mplTokenMetadata.MasterEditionV2": { name: "MasterEdition" },
   })
 );
 

@@ -51,7 +51,7 @@ export function getValidateRuleSetArgsSerializer(
       ],
     ],
     undefined,
-    'ValidateArgs'
+    'ValidateRuleSetArgs'
   ) as Serializer<ValidateRuleSetArgsArgs, ValidateRuleSetArgs>;
 }
 

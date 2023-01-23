@@ -33,7 +33,7 @@ export function getCreateOrUpdateRuleSetArgsSerializer(
       ],
     ],
     undefined,
-    'CreateOrUpdateArgs'
+    'CreateOrUpdateRuleSetArgs'
   );
 }
 

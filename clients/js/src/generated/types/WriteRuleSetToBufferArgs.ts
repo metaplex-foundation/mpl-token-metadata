@@ -37,7 +37,7 @@ export function getWriteRuleSetToBufferArgsSerializer(
       ],
     ],
     undefined,
-    'WriteToBufferArgs'
+    'WriteRuleSetToBufferArgs'
   );
 }
 
