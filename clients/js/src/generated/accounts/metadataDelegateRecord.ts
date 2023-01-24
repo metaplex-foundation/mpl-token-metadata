@@ -9,13 +9,20 @@
 import {
   Account,
   Context,
+  Pda,
   PublicKey,
   RpcAccount,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  utf8,
 } from '@lorisleiva/js-core';
-import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
+import {
+  MetadataDelegateRole,
+  TokenMetadataKey,
+  getMetadataDelegateRoleSerializer,
+  getTokenMetadataKeySerializer,
+} from '../types';
 
 export type MetadataDelegateRecord = Account<MetadataDelegateRecordAccountData>;
 
@@ -74,4 +81,30 @@ export function getMetadataDelegateRecordAccountDataSerializer(
 
 export function getMetadataDelegateRecordSize(_context = {}): number {
   return 98;
+}
+
+export function findMetadataDelegateRecordPda(
+  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  seeds: {
+    /** The address of the mint account */
+    mint: PublicKey;
+    /** The role of the metadata delegate */
+    delegateRole: MetadataDelegateRole;
+    /** The address of the metadata's update authority */
+    updateAuthority: PublicKey;
+    /** The address of delegate authority */
+    delegate: PublicKey;
+  }
+): Pda {
+  const s = context.serializer;
+  const programId: PublicKey =
+    context.programs.get('mplTokenMetadata').publicKey;
+  return context.eddsa.findPda(programId, [
+    utf8.serialize('metadata'),
+    programId.bytes,
+    s.publicKey.serialize(seeds.mint),
+    getMetadataDelegateRoleSerializer(context).serialize(seeds.delegateRole),
+    s.publicKey.serialize(seeds.updateAuthority),
+    s.publicKey.serialize(seeds.delegate),
+  ]);
 }

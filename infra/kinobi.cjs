@@ -11,6 +11,7 @@ const {
   UpdateDefinedTypesVisitor,
   UpdateInstructionsVisitor,
   TypeLeafNode,
+  TypeDefinedLinkNode,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -50,6 +51,41 @@ kinobi.update(
     masterEditionV2: {
       name: "masterEdition",
       seeds: [...metadataSeeds, { kind: "literal", value: "edition" }],
+    },
+    tokenRecord: {
+      seeds: [
+        ...metadataSeeds,
+        { kind: "literal", value: "token_record" },
+        {
+          kind: "variable",
+          name: "token",
+          description: "The address of the token account (ata or not)",
+          type: new TypeLeafNode("publicKey"),
+        },
+      ],
+    },
+    metadataDelegateRecord: {
+      seeds: [
+        ...metadataSeeds,
+        {
+          kind: "variable",
+          name: "delegateRole",
+          description: "The role of the metadata delegate",
+          type: new TypeDefinedLinkNode("metadataDelegateRole"),
+        },
+        {
+          kind: "variable",
+          name: "updateAuthority",
+          description: "The address of the metadata's update authority",
+          type: new TypeLeafNode("publicKey"),
+        },
+        {
+          kind: "variable",
+          name: "delegate",
+          description: "The address of delegate authority",
+          type: new TypeLeafNode("publicKey"),
+        },
+      ],
     },
     collectionAuthorityRecord: {
       seeds: [
