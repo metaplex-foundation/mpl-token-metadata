@@ -37,7 +37,7 @@ export type UpdateMetadataAccountInstructionData = {
     sellerFeeBasisPoints: number;
     creators: Option<Array<Creator>>;
   }>;
-  updateAuthority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
 };
 
@@ -49,7 +49,7 @@ export type UpdateMetadataAccountInstructionArgs = {
     sellerFeeBasisPoints: number;
     creators: Option<Array<Creator>>;
   }>;
-  updateAuthority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
 };
 
@@ -83,7 +83,7 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
             )
           ),
         ],
-        ['updateAuthority', s.option(s.publicKey)],
+        ['newUpdateAuthority', s.option(s.publicKey)],
         ['primarySaleHappened', s.option(s.bool())],
       ],
       'UpdateMetadataAccountInstructionArgs'
@@ -99,8 +99,8 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
 // Instruction.
 export function updateMetadataAccount(
   context: Pick<Context, 'serializer' | 'programs'>,
-  accounts: UpdateMetadataAccountInstructionAccounts,
-  args: UpdateMetadataAccountInstructionArgs
+  input: UpdateMetadataAccountInstructionAccounts &
+    UpdateMetadataAccountInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -110,8 +110,8 @@ export function updateMetadataAccount(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = accounts.metadata;
-  const updateAuthorityAccount = accounts.updateAuthority;
+  const metadataAccount = input.metadata;
+  const updateAuthorityAccount = input.updateAuthority;
 
   // Metadata.
   keys.push({
@@ -130,7 +130,7 @@ export function updateMetadataAccount(
 
   // Data.
   const data =
-    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(args);
+    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

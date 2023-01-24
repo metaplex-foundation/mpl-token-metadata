@@ -79,6 +79,12 @@ kinobi.update(
         mint: { isOptionalSigner: true },
       },
     },
+    updateMetadataAccount: {
+      args: { updateAuthority: "newUpdateAuthority" },
+    },
+    updateMetadataAccountV2: {
+      args: { updateAuthority: "newUpdateAuthority" },
+    },
   })
 );
 

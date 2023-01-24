@@ -31,14 +31,14 @@ export type UpdateMetadataAccountV2InstructionAccounts = {
 export type UpdateMetadataAccountV2InstructionData = {
   discriminator: number;
   data: Option<DataV2>;
-  updateAuthority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
   isMutable: Option<boolean>;
 };
 
 export type UpdateMetadataAccountV2InstructionArgs = {
   data: Option<DataV2Args>;
-  updateAuthority: Option<PublicKey>;
+  newUpdateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
   isMutable: Option<boolean>;
 };
@@ -59,7 +59,7 @@ export function getUpdateMetadataAccountV2InstructionDataSerializer(
       [
         ['discriminator', s.u8],
         ['data', s.option(getDataV2Serializer(context))],
-        ['updateAuthority', s.option(s.publicKey)],
+        ['newUpdateAuthority', s.option(s.publicKey)],
         ['primarySaleHappened', s.option(s.bool())],
         ['isMutable', s.option(s.bool())],
       ],
@@ -79,8 +79,8 @@ export function getUpdateMetadataAccountV2InstructionDataSerializer(
 // Instruction.
 export function updateMetadataAccountV2(
   context: Pick<Context, 'serializer' | 'programs'>,
-  accounts: UpdateMetadataAccountV2InstructionAccounts,
-  args: UpdateMetadataAccountV2InstructionArgs
+  input: UpdateMetadataAccountV2InstructionAccounts &
+    UpdateMetadataAccountV2InstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -90,8 +90,8 @@ export function updateMetadataAccountV2(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = accounts.metadata;
-  const updateAuthorityAccount = accounts.updateAuthority;
+  const metadataAccount = input.metadata;
+  const updateAuthorityAccount = input.updateAuthority;
 
   // Metadata.
   keys.push({
@@ -111,7 +111,7 @@ export function updateMetadataAccountV2(
   // Data.
   const data =
     getUpdateMetadataAccountV2InstructionDataSerializer(context).serialize(
-      args
+      input
     );
 
   // Bytes Created On Chain.
