@@ -177,12 +177,13 @@ kinobi.update(
   ])
 );
 
-// Unwrap data attribute of Metadata account.
-kinobi.update(new UnwrapDefinedTypesVisitor(["Data"]));
+// Unwrap types and structs.
+kinobi.update(new UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(
   new UnwrapStructVisitor({
     "mplTokenMetadata.Metadata": ["data"],
     "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
+    "mplTokenMetadata.CreateArgs.V1": ["assetData"],
   })
 );
 

@@ -6,7 +6,6 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-export * from './assetData';
 export * from './authorityType';
 export * from './authorizationData';
 export * from './burnArgs';
