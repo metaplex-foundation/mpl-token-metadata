@@ -32,6 +32,7 @@ export * from './mintPrintingTokensViaTokenArgs';
 export * from './payload';
 export * from './payloadKey';
 export * from './payloadType';
+export * from './printSupply';
 export * from './programmableConfig';
 export * from './proofInfo';
 export * from './reservation';

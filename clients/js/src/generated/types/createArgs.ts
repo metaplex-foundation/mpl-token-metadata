@@ -13,20 +13,27 @@ import {
   Option,
   Serializer,
 } from '@lorisleiva/js-core';
-import { AssetData, AssetDataArgs, getAssetDataSerializer } from '.';
+import {
+  AssetData,
+  AssetDataArgs,
+  PrintSupply,
+  PrintSupplyArgs,
+  getAssetDataSerializer,
+  getPrintSupplySerializer,
+} from '.';
 
 export type CreateArgs = {
   __kind: 'V1';
   assetData: AssetData;
   decimals: Option<number>;
-  maxSupply: Option<bigint>;
+  printSupply: Option<PrintSupply>;
 };
 
 export type CreateArgsArgs = {
   __kind: 'V1';
   assetData: AssetDataArgs;
   decimals: Option<number>;
-  maxSupply: Option<number | bigint>;
+  printSupply: Option<PrintSupplyArgs>;
 };
 
 export function getCreateArgsSerializer(
@@ -41,7 +48,7 @@ export function getCreateArgsSerializer(
           [
             ['assetData', getAssetDataSerializer(context)],
             ['decimals', s.option(s.u8)],
-            ['maxSupply', s.option(s.u64)],
+            ['printSupply', s.option(getPrintSupplySerializer(context))],
           ],
           'V1'
         ),

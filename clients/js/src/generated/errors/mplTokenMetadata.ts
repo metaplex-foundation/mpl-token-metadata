@@ -2537,6 +2537,51 @@ export class TmInvalidDelegateRoleError extends ProgramError {
 codeToErrorMap.set(0xa5, TmInvalidDelegateRoleError);
 nameToErrorMap.set('InvalidDelegateRole', TmInvalidDelegateRoleError);
 
+/** MissingPrintSupply: 'Print supply is required for non-fungibles' */
+export class TmMissingPrintSupplyError extends ProgramError {
+  readonly name: string = 'MissingPrintSupply';
+
+  readonly code: number = 0xa6; // 166
+
+  constructor(program: Program, cause?: Error) {
+    super('Print supply is required for non-fungibles', program, cause);
+  }
+}
+codeToErrorMap.set(0xa6, TmMissingPrintSupplyError);
+nameToErrorMap.set('MissingPrintSupply', TmMissingPrintSupplyError);
+
+/** MissingMasterEditionAccount: 'Missing master edition account' */
+export class TmMissingMasterEditionAccountError extends ProgramError {
+  readonly name: string = 'MissingMasterEditionAccount';
+
+  readonly code: number = 0xa7; // 167
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing master edition account', program, cause);
+  }
+}
+codeToErrorMap.set(0xa7, TmMissingMasterEditionAccountError);
+nameToErrorMap.set(
+  'MissingMasterEditionAccount',
+  TmMissingMasterEditionAccountError
+);
+
+/** AmountMustBeGreaterThanZero: 'Amount must be greater than zero' */
+export class TmAmountMustBeGreaterThanZeroError extends ProgramError {
+  readonly name: string = 'AmountMustBeGreaterThanZero';
+
+  readonly code: number = 0xa8; // 168
+
+  constructor(program: Program, cause?: Error) {
+    super('Amount must be greater than zero', program, cause);
+  }
+}
+codeToErrorMap.set(0xa8, TmAmountMustBeGreaterThanZeroError);
+nameToErrorMap.set(
+  'AmountMustBeGreaterThanZero',
+  TmAmountMustBeGreaterThanZeroError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
