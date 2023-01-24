@@ -32,32 +32,47 @@ kinobi.update(
 );
 
 // Update Accounts.
+const metadataSeeds = [
+  { kind: "literal", value: "metadata" },
+  { kind: "programId" },
+  {
+    kind: "variable",
+    name: "mint",
+    description: "The address of the mint account",
+    type: new TypeLeafNode("publicKey"),
+  },
+];
 kinobi.update(
   new UpdateAccountsVisitor({
-    Metadata: {
+    metadata: {
+      seeds: metadataSeeds,
+    },
+    masterEditionV2: {
+      name: "masterEdition",
+      seeds: [...metadataSeeds, { kind: "literal", value: "edition" }],
+    },
+    collectionAuthorityRecord: {
       seeds: [
-        { kind: "literal", value: "metadata" },
-        { kind: "programId" },
+        ...metadataSeeds,
+        { kind: "literal", value: "collection_authority" },
         {
           kind: "variable",
-          name: "mint",
-          description: "The address of the mint account",
+          name: "collectionAuthority",
+          description: "The address of the collection authority",
           type: new TypeLeafNode("publicKey"),
         },
       ],
     },
-    MasterEditionV2: {
-      name: "MasterEdition",
+    useAuthorityRecord: {
       seeds: [
-        { kind: "literal", value: "metadata" },
-        { kind: "programId" },
+        ...metadataSeeds,
+        { kind: "literal", value: "user" },
         {
           kind: "variable",
-          name: "mint",
-          description: "The address of the mint account",
+          name: "useAuthority",
+          description: "The address of the use authority",
           type: new TypeLeafNode("publicKey"),
         },
-        { kind: "literal", value: "edition" },
       ],
     },
     FrequencyAccount: { name: "RuleSetFrequency" },

@@ -10,11 +10,13 @@ import {
   Account,
   Context,
   Option,
+  Pda,
   PublicKey,
   RpcAccount,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
@@ -74,4 +76,25 @@ export function getCollectionAuthorityRecordSize(
   context: Pick<Context, 'serializer'>
 ): number | null {
   return getCollectionAuthorityRecordAccountDataSerializer(context).fixedSize;
+}
+
+export function findCollectionAuthorityRecordPda(
+  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  seeds: {
+    /** The address of the mint account */
+    mint: PublicKey;
+    /** The address of the collection authority */
+    collectionAuthority: PublicKey;
+  }
+): Pda {
+  const s = context.serializer;
+  const programId: PublicKey =
+    context.programs.get('mplTokenMetadata').publicKey;
+  return context.eddsa.findPda(programId, [
+    utf8.serialize('metadata'),
+    programId.bytes,
+    s.publicKey.serialize(seeds.mint),
+    utf8.serialize('collection_authority'),
+    s.publicKey.serialize(seeds.collectionAuthority),
+  ]);
 }
