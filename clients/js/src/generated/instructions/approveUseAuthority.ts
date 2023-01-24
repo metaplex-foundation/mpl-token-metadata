@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type ApproveUseAuthorityInstructionAccounts = {
@@ -30,7 +32,7 @@ export type ApproveUseAuthorityInstructionAccounts = {
   /** Owned Token Account Of Mint */
   ownerTokenAccount: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint of Metadata */
   mint: PublicKey;
   /** Program As Signer (Burner) */
@@ -82,7 +84,7 @@ export function getApproveUseAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function approveUseAuthority(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: ApproveUseAuthorityInstructionAccounts &
     ApproveUseAuthorityInstructionArgs
 ): WrappedInstruction {
@@ -99,8 +101,10 @@ export function approveUseAuthority(
   const payerAccount = input.payer ?? context.payer;
   const userAccount = input.user;
   const ownerTokenAccountAccount = input.ownerTokenAccount;
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const burnerAccount = input.burner;
   const tokenProgramAccount = input.tokenProgram ?? {
     ...context.programs.get('splToken').publicKey,

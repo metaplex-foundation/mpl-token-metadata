@@ -17,19 +17,20 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 
 // Accounts.
 export type CloseEscrowAccountInstructionAccounts = {
   /** Escrow account */
   escrow: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint account */
   mint: PublicKey;
   /** Token account */
   tokenAccount: PublicKey;
   /** Edition account */
-  edition: PublicKey;
+  edition?: PublicKey;
   /** Wallet paying for the transaction and new account */
   payer?: Signer;
   /** System program */
@@ -69,7 +70,7 @@ export function getCloseEscrowAccountInstructionDataSerializer(
 
 // Instruction.
 export function closeEscrowAccount(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: CloseEscrowAccountInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -81,10 +82,14 @@ export function closeEscrowAccount(
 
   // Resolved accounts.
   const escrowAccount = input.escrow;
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const tokenAccountAccount = input.tokenAccount;
-  const editionAccount = input.edition;
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,

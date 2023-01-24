@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type ApproveCollectionAuthorityInstructionAccounts = {
@@ -28,7 +30,7 @@ export type ApproveCollectionAuthorityInstructionAccounts = {
   /** Payer */
   payer?: Signer;
   /** Collection Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint of Collection Metadata */
   mint: PublicKey;
   /** System program */
@@ -73,7 +75,7 @@ export function getApproveCollectionAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function approveCollectionAuthority(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: ApproveCollectionAuthorityInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -88,8 +90,10 @@ export function approveCollectionAuthority(
   const newCollectionAuthorityAccount = input.newCollectionAuthority;
   const updateAuthorityAccount = input.updateAuthority;
   const payerAccount = input.payer ?? context.payer;
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,

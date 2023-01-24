@@ -15,12 +15,14 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type BurnNftInstructionAccounts = {
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** NFT owner */
   owner: Signer;
   /** Mint of the NFT */
@@ -59,7 +61,7 @@ export function getBurnNftInstructionDataSerializer(
 
 // Instruction.
 export function burnNft(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: BurnNftInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -70,9 +72,11 @@ export function burnNft(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const ownerAccount = input.owner;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const ownerAccount = input.owner;
   const tokenAccountAccount = input.tokenAccount;
   const masterEditionAccountAccount = input.masterEditionAccount;
   const splTokenProgramAccount = input.splTokenProgram ?? {

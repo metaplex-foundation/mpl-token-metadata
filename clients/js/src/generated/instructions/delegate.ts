@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   DelegateArgs,
   DelegateArgsArgs,
@@ -30,7 +31,7 @@ export type DelegateInstructionAccounts = {
   /** Owner of the delegated account */
   delegate: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Master Edition account */
   masterEdition?: PublicKey;
   /** Token record account */
@@ -85,7 +86,10 @@ export function getDelegateInstructionDataSerializer(
 
 // Instruction.
 export function delegate(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: DelegateInstructionAccounts & DelegateInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -98,10 +102,14 @@ export function delegate(
   // Resolved accounts.
   const delegateRecordAccount = input.delegateRecord;
   const delegateAccount = input.delegate;
-  const metadataAccount = input.metadata;
-  const masterEditionAccount = input.masterEdition;
-  const tokenRecordAccount = input.tokenRecord;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount =
+    input.masterEdition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const tokenRecordAccount = input.tokenRecord;
   const tokenAccount = input.token;
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
@@ -139,14 +147,12 @@ export function delegate(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Master Edition (optional).
-  if (masterEditionAccount) {
-    keys.push({
-      pubkey: masterEditionAccount,
-      isSigner: false,
-      isWritable: isWritable(masterEditionAccount, false),
-    });
-  }
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, false),
+  });
 
   // Token Record (optional).
   if (tokenRecordAccount) {

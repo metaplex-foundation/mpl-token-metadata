@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda } from '../accounts';
 
 // Accounts.
 export type ThawDelegatedAccountInstructionAccounts = {
@@ -24,7 +26,7 @@ export type ThawDelegatedAccountInstructionAccounts = {
   /** Token account to thaw */
   tokenAccount: PublicKey;
   /** Edition */
-  edition: PublicKey;
+  edition?: PublicKey;
   /** Token mint */
   mint: PublicKey;
   /** Token Program */
@@ -62,7 +64,7 @@ export function getThawDelegatedAccountInstructionDataSerializer(
 
 // Instruction.
 export function thawDelegatedAccount(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: ThawDelegatedAccountInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -75,8 +77,10 @@ export function thawDelegatedAccount(
   // Resolved accounts.
   const delegateAccount = input.delegate;
   const tokenAccountAccount = input.tokenAccount;
-  const editionAccount = input.edition;
   const mintAccount = input.mint;
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const tokenProgramAccount = input.tokenProgram ?? {
     ...context.programs.get('splToken').publicKey,
     isWritable: false,

@@ -15,13 +15,15 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 import { BurnArgs, BurnArgsArgs, getBurnArgsSerializer } from '../types';
 
 // Accounts.
 export type BurnInstructionAccounts = {
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Asset owner */
   owner: Signer;
   /** Mint of token asset */
@@ -67,7 +69,7 @@ export function getBurnInstructionDataSerializer(
 
 // Instruction.
 export function burn(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: BurnInstructionAccounts & BurnInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -78,9 +80,11 @@ export function burn(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const ownerAccount = input.owner;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const ownerAccount = input.owner;
   const tokenAccountAccount = input.tokenAccount;
   const masterEditionAccountAccount = input.masterEditionAccount;
   const splTokenProgramAccount = input.splTokenProgram ?? {

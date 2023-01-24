@@ -17,11 +17,12 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type UtilizeInstructionAccounts = {
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Token Account Of NFT */
   tokenAccount: PublicKey;
   /** Mint of the Metadata */
@@ -74,7 +75,7 @@ export function getUtilizeInstructionDataSerializer(
 
 // Instruction.
 export function utilize(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: UtilizeInstructionAccounts & UtilizeInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -85,9 +86,11 @@ export function utilize(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const tokenAccountAccount = input.tokenAccount;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const tokenAccountAccount = input.tokenAccount;
   const useAuthorityAccount = input.useAuthority;
   const ownerAccount = input.owner;
   const tokenProgramAccount = input.tokenProgram ?? {

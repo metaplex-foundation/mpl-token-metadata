@@ -15,13 +15,15 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 import { DataV2, DataV2Args, getDataV2Serializer } from '../types';
 
 // Accounts.
 export type CreateMetadataAccountV2InstructionAccounts = {
   /** Metadata key (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint of token asset */
   mint: PublicKey;
   /** Mint authority */
@@ -81,7 +83,7 @@ export function getCreateMetadataAccountV2InstructionDataSerializer(
 
 // Instruction.
 export function createMetadataAccountV2(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: CreateMetadataAccountV2InstructionAccounts &
     CreateMetadataAccountV2InstructionArgs
 ): WrappedInstruction {
@@ -93,8 +95,10 @@ export function createMetadataAccountV2(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const mintAuthorityAccount = input.mintAuthority;
   const payerAccount = input.payer ?? context.payer;
   const updateAuthorityAccount = input.updateAuthority;

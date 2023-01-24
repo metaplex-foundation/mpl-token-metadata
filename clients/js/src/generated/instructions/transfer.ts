@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   TransferArgs,
   TransferArgsArgs,
@@ -36,7 +37,7 @@ export type TransferInstructionAccounts = {
   /** Mint of token asset */
   mint: PublicKey;
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Edition of token asset */
   edition?: PublicKey;
   /** Token record account */
@@ -91,7 +92,10 @@ export function getTransferInstructionDataSerializer(
 
 // Instruction.
 export function transfer(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: TransferInstructionAccounts & TransferInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -107,8 +111,12 @@ export function transfer(
   const destinationAccount = input.destination;
   const destinationOwnerAccount = input.destinationOwner;
   const mintAccount = input.mint;
-  const metadataAccount = input.metadata;
-  const editionAccount = input.edition;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const ownerTokenRecordAccount = input.ownerTokenRecord;
   const destinationTokenRecordAccount = input.destinationTokenRecord;
   const authorityAccount = input.authority ?? context.identity;
@@ -173,14 +181,12 @@ export function transfer(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, false),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, false),
+  });
 
   // Owner Token Record (optional).
   if (ownerTokenRecordAccount) {

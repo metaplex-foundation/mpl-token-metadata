@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { LockArgs, LockArgsArgs, getLockArgsSerializer } from '../types';
 
 // Accounts.
@@ -30,7 +31,7 @@ export type LockInstructionAccounts = {
   /** Mint account */
   mint: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Edition account */
   edition?: PublicKey;
   /** Token record account */
@@ -76,7 +77,10 @@ export function getLockInstructionDataSerializer(
 
 // Instruction.
 export function lock(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: LockInstructionAccounts & LockInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -91,8 +95,12 @@ export function lock(
   const tokenOwnerAccount = input.tokenOwner;
   const tokenAccount = input.token;
   const mintAccount = input.mint;
-  const metadataAccount = input.metadata;
-  const editionAccount = input.edition;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const tokenRecordAccount = input.tokenRecord;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
@@ -144,14 +152,12 @@ export function lock(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, false),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, false),
+  });
 
   // Token Record (optional).
   if (tokenRecordAccount) {

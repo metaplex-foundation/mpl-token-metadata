@@ -17,16 +17,17 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 
 // Accounts.
 export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts =
   {
     /** New Metadata key (pda of ['metadata', program id, mint id]) */
-    metadata: PublicKey;
+    metadata?: PublicKey;
     /** New Edition V1 (pda of ['metadata', program id, mint id, 'edition']) */
-    edition: PublicKey;
+    edition?: PublicKey;
     /** Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
-    masterEdition: PublicKey;
+    masterEdition?: PublicKey;
     /** Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
     mint: PublicKey;
     /** Mint authority of new mint */
@@ -36,7 +37,7 @@ export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction
     /** Token account containing Printing mint token to be transferred */
     masterTokenAccount: PublicKey;
     /** Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number]) */
-    editionMarker: PublicKey;
+    editionMarker?: PublicKey;
     /** Burn authority for this token */
     burnAuthority: Signer;
     /** payer */
@@ -91,7 +92,7 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
 
 // Instruction.
 export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -102,14 +103,22 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const editionAccount = input.edition;
-  const masterEditionAccount = input.masterEdition;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount =
+    input.masterEdition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const mintAuthorityAccount = input.mintAuthority;
   const printingMintAccount = input.printingMint;
   const masterTokenAccountAccount = input.masterTokenAccount;
-  const editionMarkerAccount = input.editionMarker;
+  const editionMarkerAccount =
+    input.editionMarker ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const burnAuthorityAccount = input.burnAuthority;
   const payerAccount = input.payer ?? context.payer;
   const masterUpdateAuthorityAccount = input.masterUpdateAuthority;

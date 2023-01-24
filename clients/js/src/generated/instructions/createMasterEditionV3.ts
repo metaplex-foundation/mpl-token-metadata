@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   CreateMasterEditionArgs,
   CreateMasterEditionArgsArgs,
@@ -25,7 +27,7 @@ import {
 // Accounts.
 export type CreateMasterEditionV3InstructionAccounts = {
   /** Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition'] */
-  edition: PublicKey;
+  edition?: PublicKey;
   /** Metadata mint */
   mint: PublicKey;
   /** Update authority */
@@ -35,7 +37,7 @@ export type CreateMasterEditionV3InstructionAccounts = {
   /** payer */
   payer?: Signer;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Token program */
   tokenProgram?: PublicKey;
   /** System program */
@@ -86,7 +88,7 @@ export function getCreateMasterEditionV3InstructionDataSerializer(
 
 // Instruction.
 export function createMasterEditionV3(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: CreateMasterEditionV3InstructionAccounts &
     CreateMasterEditionV3InstructionArgs
 ): WrappedInstruction {
@@ -98,12 +100,16 @@ export function createMasterEditionV3(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const editionAccount = input.edition;
   const mintAccount = input.mint;
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const updateAuthorityAccount = input.updateAuthority;
   const mintAuthorityAccount = input.mintAuthority;
   const payerAccount = input.payer ?? context.payer;
-  const metadataAccount = input.metadata;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const tokenProgramAccount = input.tokenProgram ?? {
     ...context.programs.get('splToken').publicKey,
     isWritable: false,

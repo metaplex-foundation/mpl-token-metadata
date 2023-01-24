@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   CreateMasterEditionArgs,
   CreateMasterEditionArgsArgs,
@@ -26,7 +27,7 @@ import {
 // Accounts.
 export type DeprecatedCreateMasterEditionInstructionAccounts = {
   /** Unallocated edition V1 account with address as pda of ['metadata', program id, mint, 'edition'] */
-  edition: PublicKey;
+  edition?: PublicKey;
   /** Metadata mint */
   mint: PublicKey;
   /** Printing mint - A mint you control that can mint tokens that can be exchanged for limited editions of your master edition via the MintNewEditionFromMasterEditionViaToken endpoint */
@@ -40,7 +41,7 @@ export type DeprecatedCreateMasterEditionInstructionAccounts = {
   /** Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
   mintAuthority: Signer;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** payer */
   payer?: Signer;
   /** Token program */
@@ -98,7 +99,7 @@ export function getDeprecatedCreateMasterEditionInstructionDataSerializer(
 
 // Instruction.
 export function deprecatedCreateMasterEdition(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: DeprecatedCreateMasterEditionInstructionAccounts &
     DeprecatedCreateMasterEditionInstructionArgs
 ): WrappedInstruction {
@@ -110,15 +111,19 @@ export function deprecatedCreateMasterEdition(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const editionAccount = input.edition;
   const mintAccount = input.mint;
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const printingMintAccount = input.printingMint;
   const oneTimePrintingAuthorizationMintAccount =
     input.oneTimePrintingAuthorizationMint;
   const updateAuthorityAccount = input.updateAuthority;
   const printingMintAuthorityAccount = input.printingMintAuthority;
   const mintAuthorityAccount = input.mintAuthority;
-  const metadataAccount = input.metadata;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const payerAccount = input.payer ?? context.payer;
   const tokenProgramAccount = input.tokenProgram ?? {
     ...context.programs.get('splToken').publicKey,

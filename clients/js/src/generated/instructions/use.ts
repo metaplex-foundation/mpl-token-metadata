@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { UseArgs, UseArgsArgs, getUseArgsSerializer } from '../types';
 
 // Accounts.
@@ -30,7 +31,7 @@ export type UseInstructionAccounts = {
   /** Mint account */
   mint: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Edition account */
   edition?: PublicKey;
   /** Payer */
@@ -74,7 +75,10 @@ export function getUseInstructionDataSerializer(
 
 // Instruction.
 export function use(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: UseInstructionAccounts & UseInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -89,8 +93,12 @@ export function use(
   const delegateRecordAccount = input.delegateRecord;
   const tokenAccount = input.token;
   const mintAccount = input.mint;
-  const metadataAccount = input.metadata;
-  const editionAccount = input.edition;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
@@ -143,14 +151,12 @@ export function use(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, true),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, true),
+  });
 
   // Payer.
   signers.push(payerAccount);

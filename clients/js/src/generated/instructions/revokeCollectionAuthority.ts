@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type RevokeCollectionAuthorityInstructionAccounts = {
@@ -26,7 +28,7 @@ export type RevokeCollectionAuthorityInstructionAccounts = {
   /** Update Authority, or Delegated Authority, of Collection NFT */
   revokeAuthority: Signer;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint of Metadata */
   mint: PublicKey;
 };
@@ -67,7 +69,7 @@ export function getRevokeCollectionAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function revokeCollectionAuthority(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: RevokeCollectionAuthorityInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -81,8 +83,10 @@ export function revokeCollectionAuthority(
   const collectionAuthorityRecordAccount = input.collectionAuthorityRecord;
   const delegateAuthorityAccount = input.delegateAuthority;
   const revokeAuthorityAccount = input.revokeAuthority;
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
 
   // Collection Authority Record.
   keys.push({

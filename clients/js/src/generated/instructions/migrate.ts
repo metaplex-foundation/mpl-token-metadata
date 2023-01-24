@@ -17,14 +17,15 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { MigrateArgs, getMigrateArgsSerializer } from '../types';
 
 // Accounts.
 export type MigrateInstructionAccounts = {
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Edition account */
-  edition: PublicKey;
+  edition?: PublicKey;
   /** Token account */
   token: PublicKey;
   /** Token account owner */
@@ -83,7 +84,10 @@ export function getMigrateInstructionDataSerializer(
 
 // Instruction.
 export function migrate(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: MigrateInstructionAccounts & MigrateInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -94,11 +98,15 @@ export function migrate(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const editionAccount = input.edition;
+  const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const tokenAccount = input.token;
   const tokenOwnerAccount = input.tokenOwner;
-  const mintAccount = input.mint;
   const payerAccount = input.payer ?? context.payer;
   const authorityAccount = input.authority ?? context.identity;
   const collectionMetadataAccount = input.collectionMetadata;

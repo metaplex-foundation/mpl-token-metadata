@@ -18,12 +18,13 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { CreateArgs, CreateArgsArgs, getCreateArgsSerializer } from '../types';
 
 // Accounts.
 export type CreateInstructionAccounts = {
   /** Unallocated metadata account with address as pda of ['metadata', program id, mint id] */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition'] */
   masterEdition?: PublicKey;
   /** Mint of token asset */
@@ -72,7 +73,10 @@ export function getCreateInstructionDataSerializer(
 
 // Instruction.
 export function create(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: CreateInstructionAccounts & CreateInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -83,9 +87,13 @@ export function create(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const masterEditionAccount = input.masterEdition;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount =
+    input.masterEdition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const updateAuthorityAccount = input.updateAuthority;
@@ -108,14 +116,12 @@ export function create(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Master Edition (optional).
-  if (masterEditionAccount) {
-    keys.push({
-      pubkey: masterEditionAccount,
-      isSigner: false,
-      isWritable: isWritable(masterEditionAccount, true),
-    });
-  }
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, true),
+  });
 
   // Mint.
   if (isSigner(mintAccount)) {

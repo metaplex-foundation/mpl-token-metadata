@@ -15,12 +15,14 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 
 // Accounts.
 export type SetTokenStandardInstructionAccounts = {
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Metadata update authority */
   updateAuthority: Signer;
   /** Mint account */
@@ -60,7 +62,7 @@ export function getSetTokenStandardInstructionDataSerializer(
 
 // Instruction.
 export function setTokenStandard(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: SetTokenStandardInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -71,10 +73,14 @@ export function setTokenStandard(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const updateAuthorityAccount = input.updateAuthority;
   const mintAccount = input.mint;
-  const editionAccount = input.edition;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const updateAuthorityAccount = input.updateAuthority;
+  const editionAccount =
+    input.edition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
 
   // Metadata.
   keys.push({
@@ -98,14 +104,12 @@ export function setTokenStandard(
     isWritable: isWritable(mintAccount, false),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, false),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, false),
+  });
 
   // Data.
   const data = getSetTokenStandardInstructionDataSerializer(context).serialize(

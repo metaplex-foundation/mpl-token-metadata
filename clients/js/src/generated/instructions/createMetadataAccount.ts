@@ -18,12 +18,13 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 import { Creator, getCreatorSerializer } from '../types';
 
 // Accounts.
 export type CreateMetadataAccountInstructionAccounts = {
   /** Metadata key (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Mint of token asset */
   mint: PublicKey;
   /** Mint authority */
@@ -92,7 +93,7 @@ export function getCreateMetadataAccountInstructionDataSerializer(
 
 // Instruction.
 export function createMetadataAccount(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: CreateMetadataAccountInstructionAccounts &
     CreateMetadataAccountInstructionArgs
 ): WrappedInstruction {
@@ -104,8 +105,10 @@ export function createMetadataAccount(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const metadataAccount = input.metadata;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const mintAuthorityAccount = input.mintAuthority;
   const payerAccount = input.payer ?? context.payer;
   const updateAuthorityAccount = input.updateAuthority;

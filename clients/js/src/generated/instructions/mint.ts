@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { MintArgs, MintArgsArgs, getMintArgsSerializer } from '../types';
 
 // Accounts.
@@ -26,7 +27,7 @@ export type MintInstructionAccounts = {
   /** Owner of the token account */
   tokenOwner?: PublicKey;
   /** Metadata account (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Master Edition account */
   masterEdition?: PublicKey;
   /** Token record account */
@@ -80,7 +81,10 @@ export function getMintInstructionDataSerializer(
 
 // Instruction.
 export function mint(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: MintInstructionAccounts & MintInstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -93,10 +97,14 @@ export function mint(
   // Resolved accounts.
   const tokenAccount = input.token;
   const tokenOwnerAccount = input.tokenOwner;
-  const metadataAccount = input.metadata;
-  const masterEditionAccount = input.masterEdition;
-  const tokenRecordAccount = input.tokenRecord;
   const mintAccount = input.mint;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount =
+    input.masterEdition ??
+    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const tokenRecordAccount = input.tokenRecord;
   const authorityAccount = input.authority ?? context.identity;
   const delegateRecordAccount = input.delegateRecord;
   const payerAccount = input.payer ?? context.payer;
@@ -141,14 +149,12 @@ export function mint(
     isWritable: isWritable(metadataAccount, false),
   });
 
-  // Master Edition (optional).
-  if (masterEditionAccount) {
-    keys.push({
-      pubkey: masterEditionAccount,
-      isSigner: false,
-      isWritable: isWritable(masterEditionAccount, false),
-    });
-  }
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, false),
+  });
 
   // Token Record (optional).
   if (tokenRecordAccount) {

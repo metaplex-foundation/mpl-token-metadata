@@ -15,7 +15,9 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type RevokeUseAuthorityInstructionAccounts = {
@@ -30,7 +32,7 @@ export type RevokeUseAuthorityInstructionAccounts = {
   /** Mint of Metadata */
   mint: PublicKey;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata?: PublicKey;
   /** Token program */
   tokenProgram?: PublicKey;
   /** System program */
@@ -70,7 +72,7 @@ export function getRevokeUseAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function revokeUseAuthority(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: RevokeUseAuthorityInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -86,7 +88,9 @@ export function revokeUseAuthority(
   const userAccount = input.user;
   const ownerTokenAccountAccount = input.ownerTokenAccount;
   const mintAccount = input.mint;
-  const metadataAccount = input.metadata;
+  const metadataAccount =
+    input.metadata ??
+    findMetadataPda(context, { mint: publicKey(mintAccount) });
   const tokenProgramAccount = input.tokenProgram ?? {
     ...context.programs.get('splToken').publicKey,
     isWritable: false,
