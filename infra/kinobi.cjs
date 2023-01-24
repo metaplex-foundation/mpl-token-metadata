@@ -167,6 +167,7 @@ kinobi.update(
   new SetInstructionAccountDefaultValuesVisitor([
     { account: "updateAuthority", kind: "identity", ignoreIfOptional: true },
     { account: "metadata", kind: "pda", ignoreIfOptional: true },
+    { account: "tokenRecord", kind: "pda", ignoreIfOptional: true },
     {
       account: /^edition|masterEdition$/,
       kind: "pda",

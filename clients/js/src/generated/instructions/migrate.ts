@@ -17,7 +17,11 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import {
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import { MigrateArgs, getMigrateArgsSerializer } from '../types';
 
 // Accounts.
@@ -41,7 +45,7 @@ export type MigrateInstructionAccounts = {
   /** Delegate record account */
   delegateRecord: PublicKey;
   /** Token record account */
-  tokenRecord: PublicKey;
+  tokenRecord?: PublicKey;
   /** System program */
   systemProgram?: PublicKey;
   /** Instruction sysvar account */
@@ -111,7 +115,12 @@ export function migrate(
   const authorityAccount = input.authority ?? context.identity;
   const collectionMetadataAccount = input.collectionMetadata;
   const delegateRecordAccount = input.delegateRecord;
-  const tokenRecordAccount = input.tokenRecord;
+  const tokenRecordAccount =
+    input.tokenRecord ??
+    findTokenRecordPda(context, {
+      mint: publicKey(mintAccount),
+      token: publicKey(tokenAccount),
+    });
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,
