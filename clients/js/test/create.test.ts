@@ -1,9 +1,9 @@
 import {
   generateSigner,
   none,
+  percentAmount,
   some,
   transactionBuilder,
-  createAmount,
 } from '@lorisleiva/js-test';
 import test from 'ava';
 import { create, createArgs, TokenStandard } from '../src';
@@ -23,7 +23,7 @@ test('it can create a new NFT with minimum configuration', async (t) => {
           updateAuthority: mx.identity.publicKey,
           name: 'My NFT',
           uri: 'https://example.com/my-nft.json',
-          sellerFeeBasisPoints: createAmount(500, '%', 2),
+          sellerFeeBasisPoints: percentAmount(5.5),
           creators: some([
             {
               address: mx.identity.publicKey,
