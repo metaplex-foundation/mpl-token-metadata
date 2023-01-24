@@ -49,7 +49,7 @@ export function escrowAuthority(
 export function escrowAuthority<K extends EscrowAuthority['__kind']>(
   kind: K,
   data?: any
-): EscrowAuthority & { __kind: K } {
+): Extract<EscrowAuthority, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

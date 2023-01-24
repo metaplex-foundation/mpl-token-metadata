@@ -129,10 +129,10 @@ export function createArgs(
   kind: 'V1',
   data: GetDataEnumKindContent<CreateArgsArgs, 'V1'>
 ): GetDataEnumKind<CreateArgsArgs, 'V1'>;
-export function createArgs<K extends CreateArgs['__kind']>(
+export function createArgs<K extends CreateArgsArgs['__kind']>(
   kind: K,
   data?: any
-): CreateArgsArgs & { __kind: K } {
+): Extract<CreateArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

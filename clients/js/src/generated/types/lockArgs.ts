@@ -56,12 +56,12 @@ export function getLockArgsSerializer(
 // Data Enum Helpers.
 export function lockArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<LockArgs, 'V1'>
-): GetDataEnumKind<LockArgs, 'V1'>;
-export function lockArgs<K extends LockArgs['__kind']>(
+  data: GetDataEnumKindContent<LockArgsArgs, 'V1'>
+): GetDataEnumKind<LockArgsArgs, 'V1'>;
+export function lockArgs<K extends LockArgsArgs['__kind']>(
   kind: K,
   data?: any
-): LockArgs & { __kind: K } {
+): Extract<LockArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

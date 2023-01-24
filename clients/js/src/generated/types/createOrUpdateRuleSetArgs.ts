@@ -44,7 +44,7 @@ export function createOrUpdateRuleSetArgs(
 ): GetDataEnumKind<CreateOrUpdateRuleSetArgs, 'V1'>;
 export function createOrUpdateRuleSetArgs<
   K extends CreateOrUpdateRuleSetArgs['__kind']
->(kind: K, data?: any): CreateOrUpdateRuleSetArgs & { __kind: K } {
+>(kind: K, data?: any): Extract<CreateOrUpdateRuleSetArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

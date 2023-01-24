@@ -54,7 +54,7 @@ export function ruleSetToggle(
 export function ruleSetToggle<K extends RuleSetToggle['__kind']>(
   kind: K,
   data?: any
-): RuleSetToggle & { __kind: K } {
+): Extract<RuleSetToggle, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

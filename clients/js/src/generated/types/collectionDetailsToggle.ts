@@ -52,17 +52,17 @@ export function getCollectionDetailsToggleSerializer(
 // Data Enum Helpers.
 export function collectionDetailsToggle(
   kind: 'None'
-): GetDataEnumKind<CollectionDetailsToggle, 'None'>;
+): GetDataEnumKind<CollectionDetailsToggleArgs, 'None'>;
 export function collectionDetailsToggle(
   kind: 'Clear'
-): GetDataEnumKind<CollectionDetailsToggle, 'Clear'>;
+): GetDataEnumKind<CollectionDetailsToggleArgs, 'Clear'>;
 export function collectionDetailsToggle(
   kind: 'Set',
-  data: GetDataEnumKindContent<CollectionDetailsToggle, 'Set'>['fields']
-): GetDataEnumKind<CollectionDetailsToggle, 'Set'>;
+  data: GetDataEnumKindContent<CollectionDetailsToggleArgs, 'Set'>['fields']
+): GetDataEnumKind<CollectionDetailsToggleArgs, 'Set'>;
 export function collectionDetailsToggle<
-  K extends CollectionDetailsToggle['__kind']
->(kind: K, data?: any): CollectionDetailsToggle & { __kind: K } {
+  K extends CollectionDetailsToggleArgs['__kind']
+>(kind: K, data?: any): Extract<CollectionDetailsToggleArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

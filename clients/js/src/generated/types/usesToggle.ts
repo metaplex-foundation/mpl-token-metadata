@@ -46,16 +46,20 @@ export function getUsesToggleSerializer(
 }
 
 // Data Enum Helpers.
-export function usesToggle(kind: 'None'): GetDataEnumKind<UsesToggle, 'None'>;
-export function usesToggle(kind: 'Clear'): GetDataEnumKind<UsesToggle, 'Clear'>;
+export function usesToggle(
+  kind: 'None'
+): GetDataEnumKind<UsesToggleArgs, 'None'>;
+export function usesToggle(
+  kind: 'Clear'
+): GetDataEnumKind<UsesToggleArgs, 'Clear'>;
 export function usesToggle(
   kind: 'Set',
-  data: GetDataEnumKindContent<UsesToggle, 'Set'>['fields']
-): GetDataEnumKind<UsesToggle, 'Set'>;
-export function usesToggle<K extends UsesToggle['__kind']>(
+  data: GetDataEnumKindContent<UsesToggleArgs, 'Set'>['fields']
+): GetDataEnumKind<UsesToggleArgs, 'Set'>;
+export function usesToggle<K extends UsesToggleArgs['__kind']>(
   kind: K,
   data?: any
-): UsesToggle & { __kind: K } {
+): Extract<UsesToggleArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

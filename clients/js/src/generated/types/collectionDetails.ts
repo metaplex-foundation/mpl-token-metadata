@@ -39,12 +39,12 @@ export function getCollectionDetailsSerializer(
 // Data Enum Helpers.
 export function collectionDetails(
   kind: 'V1',
-  data: GetDataEnumKindContent<CollectionDetails, 'V1'>
-): GetDataEnumKind<CollectionDetails, 'V1'>;
-export function collectionDetails<K extends CollectionDetails['__kind']>(
+  data: GetDataEnumKindContent<CollectionDetailsArgs, 'V1'>
+): GetDataEnumKind<CollectionDetailsArgs, 'V1'>;
+export function collectionDetails<K extends CollectionDetailsArgs['__kind']>(
   kind: K,
   data?: any
-): CollectionDetails & { __kind: K } {
+): Extract<CollectionDetailsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

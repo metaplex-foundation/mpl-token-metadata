@@ -59,12 +59,12 @@ export function getTransferArgsSerializer(
 // Data Enum Helpers.
 export function transferArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<TransferArgs, 'V1'>
-): GetDataEnumKind<TransferArgs, 'V1'>;
-export function transferArgs<K extends TransferArgs['__kind']>(
+  data: GetDataEnumKindContent<TransferArgsArgs, 'V1'>
+): GetDataEnumKind<TransferArgsArgs, 'V1'>;
+export function transferArgs<K extends TransferArgsArgs['__kind']>(
   kind: K,
   data?: any
-): TransferArgs & { __kind: K } {
+): Extract<TransferArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

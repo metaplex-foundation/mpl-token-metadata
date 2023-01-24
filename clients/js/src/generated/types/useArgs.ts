@@ -56,12 +56,12 @@ export function getUseArgsSerializer(
 // Data Enum Helpers.
 export function useArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<UseArgs, 'V1'>
-): GetDataEnumKind<UseArgs, 'V1'>;
-export function useArgs<K extends UseArgs['__kind']>(
+  data: GetDataEnumKindContent<UseArgsArgs, 'V1'>
+): GetDataEnumKind<UseArgsArgs, 'V1'>;
+export function useArgs<K extends UseArgsArgs['__kind']>(
   kind: K,
   data?: any
-): UseArgs & { __kind: K } {
+): Extract<UseArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

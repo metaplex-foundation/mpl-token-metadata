@@ -125,12 +125,12 @@ export function getUpdateArgsSerializer(
 // Data Enum Helpers.
 export function updateArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<UpdateArgs, 'V1'>
-): GetDataEnumKind<UpdateArgs, 'V1'>;
-export function updateArgs<K extends UpdateArgs['__kind']>(
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'V1'>
+): GetDataEnumKind<UpdateArgsArgs, 'V1'>;
+export function updateArgs<K extends UpdateArgsArgs['__kind']>(
   kind: K,
   data?: any
-): UpdateArgs & { __kind: K } {
+): Extract<UpdateArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

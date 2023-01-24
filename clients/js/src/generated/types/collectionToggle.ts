@@ -54,7 +54,7 @@ export function collectionToggle(
 export function collectionToggle<K extends CollectionToggle['__kind']>(
   kind: K,
   data?: any
-): CollectionToggle & { __kind: K } {
+): Extract<CollectionToggle, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

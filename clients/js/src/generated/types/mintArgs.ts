@@ -59,12 +59,12 @@ export function getMintArgsSerializer(
 // Data Enum Helpers.
 export function mintArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<MintArgs, 'V1'>
-): GetDataEnumKind<MintArgs, 'V1'>;
-export function mintArgs<K extends MintArgs['__kind']>(
+  data: GetDataEnumKindContent<MintArgsArgs, 'V1'>
+): GetDataEnumKind<MintArgsArgs, 'V1'>;
+export function mintArgs<K extends MintArgsArgs['__kind']>(
   kind: K,
   data?: any
-): MintArgs & { __kind: K } {
+): Extract<MintArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

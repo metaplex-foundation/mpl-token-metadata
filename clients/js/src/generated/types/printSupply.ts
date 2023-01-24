@@ -45,18 +45,20 @@ export function getPrintSupplySerializer(
 }
 
 // Data Enum Helpers.
-export function printSupply(kind: 'Zero'): GetDataEnumKind<PrintSupply, 'Zero'>;
+export function printSupply(
+  kind: 'Zero'
+): GetDataEnumKind<PrintSupplyArgs, 'Zero'>;
 export function printSupply(
   kind: 'Limited',
-  data: GetDataEnumKindContent<PrintSupply, 'Limited'>['fields']
-): GetDataEnumKind<PrintSupply, 'Limited'>;
+  data: GetDataEnumKindContent<PrintSupplyArgs, 'Limited'>['fields']
+): GetDataEnumKind<PrintSupplyArgs, 'Limited'>;
 export function printSupply(
   kind: 'Unlimited'
-): GetDataEnumKind<PrintSupply, 'Unlimited'>;
-export function printSupply<K extends PrintSupply['__kind']>(
+): GetDataEnumKind<PrintSupplyArgs, 'Unlimited'>;
+export function printSupply<K extends PrintSupplyArgs['__kind']>(
   kind: K,
   data?: any
-): PrintSupply & { __kind: K } {
+): Extract<PrintSupplyArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

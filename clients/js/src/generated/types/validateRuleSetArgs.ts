@@ -58,12 +58,11 @@ export function getValidateRuleSetArgsSerializer(
 // Data Enum Helpers.
 export function validateRuleSetArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<ValidateRuleSetArgs, 'V1'>
-): GetDataEnumKind<ValidateRuleSetArgs, 'V1'>;
-export function validateRuleSetArgs<K extends ValidateRuleSetArgs['__kind']>(
-  kind: K,
-  data?: any
-): ValidateRuleSetArgs & { __kind: K } {
+  data: GetDataEnumKindContent<ValidateRuleSetArgsArgs, 'V1'>
+): GetDataEnumKind<ValidateRuleSetArgsArgs, 'V1'>;
+export function validateRuleSetArgs<
+  K extends ValidateRuleSetArgsArgs['__kind']
+>(kind: K, data?: any): Extract<ValidateRuleSetArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

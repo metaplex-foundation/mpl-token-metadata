@@ -56,12 +56,12 @@ export function getBurnArgsSerializer(
 // Data Enum Helpers.
 export function burnArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<BurnArgs, 'V1'>
-): GetDataEnumKind<BurnArgs, 'V1'>;
-export function burnArgs<K extends BurnArgs['__kind']>(
+  data: GetDataEnumKindContent<BurnArgsArgs, 'V1'>
+): GetDataEnumKind<BurnArgsArgs, 'V1'>;
+export function burnArgs<K extends BurnArgsArgs['__kind']>(
   kind: K,
   data?: any
-): BurnArgs & { __kind: K } {
+): Extract<BurnArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

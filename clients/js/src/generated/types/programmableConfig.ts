@@ -44,7 +44,7 @@ export function programmableConfig(
 export function programmableConfig<K extends ProgrammableConfig['__kind']>(
   kind: K,
   data?: any
-): ProgrammableConfig & { __kind: K } {
+): Extract<ProgrammableConfig, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

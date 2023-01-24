@@ -52,7 +52,7 @@ export function migrateArgs(
 export function migrateArgs<K extends MigrateArgs['__kind']>(
   kind: K,
   data?: any
-): MigrateArgs & { __kind: K } {
+): Extract<MigrateArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

@@ -48,7 +48,7 @@ export function writeRuleSetToBufferArgs(
 ): GetDataEnumKind<WriteRuleSetToBufferArgs, 'V1'>;
 export function writeRuleSetToBufferArgs<
   K extends WriteRuleSetToBufferArgs['__kind']
->(kind: K, data?: any): WriteRuleSetToBufferArgs & { __kind: K } {
+>(kind: K, data?: any): Extract<WriteRuleSetToBufferArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

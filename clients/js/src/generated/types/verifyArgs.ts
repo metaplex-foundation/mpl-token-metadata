@@ -56,12 +56,12 @@ export function getVerifyArgsSerializer(
 // Data Enum Helpers.
 export function verifyArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<VerifyArgs, 'V1'>
-): GetDataEnumKind<VerifyArgs, 'V1'>;
-export function verifyArgs<K extends VerifyArgs['__kind']>(
+  data: GetDataEnumKindContent<VerifyArgsArgs, 'V1'>
+): GetDataEnumKind<VerifyArgsArgs, 'V1'>;
+export function verifyArgs<K extends VerifyArgsArgs['__kind']>(
   kind: K,
   data?: any
-): VerifyArgs & { __kind: K } {
+): Extract<VerifyArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

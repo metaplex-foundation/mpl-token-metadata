@@ -167,36 +167,36 @@ export function getDelegateArgsSerializer(
 // Data Enum Helpers.
 export function delegateArgs(
   kind: 'CollectionV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'CollectionV1'>
-): GetDataEnumKind<DelegateArgs, 'CollectionV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'CollectionV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'CollectionV1'>;
 export function delegateArgs(
   kind: 'SaleV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'SaleV1'>
-): GetDataEnumKind<DelegateArgs, 'SaleV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'SaleV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'SaleV1'>;
 export function delegateArgs(
   kind: 'TransferV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'TransferV1'>
-): GetDataEnumKind<DelegateArgs, 'TransferV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'TransferV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'TransferV1'>;
 export function delegateArgs(
   kind: 'UpdateV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'UpdateV1'>
-): GetDataEnumKind<DelegateArgs, 'UpdateV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'UpdateV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'UpdateV1'>;
 export function delegateArgs(
   kind: 'UtilityV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'UtilityV1'>
-): GetDataEnumKind<DelegateArgs, 'UtilityV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'UtilityV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'UtilityV1'>;
 export function delegateArgs(
   kind: 'StakingV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'StakingV1'>
-): GetDataEnumKind<DelegateArgs, 'StakingV1'>;
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'StakingV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'StakingV1'>;
 export function delegateArgs(
   kind: 'StandardV1',
-  data: GetDataEnumKindContent<DelegateArgs, 'StandardV1'>
-): GetDataEnumKind<DelegateArgs, 'StandardV1'>;
-export function delegateArgs<K extends DelegateArgs['__kind']>(
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'StandardV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'StandardV1'>;
+export function delegateArgs<K extends DelegateArgsArgs['__kind']>(
   kind: K,
   data?: any
-): DelegateArgs & { __kind: K } {
+): Extract<DelegateArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

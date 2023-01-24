@@ -56,12 +56,12 @@ export function getUnlockArgsSerializer(
 // Data Enum Helpers.
 export function unlockArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<UnlockArgs, 'V1'>
-): GetDataEnumKind<UnlockArgs, 'V1'>;
-export function unlockArgs<K extends UnlockArgs['__kind']>(
+  data: GetDataEnumKindContent<UnlockArgsArgs, 'V1'>
+): GetDataEnumKind<UnlockArgsArgs, 'V1'>;
+export function unlockArgs<K extends UnlockArgsArgs['__kind']>(
   kind: K,
   data?: any
-): UnlockArgs & { __kind: K } {
+): Extract<UnlockArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

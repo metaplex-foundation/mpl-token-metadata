@@ -75,24 +75,24 @@ export function getPayloadTypeSerializer(
 // Data Enum Helpers.
 export function payloadType(
   kind: 'Pubkey',
-  data: GetDataEnumKindContent<PayloadType, 'Pubkey'>['fields']
-): GetDataEnumKind<PayloadType, 'Pubkey'>;
+  data: GetDataEnumKindContent<PayloadTypeArgs, 'Pubkey'>['fields']
+): GetDataEnumKind<PayloadTypeArgs, 'Pubkey'>;
 export function payloadType(
   kind: 'Seeds',
-  data: GetDataEnumKindContent<PayloadType, 'Seeds'>['fields']
-): GetDataEnumKind<PayloadType, 'Seeds'>;
+  data: GetDataEnumKindContent<PayloadTypeArgs, 'Seeds'>['fields']
+): GetDataEnumKind<PayloadTypeArgs, 'Seeds'>;
 export function payloadType(
   kind: 'MerkleProof',
-  data: GetDataEnumKindContent<PayloadType, 'MerkleProof'>['fields']
-): GetDataEnumKind<PayloadType, 'MerkleProof'>;
+  data: GetDataEnumKindContent<PayloadTypeArgs, 'MerkleProof'>['fields']
+): GetDataEnumKind<PayloadTypeArgs, 'MerkleProof'>;
 export function payloadType(
   kind: 'Number',
-  data: GetDataEnumKindContent<PayloadType, 'Number'>['fields']
-): GetDataEnumKind<PayloadType, 'Number'>;
-export function payloadType<K extends PayloadType['__kind']>(
+  data: GetDataEnumKindContent<PayloadTypeArgs, 'Number'>['fields']
+): GetDataEnumKind<PayloadTypeArgs, 'Number'>;
+export function payloadType<K extends PayloadTypeArgs['__kind']>(
   kind: K,
   data?: any
-): PayloadType & { __kind: K } {
+): Extract<PayloadTypeArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };
