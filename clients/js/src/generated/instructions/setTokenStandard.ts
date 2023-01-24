@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type SetTokenStandardInstructionAccounts = {
@@ -78,9 +78,7 @@ export function setTokenStandard(
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
   const updateAuthorityAccount = input.updateAuthority;
-  const editionAccount =
-    input.edition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount = input.edition;
 
   // Metadata.
   keys.push({
@@ -104,12 +102,14 @@ export function setTokenStandard(
     isWritable: isWritable(mintAccount, false),
   });
 
-  // Edition.
-  keys.push({
-    pubkey: editionAccount,
-    isSigner: false,
-    isWritable: isWritable(editionAccount, false),
-  });
+  // Edition (optional).
+  if (editionAccount) {
+    keys.push({
+      pubkey: editionAccount,
+      isSigner: false,
+      isWritable: isWritable(editionAccount, false),
+    });
+  }
 
   // Data.
   const data = getSetTokenStandardInstructionDataSerializer(context).serialize(

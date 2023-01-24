@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 import { UpdateArgs, UpdateArgsArgs, getUpdateArgsSerializer } from '../types';
 
 // Accounts.
@@ -97,9 +97,7 @@ export function update(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount =
-    input.edition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount = input.edition;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
@@ -151,12 +149,14 @@ export function update(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition.
-  keys.push({
-    pubkey: editionAccount,
-    isSigner: false,
-    isWritable: isWritable(editionAccount, true),
-  });
+  // Edition (optional).
+  if (editionAccount) {
+    keys.push({
+      pubkey: editionAccount,
+      isSigner: false,
+      isWritable: isWritable(editionAccount, true),
+    });
+  }
 
   // Payer.
   signers.push(payerAccount);

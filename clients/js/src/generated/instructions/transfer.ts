@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 import {
   TransferArgs,
   TransferArgsArgs,
@@ -114,9 +114,7 @@ export function transfer(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount =
-    input.edition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount = input.edition;
   const ownerTokenRecordAccount = input.ownerTokenRecord;
   const destinationTokenRecordAccount = input.destinationTokenRecord;
   const authorityAccount = input.authority ?? context.identity;
@@ -181,12 +179,14 @@ export function transfer(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition.
-  keys.push({
-    pubkey: editionAccount,
-    isSigner: false,
-    isWritable: isWritable(editionAccount, false),
-  });
+  // Edition (optional).
+  if (editionAccount) {
+    keys.push({
+      pubkey: editionAccount,
+      isSigner: false,
+      isWritable: isWritable(editionAccount, false),
+    });
+  }
 
   // Owner Token Record (optional).
   if (ownerTokenRecordAccount) {

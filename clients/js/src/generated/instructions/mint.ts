@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 import { MintArgs, MintArgsArgs, getMintArgsSerializer } from '../types';
 
 // Accounts.
@@ -101,9 +101,7 @@ export function mint(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount =
-    input.masterEdition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount = input.masterEdition;
   const tokenRecordAccount = input.tokenRecord;
   const authorityAccount = input.authority ?? context.identity;
   const delegateRecordAccount = input.delegateRecord;
@@ -149,12 +147,14 @@ export function mint(
     isWritable: isWritable(metadataAccount, false),
   });
 
-  // Master Edition.
-  keys.push({
-    pubkey: masterEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(masterEditionAccount, false),
-  });
+  // Master Edition (optional).
+  if (masterEditionAccount) {
+    keys.push({
+      pubkey: masterEditionAccount,
+      isSigner: false,
+      isWritable: isWritable(masterEditionAccount, false),
+    });
+  }
 
   // Token Record (optional).
   if (tokenRecordAccount) {

@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 import { UnlockArgs, UnlockArgsArgs, getUnlockArgsSerializer } from '../types';
 
 // Accounts.
@@ -101,9 +101,7 @@ export function unlock(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount =
-    input.edition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const editionAccount = input.edition;
   const tokenRecordAccount = input.tokenRecord;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
@@ -155,12 +153,14 @@ export function unlock(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition.
-  keys.push({
-    pubkey: editionAccount,
-    isSigner: false,
-    isWritable: isWritable(editionAccount, false),
-  });
+  // Edition (optional).
+  if (editionAccount) {
+    keys.push({
+      pubkey: editionAccount,
+      isSigner: false,
+      isWritable: isWritable(editionAccount, false),
+    });
+  }
 
   // Token Record (optional).
   if (tokenRecordAccount) {

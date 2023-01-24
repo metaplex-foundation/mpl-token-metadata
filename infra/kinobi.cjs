@@ -114,12 +114,13 @@ kinobi.update(
 // Set default values for instruction accounts.
 kinobi.update(
   new SetInstructionAccountDefaultValuesVisitor([
-    // { account: "metadata", kind: "pda" },
-    // {
-    //   account: /^edition|masterEdition$/,
-    //   kind: "pda",
-    //   pdaAccount: "masterEdition",
-    // },
+    { account: "metadata", kind: "pda", ignoreIfOptional: true },
+    {
+      account: /^edition|masterEdition$/,
+      kind: "pda",
+      pdaAccount: "masterEdition",
+      ignoreIfOptional: true,
+    },
   ])
 );
 

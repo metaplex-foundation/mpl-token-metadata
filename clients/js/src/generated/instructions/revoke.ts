@@ -17,7 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@lorisleiva/js-core';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { findMetadataPda } from '../accounts';
 import { RevokeArgs, getRevokeArgsSerializer } from '../types';
 
 // Accounts.
@@ -102,9 +102,7 @@ export function revoke(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount =
-    input.masterEdition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
+  const masterEditionAccount = input.masterEdition;
   const tokenRecordAccount = input.tokenRecord;
   const tokenAccount = input.token;
   const authorityAccount = input.authority ?? context.identity;
@@ -143,12 +141,14 @@ export function revoke(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Master Edition.
-  keys.push({
-    pubkey: masterEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(masterEditionAccount, false),
-  });
+  // Master Edition (optional).
+  if (masterEditionAccount) {
+    keys.push({
+      pubkey: masterEditionAccount,
+      isSigner: false,
+      isWritable: isWritable(masterEditionAccount, false),
+    });
+  }
 
   // Token Record (optional).
   if (tokenRecordAccount) {
