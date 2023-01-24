@@ -13,6 +13,7 @@ import {
   Option,
   PublicKey,
   Serializer,
+  mapSerializer,
 } from '@lorisleiva/js-core';
 import {
   Collection,
@@ -55,12 +56,12 @@ export type CreateArgsArgs = {
   __kind: 'V1';
   updateAuthority: PublicKey;
   name: string;
-  symbol: string;
+  symbol?: string;
   uri: string;
   sellerFeeBasisPoints: number;
   creators: Option<Array<Creator>>;
-  primarySaleHappened: boolean;
-  isMutable: boolean;
+  primarySaleHappened?: boolean;
+  isMutable?: boolean;
   tokenStandard: TokenStandard;
   collection: Option<Collection>;
   uses: Option<UsesArgs>;
@@ -78,28 +79,41 @@ export function getCreateArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>(
-          [
-            ['updateAuthority', s.publicKey],
-            ['name', s.string()],
-            ['symbol', s.string()],
-            ['uri', s.string()],
-            ['sellerFeeBasisPoints', s.u16],
-            ['creators', s.option(s.vec(getCreatorSerializer(context)))],
-            ['primarySaleHappened', s.bool()],
-            ['isMutable', s.bool()],
-            ['tokenStandard', getTokenStandardSerializer(context)],
-            ['collection', s.option(getCollectionSerializer(context))],
-            ['uses', s.option(getUsesSerializer(context))],
+        mapSerializer<
+          GetDataEnumKindContent<CreateArgsArgs, 'V1'>,
+          GetDataEnumKindContent<CreateArgs, 'V1'>,
+          GetDataEnumKindContent<CreateArgs, 'V1'>
+        >(
+          s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>(
             [
-              'collectionDetails',
-              s.option(getCollectionDetailsSerializer(context)),
+              ['updateAuthority', s.publicKey],
+              ['name', s.string()],
+              ['symbol', s.string()],
+              ['uri', s.string()],
+              ['sellerFeeBasisPoints', s.u16],
+              ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+              ['primarySaleHappened', s.bool()],
+              ['isMutable', s.bool()],
+              ['tokenStandard', getTokenStandardSerializer(context)],
+              ['collection', s.option(getCollectionSerializer(context))],
+              ['uses', s.option(getUsesSerializer(context))],
+              [
+                'collectionDetails',
+                s.option(getCollectionDetailsSerializer(context)),
+              ],
+              ['ruleSet', s.option(s.publicKey)],
+              ['decimals', s.option(s.u8)],
+              ['printSupply', s.option(getPrintSupplySerializer(context))],
             ],
-            ['ruleSet', s.option(s.publicKey)],
-            ['decimals', s.option(s.u8)],
-            ['printSupply', s.option(getPrintSupplySerializer(context))],
-          ],
-          'V1'
+            'V1'
+          ),
+          (value) =>
+            ({
+              symbol: '',
+              primarySaleHappened: false,
+              isMutable: true,
+              ...value,
+            } as GetDataEnumKindContent<CreateArgs, 'V1'>)
         ),
       ],
     ],

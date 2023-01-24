@@ -12,6 +12,7 @@ const {
   UpdateInstructionsVisitor,
   TypeLeafNode,
   TypeDefinedLinkNode,
+  SetStructDefaultValuesVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -155,13 +156,6 @@ kinobi.update(
   })
 );
 
-// Wrap leaves.
-kinobi.update(
-  new SetLeafWrappersVisitor({
-    // "splSystem.CreateAccount.lamports": { kind: "SolAmount" },
-  })
-);
-
 // Set default values for instruction accounts.
 kinobi.update(
   new SetInstructionAccountDefaultValuesVisitor([
@@ -177,6 +171,17 @@ kinobi.update(
   ])
 );
 
+// Set struct default values.
+kinobi.update(
+  new SetStructDefaultValuesVisitor({
+    "mplTokenMetadata.AssetData": {
+      symbol: { kind: "json", value: "" },
+      isMutable: { kind: "json", value: true },
+      primarySaleHappened: { kind: "json", value: false },
+    },
+  })
+);
+
 // Unwrap types and structs.
 kinobi.update(new UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(
@@ -184,6 +189,13 @@ kinobi.update(
     "mplTokenMetadata.Metadata": ["data"],
     "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
     "mplTokenMetadata.CreateArgs.V1": ["assetData"],
+  })
+);
+
+// Wrap leaves.
+kinobi.update(
+  new SetLeafWrappersVisitor({
+    // "splSystem.CreateAccount.lamports": { kind: "SolAmount" },
   })
 );
 
