@@ -27,11 +27,11 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lorisleiva/js-core": "^0.0.43"
+    "@lorisleiva/js-core": "^0.0.44"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
-    "@lorisleiva/js-test": "^0.0.43",
+    "@lorisleiva/js-test": "^0.0.44",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",
