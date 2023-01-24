@@ -3,6 +3,7 @@ import {
   none,
   some,
   transactionBuilder,
+  createAmount,
 } from '@lorisleiva/js-test';
 import test from 'ava';
 import { create, createArgs, CreateArgs, TokenStandard } from '../src';
@@ -18,11 +19,11 @@ test('it can create a new NFT with minimum configuration', async (t) => {
     .add(
       create(mx, {
         mint,
-        createArgs: createArgs('V1', <CreateArgs>{
+        createArgs: createArgs('V1', {
           updateAuthority: mx.identity.publicKey,
           name: 'My NFT',
           uri: 'https://example.com/my-nft.json',
-          sellerFeeBasisPoints: 500,
+          sellerFeeBasisPoints: createAmount(500, '%', 2),
           creators: some([
             {
               address: mx.identity.publicKey,

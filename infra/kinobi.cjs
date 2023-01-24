@@ -171,6 +171,17 @@ kinobi.update(
   ])
 );
 
+// Wrap leaves.
+kinobi.update(
+  new SetLeafWrappersVisitor({
+    "mplTokenMetadata.AssetData.sellerFeeBasisPoints": {
+      kind: "Amount",
+      identifier: "%",
+      decimals: 2,
+    },
+  })
+);
+
 // Set struct default values.
 kinobi.update(
   new SetStructDefaultValuesVisitor({
@@ -189,13 +200,6 @@ kinobi.update(
     "mplTokenMetadata.Metadata": ["data"],
     "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
     "mplTokenMetadata.CreateArgs.V1": ["assetData"],
-  })
-);
-
-// Wrap leaves.
-kinobi.update(
-  new SetLeafWrappersVisitor({
-    // "splSystem.CreateAccount.lamports": { kind: "SolAmount" },
   })
 );
 

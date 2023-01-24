@@ -7,12 +7,14 @@
  */
 
 import {
+  Amount,
   Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
   Option,
   PublicKey,
   Serializer,
+  mapAmountSerializer,
   mapSerializer,
 } from '@lorisleiva/js-core';
 import {
@@ -39,7 +41,7 @@ export type CreateArgs = {
   name: string;
   symbol: string;
   uri: string;
-  sellerFeeBasisPoints: number;
+  sellerFeeBasisPoints: Amount<'%', 2>;
   creators: Option<Array<Creator>>;
   primarySaleHappened: boolean;
   isMutable: boolean;
@@ -58,7 +60,7 @@ export type CreateArgsArgs = {
   name: string;
   symbol?: string;
   uri: string;
-  sellerFeeBasisPoints: number;
+  sellerFeeBasisPoints: Amount<'%', 2>;
   creators: Option<Array<Creator>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
@@ -90,7 +92,7 @@ export function getCreateArgsSerializer(
               ['name', s.string()],
               ['symbol', s.string()],
               ['uri', s.string()],
-              ['sellerFeeBasisPoints', s.u16],
+              ['sellerFeeBasisPoints', mapAmountSerializer(s.u16, '%', 2)],
               ['creators', s.option(s.vec(getCreatorSerializer(context)))],
               ['primarySaleHappened', s.bool()],
               ['isMutable', s.bool()],
@@ -125,12 +127,12 @@ export function getCreateArgsSerializer(
 // Data Enum Helpers.
 export function createArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<CreateArgs, 'V1'>
-): GetDataEnumKind<CreateArgs, 'V1'>;
+  data: GetDataEnumKindContent<CreateArgsArgs, 'V1'>
+): GetDataEnumKind<CreateArgsArgs, 'V1'>;
 export function createArgs<K extends CreateArgs['__kind']>(
   kind: K,
   data?: any
-): CreateArgs & { __kind: K } {
+): CreateArgsArgs & { __kind: K } {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };
