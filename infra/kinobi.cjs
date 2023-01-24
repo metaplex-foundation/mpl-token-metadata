@@ -10,6 +10,7 @@ const {
   UpdateAccountsVisitor,
   UpdateDefinedTypesVisitor,
   UpdateInstructionsVisitor,
+  TypeLeafNode,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -33,8 +34,33 @@ kinobi.update(
 // Update Accounts.
 kinobi.update(
   new UpdateAccountsVisitor({
-    "mplTokenAuthRules.FrequencyAccount": { name: "RuleSetFrequency" },
-    "mplTokenMetadata.MasterEditionV2": { name: "MasterEdition" },
+    Metadata: {
+      seeds: [
+        { kind: "literal", value: "metadata" },
+        { kind: "programId" },
+        {
+          kind: "variable",
+          name: "mint",
+          description: "The address of the mint account",
+          type: new TypeLeafNode("publicKey"),
+        },
+      ],
+    },
+    MasterEditionV2: {
+      name: "MasterEdition",
+      seeds: [
+        { kind: "literal", value: "metadata" },
+        { kind: "programId" },
+        {
+          kind: "variable",
+          name: "mint",
+          description: "The address of the mint account",
+          type: new TypeLeafNode("publicKey"),
+        },
+        { kind: "literal", value: "edition" },
+      ],
+    },
+    FrequencyAccount: { name: "RuleSetFrequency" },
     // Deprecated nodes.
     "mplTokenMetadata.ReservationListV1": { delete: true },
     "mplTokenMetadata.ReservationListV2": { delete: true },
@@ -82,7 +108,12 @@ kinobi.update(
 // Set default values for instruction accounts.
 kinobi.update(
   new SetInstructionAccountDefaultValuesVisitor([
-    // { instruction: "TransferSol", account: "source", kind: "identity" },
+    // { account: "metadata", kind: "pda" },
+    // {
+    //   account: /^edition|masterEdition$/,
+    //   kind: "pda",
+    //   pdaAccount: "masterEdition",
+    // },
   ])
 );
 

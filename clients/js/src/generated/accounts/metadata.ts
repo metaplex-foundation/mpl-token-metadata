@@ -10,11 +10,13 @@ import {
   Account,
   Context,
   Option,
+  Pda,
   PublicKey,
   RpcAccount,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  utf8,
 } from '@lorisleiva/js-core';
 import {
   Collection,
@@ -138,4 +140,21 @@ export function getMetadataSize(
   context: Pick<Context, 'serializer'>
 ): number | null {
   return getMetadataAccountDataSerializer(context).fixedSize;
+}
+
+export function findMetadataPda(
+  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  seeds: {
+    /** The address of the mint account */
+    mint: PublicKey;
+  }
+): Pda {
+  const s = context.serializer;
+  const programId: PublicKey =
+    context.programs.get('mplTokenMetadata').publicKey;
+  return context.eddsa.findPda(programId, [
+    utf8.serialize('metadata'),
+    programId.bytes,
+    s.publicKey.serialize(seeds.mint),
+  ]);
 }
