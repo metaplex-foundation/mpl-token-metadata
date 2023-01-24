@@ -31,7 +31,7 @@ export type CreateMasterEditionV3InstructionAccounts = {
   /** Metadata mint */
   mint: PublicKey;
   /** Update authority */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /** Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
   mintAuthority: Signer;
   /** payer */
@@ -88,7 +88,10 @@ export function getCreateMasterEditionV3InstructionDataSerializer(
 
 // Instruction.
 export function createMasterEditionV3(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: CreateMasterEditionV3InstructionAccounts &
     CreateMasterEditionV3InstructionArgs
 ): WrappedInstruction {
@@ -104,7 +107,7 @@ export function createMasterEditionV3(
   const editionAccount =
     input.edition ??
     findMasterEditionPda(context, { mint: publicKey(mintAccount) });
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const mintAuthorityAccount = input.mintAuthority;
   const payerAccount = input.payer ?? context.payer;
   const metadataAccount =

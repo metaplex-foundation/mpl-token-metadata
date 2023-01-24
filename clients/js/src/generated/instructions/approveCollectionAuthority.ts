@@ -26,7 +26,7 @@ export type ApproveCollectionAuthorityInstructionAccounts = {
   /** A Collection Authority */
   newCollectionAuthority: PublicKey;
   /** Update Authority of Collection NFT */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /** Payer */
   payer?: Signer;
   /** Collection Metadata account */
@@ -75,7 +75,10 @@ export function getApproveCollectionAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function approveCollectionAuthority(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: ApproveCollectionAuthorityInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -88,7 +91,7 @@ export function approveCollectionAuthority(
   // Resolved accounts.
   const collectionAuthorityRecordAccount = input.collectionAuthorityRecord;
   const newCollectionAuthorityAccount = input.newCollectionAuthority;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const mintAccount = input.mint;
   const metadataAccount =

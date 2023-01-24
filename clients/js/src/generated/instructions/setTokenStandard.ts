@@ -24,7 +24,7 @@ export type SetTokenStandardInstructionAccounts = {
   /** Metadata account */
   metadata?: PublicKey;
   /** Metadata update authority */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /** Mint account */
   mint: PublicKey;
   /** Edition account */
@@ -62,7 +62,7 @@ export function getSetTokenStandardInstructionDataSerializer(
 
 // Instruction.
 export function setTokenStandard(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
   input: SetTokenStandardInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -77,7 +77,7 @@ export function setTokenStandard(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const editionAccount = input.edition;
 
   // Metadata.

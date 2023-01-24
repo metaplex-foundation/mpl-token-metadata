@@ -35,7 +35,7 @@ export type DeprecatedCreateMasterEditionInstructionAccounts = {
   /** One time authorization printing mint - A mint you control that prints tokens that gives the bearer permission to mint any number of tokens from the printing mint one time via an endpoint with the token-metadata program for your metadata. Also burns the token. */
   oneTimePrintingAuthorizationMint: PublicKey;
   /** Current Update authority key */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /** Printing mint authority - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY. */
   printingMintAuthority: Signer;
   /** Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
@@ -99,7 +99,10 @@ export function getDeprecatedCreateMasterEditionInstructionDataSerializer(
 
 // Instruction.
 export function deprecatedCreateMasterEdition(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: DeprecatedCreateMasterEditionInstructionAccounts &
     DeprecatedCreateMasterEditionInstructionArgs
 ): WrappedInstruction {
@@ -118,7 +121,7 @@ export function deprecatedCreateMasterEdition(
   const printingMintAccount = input.printingMint;
   const oneTimePrintingAuthorizationMintAccount =
     input.oneTimePrintingAuthorizationMint;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const printingMintAuthorityAccount = input.printingMintAuthority;
   const mintAuthorityAccount = input.mintAuthority;
   const metadataAccount =

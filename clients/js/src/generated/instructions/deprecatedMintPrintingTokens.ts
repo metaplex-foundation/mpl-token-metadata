@@ -30,7 +30,7 @@ export type DeprecatedMintPrintingTokensInstructionAccounts = {
   /** Printing mint */
   printingMint: PublicKey;
   /** Update authority */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /** Metadata key (pda of ['metadata', program id, mint id]) */
   metadata: PublicKey;
   /** Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition']) */
@@ -86,7 +86,7 @@ export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
 
 // Instruction.
 export function deprecatedMintPrintingTokens(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: DeprecatedMintPrintingTokensInstructionAccounts &
     DeprecatedMintPrintingTokensInstructionArgs
 ): WrappedInstruction {
@@ -100,7 +100,7 @@ export function deprecatedMintPrintingTokens(
   // Resolved accounts.
   const destinationAccount = input.destination;
   const printingMintAccount = input.printingMint;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const metadataAccount = input.metadata;
   const masterEditionAccount = input.masterEdition;
   const tokenProgramAccount = input.tokenProgram ?? {

@@ -31,7 +31,7 @@ export type CreateMetadataAccountV2InstructionAccounts = {
   /** payer */
   payer?: Signer;
   /** update authority info */
-  updateAuthority: PublicKey;
+  updateAuthority?: PublicKey;
   /** System program */
   systemProgram?: PublicKey;
   /** Rent info */
@@ -83,7 +83,10 @@ export function getCreateMetadataAccountV2InstructionDataSerializer(
 
 // Instruction.
 export function createMetadataAccountV2(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: CreateMetadataAccountV2InstructionAccounts &
     CreateMetadataAccountV2InstructionArgs
 ): WrappedInstruction {
@@ -101,7 +104,8 @@ export function createMetadataAccountV2(
     findMetadataPda(context, { mint: publicKey(mintAccount) });
   const mintAuthorityAccount = input.mintAuthority;
   const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount =
+    input.updateAuthority ?? context.identity.publicKey;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,

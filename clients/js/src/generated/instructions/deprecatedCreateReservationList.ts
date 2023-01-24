@@ -25,7 +25,7 @@ export type DeprecatedCreateReservationListInstructionAccounts = {
   /** Payer */
   payer?: Signer;
   /** Update authority */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
   /**  Master Edition V1 key (pda of ['metadata', program id, mint id, 'edition']) */
   masterEdition: PublicKey;
   /** A resource you wish to tie the reservation list to. This is so your later visitors who come to redeem can derive your reservation list PDA with something they can easily get at. You choose what this should be. */
@@ -74,7 +74,7 @@ export function getDeprecatedCreateReservationListInstructionDataSerializer(
 
 // Instruction.
 export function deprecatedCreateReservationList(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
   input: DeprecatedCreateReservationListInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -87,7 +87,7 @@ export function deprecatedCreateReservationList(
   // Resolved accounts.
   const reservationListAccount = input.reservationList;
   const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const masterEditionAccount = input.masterEdition;
   const resourceAccount = input.resource;
   const metadataAccount = input.metadata;

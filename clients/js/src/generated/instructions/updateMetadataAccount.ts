@@ -24,7 +24,7 @@ export type UpdateMetadataAccountInstructionAccounts = {
   /** Metadata account */
   metadata: PublicKey;
   /** Update authority key */
-  updateAuthority: Signer;
+  updateAuthority?: Signer;
 };
 
 // Arguments.
@@ -98,7 +98,7 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
 
 // Instruction.
 export function updateMetadataAccount(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: UpdateMetadataAccountInstructionAccounts &
     UpdateMetadataAccountInstructionArgs
 ): WrappedInstruction {
@@ -111,7 +111,7 @@ export function updateMetadataAccount(
 
   // Resolved accounts.
   const metadataAccount = input.metadata;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
 
   // Metadata.
   keys.push({

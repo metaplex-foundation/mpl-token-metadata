@@ -26,7 +26,7 @@ export type SetAndVerifySizedCollectionItemInstructionAccounts = {
   /** payer */
   payer?: Signer;
   /** Update Authority of Collection NFT and NFT */
-  updateAuthority: PublicKey;
+  updateAuthority?: PublicKey;
   /** Mint of the Collection */
   collectionMint: PublicKey;
   /** Metadata Account of the Collection */
@@ -73,7 +73,7 @@ export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(
 
 // Instruction.
 export function setAndVerifySizedCollectionItem(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
   input: SetAndVerifySizedCollectionItemInstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -87,7 +87,8 @@ export function setAndVerifySizedCollectionItem(
   const metadataAccount = input.metadata;
   const collectionAuthorityAccount = input.collectionAuthority;
   const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount = input.updateAuthority;
+  const updateAuthorityAccount =
+    input.updateAuthority ?? context.identity.publicKey;
   const collectionMintAccount = input.collectionMint;
   const collectionAccount = input.collection;
   const collectionMasterEditionAccountAccount =
