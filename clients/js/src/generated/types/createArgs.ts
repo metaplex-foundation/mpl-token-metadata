@@ -70,8 +70,8 @@ export type CreateArgsArgs = {
   uses?: Option<UsesArgs>;
   collectionDetails?: Option<CollectionDetailsArgs>;
   ruleSet?: Option<PublicKey>;
-  decimals: Option<number>;
-  printSupply: Option<PrintSupplyArgs>;
+  decimals?: Option<number>;
+  printSupply?: Option<PrintSupplyArgs>;
 };
 
 export function getCreateArgsSerializer(
@@ -119,6 +119,8 @@ export function getCreateArgsSerializer(
               uses: none(),
               collectionDetails: none(),
               ruleSet: none(),
+              decimals: none(),
+              printSupply: none(),
               ...value,
             } as GetDataEnumKindContent<CreateArgs, 'V1'>)
         ),

@@ -194,6 +194,10 @@ kinobi.update(
       collectionDetails: { kind: "noneOption" },
       ruleSet: { kind: "noneOption" },
     },
+    "mplTokenMetadata.CreateArgs.V1": {
+      decimals: { kind: "noneOption" },
+      printSupply: { kind: "noneOption" },
+    },
   })
 );
 
