@@ -1,6 +1,5 @@
 import {
   generateSigner,
-  none,
   percentAmount,
   some,
   transactionBuilder,
@@ -32,12 +31,6 @@ test('it can create a new NFT with minimum configuration', async (t) => {
             },
           ]),
           tokenStandard: TokenStandard.NonFungible,
-          collection: none(),
-          uses: none(),
-          collectionDetails: none(),
-          ruleSet: none(),
-          decimals: none(),
-          printSupply: none(),
         }),
       })
     )

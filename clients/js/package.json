@@ -9,7 +9,6 @@
     "test": "ava",
     "bump": "pnpm version",
     "deploy": "pnpm build && pnpm test && pnpm publish",
-    "postversion": "git tag $npm_package_name@$npm_package_version",
     "build:docs": "typedoc",
     "lint": "eslint --ext js,ts,tsx src",
     "lint:fix": "eslint --fix --ext js,ts,tsx src",
@@ -27,7 +26,8 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lorisleiva/js-core": "^0.0.44"
+    "@lorisleiva/js-core": "^0.0.44",
+    "@lorisleiva/mpl-essentials": "^0.0.2"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",

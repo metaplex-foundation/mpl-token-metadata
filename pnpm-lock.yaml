@@ -19,6 +19,7 @@ importers:
       '@ava/typescript': ^3.0.1
       '@lorisleiva/js-core': ^0.0.44
       '@lorisleiva/js-test': ^0.0.44
+      '@lorisleiva/mpl-essentials': ^0.0.2
       '@solana/web3.js': ^1.73.0
       '@typescript-eslint/eslint-plugin': ^5.0.0
       '@typescript-eslint/parser': ^5.46.1
@@ -34,6 +35,7 @@ importers:
       typescript: ^4.6.2
     dependencies:
       '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/mpl-essentials': 0.0.2
     devDependencies:
       '@ava/typescript': 3.0.1
       '@lorisleiva/js-test': 0.0.44_@solana+web3.js@1.73.0
@@ -229,6 +231,12 @@ packages:
     transitivePeerDependencies:
       - chokidar
     dev: true
+
+  /@lorisleiva/mpl-essentials/0.0.2:
+    resolution: {integrity: sha512-osW3y5HpEKadY1HbxZkAcnhbo/4oYU4meHC26+oGdRlbFngaEkXGdpt2ysOvIEhGUYeUcfuW15rFS6vSCoFJhg==}
+    dependencies:
+      '@lorisleiva/js-core': 0.0.44
+    dev: false
 
   /@lorisleiva/shank-js/0.0.1:
     resolution: {integrity: sha512-ucO2r7IL8tAKKgMKGBMyxE5OUv184Ln9Bjl7IA548M3wqZPt94B0NMBClenlnJG8VIq6qTBnPY4t3QJTwhvvIA==}
