@@ -16,6 +16,7 @@ import {
   Serializer,
   mapAmountSerializer,
   mapSerializer,
+  none,
 } from '@lorisleiva/js-core';
 import {
   Collection,
@@ -65,10 +66,10 @@ export type CreateArgsArgs = {
   primarySaleHappened?: boolean;
   isMutable?: boolean;
   tokenStandard: TokenStandard;
-  collection: Option<Collection>;
-  uses: Option<UsesArgs>;
-  collectionDetails: Option<CollectionDetailsArgs>;
-  ruleSet: Option<PublicKey>;
+  collection?: Option<Collection>;
+  uses?: Option<UsesArgs>;
+  collectionDetails?: Option<CollectionDetailsArgs>;
+  ruleSet?: Option<PublicKey>;
   decimals: Option<number>;
   printSupply: Option<PrintSupplyArgs>;
 };
@@ -114,6 +115,10 @@ export function getCreateArgsSerializer(
               symbol: '',
               primarySaleHappened: false,
               isMutable: true,
+              collection: none(),
+              uses: none(),
+              collectionDetails: none(),
+              ruleSet: none(),
               ...value,
             } as GetDataEnumKindContent<CreateArgs, 'V1'>)
         ),

@@ -189,6 +189,10 @@ kinobi.update(
       symbol: { kind: "json", value: "" },
       isMutable: { kind: "json", value: true },
       primarySaleHappened: { kind: "json", value: false },
+      collection: { kind: "noneOption" },
+      uses: { kind: "noneOption" },
+      collectionDetails: { kind: "noneOption" },
+      ruleSet: { kind: "noneOption" },
     },
   })
 );
