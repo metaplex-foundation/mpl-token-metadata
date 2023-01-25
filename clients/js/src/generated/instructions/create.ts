@@ -91,7 +91,10 @@ export function create(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount = input.masterEdition;
+  const masterEditionAccount = input.masterEdition ?? {
+    ...programId,
+    isWritable: false,
+  };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const updateAuthorityAccount =
@@ -115,14 +118,12 @@ export function create(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Master Edition (optional).
-  if (masterEditionAccount) {
-    keys.push({
-      pubkey: masterEditionAccount,
-      isSigner: false,
-      isWritable: isWritable(masterEditionAccount, true),
-    });
-  }
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, true),
+  });
 
   // Mint.
   if (isSigner(mintAccount)) {

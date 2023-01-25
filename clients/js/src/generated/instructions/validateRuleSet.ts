@@ -14,7 +14,9 @@ import {
   Signer,
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
+  isSigner,
   mapSerializer,
+  publicKey,
 } from '@lorisleiva/js-core';
 import {
   ValidateRuleSetArgs,
@@ -91,9 +93,15 @@ export function validateRuleSet(
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,
   };
-  const payerAccount = input.payer;
-  const ruleAuthorityAccount = input.ruleAuthority;
-  const ruleSetStatePdaAccount = input.ruleSetStatePda;
+  const payerAccount = input.payer ?? { ...programId, isWritable: false };
+  const ruleAuthorityAccount = input.ruleAuthority ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const ruleSetStatePdaAccount = input.ruleSetStatePda ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Rule Set Pda.
   keys.push({
@@ -116,34 +124,32 @@ export function validateRuleSet(
     isWritable: isWritable(systemProgramAccount, false),
   });
 
-  // Payer (optional).
-  if (payerAccount) {
+  // Payer.
+  if (isSigner(payerAccount)) {
     signers.push(payerAccount);
-    keys.push({
-      pubkey: payerAccount.publicKey,
-      isSigner: true,
-      isWritable: isWritable(payerAccount, true),
-    });
   }
+  keys.push({
+    pubkey: publicKey(payerAccount),
+    isSigner: isSigner(payerAccount),
+    isWritable: isWritable(payerAccount, true),
+  });
 
-  // Rule Authority (optional).
-  if (ruleAuthorityAccount) {
+  // Rule Authority.
+  if (isSigner(ruleAuthorityAccount)) {
     signers.push(ruleAuthorityAccount);
-    keys.push({
-      pubkey: ruleAuthorityAccount.publicKey,
-      isSigner: true,
-      isWritable: isWritable(ruleAuthorityAccount, false),
-    });
   }
+  keys.push({
+    pubkey: publicKey(ruleAuthorityAccount),
+    isSigner: isSigner(ruleAuthorityAccount),
+    isWritable: isWritable(ruleAuthorityAccount, false),
+  });
 
-  // Rule Set State Pda (optional).
-  if (ruleSetStatePdaAccount) {
-    keys.push({
-      pubkey: ruleSetStatePdaAccount,
-      isSigner: false,
-      isWritable: isWritable(ruleSetStatePdaAccount, true),
-    });
-  }
+  // Rule Set State Pda.
+  keys.push({
+    pubkey: ruleSetStatePdaAccount,
+    isSigner: false,
+    isWritable: isWritable(ruleSetStatePdaAccount, true),
+  });
 
   // Data.
   const data =

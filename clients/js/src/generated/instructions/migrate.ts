@@ -132,8 +132,14 @@ export function migrate(
     ...context.programs.get('splToken').publicKey,
     isWritable: false,
   };
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
-  const authorizationRulesAccount = input.authorizationRules;
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Metadata.
   keys.push({
@@ -228,23 +234,19 @@ export function migrate(
     isWritable: isWritable(splTokenProgramAccount, false),
   });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
   // Data.
   const data = getMigrateInstructionDataSerializer(context).serialize(input);

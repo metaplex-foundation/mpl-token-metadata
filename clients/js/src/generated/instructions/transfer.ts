@@ -114,9 +114,15 @@ export function transfer(
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount = input.edition;
-  const ownerTokenRecordAccount = input.ownerTokenRecord;
-  const destinationTokenRecordAccount = input.destinationTokenRecord;
+  const editionAccount = input.edition ?? { ...programId, isWritable: false };
+  const ownerTokenRecordAccount = input.ownerTokenRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const destinationTokenRecordAccount = input.destinationTokenRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
@@ -134,8 +140,14 @@ export function transfer(
     ...context.programs.get('splAssociatedToken').publicKey,
     isWritable: false,
   };
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
-  const authorizationRulesAccount = input.authorizationRules;
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Token.
   keys.push({
@@ -179,32 +191,26 @@ export function transfer(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, false),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, false),
+  });
 
-  // Owner Token Record (optional).
-  if (ownerTokenRecordAccount) {
-    keys.push({
-      pubkey: ownerTokenRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(ownerTokenRecordAccount, true),
-    });
-  }
+  // Owner Token Record.
+  keys.push({
+    pubkey: ownerTokenRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(ownerTokenRecordAccount, true),
+  });
 
-  // Destination Token Record (optional).
-  if (destinationTokenRecordAccount) {
-    keys.push({
-      pubkey: destinationTokenRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(destinationTokenRecordAccount, true),
-    });
-  }
+  // Destination Token Record.
+  keys.push({
+    pubkey: destinationTokenRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(destinationTokenRecordAccount, true),
+  });
 
   // Authority.
   signers.push(authorityAccount);
@@ -250,23 +256,19 @@ export function transfer(
     isWritable: isWritable(splAtaProgramAccount, false),
   });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
   // Data.
   const data = getTransferInstructionDataSerializer(context).serialize(input);

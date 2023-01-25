@@ -96,15 +96,24 @@ export function revoke(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const delegateRecordAccount = input.delegateRecord;
+  const delegateRecordAccount = input.delegateRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
   const delegateAccount = input.delegate;
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount = input.masterEdition;
-  const tokenRecordAccount = input.tokenRecord;
-  const tokenAccount = input.token;
+  const masterEditionAccount = input.masterEdition ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const tokenRecordAccount = input.tokenRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const tokenAccount = input.token ?? { ...programId, isWritable: false };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
@@ -114,18 +123,25 @@ export function revoke(
   const sysvarInstructionsAccount =
     input.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
-  const splTokenProgramAccount = input.splTokenProgram;
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
-  const authorizationRulesAccount = input.authorizationRules;
+  const splTokenProgramAccount = input.splTokenProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
 
-  // Delegate Record (optional).
-  if (delegateRecordAccount) {
-    keys.push({
-      pubkey: delegateRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(delegateRecordAccount, true),
-    });
-  }
+  // Delegate Record.
+  keys.push({
+    pubkey: delegateRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(delegateRecordAccount, true),
+  });
 
   // Delegate.
   keys.push({
@@ -141,23 +157,19 @@ export function revoke(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Master Edition (optional).
-  if (masterEditionAccount) {
-    keys.push({
-      pubkey: masterEditionAccount,
-      isSigner: false,
-      isWritable: isWritable(masterEditionAccount, false),
-    });
-  }
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, false),
+  });
 
-  // Token Record (optional).
-  if (tokenRecordAccount) {
-    keys.push({
-      pubkey: tokenRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(tokenRecordAccount, true),
-    });
-  }
+  // Token Record.
+  keys.push({
+    pubkey: tokenRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenRecordAccount, true),
+  });
 
   // Mint.
   keys.push({
@@ -166,14 +178,12 @@ export function revoke(
     isWritable: isWritable(mintAccount, false),
   });
 
-  // Token (optional).
-  if (tokenAccount) {
-    keys.push({
-      pubkey: tokenAccount,
-      isSigner: false,
-      isWritable: isWritable(tokenAccount, true),
-    });
-  }
+  // Token.
+  keys.push({
+    pubkey: tokenAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenAccount, true),
+  });
 
   // Authority.
   signers.push(authorityAccount);
@@ -205,32 +215,26 @@ export function revoke(
     isWritable: isWritable(sysvarInstructionsAccount, false),
   });
 
-  // Spl Token Program (optional).
-  if (splTokenProgramAccount) {
-    keys.push({
-      pubkey: splTokenProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(splTokenProgramAccount, false),
-    });
-  }
+  // Spl Token Program.
+  keys.push({
+    pubkey: splTokenProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(splTokenProgramAccount, false),
+  });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
   // Data.
   const data = getRevokeInstructionDataSerializer(context).serialize(input);

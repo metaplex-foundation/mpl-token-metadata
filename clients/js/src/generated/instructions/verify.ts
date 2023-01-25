@@ -76,8 +76,14 @@ export function verify(
   const metadataAccount = input.metadata;
   const collectionAuthorityAccount = input.collectionAuthority;
   const payerAccount = input.payer ?? context.payer;
-  const authorizationRulesAccount = input.authorizationRules;
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Metadata.
   keys.push({
@@ -102,23 +108,19 @@ export function verify(
     isWritable: isWritable(payerAccount, true),
   });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
   // Data.
   const data = getVerifyInstructionDataSerializer(context).serialize(input);

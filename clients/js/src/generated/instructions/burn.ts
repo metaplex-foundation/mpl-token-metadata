@@ -91,9 +91,18 @@ export function burn(
     ...context.programs.get('splToken').publicKey,
     isWritable: false,
   };
-  const collectionMetadataAccount = input.collectionMetadata;
-  const authorizationRulesAccount = input.authorizationRules;
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
+  const collectionMetadataAccount = input.collectionMetadata ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Metadata.
   keys.push({
@@ -138,32 +147,26 @@ export function burn(
     isWritable: isWritable(splTokenProgramAccount, false),
   });
 
-  // Collection Metadata (optional).
-  if (collectionMetadataAccount) {
-    keys.push({
-      pubkey: collectionMetadataAccount,
-      isSigner: false,
-      isWritable: isWritable(collectionMetadataAccount, true),
-    });
-  }
+  // Collection Metadata.
+  keys.push({
+    pubkey: collectionMetadataAccount,
+    isSigner: false,
+    isWritable: isWritable(collectionMetadataAccount, true),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
   // Data.
   const data = getBurnInstructionDataSerializer(context).serialize(input);

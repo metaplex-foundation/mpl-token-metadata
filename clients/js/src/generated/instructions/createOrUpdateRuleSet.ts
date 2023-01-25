@@ -90,7 +90,10 @@ export function createOrUpdateRuleSet(
     ...context.programs.get('splSystem').publicKey,
     isWritable: false,
   };
-  const bufferPdaAccount = input.bufferPda;
+  const bufferPdaAccount = input.bufferPda ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Payer.
   signers.push(payerAccount);
@@ -114,14 +117,12 @@ export function createOrUpdateRuleSet(
     isWritable: isWritable(systemProgramAccount, false),
   });
 
-  // Buffer Pda (optional).
-  if (bufferPdaAccount) {
-    keys.push({
-      pubkey: bufferPdaAccount,
-      isSigner: false,
-      isWritable: isWritable(bufferPdaAccount, false),
-    });
-  }
+  // Buffer Pda.
+  keys.push({
+    pubkey: bufferPdaAccount,
+    isSigner: false,
+    isWritable: isWritable(bufferPdaAccount, false),
+  });
 
   // Data.
   const data =

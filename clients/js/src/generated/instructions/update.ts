@@ -91,13 +91,16 @@ export function update(
 
   // Resolved accounts.
   const authorityAccount = input.authority ?? context.identity;
-  const delegateRecordAccount = input.delegateRecord;
-  const tokenAccount = input.token;
+  const delegateRecordAccount = input.delegateRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const tokenAccount = input.token ?? { ...programId, isWritable: false };
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount = input.edition;
+  const editionAccount = input.edition ?? { ...programId, isWritable: false };
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
@@ -106,8 +109,14 @@ export function update(
   const sysvarInstructionsAccount =
     input.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
-  const authorizationRulesAccount = input.authorizationRules;
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Authority.
   signers.push(authorityAccount);
@@ -117,23 +126,19 @@ export function update(
     isWritable: isWritable(authorityAccount, false),
   });
 
-  // Delegate Record (optional).
-  if (delegateRecordAccount) {
-    keys.push({
-      pubkey: delegateRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(delegateRecordAccount, false),
-    });
-  }
+  // Delegate Record.
+  keys.push({
+    pubkey: delegateRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(delegateRecordAccount, false),
+  });
 
-  // Token (optional).
-  if (tokenAccount) {
-    keys.push({
-      pubkey: tokenAccount,
-      isSigner: false,
-      isWritable: isWritable(tokenAccount, false),
-    });
-  }
+  // Token.
+  keys.push({
+    pubkey: tokenAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenAccount, false),
+  });
 
   // Mint.
   keys.push({
@@ -149,14 +154,12 @@ export function update(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, true),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, true),
+  });
 
   // Payer.
   signers.push(payerAccount);
@@ -180,23 +183,19 @@ export function update(
     isWritable: isWritable(sysvarInstructionsAccount, false),
   });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
   // Data.
   const data = getUpdateInstructionDataSerializer(context).serialize(input);

@@ -92,14 +92,20 @@ export function lock(
 
   // Resolved accounts.
   const authorityAccount = input.authority ?? context.identity;
-  const tokenOwnerAccount = input.tokenOwner;
+  const tokenOwnerAccount = input.tokenOwner ?? {
+    ...programId,
+    isWritable: false,
+  };
   const tokenAccount = input.token;
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount = input.edition;
-  const tokenRecordAccount = input.tokenRecord;
+  const editionAccount = input.edition ?? { ...programId, isWritable: false };
+  const tokenRecordAccount = input.tokenRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
@@ -108,9 +114,18 @@ export function lock(
   const sysvarInstructionsAccount =
     input.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
-  const splTokenProgramAccount = input.splTokenProgram;
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram;
-  const authorizationRulesAccount = input.authorizationRules;
+  const splTokenProgramAccount = input.splTokenProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const authorizationRulesAccount = input.authorizationRules ?? {
+    ...programId,
+    isWritable: false,
+  };
 
   // Authority.
   signers.push(authorityAccount);
@@ -120,14 +135,12 @@ export function lock(
     isWritable: isWritable(authorityAccount, false),
   });
 
-  // Token Owner (optional).
-  if (tokenOwnerAccount) {
-    keys.push({
-      pubkey: tokenOwnerAccount,
-      isSigner: false,
-      isWritable: isWritable(tokenOwnerAccount, false),
-    });
-  }
+  // Token Owner.
+  keys.push({
+    pubkey: tokenOwnerAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenOwnerAccount, false),
+  });
 
   // Token.
   keys.push({
@@ -150,23 +163,19 @@ export function lock(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition (optional).
-  if (editionAccount) {
-    keys.push({
-      pubkey: editionAccount,
-      isSigner: false,
-      isWritable: isWritable(editionAccount, false),
-    });
-  }
+  // Edition.
+  keys.push({
+    pubkey: editionAccount,
+    isSigner: false,
+    isWritable: isWritable(editionAccount, false),
+  });
 
-  // Token Record (optional).
-  if (tokenRecordAccount) {
-    keys.push({
-      pubkey: tokenRecordAccount,
-      isSigner: false,
-      isWritable: isWritable(tokenRecordAccount, true),
-    });
-  }
+  // Token Record.
+  keys.push({
+    pubkey: tokenRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenRecordAccount, true),
+  });
 
   // Payer.
   signers.push(payerAccount);
@@ -190,32 +199,26 @@ export function lock(
     isWritable: isWritable(sysvarInstructionsAccount, false),
   });
 
-  // Spl Token Program (optional).
-  if (splTokenProgramAccount) {
-    keys.push({
-      pubkey: splTokenProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(splTokenProgramAccount, false),
-    });
-  }
+  // Spl Token Program.
+  keys.push({
+    pubkey: splTokenProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(splTokenProgramAccount, false),
+  });
 
-  // Authorization Rules Program (optional).
-  if (authorizationRulesProgramAccount) {
-    keys.push({
-      pubkey: authorizationRulesProgramAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesProgramAccount, false),
-    });
-  }
+  // Authorization Rules Program.
+  keys.push({
+    pubkey: authorizationRulesProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesProgramAccount, false),
+  });
 
-  // Authorization Rules (optional).
-  if (authorizationRulesAccount) {
-    keys.push({
-      pubkey: authorizationRulesAccount,
-      isSigner: false,
-      isWritable: isWritable(authorizationRulesAccount, false),
-    });
-  }
+  // Authorization Rules.
+  keys.push({
+    pubkey: authorizationRulesAccount,
+    isSigner: false,
+    isWritable: isWritable(authorizationRulesAccount, false),
+  });
 
   // Data.
   const data = getLockInstructionDataSerializer(context).serialize(input);
