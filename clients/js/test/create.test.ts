@@ -17,6 +17,7 @@ import {
   findMetadataPda,
   MasterEdition,
   Metadata,
+  printSupply,
   TokenStandard,
 } from '../src';
 import { createMetaplex } from './_setup';
@@ -34,10 +35,10 @@ test('it can create a new NonFungible', async (t) => {
         mint,
         masterEdition,
         createArgs: createArgs('V1', {
-          updateAuthority: mx.identity.publicKey,
           name: 'My NFT',
           uri: 'https://example.com/my-nft.json',
           sellerFeeBasisPoints: percentAmount(5.5),
+          printSupply: some(printSupply('Zero')),
           creators: some([
             {
               address: mx.identity.publicKey,
