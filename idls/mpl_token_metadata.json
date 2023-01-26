@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0-beta.2",
+  "version": "1.7.0",
   "name": "mpl_token_metadata",
   "instructions": [
     {
@@ -4162,10 +4162,6 @@
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "updateAuthority",
-            "type": "publicKey"
-          },
           {
             "name": "name",
             "type": "string"

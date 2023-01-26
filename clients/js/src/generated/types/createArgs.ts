@@ -38,7 +38,6 @@ import {
 
 export type CreateArgs = {
   __kind: 'V1';
-  updateAuthority: PublicKey;
   name: string;
   symbol: string;
   uri: string;
@@ -57,7 +56,6 @@ export type CreateArgs = {
 
 export type CreateArgsArgs = {
   __kind: 'V1';
-  updateAuthority: PublicKey;
   name: string;
   symbol?: string;
   uri: string;
@@ -89,7 +87,6 @@ export function getCreateArgsSerializer(
         >(
           s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>(
             [
-              ['updateAuthority', s.publicKey],
               ['name', s.string()],
               ['symbol', s.string()],
               ['uri', s.string()],
