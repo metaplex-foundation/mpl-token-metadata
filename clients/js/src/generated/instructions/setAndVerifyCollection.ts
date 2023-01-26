@@ -59,7 +59,7 @@ export function getSetAndVerifyCollectionInstructionDataSerializer(
       'SetAndVerifyCollectionInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 25, ...value } as SetAndVerifyCollectionInstructionData)
+      ({ ...value, discriminator: 25 } as SetAndVerifyCollectionInstructionData)
   ) as Serializer<
     SetAndVerifyCollectionInstructionArgs,
     SetAndVerifyCollectionInstructionData

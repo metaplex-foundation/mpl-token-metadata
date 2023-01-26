@@ -74,7 +74,7 @@ export function getUnlockInstructionDataSerializer(
       ],
       'UnlockInstructionArgs'
     ),
-    (value) => ({ discriminator: 47, ...value } as UnlockInstructionData)
+    (value) => ({ ...value, discriminator: 47 } as UnlockInstructionData)
   ) as Serializer<UnlockInstructionArgs, UnlockInstructionData>;
 }
 

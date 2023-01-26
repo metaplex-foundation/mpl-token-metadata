@@ -61,7 +61,7 @@ export function getCloseEscrowAccountInstructionDataSerializer(
       'CloseEscrowAccountInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 39, ...value } as CloseEscrowAccountInstructionData)
+      ({ ...value, discriminator: 39 } as CloseEscrowAccountInstructionData)
   ) as Serializer<
     CloseEscrowAccountInstructionArgs,
     CloseEscrowAccountInstructionData

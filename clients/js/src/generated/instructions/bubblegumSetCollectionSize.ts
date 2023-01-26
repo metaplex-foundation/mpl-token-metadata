@@ -67,8 +67,8 @@ export function getBubblegumSetCollectionSizeInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 36,
         ...value,
+        discriminator: 36,
       } as BubblegumSetCollectionSizeInstructionData)
   ) as Serializer<
     BubblegumSetCollectionSizeInstructionArgs,

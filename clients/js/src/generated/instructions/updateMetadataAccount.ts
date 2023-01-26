@@ -89,7 +89,7 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
       'UpdateMetadataAccountInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 1, ...value } as UpdateMetadataAccountInstructionData)
+      ({ ...value, discriminator: 1 } as UpdateMetadataAccountInstructionData)
   ) as Serializer<
     UpdateMetadataAccountInstructionArgs,
     UpdateMetadataAccountInstructionData

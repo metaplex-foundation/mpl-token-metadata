@@ -61,7 +61,7 @@ export function getWriteRuleSetToBufferInstructionDataSerializer(
       'WriteRuleSetToBufferInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 2, ...value } as WriteRuleSetToBufferInstructionData)
+      ({ ...value, discriminator: 2 } as WriteRuleSetToBufferInstructionData)
   ) as Serializer<
     WriteRuleSetToBufferInstructionArgs,
     WriteRuleSetToBufferInstructionData

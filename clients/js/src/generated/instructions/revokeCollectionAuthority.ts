@@ -58,8 +58,8 @@ export function getRevokeCollectionAuthorityInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 24,
         ...value,
+        discriminator: 24,
       } as RevokeCollectionAuthorityInstructionData)
   ) as Serializer<
     RevokeCollectionAuthorityInstructionArgs,

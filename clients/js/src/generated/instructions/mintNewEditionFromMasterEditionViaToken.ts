@@ -88,8 +88,8 @@ export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSeriali
     ),
     (value) =>
       ({
-        discriminator: 11,
         ...value,
+        discriminator: 11,
       } as MintNewEditionFromMasterEditionViaTokenInstructionData)
   ) as Serializer<
     MintNewEditionFromMasterEditionViaTokenInstructionArgs,

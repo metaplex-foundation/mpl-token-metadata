@@ -88,8 +88,8 @@ export function getDeprecatedCreateMasterEditionInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 2,
         ...value,
+        discriminator: 2,
       } as DeprecatedCreateMasterEditionInstructionData)
   ) as Serializer<
     DeprecatedCreateMasterEditionInstructionArgs,

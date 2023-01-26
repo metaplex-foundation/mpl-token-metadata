@@ -55,7 +55,7 @@ export function getFreezeDelegatedAccountInstructionDataSerializer(
       'FreezeDelegatedAccountInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 26, ...value } as FreezeDelegatedAccountInstructionData)
+      ({ ...value, discriminator: 26 } as FreezeDelegatedAccountInstructionData)
   ) as Serializer<
     FreezeDelegatedAccountInstructionArgs,
     FreezeDelegatedAccountInstructionData

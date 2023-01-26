@@ -52,8 +52,8 @@ export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 12,
         ...value,
+        discriminator: 12,
       } as ConvertMasterEditionV1ToV2InstructionData)
   ) as Serializer<
     ConvertMasterEditionV1ToV2InstructionArgs,

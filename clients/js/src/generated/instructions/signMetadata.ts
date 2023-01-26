@@ -43,7 +43,7 @@ export function getSignMetadataInstructionDataSerializer(
       [['discriminator', s.u8]],
       'SignMetadataInstructionArgs'
     ),
-    (value) => ({ discriminator: 7, ...value } as SignMetadataInstructionData)
+    (value) => ({ ...value, discriminator: 7 } as SignMetadataInstructionData)
   ) as Serializer<SignMetadataInstructionArgs, SignMetadataInstructionData>;
 }
 

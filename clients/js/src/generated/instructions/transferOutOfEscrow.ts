@@ -76,7 +76,7 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
       'TransferOutOfEscrowInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 40, ...value } as TransferOutOfEscrowInstructionData)
+      ({ ...value, discriminator: 40 } as TransferOutOfEscrowInstructionData)
   ) as Serializer<
     TransferOutOfEscrowInstructionArgs,
     TransferOutOfEscrowInstructionData

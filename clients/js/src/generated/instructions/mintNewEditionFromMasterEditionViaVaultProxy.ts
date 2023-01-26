@@ -94,8 +94,8 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
     ),
     (value) =>
       ({
-        discriminator: 13,
         ...value,
+        discriminator: 13,
       } as MintNewEditionFromMasterEditionViaVaultProxyInstructionData)
   ) as Serializer<
     MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,

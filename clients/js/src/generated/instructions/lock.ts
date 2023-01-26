@@ -71,7 +71,7 @@ export function getLockInstructionDataSerializer(
       ],
       'LockInstructionArgs'
     ),
-    (value) => ({ discriminator: 46, ...value } as LockInstructionData)
+    (value) => ({ ...value, discriminator: 46 } as LockInstructionData)
   ) as Serializer<LockInstructionArgs, LockInstructionData>;
 }
 

@@ -80,7 +80,7 @@ export function getDelegateInstructionDataSerializer(
       ],
       'DelegateInstructionArgs'
     ),
-    (value) => ({ discriminator: 44, ...value } as DelegateInstructionData)
+    (value) => ({ ...value, discriminator: 44 } as DelegateInstructionData)
   ) as Serializer<DelegateInstructionArgs, DelegateInstructionData>;
 }
 

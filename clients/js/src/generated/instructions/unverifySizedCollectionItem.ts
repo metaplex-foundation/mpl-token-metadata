@@ -60,8 +60,8 @@ export function getUnverifySizedCollectionItemInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 31,
         ...value,
+        discriminator: 31,
       } as UnverifySizedCollectionItemInstructionData)
   ) as Serializer<
     UnverifySizedCollectionItemInstructionArgs,

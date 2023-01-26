@@ -81,8 +81,8 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
     ),
     (value) =>
       ({
-        discriminator: 3,
         ...value,
+        discriminator: 3,
       } as DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData)
   ) as Serializer<
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionArgs,

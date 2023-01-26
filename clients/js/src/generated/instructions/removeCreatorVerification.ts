@@ -50,8 +50,8 @@ export function getRemoveCreatorVerificationInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 28,
         ...value,
+        discriminator: 28,
       } as RemoveCreatorVerificationInstructionData)
   ) as Serializer<
     RemoveCreatorVerificationInstructionArgs,

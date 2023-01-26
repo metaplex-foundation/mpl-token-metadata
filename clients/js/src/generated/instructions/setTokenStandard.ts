@@ -53,7 +53,7 @@ export function getSetTokenStandardInstructionDataSerializer(
       'SetTokenStandardInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 35, ...value } as SetTokenStandardInstructionData)
+      ({ ...value, discriminator: 35 } as SetTokenStandardInstructionData)
   ) as Serializer<
     SetTokenStandardInstructionArgs,
     SetTokenStandardInstructionData

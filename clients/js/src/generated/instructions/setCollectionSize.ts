@@ -64,7 +64,7 @@ export function getSetCollectionSizeInstructionDataSerializer(
       'SetCollectionSizeInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 34, ...value } as SetCollectionSizeInstructionData)
+      ({ ...value, discriminator: 34 } as SetCollectionSizeInstructionData)
   ) as Serializer<
     SetCollectionSizeInstructionArgs,
     SetCollectionSizeInstructionData

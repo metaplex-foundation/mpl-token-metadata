@@ -60,8 +60,8 @@ export function getVerifySizedCollectionItemInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 30,
         ...value,
+        discriminator: 30,
       } as VerifySizedCollectionItemInstructionData)
   ) as Serializer<
     VerifySizedCollectionItemInstructionArgs,

@@ -69,7 +69,7 @@ export function getUseInstructionDataSerializer(
       ],
       'UseInstructionArgs'
     ),
-    (value) => ({ discriminator: 51, ...value } as UseInstructionData)
+    (value) => ({ ...value, discriminator: 51 } as UseInstructionData)
   ) as Serializer<UseInstructionArgs, UseInstructionData>;
 }
 

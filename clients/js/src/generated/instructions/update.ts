@@ -70,7 +70,7 @@ export function getUpdateInstructionDataSerializer(
       ],
       'UpdateInstructionArgs'
     ),
-    (value) => ({ discriminator: 50, ...value } as UpdateInstructionData)
+    (value) => ({ ...value, discriminator: 50 } as UpdateInstructionData)
   ) as Serializer<UpdateInstructionArgs, UpdateInstructionData>;
 }
 

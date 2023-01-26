@@ -52,8 +52,8 @@ export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 4,
         ...value,
+        discriminator: 4,
       } as UpdatePrimarySaleHappenedViaTokenInstructionData)
   ) as Serializer<
     UpdatePrimarySaleHappenedViaTokenInstructionArgs,

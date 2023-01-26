@@ -63,7 +63,7 @@ export function getCreateOrUpdateRuleSetInstructionDataSerializer(
       'CreateOrUpdateRuleSetInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 0, ...value } as CreateOrUpdateRuleSetInstructionData)
+      ({ ...value, discriminator: 0 } as CreateOrUpdateRuleSetInstructionData)
   ) as Serializer<
     CreateOrUpdateRuleSetInstructionArgs,
     CreateOrUpdateRuleSetInstructionData

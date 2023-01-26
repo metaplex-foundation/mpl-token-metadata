@@ -62,8 +62,8 @@ export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 32,
         ...value,
+        discriminator: 32,
       } as SetAndVerifySizedCollectionItemInstructionData)
   ) as Serializer<
     SetAndVerifySizedCollectionItemInstructionArgs,

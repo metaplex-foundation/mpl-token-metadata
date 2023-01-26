@@ -60,7 +60,7 @@ export function getBurnEditionNftInstructionDataSerializer(
       'BurnEditionNftInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 37, ...value } as BurnEditionNftInstructionData)
+      ({ ...value, discriminator: 37 } as BurnEditionNftInstructionData)
   ) as Serializer<BurnEditionNftInstructionArgs, BurnEditionNftInstructionData>;
 }
 

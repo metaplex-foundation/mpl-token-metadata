@@ -41,7 +41,7 @@ export function getPuffMetadataInstructionDataSerializer(
       [['discriminator', s.u8]],
       'PuffMetadataInstructionArgs'
     ),
-    (value) => ({ discriminator: 14, ...value } as PuffMetadataInstructionData)
+    (value) => ({ ...value, discriminator: 14 } as PuffMetadataInstructionData)
   ) as Serializer<PuffMetadataInstructionArgs, PuffMetadataInstructionData>;
 }
 

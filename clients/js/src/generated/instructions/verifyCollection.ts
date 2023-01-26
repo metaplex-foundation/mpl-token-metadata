@@ -55,7 +55,7 @@ export function getVerifyCollectionInstructionDataSerializer(
       'VerifyCollectionInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 18, ...value } as VerifyCollectionInstructionData)
+      ({ ...value, discriminator: 18 } as VerifyCollectionInstructionData)
   ) as Serializer<
     VerifyCollectionInstructionArgs,
     VerifyCollectionInstructionData

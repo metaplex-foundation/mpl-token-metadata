@@ -75,8 +75,8 @@ export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 9,
         ...value,
+        discriminator: 9,
       } as DeprecatedMintPrintingTokensInstructionData)
   ) as Serializer<
     DeprecatedMintPrintingTokensInstructionArgs,

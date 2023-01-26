@@ -86,8 +86,8 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 33,
         ...value,
+        discriminator: 33,
       } as CreateMetadataAccountV3InstructionData)
   ) as Serializer<
     CreateMetadataAccountV3InstructionArgs,

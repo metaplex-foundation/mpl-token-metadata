@@ -75,7 +75,7 @@ export function getApproveUseAuthorityInstructionDataSerializer(
       'ApproveUseAuthorityInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 20, ...value } as ApproveUseAuthorityInstructionData)
+      ({ ...value, discriminator: 20 } as ApproveUseAuthorityInstructionData)
   ) as Serializer<
     ApproveUseAuthorityInstructionArgs,
     ApproveUseAuthorityInstructionData

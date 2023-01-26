@@ -73,8 +73,8 @@ export function getDeprecatedSetReservationListInstructionDataSerializer(
     ),
     (value) =>
       ({
-        discriminator: 5,
         ...value,
+        discriminator: 5,
       } as DeprecatedSetReservationListInstructionData)
   ) as Serializer<
     DeprecatedSetReservationListInstructionArgs,

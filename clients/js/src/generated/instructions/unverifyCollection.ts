@@ -55,7 +55,7 @@ export function getUnverifyCollectionInstructionDataSerializer(
       'UnverifyCollectionInstructionArgs'
     ),
     (value) =>
-      ({ discriminator: 22, ...value } as UnverifyCollectionInstructionData)
+      ({ ...value, discriminator: 22 } as UnverifyCollectionInstructionData)
   ) as Serializer<
     UnverifyCollectionInstructionArgs,
     UnverifyCollectionInstructionData
