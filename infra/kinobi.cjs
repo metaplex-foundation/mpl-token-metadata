@@ -126,9 +126,24 @@ kinobi.update(
     "mplTokenAuthRules.CreateOrUpdate": { name: "CreateOrUpdateRuleSet" },
     "mplTokenAuthRules.Validate": { name: "ValidateRuleSet" },
     "mplTokenAuthRules.WriteToBuffer": { name: "WriteRuleSetToBuffer" },
-    "mplTokenMetadata.Create": {
+    Create: {
+      bytesCreatedOnChain: {
+        kind: "number",
+        value:
+          82 + // Mint account.
+          679 + // Metadata account.
+          282, // Master edition account.
+      },
       accounts: {
         mint: { isOptionalSigner: true },
+      },
+    },
+    Mint: {
+      bytesCreatedOnChain: {
+        kind: "number",
+        value:
+          165 + // Token account.
+          47, // Token Record account.
       },
     },
     updateMetadataAccount: {

@@ -1,5 +1,5 @@
 {
-  "version": "0.2.5",
+  "version": "1.0.0",
   "name": "mpl_token_auth_rules",
   "instructions": [
     {
@@ -221,6 +221,12 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "key",
+            "type": {
+              "defined": "Key"
+            }
+          },
+          {
             "name": "revMapVersionLocation",
             "type": "u64"
           }
@@ -355,6 +361,9 @@
         "variants": [
           {
             "name": "Uninitialized"
+          },
+          {
+            "name": "RuleSet"
           },
           {
             "name": "Frequency"
@@ -533,6 +542,11 @@
       "code": 33,
       "name": "FrequencyCheckFailed",
       "msg": "Frequency check failed"
+    },
+    {
+      "code": 34,
+      "name": "IsWalletCheckFailed",
+      "msg": "IsWallet check failed"
     }
   ],
   "metadata": {

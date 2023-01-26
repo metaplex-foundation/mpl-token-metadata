@@ -7,17 +7,27 @@
  */
 
 import { Context, Serializer } from '@lorisleiva/js-core';
+import { TokenAuthRulesKey, getTokenAuthRulesKeySerializer } from '.';
 
-export type RuleSetHeader = { revMapVersionLocation: bigint };
+export type RuleSetHeader = {
+  key: TokenAuthRulesKey;
+  revMapVersionLocation: bigint;
+};
 
-export type RuleSetHeaderArgs = { revMapVersionLocation: number | bigint };
+export type RuleSetHeaderArgs = {
+  key: TokenAuthRulesKey;
+  revMapVersionLocation: number | bigint;
+};
 
 export function getRuleSetHeaderSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<RuleSetHeaderArgs, RuleSetHeader> {
   const s = context.serializer;
   return s.struct<RuleSetHeader>(
-    [['revMapVersionLocation', s.u64]],
+    [
+      ['key', getTokenAuthRulesKeySerializer(context)],
+      ['revMapVersionLocation', s.u64],
+    ],
     'RuleSetHeader'
   ) as Serializer<RuleSetHeaderArgs, RuleSetHeader>;
 }

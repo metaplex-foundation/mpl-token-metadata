@@ -10,6 +10,7 @@ import { Context, Serializer } from '@lorisleiva/js-core';
 
 export enum TokenAuthRulesKey {
   Uninitialized,
+  RuleSet,
   Frequency,
 }
 

@@ -497,6 +497,19 @@ export class TaFrequencyCheckFailedError extends ProgramError {
 codeToErrorMap.set(0x21, TaFrequencyCheckFailedError);
 nameToErrorMap.set('FrequencyCheckFailed', TaFrequencyCheckFailedError);
 
+/** IsWalletCheckFailed: 'IsWallet check failed' */
+export class TaIsWalletCheckFailedError extends ProgramError {
+  readonly name: string = 'IsWalletCheckFailed';
+
+  readonly code: number = 0x22; // 34
+
+  constructor(program: Program, cause?: Error) {
+    super('IsWallet check failed', program, cause);
+  }
+}
+codeToErrorMap.set(0x22, TaIsWalletCheckFailedError);
+nameToErrorMap.set('IsWalletCheckFailed', TaIsWalletCheckFailedError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

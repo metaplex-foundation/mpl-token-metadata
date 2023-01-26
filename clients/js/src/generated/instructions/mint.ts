@@ -7,6 +7,7 @@
  */
 
 import {
+  ACCOUNT_HEADER_SIZE,
   AccountMeta,
   Context,
   PublicKey,
@@ -253,7 +254,7 @@ export function mint(
   const data = getMintInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = 0;
+  const bytesCreatedOnChain = 212 + ACCOUNT_HEADER_SIZE;
 
   return {
     instruction: { keys, programId, data },
