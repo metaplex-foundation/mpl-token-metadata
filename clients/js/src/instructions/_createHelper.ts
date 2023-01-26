@@ -74,7 +74,7 @@ export const createHelper = (
       ),
       primarySaleHappened,
       isMutable,
-      tokenStandard: TokenStandard.NonFungible,
+      tokenStandard,
       collection,
       uses,
       collectionDetails,
