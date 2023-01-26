@@ -5,7 +5,14 @@ import {
   transactionBuilder,
 } from '@lorisleiva/js-test';
 import test from 'ava';
-import { create, createArgs, TokenStandard } from '../src';
+import {
+  create,
+  createArgs,
+  fetchMetadata,
+  findMasterEditionPda,
+  findMetadataPda,
+  TokenStandard,
+} from '../src';
 import { createMetaplex } from './_setup';
 
 test('it can create a new NFT with minimum configuration', async (t) => {
@@ -18,6 +25,7 @@ test('it can create a new NFT with minimum configuration', async (t) => {
     .add(
       create(mx, {
         mint,
+        masterEdition: findMasterEditionPda(mx, { mint: mint.publicKey }),
         createArgs: createArgs('V1', {
           updateAuthority: mx.identity.publicKey,
           name: 'My NFT',
@@ -35,4 +43,10 @@ test('it can create a new NFT with minimum configuration', async (t) => {
       })
     )
     .sendAndConfirm();
+
+  // Then
+  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
+  const metadataAccount = await fetchMetadata(mx, metadata);
+  console.log(metadataAccount);
+  t.pass();
 });
