@@ -129,10 +129,12 @@ kinobi.update(
     Create: {
       bytesCreatedOnChain: {
         kind: "number",
+        includeHeader: false,
         value:
           82 + // Mint account.
           679 + // Metadata account.
-          282, // Master edition account.
+          282 + // Master edition account.
+          128 * 3, // 3 account headers.
       },
       accounts: {
         mint: { isOptionalSigner: true },
@@ -141,9 +143,11 @@ kinobi.update(
     Mint: {
       bytesCreatedOnChain: {
         kind: "number",
+        includeHeader: false,
         value:
           165 + // Token account.
-          47, // Token Record account.
+          47 + // Token Record account.
+          128 * 2, // 2 account headers.
       },
     },
     updateMetadataAccount: {

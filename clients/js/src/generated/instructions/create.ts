@@ -7,7 +7,6 @@
  */
 
 import {
-  ACCOUNT_HEADER_SIZE,
   AccountMeta,
   Context,
   PublicKey,
@@ -184,7 +183,7 @@ export function create(
   const data = getCreateInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = 1043 + ACCOUNT_HEADER_SIZE;
+  const bytesCreatedOnChain = 1427;
 
   return {
     instruction: { keys, programId, data },
