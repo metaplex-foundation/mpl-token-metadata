@@ -9,7 +9,7 @@ import {
 import { createHelper, CreateHelperArgs } from './_createHelper';
 
 // Inputs.
-export type CreateNftArgs = Omit<
+export type CreateProgrammableNftArgs = Omit<
   CreateHelperArgs,
   'tokenStandard' | 'collectionDetails' | 'decimals' | 'printSupply'
 > & {
@@ -19,16 +19,16 @@ export type CreateNftArgs = Omit<
   printSupply?: PrintSupplyArgs;
 };
 
-export const createNft = (
+export const createProgrammableNft = (
   context: Parameters<typeof createHelper>[0],
-  input: CreateNftArgs
+  input: CreateProgrammableNftArgs
 ): WrappedInstruction =>
   createHelper(context, {
     masterEdition: findMasterEditionPda(context, {
       mint: publicKey(input.mint),
     }),
     ...input,
-    tokenStandard: TokenStandard.NonFungible,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
     collectionDetails: input.isCollection
       ? some(collectionDetails('V1', { size: 0 }))
       : none(),
