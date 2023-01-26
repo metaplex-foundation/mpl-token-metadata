@@ -17,8 +17,8 @@ importers:
   clients/js:
     specifiers:
       '@ava/typescript': ^3.0.1
-      '@lorisleiva/js-core': ^0.0.44
-      '@lorisleiva/js-test': ^0.0.44
+      '@lorisleiva/js-core': ^0.0.45
+      '@lorisleiva/js-test': ^0.0.45
       '@lorisleiva/mpl-essentials': ^0.0.2
       '@solana/web3.js': ^1.73.0
       '@typescript-eslint/eslint-plugin': ^5.0.0
@@ -34,11 +34,11 @@ importers:
       typedoc: ^0.23.16
       typescript: ^4.6.2
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.45
       '@lorisleiva/mpl-essentials': 0.0.2
     devDependencies:
       '@ava/typescript': 3.0.1
-      '@lorisleiva/js-test': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-test': 0.0.45_@solana+web3.js@1.73.0
       '@solana/web3.js': 1.73.0
       '@typescript-eslint/eslint-plugin': 5.48.2_caon6io6stgpr7lz2rtbhekxqy
       '@typescript-eslint/parser': 5.48.2_7uibuqfxkfaozanbtbziikiqje
@@ -119,50 +119,54 @@ packages:
 
   /@lorisleiva/js-core/0.0.44:
     resolution: {integrity: sha512-6cCBQRsiwb4eh5l/rBE3OhOcnqxT6arQ/ElPOIK98Aeph8Hiss5M8ZVwerR073HIwcQj3wA3EGwO1TVWtbbZnw==}
+    dev: false
 
-  /@lorisleiva/js-eddsa-web3js/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-ZszWT4PZGwUtixQeczpFf3hPQoTimgVg0U/67RurF8l93zxzRkzUFNVQr2bmMiBBuJsOH/ZsyPX5MpRAXwNpGA==}
+  /@lorisleiva/js-core/0.0.45:
+    resolution: {integrity: sha512-Ou1VND4OZGBje2RgloxDFc2CS66hL842RUYA3bxSGDaAZqb01FRFiFcUDai/I3CNjGSa9IV92dHLRWmlW8HVHw==}
+
+  /@lorisleiva/js-eddsa-web3js/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-aHjqe9fVvZRlGi7M6SG5K3KuagX9xvCYdE16Y6XU8UOEutRELAYwnXlFc70E6vBhsjRB0Aw/yj+7+R/Sn77tCA==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
-      '@lorisleiva/js-web3js-adapters': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-core': 0.0.45
+      '@lorisleiva/js-web3js-adapters': 0.0.45_@solana+web3.js@1.73.0
       '@noble/ed25519': 1.7.1
       '@solana/web3.js': 1.73.0
     dev: true
 
-  /@lorisleiva/js-http-fetch/0.0.44:
-    resolution: {integrity: sha512-x1wXleGCKC2+zwo9ueZTQHW1iUHbhVUvFk2JFo6lCAgw7MP1gAnwYBHlriU78MRvUhQm3w2T3X5AmVDrGaFkWg==}
+  /@lorisleiva/js-http-fetch/0.0.45:
+    resolution: {integrity: sha512-9FI5c5CJYCQ8ZehmshKi2QrLZP8E8HJwgL1nTAJAZtYcmt+ZMS1zxD6NMaOpv4OiA3L3l99SNwRJvjCKzoKapQ==}
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.45
       node-fetch: 2.6.7
     transitivePeerDependencies:
       - encoding
     dev: true
 
-  /@lorisleiva/js-program-repository/0.0.44:
-    resolution: {integrity: sha512-we7/NQw+fxiaVk1ILVJNXviHsrPf7fpp5aPUftF09w1ctlORrZqqjvsVGbS2DyJZQ+C4M7hJ2FXqACJTrADtig==}
+  /@lorisleiva/js-program-repository/0.0.45:
+    resolution: {integrity: sha512-ifwEGfgXnMS8ZFRKsqDN30mm+SH3KYVm7ZwuIR/isOacwz2Ucjde4h7FfGCMYo9JmsrGoMDigTtiidi3aePP1g==}
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.45
     dev: true
 
-  /@lorisleiva/js-rpc-web3js/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-RoH48Zm+mLi0DPtsxd0ELuYh3c2xH66RXXmF0onoF00FTZKpGE2oiyXCAkTfGFiDnT4wVfyteBUxUALSId4NAQ==}
+  /@lorisleiva/js-rpc-web3js/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-8Y7IX/2rCvxdixk5vogigy4qjRROczcDYiSfFW9TIHhWbY6wWwbloSaC6GcdO7uvNtuEskP0ck72zDS1MucABQ==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
-      '@lorisleiva/js-web3js-adapters': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-core': 0.0.45
+      '@lorisleiva/js-web3js-adapters': 0.0.45_@solana+web3.js@1.73.0
       '@solana/web3.js': 1.73.0
     dev: true
 
-  /@lorisleiva/js-serializer-beet/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-Ah3c4ZGvejLm2qawteg9uIH+t3sNsEm2TmLRRlkwLq77jfqbxXKH4zRqOaq4BY0HLN37TsZncnqF+E7CcTrr9A==}
+  /@lorisleiva/js-serializer-beet/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-h+3A85byNC1ZiJs2oQYoh05LNPCwdAOSOQQ0T3pITQr0LEBvyrfvMQvb9ljW/17VXhGIoOljChfu/QwTq0MTWA==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
-      '@lorisleiva/js-web3js-adapters': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-core': 0.0.45
+      '@lorisleiva/js-web3js-adapters': 0.0.45_@solana+web3.js@1.73.0
       '@metaplex-foundation/beet': 0.7.1
       '@metaplex-foundation/beet-solana': 0.4.0
       '@solana/web3.js': 1.73.0
@@ -174,25 +178,25 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@lorisleiva/js-storage-mock/0.0.44:
-    resolution: {integrity: sha512-4d5X1HYs4rUe8vbnL49qVO0pXvTe3sPx0AEpsiFNp5D/8Xfwua8cXeHvZPRJa1HhkQWm2pvY0hjMA8KQFI6UkQ==}
+  /@lorisleiva/js-storage-mock/0.0.45:
+    resolution: {integrity: sha512-rSUdfVcE/slP8c6WIPs2Pox1hHWoRf0JoZsiIQ0sRmq27PriK0uFFuUvL9CJBrof8cn9muvoWXweNnOFQ60uHA==}
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.45
     dev: true
 
-  /@lorisleiva/js-test/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-EZiWzdov6i0hPChM8aDgnCz5XhzoNnPdgotvYFPKeQUp6qaDxvamdTj3crC63t0u3kvuubXyvHrtWYkhsQctqQ==}
+  /@lorisleiva/js-test/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-WrE2OnduN88XkG4MMWg5qsTXf9j17jzrZGkZiw00wVuh/3szDzuwspgcDn540jw02jmLDix6vQKks3T6jvewVA==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
-      '@lorisleiva/js-eddsa-web3js': 0.0.44_@solana+web3.js@1.73.0
-      '@lorisleiva/js-http-fetch': 0.0.44
-      '@lorisleiva/js-program-repository': 0.0.44
-      '@lorisleiva/js-rpc-web3js': 0.0.44_@solana+web3.js@1.73.0
-      '@lorisleiva/js-serializer-beet': 0.0.44_@solana+web3.js@1.73.0
-      '@lorisleiva/js-storage-mock': 0.0.44
-      '@lorisleiva/js-transaction-factory-web3js': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-core': 0.0.45
+      '@lorisleiva/js-eddsa-web3js': 0.0.45_@solana+web3.js@1.73.0
+      '@lorisleiva/js-http-fetch': 0.0.45
+      '@lorisleiva/js-program-repository': 0.0.45
+      '@lorisleiva/js-rpc-web3js': 0.0.45_@solana+web3.js@1.73.0
+      '@lorisleiva/js-serializer-beet': 0.0.45_@solana+web3.js@1.73.0
+      '@lorisleiva/js-storage-mock': 0.0.45
+      '@lorisleiva/js-transaction-factory-web3js': 0.0.45_@solana+web3.js@1.73.0
       '@solana/web3.js': 1.73.0
     transitivePeerDependencies:
       - bufferutil
@@ -201,22 +205,22 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@lorisleiva/js-transaction-factory-web3js/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-jIkVncFgYjYlPo53pQqQOfolYX5HdBDL5b2tOF9+ZtpSGPQwITlYOXYfEdKNRJXmVZatWi8NiU/uBTc7CmCkaQ==}
+  /@lorisleiva/js-transaction-factory-web3js/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-IPzfchIP6RxJUNQ6oTvFuaWhcr6pUDQo6/nsSIrpKgBpCc48o9dxEBKJ81/oesLmrOix3yivQ9ckuxJNIcgWOg==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
-      '@lorisleiva/js-web3js-adapters': 0.0.44_@solana+web3.js@1.73.0
+      '@lorisleiva/js-core': 0.0.45
+      '@lorisleiva/js-web3js-adapters': 0.0.45_@solana+web3.js@1.73.0
       '@solana/web3.js': 1.73.0
     dev: true
 
-  /@lorisleiva/js-web3js-adapters/0.0.44_@solana+web3.js@1.73.0:
-    resolution: {integrity: sha512-xR9u7KFxRqdCLccoBGMv48150IsfmhGM4gFchSKX2trvqAn8Eg/gqCxvtlP9CdH8GAtRC+VxS7baUV6//0DAzw==}
+  /@lorisleiva/js-web3js-adapters/0.0.45_@solana+web3.js@1.73.0:
+    resolution: {integrity: sha512-dBJvvmib96nAiPnd1ZjC5gfvw2ihzLCB72jbkGWkcEjBBMeCpzhJwlDb/BfVDZ0mkZJrgGlk1uQGnMIi0UDomg==}
     peerDependencies:
       '@solana/web3.js': ^1.72.0
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.45
       '@solana/web3.js': 1.73.0
       buffer: 6.0.3
     dev: true
