@@ -120,7 +120,7 @@ export function getCreateArgsSerializer(
               collectionDetails: value.collectionDetails ?? none(),
               ruleSet: value.ruleSet ?? none(),
               decimals: value.decimals ?? none(),
-              printSupply: value.printSupply ?? some({ __kind: 'Zero' }),
+              printSupply: value.printSupply ?? some(printSupply('Zero')),
             } as GetDataEnumKindContent<CreateArgs, 'V1'>)
         ),
       ],
