@@ -13,6 +13,8 @@ const {
   TypeLeafNode,
   TypeDefinedLinkNode,
   SetStructDefaultValuesVisitor,
+  vScalar,
+  vNone,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -208,17 +210,17 @@ kinobi.update(
 kinobi.update(
   new SetStructDefaultValuesVisitor({
     "mplTokenMetadata.AssetData": {
-      symbol: { kind: "json", value: "" },
-      isMutable: { kind: "json", value: true },
-      primarySaleHappened: { kind: "json", value: false },
-      collection: { kind: "noneOption" },
-      uses: { kind: "noneOption" },
-      collectionDetails: { kind: "noneOption" },
-      ruleSet: { kind: "noneOption" },
+      symbol: vScalar(""),
+      isMutable: vScalar(true),
+      primarySaleHappened: vScalar(false),
+      collection: vNone(),
+      uses: vNone(),
+      collectionDetails: vNone(),
+      ruleSet: vNone(),
     },
     "mplTokenMetadata.CreateArgs.V1": {
-      decimals: { kind: "noneOption" },
-      printSupply: { kind: "noneOption" },
+      decimals: vNone(),
+      printSupply: vNone(),
     },
   })
 );
