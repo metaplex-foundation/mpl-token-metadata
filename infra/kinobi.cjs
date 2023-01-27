@@ -156,6 +156,9 @@ kinobi.update(
     updateMetadataAccountV2: {
       args: { updateAuthority: "newUpdateAuthority" },
     },
+    // Deprecated instructions.
+    "mplTokenMetadata.deprecatedCreateReservationList": { delete: true },
+    "mplTokenMetadata.deprecatedSetReservationList": { delete: true },
   })
 );
 
