@@ -17,7 +17,6 @@ import {
   mapAmountSerializer,
   mapSerializer,
   none,
-  some,
 } from '@lorisleiva/js-core';
 import {
   Collection,
@@ -35,7 +34,6 @@ import {
   getPrintSupplySerializer,
   getTokenStandardSerializer,
   getUsesSerializer,
-  printSupply,
 } from '.';
 
 export type CreateArgs = {
@@ -120,7 +118,7 @@ export function getCreateArgsSerializer(
               collectionDetails: value.collectionDetails ?? none(),
               ruleSet: value.ruleSet ?? none(),
               decimals: value.decimals ?? none(),
-              printSupply: value.printSupply ?? some(printSupply('Zero')),
+              printSupply: value.printSupply ?? none(),
             } as GetDataEnumKindContent<CreateArgs, 'V1'>)
         ),
       ],
