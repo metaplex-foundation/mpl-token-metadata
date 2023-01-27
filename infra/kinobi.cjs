@@ -16,6 +16,8 @@ const {
   vScalar,
   vNone,
 } = require("@lorisleiva/kinobi");
+const { vSome } = require("@lorisleiva/kinobi");
+const { vEnum } = require("@lorisleiva/kinobi");
 
 // Paths.
 const clientDir = path.join(__dirname, "..", "clients");
@@ -220,7 +222,7 @@ kinobi.update(
     },
     "mplTokenMetadata.CreateArgs.V1": {
       decimals: vNone(),
-      printSupply: vNone(),
+      printSupply: vSome(vEnum("PrintSupply", "Zero")),
     },
   })
 );
