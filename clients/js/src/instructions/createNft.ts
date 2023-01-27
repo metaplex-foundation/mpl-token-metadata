@@ -17,6 +17,8 @@ export type CreateNftArgs = Omit<
   isCollection?: boolean;
   /** @defaultValue `printSupply('Zero')` */
   printSupply?: PrintSupplyArgs;
+  /** @defaultValue `TokenStandard.NonFungible` */
+  tokenStandard?: TokenStandard;
 };
 
 export const createNft = (
@@ -28,7 +30,7 @@ export const createNft = (
       mint: publicKey(input.mint),
     }),
     ...input,
-    tokenStandard: TokenStandard.NonFungible,
+    tokenStandard: input.tokenStandard ?? TokenStandard.NonFungible,
     collectionDetails: input.isCollection
       ? some(collectionDetails('V1', { size: 0 }))
       : none(),
