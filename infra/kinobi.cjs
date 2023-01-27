@@ -15,6 +15,7 @@ const {
   SetStructDefaultValuesVisitor,
   vScalar,
   vNone,
+  vEnum,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -221,6 +222,17 @@ kinobi.update(
     "mplTokenMetadata.CreateArgs.V1": {
       decimals: vNone(),
       printSupply: vNone(),
+    },
+    "mplTokenMetadata.UpdateArgs.V1": {
+      newUpdateAuthority: vNone(),
+      data: vNone(),
+      primarySaleHappened: vNone(),
+      isMutable: vNone(),
+      collection: vEnum("CollectionToggle", "None"),
+      collectionDetails: vEnum("CollectionDetailsToggle", "None"),
+      uses: vEnum("UsesToggle", "None"),
+      ruleSet: vEnum("RuleSetToggle", "None"),
+      authorizationData: vNone(),
     },
   })
 );
