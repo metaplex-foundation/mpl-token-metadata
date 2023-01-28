@@ -174,7 +174,7 @@ export function updateV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UpdateV1InstructionAccounts
+  input: UpdateV1InstructionAccounts & UpdateV1InstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -292,7 +292,7 @@ export function updateV1(
   });
 
   // Data.
-  const data = getUpdateV1InstructionDataSerializer(context).serialize({});
+  const data = getUpdateV1InstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

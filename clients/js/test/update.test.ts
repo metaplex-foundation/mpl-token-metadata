@@ -5,13 +5,7 @@ import {
   transactionBuilder,
 } from '@lorisleiva/js-test';
 import test from 'ava';
-import {
-  createNft,
-  fetchMetadata,
-  findMetadataPda,
-  update,
-  updateArgs,
-} from '../src';
+import { createNft, fetchMetadata, findMetadataPda, updateV1 } from '../src';
 import { createMetaplex } from './_setup';
 
 test('it can update a NonFungible', async (t) => {
@@ -34,11 +28,9 @@ test('it can update a NonFungible', async (t) => {
   // When
   await transactionBuilder(mx)
     .add(
-      update(mx, {
+      updateV1(mx, {
         mint: mint.publicKey,
-        updateArgs: updateArgs('V1', {
-          data: some({ ...initialMetadataAccount, name: 'NFT #2' }),
-        }),
+        data: some({ ...initialMetadataAccount, name: 'NFT #2' }),
       })
     )
     .sendAndConfirm();
