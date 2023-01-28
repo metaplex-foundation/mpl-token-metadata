@@ -16,6 +16,7 @@ const {
   vScalar,
   vNone,
   vEnum,
+  CreateSubInstructionsFromEnumArgsVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -244,6 +245,14 @@ kinobi.update(
     "mplTokenMetadata.Metadata": ["data"],
     "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
     "mplTokenMetadata.CreateArgs.V1": ["assetData"],
+  })
+);
+
+// Create versioned instructions.
+kinobi.update(
+  new CreateSubInstructionsFromEnumArgsVisitor({
+    "mplTokenMetadata.create": "createArgs",
+    "mplTokenMetadata.update": "updateArgs",
   })
 );
 
