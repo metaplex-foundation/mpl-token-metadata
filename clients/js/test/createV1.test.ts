@@ -9,8 +9,7 @@ import {
 import { fetchMint, Mint } from '@lorisleiva/mpl-essentials';
 import test from 'ava';
 import {
-  create,
-  createArgs,
+  createV1,
   fetchMasterEdition,
   fetchMetadata,
   findMasterEditionPda,
@@ -31,23 +30,21 @@ test('it can create a new NonFungible', async (t) => {
   // When we create a new NonFungible at this address.
   await transactionBuilder(mx)
     .add(
-      create(mx, {
+      createV1(mx, {
         mint,
         masterEdition,
-        createArgs: createArgs('V1', {
-          name: 'My NFT',
-          uri: 'https://example.com/my-nft.json',
-          sellerFeeBasisPoints: percentAmount(5.5),
-          printSupply: some(printSupply('Zero')),
-          creators: some([
-            {
-              address: mx.identity.publicKey,
-              verified: true,
-              share: 100,
-            },
-          ]),
-          tokenStandard: TokenStandard.NonFungible,
-        }),
+        name: 'My NFT',
+        uri: 'https://example.com/my-nft.json',
+        sellerFeeBasisPoints: percentAmount(5.5),
+        printSupply: some(printSupply('Zero')),
+        creators: some([
+          {
+            address: mx.identity.publicKey,
+            verified: true,
+            share: 100,
+          },
+        ]),
+        tokenStandard: TokenStandard.NonFungible,
       })
     )
     .sendAndConfirm();

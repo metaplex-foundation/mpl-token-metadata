@@ -5,7 +5,13 @@ import {
   transactionBuilder,
 } from '@lorisleiva/js-test';
 import test from 'ava';
-import { createNft, fetchMetadata, findMetadataPda, updateV1 } from '../src';
+import {
+  createNft,
+  fetchMetadata,
+  findMetadataPda,
+  Metadata,
+  updateV1,
+} from '../src';
 import { createMetaplex } from './_setup';
 
 test('it can update a NonFungible', async (t) => {
@@ -37,6 +43,5 @@ test('it can update a NonFungible', async (t) => {
 
   // Then
   const updatedMetadataAccount = await fetchMetadata(mx, initialMetadata);
-  console.log(updatedMetadataAccount);
-  t.pass();
+  t.like(updatedMetadataAccount, <Metadata>{ name: 'NFT #2' });
 });
