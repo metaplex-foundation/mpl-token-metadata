@@ -66,6 +66,7 @@ export type CreateV1InstructionAccounts = {
 // Arguments.
 export type CreateV1InstructionData = {
   discriminator: number;
+  createV1Discriminator: number;
   name: string;
   symbol: string;
   uri: string;
@@ -111,6 +112,7 @@ export function getCreateV1InstructionDataSerializer(
     s.struct<CreateV1InstructionData>(
       [
         ['discriminator', s.u8],
+        ['createV1Discriminator', s.u8],
         ['name', s.string()],
         ['symbol', s.string()],
         ['uri', s.string()],
@@ -135,6 +137,7 @@ export function getCreateV1InstructionDataSerializer(
       ({
         ...value,
         discriminator: 42,
+        createV1Discriminator: 0,
         symbol: value.symbol ?? '',
         primarySaleHappened: value.primarySaleHappened ?? false,
         isMutable: value.isMutable ?? true,
