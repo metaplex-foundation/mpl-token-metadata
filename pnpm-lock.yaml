@@ -4,12 +4,12 @@ importers:
 
   .:
     specifiers:
-      '@lorisleiva/kinobi': ^0.0.45
+      '@lorisleiva/kinobi': ^0.0.46
       '@lorisleiva/shank-js': ^0.0.1
       '@metaplex-foundation/amman': ^0.12.1
       typescript: ^4.9.4
     devDependencies:
-      '@lorisleiva/kinobi': 0.0.45
+      '@lorisleiva/kinobi': 0.0.46
       '@lorisleiva/shank-js': 0.0.1
       '@metaplex-foundation/amman': 0.12.1_typescript@4.9.4
       typescript: 4.9.4
@@ -225,8 +225,8 @@ packages:
       buffer: 6.0.3
     dev: true
 
-  /@lorisleiva/kinobi/0.0.45:
-    resolution: {integrity: sha512-mMNNGFgafNInmNLdeQjjkSCA5YsREyAuQ1fFWXZdkiJn328fByK30jkg67/83adxN22hdEUzY8Xhi6NH5JBJ2g==}
+  /@lorisleiva/kinobi/0.0.46:
+    resolution: {integrity: sha512-G6VVXVdTLbpWBdOHRbTMJTEhaWiqsjSK9MyLz+jTRWf98bEh09z5TCS3x1y4geGmT3S+NBGrkwGZLbb4S/EHXA==}
     dependencies:
       '@noble/hashes': 1.1.5
       chalk: 4.1.2
