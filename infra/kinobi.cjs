@@ -251,8 +251,15 @@ kinobi.update(
 // Create versioned instructions.
 kinobi.update(
   new CreateSubInstructionsFromEnumArgsVisitor({
-    "mplTokenMetadata.create": "createArgs",
-    "mplTokenMetadata.update": "updateArgs",
+    create: "createArgs",
+    update: "updateArgs",
+  })
+);
+
+// Update versioned instructions.
+kinobi.update(
+  new UpdateInstructionsVisitor({
+    createV1: { internal: true },
   })
 );
 

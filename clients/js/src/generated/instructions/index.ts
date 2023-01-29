@@ -22,7 +22,6 @@ export * from './createMetadataAccount';
 export * from './createMetadataAccountV2';
 export * from './createMetadataAccountV3';
 export * from './createOrUpdateRuleSet';
-export * from './createV1';
 export * from './delegate';
 export * from './deprecatedCreateMasterEdition';
 export * from './deprecatedMintNewEditionFromMasterEditionViaPrintingToken';

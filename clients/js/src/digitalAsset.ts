@@ -1,6 +1,12 @@
 import { PublicKey } from '@lorisleiva/js-core';
 import { Mint, Token } from '@lorisleiva/mpl-essentials';
-import { Edition, MasterEdition, Metadata, TokenRecord } from './generated';
+import {
+  Edition,
+  MasterEdition,
+  Metadata,
+  TokenRecord,
+  TokenStandard,
+} from './generated';
 
 export type DigitalAsset = {
   publicKey: PublicKey;
@@ -44,3 +50,13 @@ export type DigitalAssetWithToken = DigitalAsset & {
 //     getDigitalAssetAccountDataSerializer(context)
 //   );
 // }
+
+export const isFungible = (tokenStandard: TokenStandard): boolean =>
+  tokenStandard === TokenStandard.Fungible ||
+  tokenStandard === TokenStandard.FungibleAsset;
+
+export const isNonFungible = (tokenStandard: TokenStandard): boolean =>
+  !isFungible(tokenStandard);
+
+export const isProgrammable = (tokenStandard: TokenStandard): boolean =>
+  tokenStandard === TokenStandard.ProgrammableNonFungible;

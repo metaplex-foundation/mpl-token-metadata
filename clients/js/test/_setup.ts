@@ -7,19 +7,19 @@ import {
   Signer,
   transactionBuilder,
 } from '@lorisleiva/js-test';
-import { mplDigitalAsset, createNft as baseCreateNft } from '../src';
+import { mplDigitalAsset, createV1 } from '../src';
 
 export const createMetaplex = async () =>
   (await baseCreateMetaplex()).use(mplDigitalAsset());
 
-export const createNft = async (
+export const createDigitalAsset = async (
   mx: Metaplex,
-  input: Partial<Parameters<typeof baseCreateNft>[1]> = {}
+  input: Partial<Parameters<typeof createV1>[1]> = {}
 ): Promise<Signer> => {
   const mint = generateSigner(mx);
   await transactionBuilder(mx)
     .add(
-      baseCreateNft(mx, {
+      createV1(mx, {
         mint,
         name: 'My NFT',
         uri: 'https://example.com',
