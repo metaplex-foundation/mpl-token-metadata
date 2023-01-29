@@ -1,10 +1,22 @@
-import { PublicKey } from '@lorisleiva/js-core';
-import { Mint, Token } from '@lorisleiva/mpl-essentials';
 import {
+  assertAccountExists,
+  Context,
+  PublicKey,
+  RpcAccount,
+  unwrapSome,
+} from '@lorisleiva/js-core';
+import { deserializeMint, Mint } from '@lorisleiva/mpl-essentials';
+import {
+  deserializeEdition,
+  deserializeMasterEdition,
+  deserializeMetadata,
   Edition,
+  findMasterEditionPda,
+  findMetadataPda,
+  getTokenMetadataKeySerializer,
   MasterEdition,
   Metadata,
-  TokenRecord,
+  TokenMetadataKey,
   TokenStandard,
 } from './generated';
 
@@ -17,39 +29,86 @@ export type DigitalAsset = {
     | ({ isOriginal: false } & Edition);
 };
 
-export type DigitalAssetWithToken = DigitalAsset & {
-  token: Token;
-  tokenRecord?: TokenRecord;
-};
+export async function fetchDigitalAsset(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  mint: PublicKey
+): Promise<DigitalAsset> {
+  const metadata = findMetadataPda(context, { mint });
+  const edition = findMasterEditionPda(context, { mint });
+  const [mintAccount, metadataAccount, editionAccount] =
+    await context.rpc.getAccounts([mint, metadata, edition]);
+  assertAccountExists(mintAccount, 'Mint');
+  assertAccountExists(metadataAccount, 'Metadata');
+  return deserializeDigitalAsset(
+    context,
+    mintAccount,
+    metadataAccount,
+    editionAccount.exists ? editionAccount : undefined
+  );
+}
 
-// export async function fetchDigitalAsset(
-//   context: Pick<Context, 'rpc' | 'serializer'>,
-//   publicKey: PublicKey
-// ): Promise<DigitalAsset> {
-//   const maybeAccount = await context.rpc.getAccount(publicKey);
-//   assertAccountExists(maybeAccount, 'DigitalAsset');
-//   return deserializeDigitalAsset(context, maybeAccount);
-// }
+export async function safeFetchDigitalAsset(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  mint: PublicKey
+): Promise<DigitalAsset | null> {
+  const metadata = findMetadataPda(context, { mint });
+  const edition = findMasterEditionPda(context, { mint });
+  const [mintAccount, metadataAccount, editionAccount] =
+    await context.rpc.getAccounts([mint, metadata, edition]);
+  if (!mintAccount.exists || !metadataAccount.exists) {
+    return null;
+  }
+  return deserializeDigitalAsset(
+    context,
+    mintAccount,
+    metadataAccount,
+    editionAccount.exists ? editionAccount : undefined
+  );
+}
 
-// export async function safeFetchDigitalAsset(
-//   context: Pick<Context, 'rpc' | 'serializer'>,
-//   publicKey: PublicKey
-// ): Promise<DigitalAsset | null> {
-//   const maybeAccount = await context.rpc.getAccount(publicKey);
-//   return maybeAccount.exists
-//     ? deserializeDigitalAsset(context, maybeAccount)
-//     : null;
-// }
+export function deserializeDigitalAsset(
+  context: Pick<Context, 'serializer'>,
+  mintAccount: RpcAccount,
+  metadataAccount: RpcAccount,
+  editionAccount?: RpcAccount
+): DigitalAsset {
+  const mint = deserializeMint(context, mintAccount);
+  const metadata = deserializeMetadata(context, metadataAccount);
+  const tokenStandard = unwrapSome(metadata.tokenStandard);
+  if (tokenStandard && isNonFungible(tokenStandard) && !editionAccount) {
+    // TODO(loris): Custom error.
+    throw new Error(
+      'Edition account must be provided for non-fungible assets.'
+    );
+  }
 
-// export function deserializeDigitalAsset(
-//   context: Pick<Context, 'serializer'>,
-//   rawAccount: RpcAccount
-// ): DigitalAsset {
-//   return deserializeAccount(
-//     rawAccount,
-//     getDigitalAssetAccountDataSerializer(context)
-//   );
-// }
+  const digitalAsset = { publicKey: mint.publicKey, mint, metadata };
+  if (!editionAccount) return digitalAsset;
+
+  const editionKey = getTokenMetadataKeySerializer(context).deserialize(
+    editionAccount.data
+  )[0];
+  let edition: DigitalAsset['edition'];
+  if (
+    editionKey === TokenMetadataKey.MasterEditionV1 ||
+    editionKey === TokenMetadataKey.MasterEditionV2
+  ) {
+    edition = {
+      isOriginal: true,
+      ...deserializeMasterEdition(context, editionAccount),
+    };
+  } else if (editionKey === TokenMetadataKey.EditionV1) {
+    edition = {
+      isOriginal: false,
+      ...deserializeEdition(context, editionAccount),
+    };
+  } else {
+    // TODO(loris): Custom error.
+    throw new Error(`Invalid key "${editionKey}" for edition account.`);
+  }
+
+  return { ...digitalAsset, edition };
+}
 
 export const isFungible = (tokenStandard: TokenStandard): boolean =>
   tokenStandard === TokenStandard.Fungible ||
