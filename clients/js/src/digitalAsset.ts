@@ -47,25 +47,6 @@ export async function fetchDigitalAsset(
   );
 }
 
-export async function safeFetchDigitalAsset(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
-  mint: PublicKey
-): Promise<DigitalAsset | null> {
-  const metadata = findMetadataPda(context, { mint });
-  const edition = findMasterEditionPda(context, { mint });
-  const [mintAccount, metadataAccount, editionAccount] =
-    await context.rpc.getAccounts([mint, metadata, edition]);
-  if (!mintAccount.exists || !metadataAccount.exists) {
-    return null;
-  }
-  return deserializeDigitalAsset(
-    context,
-    mintAccount,
-    metadataAccount,
-    editionAccount.exists ? editionAccount : undefined
-  );
-}
-
 export function deserializeDigitalAsset(
   context: Pick<Context, 'serializer'>,
   mintAccount: RpcAccount,
