@@ -19,7 +19,7 @@ importers:
       '@ava/typescript': ^3.0.1
       '@lorisleiva/js-core': ^0.0.45
       '@lorisleiva/js-test': ^0.0.45
-      '@lorisleiva/mpl-essentials': ^0.0.2
+      '@lorisleiva/mpl-essentials': ^0.0.3
       '@solana/web3.js': ^1.73.0
       '@typescript-eslint/eslint-plugin': ^5.0.0
       '@typescript-eslint/parser': ^5.46.1
@@ -35,7 +35,7 @@ importers:
       typescript: ^4.6.2
     dependencies:
       '@lorisleiva/js-core': 0.0.45
-      '@lorisleiva/mpl-essentials': 0.0.2
+      '@lorisleiva/mpl-essentials': 0.0.3
     devDependencies:
       '@ava/typescript': 3.0.1
       '@lorisleiva/js-test': 0.0.45_@solana+web3.js@1.73.0
@@ -117,12 +117,12 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
-  /@lorisleiva/js-core/0.0.44:
-    resolution: {integrity: sha512-6cCBQRsiwb4eh5l/rBE3OhOcnqxT6arQ/ElPOIK98Aeph8Hiss5M8ZVwerR073HIwcQj3wA3EGwO1TVWtbbZnw==}
-    dev: false
-
   /@lorisleiva/js-core/0.0.45:
     resolution: {integrity: sha512-Ou1VND4OZGBje2RgloxDFc2CS66hL842RUYA3bxSGDaAZqb01FRFiFcUDai/I3CNjGSa9IV92dHLRWmlW8HVHw==}
+
+  /@lorisleiva/js-core/0.0.48:
+    resolution: {integrity: sha512-6PvoAmRIqwghUIfvh89lyR1Qlhib28xJ6zBIZtcX06mtlVa1B4z0WbpGxmvmeif5lA02EnWJF4Ya70OUQqjhsA==}
+    dev: false
 
   /@lorisleiva/js-eddsa-web3js/0.0.45_@solana+web3.js@1.73.0:
     resolution: {integrity: sha512-aHjqe9fVvZRlGi7M6SG5K3KuagX9xvCYdE16Y6XU8UOEutRELAYwnXlFc70E6vBhsjRB0Aw/yj+7+R/Sn77tCA==}
@@ -236,10 +236,10 @@ packages:
       - chokidar
     dev: true
 
-  /@lorisleiva/mpl-essentials/0.0.2:
-    resolution: {integrity: sha512-osW3y5HpEKadY1HbxZkAcnhbo/4oYU4meHC26+oGdRlbFngaEkXGdpt2ysOvIEhGUYeUcfuW15rFS6vSCoFJhg==}
+  /@lorisleiva/mpl-essentials/0.0.3:
+    resolution: {integrity: sha512-1i8GcYKIeFs+Uzq6bUyuilnLFiBeWgV4840oUjQ3N2bu0hLDNfVYkOs1aBmwN5BXYvJBt8PekBkUwg/XhflHsQ==}
     dependencies:
-      '@lorisleiva/js-core': 0.0.44
+      '@lorisleiva/js-core': 0.0.48
     dev: false
 
   /@lorisleiva/shank-js/0.0.1:

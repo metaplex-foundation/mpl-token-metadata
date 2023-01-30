@@ -27,7 +27,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@lorisleiva/js-core": "^0.0.45",
-    "@lorisleiva/mpl-essentials": "^0.0.2"
+    "@lorisleiva/mpl-essentials": "^0.0.3"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",

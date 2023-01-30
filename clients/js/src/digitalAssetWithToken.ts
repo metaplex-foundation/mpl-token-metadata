@@ -6,6 +6,7 @@ import {
 } from '@lorisleiva/js-core';
 import {
   deserializeToken,
+  fetchTokensByOwner,
   findAssociatedTokenPda,
   Token,
 } from '@lorisleiva/mpl-essentials';
@@ -27,7 +28,7 @@ export async function fetchDigitalAssetWithToken(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   token: PublicKey
-): Promise<DigitalAsset> {
+): Promise<DigitalAssetWithToken> {
   const [
     mintAccount,
     metadataAccount,
@@ -58,10 +59,51 @@ export async function fetchDigitalAssetWithAssociatedToken(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   owner: PublicKey
-): Promise<DigitalAsset> {
+): Promise<DigitalAssetWithToken> {
   const token = findAssociatedTokenPda(context, { mint, owner });
   return fetchDigitalAssetWithToken(context, mint, token);
 }
+
+export async function fetchDigitalAssetsWithTokenByOwner(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  mint?: PublicKey
+): Promise<DigitalAssetWithToken[]> {
+  const tokens = await fetchTokensByOwner(context, owner, { mint });
+  const nonEmptyTokens = tokens.filter((token) => token.amount > 0);
+  const accountsToFetch = nonEmptyTokens.flatMap((token) => [
+    token.mint,
+    findMetadataPda(context, { mint: token.mint }),
+    findMasterEditionPda(context, { mint: token.mint }),
+    findTokenRecordPda(context, { mint: token.mint, token: token.publicKey }),
+  ]);
+  const accounts = await context.rpc.getAccounts(accountsToFetch);
+
+  // return deserializeDigitalAssetWithToken(
+  //   context,
+  //   mintAccount,
+  //   metadataAccount,
+  //   tokenAccount,
+  //   editionAccount.exists ? editionAccount : undefined,
+  //   tokenRecordAccount.exists ? tokenRecordAccount : undefined
+  // );
+  // return fetchDigitalAssetWithToken(context, mint, token);
+}
+
+export function fetchDigitalAssetsWithTokenByOwnerAndMint(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  mint: PublicKey
+): Promise<DigitalAssetWithToken[]> {
+  return fetchDigitalAssetsWithTokenByOwner(context, owner, mint);
+}
+
+// export async function fetchDigitalAssetsWithTokenByMint(
+//   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+//   mint: PublicKey
+// ): Promise<DigitalAssetWithToken[]> {
+//   // TODO
+// }
 
 export function deserializeDigitalAssetWithToken(
   context: Pick<Context, 'serializer'>,
