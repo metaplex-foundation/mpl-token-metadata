@@ -11,9 +11,12 @@ import {
   Context,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
 } from '@lorisleiva/js-core';
 import {
   EscrowAuthority,
@@ -33,21 +36,70 @@ export type TokenOwnedEscrowAccountData = {
 
 export async function fetchTokenOwnedEscrow(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<TokenOwnedEscrow> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'TokenOwnedEscrow');
   return deserializeTokenOwnedEscrow(context, maybeAccount);
 }
 
 export async function safeFetchTokenOwnedEscrow(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<TokenOwnedEscrow | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeTokenOwnedEscrow(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllTokenOwnedEscrow(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<TokenOwnedEscrow[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'TokenOwnedEscrow');
+    return deserializeTokenOwnedEscrow(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllTokenOwnedEscrow(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<TokenOwnedEscrow[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeTokenOwnedEscrow(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getTokenOwnedEscrowGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenMetadataKey;
+      baseToken: PublicKey;
+      authority: EscrowAuthority;
+      bump: number;
+    }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['baseToken', s.publicKey],
+      ['authority', getEscrowAuthoritySerializer(context)],
+      ['bump', s.u8],
+    ])
+    .deserializeUsing<TokenOwnedEscrow>((account) =>
+      deserializeTokenOwnedEscrow(context, account)
+    );
 }
 
 export function deserializeTokenOwnedEscrow(

@@ -11,9 +11,12 @@ import {
   Context,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
@@ -26,21 +29,63 @@ export type EditionMarkerAccountData = {
 
 export async function fetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<EditionMarker> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'EditionMarker');
   return deserializeEditionMarker(context, maybeAccount);
 }
 
 export async function safeFetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<EditionMarker | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeEditionMarker(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllEditionMarker(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<EditionMarker[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'EditionMarker');
+    return deserializeEditionMarker(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllEditionMarker(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<EditionMarker[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeEditionMarker(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getEditionMarkerGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{ key: TokenMetadataKey; ledger: Array<number> }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['ledger', s.array(s.u8, 31)],
+    ])
+    .deserializeUsing<EditionMarker>((account) =>
+      deserializeEditionMarker(context, account)
+    );
 }
 
 export function deserializeEditionMarker(

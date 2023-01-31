@@ -13,9 +13,12 @@ import {
   Pda,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
   utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
@@ -31,21 +34,68 @@ export type CollectionAuthorityRecordAccountData = {
 
 export async function fetchCollectionAuthorityRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'CollectionAuthorityRecord');
   return deserializeCollectionAuthorityRecord(context, maybeAccount);
 }
 
 export async function safeFetchCollectionAuthorityRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeCollectionAuthorityRecord(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllCollectionAuthorityRecord(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<CollectionAuthorityRecord[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'CollectionAuthorityRecord');
+    return deserializeCollectionAuthorityRecord(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllCollectionAuthorityRecord(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<CollectionAuthorityRecord[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeCollectionAuthorityRecord(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getCollectionAuthorityRecordGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenMetadataKey;
+      bump: number;
+      updateAuthority: Option<PublicKey>;
+    }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['bump', s.u8],
+      ['updateAuthority', s.option(s.publicKey)],
+    ])
+    .deserializeUsing<CollectionAuthorityRecord>((account) =>
+      deserializeCollectionAuthorityRecord(context, account)
+    );
 }
 
 export function deserializeCollectionAuthorityRecord(

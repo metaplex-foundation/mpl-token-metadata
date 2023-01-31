@@ -13,9 +13,12 @@ import {
   Pda,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
   utf8,
 } from '@lorisleiva/js-core';
 import {
@@ -79,21 +82,97 @@ export type MetadataAccountArgs = {
 
 export async function fetchMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<Metadata> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'Metadata');
   return deserializeMetadata(context, maybeAccount);
 }
 
 export async function safeFetchMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<Metadata | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeMetadata(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllMetadata(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<Metadata[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'Metadata');
+    return deserializeMetadata(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllMetadata(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<Metadata[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeMetadata(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getMetadataGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenMetadataKey;
+      updateAuthority: PublicKey;
+      mint: PublicKey;
+      name: string;
+      symbol: string;
+      uri: string;
+      sellerFeeBasisPoints: number;
+      creators: Option<Array<Creator>>;
+      primarySaleHappened: boolean;
+      isMutable: boolean;
+      editionNonce: Option<number>;
+      tokenStandard: Option<TokenStandard>;
+      collection: Option<Collection>;
+      uses: Option<UsesArgs>;
+      collectionDetails: Option<CollectionDetailsArgs>;
+      programmableConfig: Option<ProgrammableConfig>;
+    }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['updateAuthority', s.publicKey],
+      ['mint', s.publicKey],
+      ['name', s.string()],
+      ['symbol', s.string()],
+      ['uri', s.string()],
+      ['sellerFeeBasisPoints', s.u16],
+      ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+      ['primarySaleHappened', s.bool()],
+      ['isMutable', s.bool()],
+      ['editionNonce', s.option(s.u8)],
+      ['tokenStandard', s.option(getTokenStandardSerializer(context))],
+      ['collection', s.option(getCollectionSerializer(context))],
+      ['uses', s.option(getUsesSerializer(context))],
+      ['collectionDetails', s.option(getCollectionDetailsSerializer(context))],
+      [
+        'programmableConfig',
+        s.option(getProgrammableConfigSerializer(context)),
+      ],
+    ])
+    .deserializeUsing<Metadata>((account) =>
+      deserializeMetadata(context, account)
+    );
 }
 
 export function deserializeMetadata(

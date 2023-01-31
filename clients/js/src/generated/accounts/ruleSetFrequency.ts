@@ -11,9 +11,12 @@ import {
   Context,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
 } from '@lorisleiva/js-core';
 import { TokenAuthRulesKey, getTokenAuthRulesKeySerializer } from '../types';
 
@@ -33,21 +36,68 @@ export type RuleSetFrequencyAccountArgs = {
 
 export async function fetchRuleSetFrequency(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<RuleSetFrequency> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'RuleSetFrequency');
   return deserializeRuleSetFrequency(context, maybeAccount);
 }
 
 export async function safeFetchRuleSetFrequency(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<RuleSetFrequency | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeRuleSetFrequency(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllRuleSetFrequency(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<RuleSetFrequency[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'RuleSetFrequency');
+    return deserializeRuleSetFrequency(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllRuleSetFrequency(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<RuleSetFrequency[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeRuleSetFrequency(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getRuleSetFrequencyGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenAuthRules').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenAuthRulesKey;
+      lastUpdate: number | bigint;
+      period: number | bigint;
+    }>([
+      ['key', getTokenAuthRulesKeySerializer(context)],
+      ['lastUpdate', s.i64],
+      ['period', s.i64],
+    ])
+    .deserializeUsing<RuleSetFrequency>((account) =>
+      deserializeRuleSetFrequency(context, account)
+    );
 }
 
 export function deserializeRuleSetFrequency(

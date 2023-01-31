@@ -12,9 +12,12 @@ import {
   Pda,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
   utf8,
 } from '@lorisleiva/js-core';
 import {
@@ -36,21 +39,72 @@ export type MetadataDelegateRecordAccountData = {
 
 export async function fetchMetadataDelegateRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<MetadataDelegateRecord> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'MetadataDelegateRecord');
   return deserializeMetadataDelegateRecord(context, maybeAccount);
 }
 
 export async function safeFetchMetadataDelegateRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<MetadataDelegateRecord | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeMetadataDelegateRecord(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllMetadataDelegateRecord(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<MetadataDelegateRecord[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'MetadataDelegateRecord');
+    return deserializeMetadataDelegateRecord(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllMetadataDelegateRecord(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<MetadataDelegateRecord[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeMetadataDelegateRecord(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getMetadataDelegateRecordGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenMetadataKey;
+      bump: number;
+      mint: PublicKey;
+      delegate: PublicKey;
+      updateAuthority: PublicKey;
+    }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['bump', s.u8],
+      ['mint', s.publicKey],
+      ['delegate', s.publicKey],
+      ['updateAuthority', s.publicKey],
+    ])
+    .deserializeUsing<MetadataDelegateRecord>((account) =>
+      deserializeMetadataDelegateRecord(context, account)
+    );
 }
 
 export function deserializeMetadataDelegateRecord(

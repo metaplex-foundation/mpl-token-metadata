@@ -13,9 +13,12 @@ import {
   Pda,
   PublicKey,
   RpcAccount,
+  RpcGetAccountOptions,
+  RpcGetAccountsOptions,
   Serializer,
   assertAccountExists,
   deserializeAccount,
+  gpaBuilder,
   utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
@@ -36,21 +39,68 @@ export type MasterEditionAccountArgs = {
 
 export async function fetchMasterEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<MasterEdition> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   assertAccountExists(maybeAccount, 'MasterEdition');
   return deserializeMasterEdition(context, maybeAccount);
 }
 
 export async function safeFetchMasterEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey
+  publicKey: PublicKey,
+  options?: RpcGetAccountOptions
 ): Promise<MasterEdition | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey);
+  const maybeAccount = await context.rpc.getAccount(publicKey, options);
   return maybeAccount.exists
     ? deserializeMasterEdition(context, maybeAccount)
     : null;
+}
+
+export async function fetchAllMasterEdition(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<MasterEdition[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.map((maybeAccount) => {
+    assertAccountExists(maybeAccount, 'MasterEdition');
+    return deserializeMasterEdition(context, maybeAccount);
+  });
+}
+
+export async function safeFetchAllMasterEdition(
+  context: Pick<Context, 'rpc' | 'serializer'>,
+  publicKeys: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<MasterEdition[]> {
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts
+    .filter((maybeAccount) => maybeAccount.exists)
+    .map((maybeAccount) =>
+      deserializeMasterEdition(context, maybeAccount as RpcAccount)
+    );
+}
+
+export function getMasterEditionGpaBuilder(
+  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+) {
+  const s = context.serializer;
+  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  return gpaBuilder(context, programId)
+    .registerFields<{
+      key: TokenMetadataKey;
+      supply: number | bigint;
+      maxSupply: Option<number | bigint>;
+    }>([
+      ['key', getTokenMetadataKeySerializer(context)],
+      ['supply', s.u64],
+      ['maxSupply', s.option(s.u64)],
+    ])
+    .deserializeUsing<MasterEdition>((account) =>
+      deserializeMasterEdition(context, account)
+    );
 }
 
 export function deserializeMasterEdition(
