@@ -278,8 +278,19 @@ kinobi.update(
 // Create versioned instructions.
 kinobi.update(
   new CreateSubInstructionsFromEnumArgsVisitor({
+    burn: "burnArgs",
     create: "createArgs",
+    delegate: "delegateArgs",
+    lock: "lockArgs",
+    migrate: "migrateArgs",
+    mint: "mintArgs",
+    print: "printArgs",
+    revoke: "revokeArgs",
+    transfer: "transferArgs",
+    unlock: "unlockArgs",
     update: "updateArgs",
+    use: "useArgs",
+    verify: "verifyArgs",
   })
 );
 
