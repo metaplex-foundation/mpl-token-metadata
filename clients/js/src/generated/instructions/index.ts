@@ -43,7 +43,6 @@ export * from './migrateV1';
 export * from './mint';
 export * from './mintNewEditionFromMasterEditionViaToken';
 export * from './mintNewEditionFromMasterEditionViaVaultProxy';
-export * from './mintV1';
 export * from './puffMetadata';
 export * from './removeCreatorVerification';
 export * from './revoke';

@@ -301,6 +301,7 @@ kinobi.update(
 kinobi.update(
   new UpdateInstructionsVisitor({
     createV1: { internal: true },
+    mintV1: { internal: true },
   })
 );
 
