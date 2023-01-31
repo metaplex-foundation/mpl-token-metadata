@@ -16,10 +16,23 @@ import {
   printSupply,
   TokenStandard,
 } from '../generated';
-import { createV1 as baseCreateV1 } from '../generated/instructions/createV1';
+import {
+  createV1 as baseCreateV1,
+  CreateV1InstructionAccounts,
+  CreateV1InstructionData,
+  CreateV1InstructionArgs,
+  getCreateV1InstructionDataSerializer,
+} from '../generated/instructions/createV1';
+
+export {
+  CreateV1InstructionAccounts,
+  CreateV1InstructionData,
+  CreateV1InstructionArgs,
+  getCreateV1InstructionDataSerializer,
+};
 
 // Inputs.
-export type CreateV1InstructionArgs = Omit<
+export type CreateV1InstructionInput = Omit<
   Parameters<typeof baseCreateV1>[1],
   'tokenStandard' | 'creators'
 > & {
@@ -33,7 +46,7 @@ export type CreateV1InstructionArgs = Omit<
 
 export const createV1 = (
   context: Parameters<typeof baseCreateV1>[0],
-  input: CreateV1InstructionArgs
+  input: CreateV1InstructionInput
 ): WrappedInstruction => {
   const tokenStandard = input.tokenStandard ?? TokenStandard.NonFungible;
   const defaultCollectionDetails =

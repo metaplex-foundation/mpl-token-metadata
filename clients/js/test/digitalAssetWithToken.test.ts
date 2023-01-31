@@ -1,8 +1,9 @@
 import { publicKey, some } from '@lorisleiva/js-test';
+import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
 import test from 'ava';
 import {
-  DigitalAsset,
-  fetchDigitalAsset,
+  DigitalAssetWithToken,
+  fetchDigitalAssetWithToken,
   findMasterEditionPda,
   findMetadataPda,
   TokenStandard,
@@ -15,12 +16,19 @@ test('it can fetch a Non Fungible', async (t) => {
   const mint = await createDigitalAsset(mx);
 
   // When we fetch a digital asset using its mint address.
-  const digitalAsset = await fetchDigitalAsset(mx, mint.publicKey);
+  const digitalAsset = await fetchDigitalAssetWithToken(
+    mx,
+    mint.publicKey,
+    findAssociatedTokenPda(mx, {
+      mint: mint.publicKey,
+      owner: mx.identity.publicKey,
+    })
+  );
 
   // Then we get the expected digital asset.
   const metadata = findMetadataPda(mx, { mint: mint.publicKey });
   const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
-  t.like(digitalAsset, <DigitalAsset>{
+  t.like(digitalAsset, <DigitalAssetWithToken>{
     publicKey: publicKey(mint.publicKey),
     mint: { publicKey: publicKey(mint.publicKey) },
     metadata: {
@@ -32,5 +40,7 @@ test('it can fetch a Non Fungible', async (t) => {
       isOriginal: true,
       publicKey: publicKey(edition),
     },
+    token: {},
+    tokenRecord: {},
   });
 });
