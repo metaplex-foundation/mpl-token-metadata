@@ -12,6 +12,7 @@ import {
   deserializeToken,
   fetchTokensByOwner,
   findAssociatedTokenPda,
+  findLargestTokensByMint,
   Token,
 } from '@lorisleiva/mpl-essentials';
 import { deserializeDigitalAsset, DigitalAsset } from './digitalAsset';
@@ -131,12 +132,52 @@ export function fetchAllDigitalAssetWithTokenByOwnerAndMint(
   });
 }
 
-// export async function fetchDigitalAssetsWithTokenByMint(
-//   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
-//   mint: PublicKey
-// ): Promise<DigitalAssetWithToken[]> {
-//   // TODO
-// }
+/**
+ * Retrives the largest 20 token accounts only for performance reasons.
+ * For a more robust solution, please use an external indexer.
+ */
+export async function fetchAllDigitalAssetWithTokenByMint(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  mint: PublicKey,
+  options?: RpcBaseOptions
+): Promise<DigitalAssetWithToken[]> {
+  const largestTokens = await findLargestTokensByMint(context, mint, options);
+  const nonEmptyTokens = largestTokens
+    .filter((token) => token.amount.basisPoints > 0)
+    .map((token) => token.publicKey);
+  const accountsToFetch = [
+    mint,
+    findMetadataPda(context, { mint }),
+    findMasterEditionPda(context, { mint }),
+  ];
+  accountsToFetch.push(
+    ...nonEmptyTokens.flatMap((token) => [
+      token,
+      findTokenRecordPda(context, { mint, token }),
+    ])
+  );
+  const accounts = await context.rpc.getAccounts(accountsToFetch, options);
+  const [mintAccount, metadataAccount, editionAccount, ...tokenAccounts] =
+    accounts;
+  assertAccountExists(mintAccount, 'Mint');
+  assertAccountExists(metadataAccount, 'Metadata');
+
+  return chunk(tokenAccounts, 2).flatMap(
+    ([tokenAccount, tokenRecordAccount]): DigitalAssetWithToken[] => {
+      if (!tokenAccount.exists) return [];
+      return [
+        deserializeDigitalAssetWithToken(
+          context,
+          mintAccount,
+          metadataAccount,
+          tokenAccount,
+          editionAccount.exists ? editionAccount : undefined,
+          tokenRecordAccount.exists ? tokenRecordAccount : undefined
+        ),
+      ];
+    }
+  );
+}
 
 export function deserializeDigitalAssetWithToken(
   context: Pick<Context, 'serializer'>,
