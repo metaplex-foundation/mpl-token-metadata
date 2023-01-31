@@ -195,10 +195,7 @@ const taKey = (name) => ({
 kinobi.update(
   new SetAccountDiscriminatorFromFieldVisitor({
     "mplTokenMetadata.Edition": tmKey("EditionV1"),
-    // "mplTokenMetadata.MasterEditionV1": tmKey("MasterEditionV1"),
-    // "mplTokenMetadata.ReservationListV1": tmKey("ReservationListV1"),
     "mplTokenMetadata.Metadata": tmKey("MetadataV1"),
-    // "mplTokenMetadata.ReservationListV2": tmKey("ReservationListV2"),
     "mplTokenMetadata.MasterEdition": tmKey("MasterEditionV2"),
     "mplTokenMetadata.EditionMarker": tmKey("EditionMarker"),
     "mplTokenMetadata.UseAuthorityRecord": tmKey("UseAuthorityRecord"),
