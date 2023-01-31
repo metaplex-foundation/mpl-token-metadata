@@ -3,6 +3,7 @@ import {
   Context,
   PublicKey,
   RpcAccount,
+  RpcGetAccountsOptions,
   unwrapSome,
 } from '@lorisleiva/js-core';
 import { deserializeMint, Mint } from '@lorisleiva/mpl-essentials';
@@ -31,12 +32,13 @@ export type DigitalAsset = {
 
 export async function fetchDigitalAsset(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
-  mint: PublicKey
+  mint: PublicKey,
+  options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset> {
   const metadata = findMetadataPda(context, { mint });
   const edition = findMasterEditionPda(context, { mint });
   const [mintAccount, metadataAccount, editionAccount] =
-    await context.rpc.getAccounts([mint, metadata, edition]);
+    await context.rpc.getAccounts([mint, metadata, edition], options);
   assertAccountExists(mintAccount, 'Mint');
   assertAccountExists(metadataAccount, 'Metadata');
   return deserializeDigitalAsset(
