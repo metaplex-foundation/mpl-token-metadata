@@ -17,6 +17,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
@@ -26,6 +27,8 @@ export type EditionMarkerAccountData = {
   key: TokenMetadataKey;
   ledger: Array<number>;
 };
+
+export type EditionMarkerAccountArgs = { ledger: Array<number> };
 
 export async function fetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -85,7 +88,8 @@ export function getEditionMarkerGpaBuilder(
     ])
     .deserializeUsing<EditionMarker>((account) =>
       deserializeEditionMarker(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.EditionMarker);
 }
 
 export function deserializeEditionMarker(
@@ -100,15 +104,26 @@ export function deserializeEditionMarker(
 
 export function getEditionMarkerAccountDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<EditionMarkerAccountData> {
+): Serializer<EditionMarkerAccountArgs, EditionMarkerAccountData> {
   const s = context.serializer;
-  return s.struct<EditionMarkerAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['ledger', s.array(s.u8, 31)],
-    ],
-    'EditionMarker'
-  );
+  return mapSerializer<
+    EditionMarkerAccountArgs,
+    EditionMarkerAccountData,
+    EditionMarkerAccountData
+  >(
+    s.struct<EditionMarkerAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['ledger', s.array(s.u8, 31)],
+      ],
+      'EditionMarker'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.EditionMarker,
+      } as EditionMarkerAccountData)
+  ) as Serializer<EditionMarkerAccountArgs, EditionMarkerAccountData>;
 }
 
 export function getEditionMarkerSize(_context = {}): number {

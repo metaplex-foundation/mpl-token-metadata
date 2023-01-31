@@ -17,6 +17,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
 } from '@lorisleiva/js-core';
 import {
   EscrowAuthority,
@@ -29,6 +30,12 @@ export type TokenOwnedEscrow = Account<TokenOwnedEscrowAccountData>;
 
 export type TokenOwnedEscrowAccountData = {
   key: TokenMetadataKey;
+  baseToken: PublicKey;
+  authority: EscrowAuthority;
+  bump: number;
+};
+
+export type TokenOwnedEscrowAccountArgs = {
   baseToken: PublicKey;
   authority: EscrowAuthority;
   bump: number;
@@ -99,7 +106,8 @@ export function getTokenOwnedEscrowGpaBuilder(
     ])
     .deserializeUsing<TokenOwnedEscrow>((account) =>
       deserializeTokenOwnedEscrow(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.TokenOwnedEscrow);
 }
 
 export function deserializeTokenOwnedEscrow(
@@ -114,17 +122,28 @@ export function deserializeTokenOwnedEscrow(
 
 export function getTokenOwnedEscrowAccountDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TokenOwnedEscrowAccountData> {
+): Serializer<TokenOwnedEscrowAccountArgs, TokenOwnedEscrowAccountData> {
   const s = context.serializer;
-  return s.struct<TokenOwnedEscrowAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['baseToken', s.publicKey],
-      ['authority', getEscrowAuthoritySerializer(context)],
-      ['bump', s.u8],
-    ],
-    'TokenOwnedEscrow'
-  );
+  return mapSerializer<
+    TokenOwnedEscrowAccountArgs,
+    TokenOwnedEscrowAccountData,
+    TokenOwnedEscrowAccountData
+  >(
+    s.struct<TokenOwnedEscrowAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['baseToken', s.publicKey],
+        ['authority', getEscrowAuthoritySerializer(context)],
+        ['bump', s.u8],
+      ],
+      'TokenOwnedEscrow'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.TokenOwnedEscrow,
+      } as TokenOwnedEscrowAccountData)
+  ) as Serializer<TokenOwnedEscrowAccountArgs, TokenOwnedEscrowAccountData>;
 }
 
 export function getTokenOwnedEscrowSize(

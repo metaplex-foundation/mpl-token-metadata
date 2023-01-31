@@ -19,6 +19,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
   utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
@@ -28,6 +29,11 @@ export type CollectionAuthorityRecord =
 
 export type CollectionAuthorityRecordAccountData = {
   key: TokenMetadataKey;
+  bump: number;
+  updateAuthority: Option<PublicKey>;
+};
+
+export type CollectionAuthorityRecordAccountArgs = {
   bump: number;
   updateAuthority: Option<PublicKey>;
 };
@@ -95,7 +101,8 @@ export function getCollectionAuthorityRecordGpaBuilder(
     ])
     .deserializeUsing<CollectionAuthorityRecord>((account) =>
       deserializeCollectionAuthorityRecord(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.CollectionAuthorityRecord);
 }
 
 export function deserializeCollectionAuthorityRecord(
@@ -110,16 +117,33 @@ export function deserializeCollectionAuthorityRecord(
 
 export function getCollectionAuthorityRecordAccountDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CollectionAuthorityRecordAccountData> {
+): Serializer<
+  CollectionAuthorityRecordAccountArgs,
+  CollectionAuthorityRecordAccountData
+> {
   const s = context.serializer;
-  return s.struct<CollectionAuthorityRecordAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['bump', s.u8],
-      ['updateAuthority', s.option(s.publicKey)],
-    ],
-    'CollectionAuthorityRecord'
-  );
+  return mapSerializer<
+    CollectionAuthorityRecordAccountArgs,
+    CollectionAuthorityRecordAccountData,
+    CollectionAuthorityRecordAccountData
+  >(
+    s.struct<CollectionAuthorityRecordAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['bump', s.u8],
+        ['updateAuthority', s.option(s.publicKey)],
+      ],
+      'CollectionAuthorityRecord'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.CollectionAuthorityRecord,
+      } as CollectionAuthorityRecordAccountData)
+  ) as Serializer<
+    CollectionAuthorityRecordAccountArgs,
+    CollectionAuthorityRecordAccountData
+  >;
 }
 
 export function getCollectionAuthorityRecordSize(

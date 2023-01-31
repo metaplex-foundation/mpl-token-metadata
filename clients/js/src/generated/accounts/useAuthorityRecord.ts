@@ -18,6 +18,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
   utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
@@ -31,7 +32,6 @@ export type UseAuthorityRecordAccountData = {
 };
 
 export type UseAuthorityRecordAccountArgs = {
-  key: TokenMetadataKey;
   allowedUses: number | bigint;
   bump: number;
 };
@@ -99,7 +99,8 @@ export function getUseAuthorityRecordGpaBuilder(
     ])
     .deserializeUsing<UseAuthorityRecord>((account) =>
       deserializeUseAuthorityRecord(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.UseAuthorityRecord);
 }
 
 export function deserializeUseAuthorityRecord(
@@ -116,13 +117,24 @@ export function getUseAuthorityRecordAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<UseAuthorityRecordAccountArgs, UseAuthorityRecordAccountData> {
   const s = context.serializer;
-  return s.struct<UseAuthorityRecordAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['allowedUses', s.u64],
-      ['bump', s.u8],
-    ],
-    'UseAuthorityRecord'
+  return mapSerializer<
+    UseAuthorityRecordAccountArgs,
+    UseAuthorityRecordAccountData,
+    UseAuthorityRecordAccountData
+  >(
+    s.struct<UseAuthorityRecordAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['allowedUses', s.u64],
+        ['bump', s.u8],
+      ],
+      'UseAuthorityRecord'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.UseAuthorityRecord,
+      } as UseAuthorityRecordAccountData)
   ) as Serializer<UseAuthorityRecordAccountArgs, UseAuthorityRecordAccountData>;
 }
 

@@ -17,6 +17,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
 
@@ -29,7 +30,6 @@ export type EditionAccountData = {
 };
 
 export type EditionAccountArgs = {
-  key: TokenMetadataKey;
   parent: PublicKey;
   edition: number | bigint;
 };
@@ -95,7 +95,8 @@ export function getEditionGpaBuilder(
     ])
     .deserializeUsing<Edition>((account) =>
       deserializeEdition(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.EditionV1);
 }
 
 export function deserializeEdition(
@@ -112,13 +113,21 @@ export function getEditionAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<EditionAccountArgs, EditionAccountData> {
   const s = context.serializer;
-  return s.struct<EditionAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['parent', s.publicKey],
-      ['edition', s.u64],
-    ],
-    'Edition'
+  return mapSerializer<
+    EditionAccountArgs,
+    EditionAccountData,
+    EditionAccountData
+  >(
+    s.struct<EditionAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['parent', s.publicKey],
+        ['edition', s.u64],
+      ],
+      'Edition'
+    ),
+    (value) =>
+      ({ ...value, key: TokenMetadataKey.EditionV1 } as EditionAccountData)
   ) as Serializer<EditionAccountArgs, EditionAccountData>;
 }
 

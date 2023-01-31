@@ -19,6 +19,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
   utf8,
 } from '@lorisleiva/js-core';
 import {
@@ -42,7 +43,6 @@ export type TokenRecordAccountData = {
 };
 
 export type TokenRecordAccountArgs = {
-  key: TokenMetadataKey;
   bump: number;
   state: TokenState;
   ruleSetRevision: Option<number | bigint>;
@@ -119,7 +119,8 @@ export function getTokenRecordGpaBuilder(
     ])
     .deserializeUsing<TokenRecord>((account) =>
       deserializeTokenRecord(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.TokenRecord);
 }
 
 export function deserializeTokenRecord(
@@ -136,16 +137,27 @@ export function getTokenRecordAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<TokenRecordAccountArgs, TokenRecordAccountData> {
   const s = context.serializer;
-  return s.struct<TokenRecordAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['bump', s.u8],
-      ['state', getTokenStateSerializer(context)],
-      ['ruleSetRevision', s.option(s.u64)],
-      ['delegate', s.option(s.publicKey)],
-      ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
-    ],
-    'TokenRecord'
+  return mapSerializer<
+    TokenRecordAccountArgs,
+    TokenRecordAccountData,
+    TokenRecordAccountData
+  >(
+    s.struct<TokenRecordAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['bump', s.u8],
+        ['state', getTokenStateSerializer(context)],
+        ['ruleSetRevision', s.option(s.u64)],
+        ['delegate', s.option(s.publicKey)],
+        ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
+      ],
+      'TokenRecord'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.TokenRecord,
+      } as TokenRecordAccountData)
   ) as Serializer<TokenRecordAccountArgs, TokenRecordAccountData>;
 }
 

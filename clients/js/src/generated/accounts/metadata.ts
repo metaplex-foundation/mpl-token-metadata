@@ -19,6 +19,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
   utf8,
 } from '@lorisleiva/js-core';
 import {
@@ -62,7 +63,6 @@ export type MetadataAccountData = {
 };
 
 export type MetadataAccountArgs = {
-  key: TokenMetadataKey;
   updateAuthority: PublicKey;
   mint: PublicKey;
   name: string;
@@ -172,7 +172,8 @@ export function getMetadataGpaBuilder(
     ])
     .deserializeUsing<Metadata>((account) =>
       deserializeMetadata(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.MetadataV1);
 }
 
 export function deserializeMetadata(
@@ -189,29 +190,40 @@ export function getMetadataAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<MetadataAccountArgs, MetadataAccountData> {
   const s = context.serializer;
-  return s.struct<MetadataAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['updateAuthority', s.publicKey],
-      ['mint', s.publicKey],
-      ['name', s.string()],
-      ['symbol', s.string()],
-      ['uri', s.string()],
-      ['sellerFeeBasisPoints', s.u16],
-      ['creators', s.option(s.vec(getCreatorSerializer(context)))],
-      ['primarySaleHappened', s.bool()],
-      ['isMutable', s.bool()],
-      ['editionNonce', s.option(s.u8)],
-      ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-      ['collection', s.option(getCollectionSerializer(context))],
-      ['uses', s.option(getUsesSerializer(context))],
-      ['collectionDetails', s.option(getCollectionDetailsSerializer(context))],
+  return mapSerializer<
+    MetadataAccountArgs,
+    MetadataAccountData,
+    MetadataAccountData
+  >(
+    s.struct<MetadataAccountData>(
       [
-        'programmableConfig',
-        s.option(getProgrammableConfigSerializer(context)),
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['updateAuthority', s.publicKey],
+        ['mint', s.publicKey],
+        ['name', s.string()],
+        ['symbol', s.string()],
+        ['uri', s.string()],
+        ['sellerFeeBasisPoints', s.u16],
+        ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+        ['primarySaleHappened', s.bool()],
+        ['isMutable', s.bool()],
+        ['editionNonce', s.option(s.u8)],
+        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
+        ['collection', s.option(getCollectionSerializer(context))],
+        ['uses', s.option(getUsesSerializer(context))],
+        [
+          'collectionDetails',
+          s.option(getCollectionDetailsSerializer(context)),
+        ],
+        [
+          'programmableConfig',
+          s.option(getProgrammableConfigSerializer(context)),
+        ],
       ],
-    ],
-    'Metadata'
+      'Metadata'
+    ),
+    (value) =>
+      ({ ...value, key: TokenMetadataKey.MetadataV1 } as MetadataAccountData)
   ) as Serializer<MetadataAccountArgs, MetadataAccountData>;
 }
 

@@ -19,6 +19,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
+  mapSerializer,
   utf8,
 } from '@lorisleiva/js-core';
 import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
@@ -32,7 +33,6 @@ export type MasterEditionAccountData = {
 };
 
 export type MasterEditionAccountArgs = {
-  key: TokenMetadataKey;
   supply: number | bigint;
   maxSupply: Option<number | bigint>;
 };
@@ -100,7 +100,8 @@ export function getMasterEditionGpaBuilder(
     ])
     .deserializeUsing<MasterEdition>((account) =>
       deserializeMasterEdition(context, account)
-    );
+    )
+    .whereField('key', TokenMetadataKey.MasterEditionV2);
 }
 
 export function deserializeMasterEdition(
@@ -117,13 +118,24 @@ export function getMasterEditionAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<MasterEditionAccountArgs, MasterEditionAccountData> {
   const s = context.serializer;
-  return s.struct<MasterEditionAccountData>(
-    [
-      ['key', getTokenMetadataKeySerializer(context)],
-      ['supply', s.u64],
-      ['maxSupply', s.option(s.u64)],
-    ],
-    'MasterEdition'
+  return mapSerializer<
+    MasterEditionAccountArgs,
+    MasterEditionAccountData,
+    MasterEditionAccountData
+  >(
+    s.struct<MasterEditionAccountData>(
+      [
+        ['key', getTokenMetadataKeySerializer(context)],
+        ['supply', s.u64],
+        ['maxSupply', s.option(s.u64)],
+      ],
+      'MasterEdition'
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: TokenMetadataKey.MasterEditionV2,
+      } as MasterEditionAccountData)
   ) as Serializer<MasterEditionAccountArgs, MasterEditionAccountData>;
 }
 

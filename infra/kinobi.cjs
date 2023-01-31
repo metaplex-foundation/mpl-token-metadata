@@ -1,22 +1,23 @@
 const path = require("path");
 const {
   Kinobi,
+  CreateSubInstructionsFromEnumArgsVisitor,
   RenderJavaScriptVisitor,
+  SetAccountDiscriminatorFromFieldVisitor,
   SetInstructionAccountDefaultValuesVisitor,
   SetLeafWrappersVisitor,
+  SetStructDefaultValuesVisitor,
+  TypeLeafNode,
+  TypeDefinedLinkNode,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
   UpdateProgramsVisitor,
   UpdateAccountsVisitor,
   UpdateDefinedTypesVisitor,
   UpdateInstructionsVisitor,
-  TypeLeafNode,
-  TypeDefinedLinkNode,
-  SetStructDefaultValuesVisitor,
   vScalar,
   vNone,
   vEnum,
-  CreateSubInstructionsFromEnumArgsVisitor,
 } = require("@lorisleiva/kinobi");
 
 // Paths.
@@ -179,6 +180,35 @@ kinobi.update(
     // Duplicated types.
     "mplTokenMetadata.Payload": { delete: true },
     "mplTokenMetadata.PayloadType": { delete: true },
+  })
+);
+
+// Set account discriminators.
+const tmKey = (name) => ({
+  field: "key",
+  value: vEnum("TokenMetadataKey", name),
+});
+const taKey = (name) => ({
+  field: "key",
+  value: vEnum("TokenAuthRulesKey", name),
+});
+kinobi.update(
+  new SetAccountDiscriminatorFromFieldVisitor({
+    "mplTokenMetadata.Edition": tmKey("EditionV1"),
+    // "mplTokenMetadata.MasterEditionV1": tmKey("MasterEditionV1"),
+    // "mplTokenMetadata.ReservationListV1": tmKey("ReservationListV1"),
+    "mplTokenMetadata.Metadata": tmKey("MetadataV1"),
+    // "mplTokenMetadata.ReservationListV2": tmKey("ReservationListV2"),
+    "mplTokenMetadata.MasterEdition": tmKey("MasterEditionV2"),
+    "mplTokenMetadata.EditionMarker": tmKey("EditionMarker"),
+    "mplTokenMetadata.UseAuthorityRecord": tmKey("UseAuthorityRecord"),
+    "mplTokenMetadata.CollectionAuthorityRecord": tmKey(
+      "CollectionAuthorityRecord"
+    ),
+    "mplTokenMetadata.TokenOwnedEscrow": tmKey("TokenOwnedEscrow"),
+    "mplTokenMetadata.TokenRecord": tmKey("TokenRecord"),
+    "mplTokenMetadata.MetadataDelegate": tmKey("MetadataDelegate"),
+    "mplTokenAuthRules.FrequencyAccount": taKey("Frequency"),
   })
 );
 
