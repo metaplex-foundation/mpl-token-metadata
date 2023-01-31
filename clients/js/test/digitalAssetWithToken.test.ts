@@ -1,28 +1,25 @@
-import { publicKey, some } from '@lorisleiva/js-test';
-import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
+import { generateSigner, publicKey, some } from '@lorisleiva/js-test';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
-  fetchDigitalAssetWithToken,
+  fetchDigitalAssetWithAssociatedToken,
   findMasterEditionPda,
   findMetadataPda,
   TokenStandard,
 } from '../src';
-import { createDigitalAsset, createMetaplex } from './_setup';
+import { createDigitalAssetWithToken, createMetaplex } from './_setup';
 
 test('it can fetch a Non Fungible', async (t) => {
   // Given an existing NFT.
   const mx = await createMetaplex();
-  const mint = await createDigitalAsset(mx);
+  const owner = generateSigner(mx).publicKey;
+  const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
 
   // When we fetch a digital asset using its mint address.
-  const digitalAsset = await fetchDigitalAssetWithToken(
+  const digitalAsset = await fetchDigitalAssetWithAssociatedToken(
     mx,
     mint.publicKey,
-    findAssociatedTokenPda(mx, {
-      mint: mint.publicKey,
-      owner: mx.identity.publicKey,
-    })
+    owner
   );
 
   // Then we get the expected digital asset.

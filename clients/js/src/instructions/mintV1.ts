@@ -1,6 +1,7 @@
 import { PublicKey, publicKey, WrappedInstruction } from '@lorisleiva/js-core';
 import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
-import { findMasterEditionPda } from '../generated';
+import { isFungible } from '../digitalAsset';
+import { findMasterEditionPda, TokenStandard } from '../generated';
 import {
   getMintV1InstructionDataSerializer,
   mintV1 as baseMintV1,
@@ -23,18 +24,16 @@ export type MintV1InstructionInput = Omit<
 > & {
   /** @defaultValue Defaults to the associated token of the `tokenOwner` */
   token?: PublicKey;
-  /** @defaultValue `false` */
-  isFungible?: boolean;
+  tokenStandard: TokenStandard;
 };
 
 export const mintV1 = (
   context: Parameters<typeof baseMintV1>[0],
   input: MintV1InstructionInput
 ): WrappedInstruction => {
-  const defaultMasterEdition =
-    input.isFungible ?? false
-      ? undefined
-      : findMasterEditionPda(context, { mint: publicKey(input.mint) });
+  const defaultMasterEdition = isFungible(input.tokenStandard)
+    ? undefined
+    : findMasterEditionPda(context, { mint: publicKey(input.mint) });
   const defaultTokenOwner = input.token
     ? undefined
     : context.identity.publicKey;

@@ -4,12 +4,11 @@ import {
   generateSigner,
   Metaplex,
   percentAmount,
+  PublicKey,
   Signer,
   transactionBuilder,
 } from '@lorisleiva/js-test';
-import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
-import { PublicKey } from '@solana/web3.js';
-import { mplDigitalAsset, createV1, mintV1 } from '../src';
+import { createV1, mintV1, mplDigitalAsset, TokenStandard } from '../src';
 
 export const createMetaplex = async () =>
   (await baseCreateMetaplex()).use(mplDigitalAsset());
@@ -37,6 +36,7 @@ export const createDigitalAssetWithToken = async (
   mx: Metaplex,
   input: Partial<Parameters<typeof createV1>[1]> & {
     token?: PublicKey;
+    tokenOwner?: PublicKey;
     amount?: number | bigint;
   } = {}
 ): Promise<Signer> => {
@@ -54,12 +54,10 @@ export const createDigitalAssetWithToken = async (
     .add(
       mintV1(mx, {
         mint: mint.publicKey,
-        tokenOwner: mx.identity.publicKey,
-        token: findAssociatedTokenPda(mx, {
-          mint: mint.publicKey,
-          owner: mx.identity.publicKey,
-        }),
-        amount: 1,
+        token: input.token,
+        tokenOwner: input.tokenOwner,
+        amount: input.amount ?? 1,
+        tokenStandard: input.tokenStandard ?? TokenStandard.NonFungible,
       })
     )
     .sendAndConfirm();
