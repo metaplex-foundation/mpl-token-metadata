@@ -238,7 +238,7 @@ kinobi.update(
 // Set struct default values.
 kinobi.update(
   new SetStructDefaultValuesVisitor({
-    "mplTokenMetadata.AssetData": {
+    "mplTokenMetadata.assetData": {
       symbol: vScalar(""),
       isMutable: vScalar(true),
       primarySaleHappened: vScalar(false),
@@ -247,11 +247,11 @@ kinobi.update(
       collectionDetails: vNone(),
       ruleSet: vNone(),
     },
-    "mplTokenMetadata.CreateArgs.V1": {
+    "mplTokenMetadata.createArgs.V1": {
       decimals: vNone(),
       printSupply: vNone(),
     },
-    "mplTokenMetadata.UpdateArgs.V1": {
+    "mplTokenMetadata.updateArgs.V1": {
       newUpdateAuthority: vNone(),
       data: vNone(),
       primarySaleHappened: vNone(),
@@ -260,6 +260,9 @@ kinobi.update(
       collectionDetails: vEnum("CollectionDetailsToggle", "None"),
       uses: vEnum("UsesToggle", "None"),
       ruleSet: vEnum("RuleSetToggle", "None"),
+      authorizationData: vNone(),
+    },
+    "mplTokenMetadata.mintArgs.V1": {
       authorizationData: vNone(),
     },
   })

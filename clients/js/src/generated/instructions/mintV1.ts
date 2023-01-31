@@ -16,6 +16,7 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
+  none,
   publicKey,
 } from '@lorisleiva/js-core';
 import { findMetadataPda } from '../accounts';
@@ -69,7 +70,7 @@ export type MintV1InstructionData = {
 
 export type MintV1InstructionArgs = {
   amount: number | bigint;
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getMintV1InstructionDataSerializer(
@@ -98,6 +99,7 @@ export function getMintV1InstructionDataSerializer(
         ...value,
         discriminator: 43,
         mintV1Discriminator: 0,
+        authorizationData: value.authorizationData ?? none(),
       } as MintV1InstructionData)
   ) as Serializer<MintV1InstructionArgs, MintV1InstructionData>;
 }

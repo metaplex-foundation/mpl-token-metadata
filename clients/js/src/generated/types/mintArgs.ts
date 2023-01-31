@@ -12,6 +12,8 @@ import {
   GetDataEnumKindContent,
   Option,
   Serializer,
+  mapSerializer,
+  none,
 } from '@lorisleiva/js-core';
 import {
   AuthorizationData,
@@ -28,7 +30,7 @@ export type MintArgs = {
 export type MintArgsArgs = {
   __kind: 'V1';
   amount: number | bigint;
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getMintArgsSerializer(
@@ -39,15 +41,26 @@ export function getMintArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<MintArgs, 'V1'>>(
-          [
-            ['amount', s.u64],
+        mapSerializer<
+          GetDataEnumKindContent<MintArgsArgs, 'V1'>,
+          GetDataEnumKindContent<MintArgs, 'V1'>,
+          GetDataEnumKindContent<MintArgs, 'V1'>
+        >(
+          s.struct<GetDataEnumKindContent<MintArgs, 'V1'>>(
             [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
+              ['amount', s.u64],
+              [
+                'authorizationData',
+                s.option(getAuthorizationDataSerializer(context)),
+              ],
             ],
-          ],
-          'V1'
+            'V1'
+          ),
+          (value) =>
+            ({
+              ...value,
+              authorizationData: value.authorizationData ?? none(),
+            } as GetDataEnumKindContent<MintArgs, 'V1'>)
         ),
       ],
     ],
