@@ -1,4 +1,5 @@
 import { generateSigner, publicKey, some } from '@lorisleiva/js-test';
+import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
@@ -23,6 +24,7 @@ test('it can fetch a Non Fungible', async (t) => {
   );
 
   // Then we get the expected digital asset.
+  const ata = findAssociatedTokenPda(mx, { mint: mint.publicKey, owner });
   const metadata = findMetadataPda(mx, { mint: mint.publicKey });
   const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
   t.like(digitalAsset, <DigitalAssetWithToken>{
@@ -37,7 +39,9 @@ test('it can fetch a Non Fungible', async (t) => {
       isOriginal: true,
       publicKey: publicKey(edition),
     },
-    token: {},
-    tokenRecord: {},
+    token: {
+      publicKey: publicKey(ata),
+    },
+    tokenRecord: undefined,
   });
 });
