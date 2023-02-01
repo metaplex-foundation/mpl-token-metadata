@@ -1,7 +1,8 @@
-import { publicKey, some } from '@lorisleiva/js-test';
+import { base58PublicKey, publicKey, some } from '@lorisleiva/js-test';
 import test from 'ava';
 import {
   DigitalAsset,
+  fetchAllDigitalAsset,
   fetchDigitalAsset,
   fetchDigitalAssetByMetadata,
   findMasterEditionPda,
@@ -60,4 +61,23 @@ test('it can fetch a DigitalAsset by metadata', async (t) => {
       publicKey: publicKey(edition),
     },
   });
+});
+
+test('it can fetch all DigitalAssets by mint list', async (t) => {
+  // Given two existing NFTs.
+  const mx = await createMetaplex();
+  const mintA = await createDigitalAsset(mx);
+  const mintB = await createDigitalAsset(mx);
+
+  // When we fetch both of them using their mint addresses.
+  const digitalAssets = await fetchAllDigitalAsset(mx, [
+    mintA.publicKey,
+    mintB.publicKey,
+  ]);
+
+  // Then we get the expected digital assets.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint));
+  t.true(mints.includes(base58PublicKey(mintA.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintB.publicKey)));
 });
