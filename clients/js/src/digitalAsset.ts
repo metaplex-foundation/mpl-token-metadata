@@ -1,5 +1,6 @@
 import {
   assertAccountExists,
+  chunk,
   Context,
   PublicKey,
   RpcAccount,
@@ -15,12 +16,16 @@ import {
   fetchMetadata,
   findMasterEditionPda,
   findMetadataPda,
+  getMetadataGpaBuilder,
   getTokenMetadataKeySerializer,
   MasterEdition,
   Metadata,
   TokenMetadataKey,
   TokenStandard,
 } from './generated';
+
+const CREATORS_OFFSET = 326;
+const MAX_CREATOR_SIZE = 34;
 
 export type DigitalAsset = {
   publicKey: PublicKey;
@@ -57,6 +62,57 @@ export async function fetchDigitalAssetByMetadata(
 ): Promise<DigitalAsset> {
   const metadataAccount = await fetchMetadata(context, metadata, options);
   return fetchDigitalAsset(context, metadataAccount.mint, options);
+}
+
+export async function fetchAllDigitalAsset(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  mints: PublicKey[],
+  options?: RpcGetAccountsOptions
+): Promise<DigitalAsset[]> {
+  const accountsToFetch = mints.flatMap((mint) => [
+    mint,
+    findMetadataPda(context, { mint }),
+    findMasterEditionPda(context, { mint }),
+  ]);
+
+  const accounts = await context.rpc.getAccounts(accountsToFetch, options);
+  return chunk(accounts, 3).map(
+    ([mintAccount, metadataAccount, editionAccount]) => {
+      assertAccountExists(mintAccount, 'Mint');
+      assertAccountExists(metadataAccount, 'Metadata');
+      return deserializeDigitalAsset(
+        context,
+        mintAccount,
+        metadataAccount,
+        editionAccount.exists ? editionAccount : undefined
+      );
+    }
+  );
+}
+
+export async function fetchAllDigitalAssetByCreator(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  creator: PublicKey,
+  options?: RpcGetAccountsOptions & { position?: number }
+): Promise<DigitalAsset[]> {
+  const creatorIndex = (options?.position ?? 1) - 1;
+  const mints = await getMetadataGpaBuilder(context)
+    .where(CREATORS_OFFSET + creatorIndex * MAX_CREATOR_SIZE, creator)
+    .slice(33, 32)
+    .getPublicKeys();
+  return fetchAllDigitalAsset(context, mints, options);
+}
+
+export async function fetchAllDigitalAssetByUpdateAuthority(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  updateAuthority: PublicKey,
+  options?: RpcGetAccountsOptions
+): Promise<DigitalAsset[]> {
+  const mints = await getMetadataGpaBuilder(context)
+    .whereField('updateAuthority', updateAuthority)
+    .slice(33, 32)
+    .getPublicKeys();
+  return fetchAllDigitalAsset(context, mints, options);
 }
 
 export function deserializeDigitalAsset(
