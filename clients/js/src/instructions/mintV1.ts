@@ -37,15 +37,16 @@ export const mintV1 = (
   const defaultTokenOwner = input.token
     ? undefined
     : context.identity.publicKey;
-  const defaultToken = findAssociatedTokenPda(context, {
-    mint: publicKey(input.mint),
-    owner: publicKey(input.tokenOwner ?? (defaultTokenOwner as PublicKey)),
-  });
 
   return baseMintV1(context, {
     masterEdition: input.masterEdition ?? defaultMasterEdition,
     ...input,
-    token: input.token ?? defaultToken,
     tokenOwner: input.tokenOwner ?? defaultTokenOwner,
+    token:
+      input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(input.tokenOwner ?? (defaultTokenOwner as PublicKey)),
+      }),
   });
 };

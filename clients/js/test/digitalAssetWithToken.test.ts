@@ -1,16 +1,28 @@
-import { generateSigner, publicKey, some } from '@lorisleiva/js-test';
-import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
+import {
+  base58PublicKey,
+  generateSigner,
+  publicKey,
+  some,
+  transactionBuilder,
+} from '@lorisleiva/js-test';
+import {
+  createToken,
+  findAssociatedTokenPda,
+} from '@lorisleiva/mpl-essentials';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
+  fetchAllDigitalAssetWithTokenByOwner,
+  fetchAllDigitalAssetWithTokenByOwnerAndMint,
   fetchDigitalAssetWithAssociatedToken,
   findMasterEditionPda,
   findMetadataPda,
+  mintV1,
   TokenStandard,
 } from '../src';
 import { createDigitalAssetWithToken, createMetaplex } from './_setup';
 
-test('it can fetch a Non Fungible', async (t) => {
+test('it can fetch a DigitalAssetWithToken from its mint and token accounts', async (t) => {
   // Given an existing NFT.
   const mx = await createMetaplex();
   const owner = generateSigner(mx).publicKey;
@@ -44,4 +56,82 @@ test('it can fetch a Non Fungible', async (t) => {
     },
     tokenRecord: undefined,
   });
+});
+
+test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
+  // Given two owner A and B.
+  const mx = await createMetaplex();
+  const ownerA = generateSigner(mx).publicKey;
+  const ownerB = generateSigner(mx).publicKey;
+
+  // And three NFTs such that two are owned by A and one is owned by B.
+  const mintA1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
+  const mintA2 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+
+  // When we fetch all digital assets owned by A.
+  const digitalAssets = await fetchAllDigitalAssetWithTokenByOwner(mx, ownerA);
+
+  // Then we get the two digital assets owned by A.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint.publicKey));
+  t.true(mints.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
+
+  // And we don't get the one owned by B.
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
+test.only('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
+  // Given two owner A and B.
+  const mx = await createMetaplex();
+  const ownerA = generateSigner(mx).publicKey;
+  const ownerB = generateSigner(mx).publicKey;
+
+  // And one SFT owned by A over multiple token accounts.
+  // One via an associated token account an one via a regular token account.
+  const mintA1 = await createDigitalAssetWithToken(mx, {
+    tokenStandard: TokenStandard.FungibleAsset,
+    tokenOwner: ownerA,
+    amount: 42,
+  });
+  const associatedToken = findAssociatedTokenPda(mx, {
+    mint: mintA1.publicKey,
+    owner: ownerA,
+  });
+  const regularToken = generateSigner(mx);
+  await transactionBuilder(mx)
+    .add(createToken(mx, { mint: mintA1.publicKey, token: regularToken }))
+    .add(
+      mintV1(mx, {
+        mint: mintA1.publicKey,
+        token: regularToken.publicKey,
+        tokenStandard: TokenStandard.FungibleAsset,
+        amount: 15,
+      })
+    )
+    .sendAndConfirm();
+
+  // And two other NFTs, one owned by A and one owned by B.
+  const mintA2 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+
+  // When we fetch all digital assets from the SFT owned by A.
+  const digitalAssets = await fetchAllDigitalAssetWithTokenByOwnerAndMint(
+    mx,
+    ownerA,
+    mintA1.publicKey
+  );
+
+  // Then we get the two DigitalAssetWithTokens from mint A1.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint.publicKey));
+  const tokens = digitalAssets.map((da) => base58PublicKey(da.token.publicKey));
+  t.true(mints.every((m) => m === base58PublicKey(mintA1.publicKey)));
+  t.true(tokens.includes(base58PublicKey(associatedToken)));
+  t.true(tokens.includes(base58PublicKey(regularToken.publicKey)));
+
+  // And we don't get any from mint A2 or B1.
+  t.false(mints.includes(base58PublicKey(mintA2.publicKey)));
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
 });
