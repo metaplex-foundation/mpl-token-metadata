@@ -1,8 +1,14 @@
-import { base58PublicKey, publicKey, some } from '@lorisleiva/js-test';
+import {
+  base58PublicKey,
+  generateSigner,
+  publicKey,
+  some,
+} from '@lorisleiva/js-test';
 import test from 'ava';
 import {
   DigitalAsset,
   fetchAllDigitalAsset,
+  fetchAllDigitalAssetByUpdateAuthority,
   fetchDigitalAsset,
   fetchDigitalAssetByMetadata,
   findMasterEditionPda,
@@ -80,4 +86,40 @@ test('it can fetch all DigitalAssets by mint list', async (t) => {
   const mints = digitalAssets.map((da) => base58PublicKey(da.mint));
   t.true(mints.includes(base58PublicKey(mintA.publicKey)));
   t.true(mints.includes(base58PublicKey(mintB.publicKey)));
+});
+
+test('it can fetch all DigitalAssets by update authority', async (t) => {
+  // Given two update authorities A and B.
+  const mx = await createMetaplex();
+  const updateAuthorityA = generateSigner(mx);
+  const updateAuthorityB = generateSigner(mx);
+
+  // And three NFTs such that 2 are maintained by A and 1 is maintained by B.
+  const mintA1 = await createDigitalAsset(mx, {
+    authority: updateAuthorityA,
+    updateAuthority: updateAuthorityA.publicKey,
+  });
+  const mintA2 = await createDigitalAsset(mx, {
+    authority: updateAuthorityA,
+    updateAuthority: updateAuthorityA.publicKey,
+  });
+  const mintB1 = await createDigitalAsset(mx, {
+    authority: updateAuthorityB,
+    updateAuthority: updateAuthorityB.publicKey,
+  });
+
+  // When we fetch all digital assets such that their update authority is A.
+  const digitalAssets = await fetchAllDigitalAssetByUpdateAuthority(
+    mx,
+    updateAuthorityA.publicKey
+  );
+
+  // Then we get the two NFTs maintained by A.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint));
+  t.true(mints.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
+
+  // And we don't get the NFT maintained by B.
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
 });
