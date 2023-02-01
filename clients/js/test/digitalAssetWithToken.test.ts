@@ -82,7 +82,7 @@ test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
   t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
 });
 
-test.only('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
+test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
   // Given two owner A and B.
   const mx = await createMetaplex();
   const ownerA = generateSigner(mx).publicKey;
@@ -101,7 +101,13 @@ test.only('it can fetch all DigitalAssetWithToken by owner and mint', async (t) 
   });
   const regularToken = generateSigner(mx);
   await transactionBuilder(mx)
-    .add(createToken(mx, { mint: mintA1.publicKey, token: regularToken }))
+    .add(
+      createToken(mx, {
+        mint: mintA1.publicKey,
+        owner: ownerA,
+        token: regularToken,
+      })
+    )
     .add(
       mintV1(mx, {
         mint: mintA1.publicKey,
