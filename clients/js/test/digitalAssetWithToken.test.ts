@@ -12,6 +12,7 @@ import {
 import test from 'ava';
 import {
   DigitalAssetWithToken,
+  fetchAllDigitalAssetWithTokenByMint,
   fetchAllDigitalAssetWithTokenByOwner,
   fetchAllDigitalAssetWithTokenByOwnerAndMint,
   fetchDigitalAssetWithAssociatedToken,
@@ -140,4 +141,57 @@ test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
   // And we don't get any from mint A2 or B1.
   t.false(mints.includes(base58PublicKey(mintA2.publicKey)));
   t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
+test('it can fetch all DigitalAssetWithToken by mint', async (t) => {
+  // Given two owner A and B.
+  const mx = await createMetaplex();
+  const ownerA = generateSigner(mx).publicKey;
+  const ownerB = generateSigner(mx).publicKey;
+
+  // And an SFT that belongs to both owner A and B.
+  const mintU = await createDigitalAssetWithToken(mx, {
+    tokenOwner: ownerA,
+    tokenStandard: TokenStandard.FungibleAsset,
+  });
+  const tokenAU = findAssociatedTokenPda(mx, {
+    mint: mintU.publicKey,
+    owner: ownerA,
+  });
+  const tokenBU = findAssociatedTokenPda(mx, {
+    mint: mintU.publicKey,
+    owner: ownerB,
+  });
+  await transactionBuilder(mx)
+    .add(
+      mintV1(mx, {
+        mint: mintU.publicKey,
+        tokenOwner: ownerB,
+        amount: 2,
+        tokenStandard: TokenStandard.FungibleAsset,
+      })
+    )
+    .sendAndConfirm();
+
+  // And two other NFTs, one owned by A and one owned by B.
+  const mintV = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
+  const mintW = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+
+  // When we fetch all DigitalAssetWithToken associated with the SFT.
+  const digitalAssets = await fetchAllDigitalAssetWithTokenByMint(
+    mx,
+    mintU.publicKey
+  );
+
+  // Then we get the two DigitalAssetWithToken owned by A and B from mint U.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint.publicKey));
+  const tokens = digitalAssets.map((da) => base58PublicKey(da.token.publicKey));
+  t.true(mints.every((m) => m === base58PublicKey(mintU.publicKey)));
+  t.true(tokens.includes(base58PublicKey(tokenAU)));
+  t.true(tokens.includes(base58PublicKey(tokenBU)));
+
+  // But we don't get the other NFTs V and W.
+  t.false(mints.includes(base58PublicKey(mintV.publicKey)));
+  t.false(mints.includes(base58PublicKey(mintW.publicKey)));
 });
