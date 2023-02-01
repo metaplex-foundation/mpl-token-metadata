@@ -98,7 +98,7 @@ export async function fetchAllDigitalAssetByCreator(
   const creatorIndex = (options?.position ?? 1) - 1;
   const mints = await getMetadataGpaBuilder(context)
     .where(CREATORS_OFFSET + creatorIndex * MAX_CREATOR_SIZE, creator)
-    .slice(33, 32)
+    .sliceField('mint')
     .getDataAsPublicKeys();
   return fetchAllDigitalAsset(context, mints, options);
 }
@@ -110,7 +110,7 @@ export async function fetchAllDigitalAssetByUpdateAuthority(
 ): Promise<DigitalAsset[]> {
   const mints = await getMetadataGpaBuilder(context)
     .whereField('updateAuthority', updateAuthority)
-    .slice(33, 32)
+    .sliceField('mint')
     .getDataAsPublicKeys();
   return fetchAllDigitalAsset(context, mints, options);
 }
