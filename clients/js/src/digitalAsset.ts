@@ -12,6 +12,7 @@ import {
   deserializeMasterEdition,
   deserializeMetadata,
   Edition,
+  fetchMetadata,
   findMasterEditionPda,
   findMetadataPda,
   getTokenMetadataKeySerializer,
@@ -47,6 +48,15 @@ export async function fetchDigitalAsset(
     metadataAccount,
     editionAccount.exists ? editionAccount : undefined
   );
+}
+
+export async function fetchDigitalAssetByMetadata(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  metadata: PublicKey,
+  options?: RpcGetAccountsOptions
+): Promise<DigitalAsset> {
+  const metadataAccount = await fetchMetadata(context, metadata, options);
+  return fetchDigitalAsset(context, metadataAccount.mint, options);
 }
 
 export function deserializeDigitalAsset(
