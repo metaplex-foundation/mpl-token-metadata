@@ -74,6 +74,28 @@ export async function fetchDigitalAssetWithAssociatedToken(
   return fetchDigitalAssetWithToken(context, mint, token, options);
 }
 
+export async function fetchDigitalAssetWithTokenByMint(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  mint: PublicKey,
+  options?: RpcBaseOptions
+): Promise<DigitalAssetWithToken> {
+  const digitalAssets = await fetchAllDigitalAssetWithTokenByMint(
+    context,
+    mint,
+    options
+  );
+  if (digitalAssets.length === 0) {
+    throw new Error('No valid token accounts found for the provided mint');
+  }
+  if (digitalAssets.length > 1) {
+    throw new Error(
+      'Multiple valid token accounts found for the provided mint' +
+        'use `fetchAllDigitalAssetWithTokenByMint` instead to retrieve them all.'
+    );
+  }
+  return digitalAssets[0];
+}
+
 export async function fetchAllDigitalAssetWithTokenByOwner(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
   owner: PublicKey,

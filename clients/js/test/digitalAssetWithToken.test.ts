@@ -16,6 +16,7 @@ import {
   fetchAllDigitalAssetWithTokenByOwner,
   fetchAllDigitalAssetWithTokenByOwnerAndMint,
   fetchDigitalAssetWithAssociatedToken,
+  fetchDigitalAssetWithTokenByMint,
   findMasterEditionPda,
   findMetadataPda,
   mintV1,
@@ -29,11 +30,47 @@ test('it can fetch a DigitalAssetWithToken from its mint and token accounts', as
   const owner = generateSigner(mx).publicKey;
   const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
 
-  // When we fetch a digital asset using its mint address.
+  // When we fetch a DigitalAssetWithToken using its mint address
+  // and either its token address or its owner address.
   const digitalAsset = await fetchDigitalAssetWithAssociatedToken(
     mx,
     mint.publicKey,
     owner
+  );
+
+  // Then we get the expected digital asset.
+  const ata = findAssociatedTokenPda(mx, { mint: mint.publicKey, owner });
+  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
+  const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
+  t.like(digitalAsset, <DigitalAssetWithToken>{
+    publicKey: publicKey(mint.publicKey),
+    mint: { publicKey: publicKey(mint.publicKey) },
+    metadata: {
+      publicKey: publicKey(metadata),
+      mint: publicKey(mint.publicKey),
+      tokenStandard: some(TokenStandard.NonFungible),
+    },
+    edition: {
+      isOriginal: true,
+      publicKey: publicKey(edition),
+    },
+    token: {
+      publicKey: publicKey(ata),
+    },
+    tokenRecord: undefined,
+  });
+});
+
+test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
+  // Given an existing NFT.
+  const mx = await createMetaplex();
+  const owner = generateSigner(mx).publicKey;
+  const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
+
+  // When we fetch a DigitalAssetWithToken using only its mint address.
+  const digitalAsset = await fetchDigitalAssetWithTokenByMint(
+    mx,
+    mint.publicKey
   );
 
   // Then we get the expected digital asset.
