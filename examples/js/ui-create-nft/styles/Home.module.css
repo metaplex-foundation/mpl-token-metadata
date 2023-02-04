@@ -86,6 +86,7 @@
   width: 480px;
   height: 360px;
   margin-left: -400px;
+  z-index: -1;
 }
 
 .center::after {
