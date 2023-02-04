@@ -9,7 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lorisleiva/js": "^0.0.54",
     "@next/font": "13.1.6",
+    "@solana/wallet-adapter-base": "^0.9.20",
+    "@solana/wallet-adapter-react": "^0.15.28",
+    "@solana/wallet-adapter-react-ui": "^0.9.27",
+    "@solana/wallet-adapter-wallets": "^0.19.11",
+    "@solana/web3.js": "^1.73.2",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
