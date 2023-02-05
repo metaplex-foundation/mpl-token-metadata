@@ -48,15 +48,9 @@ async function uploadAndCreateNft(
 
   // Create and mint NFT.
   const mint = generateSigner(metaplex);
+  const sellerFeeBasisPoints = percentAmount(5.5, 2);
   await transactionBuilder(metaplex)
-    .add(
-      createNft(metaplex, {
-        mint,
-        name,
-        uri,
-        sellerFeeBasisPoints: percentAmount(5.5, 2),
-      })
-    )
+    .add(createNft(metaplex, { mint, name, uri, sellerFeeBasisPoints }))
     .sendAndConfirm();
 
   // Return the mint address.
@@ -104,9 +98,9 @@ export default function Home() {
               d="M168,40.7a96,96,0,1,1-80,0"
               fill="none"
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="24"
             ></path>
           </svg>
           <p>Creating the NFT...</p>
@@ -136,9 +130,9 @@ export default function Home() {
               points="172 104 113.3 160 84 132"
               fill="none"
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="24"
             ></polyline>
             <circle
               cx="128"
@@ -146,9 +140,9 @@ export default function Home() {
               r="96"
               fill="none"
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="24"
             ></circle>
           </svg>
           <div>

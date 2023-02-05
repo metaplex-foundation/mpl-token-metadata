@@ -12,7 +12,7 @@
     "@lorisleiva/js": "^0.0.57",
     "@lorisleiva/js-signer-wallet-adapters": "^0.0.57",
     "@lorisleiva/js-uploader-nft-storage": "^0.0.57",
-    "@lorisleiva/mpl-digital-asset": "^0.0.3",
+    "@lorisleiva/mpl-digital-asset": "^0.0.4",
     "@next/font": "13.1.6",
     "@solana/wallet-adapter-base": "^0.9.20",
     "@solana/wallet-adapter-react": "^0.15.28",
