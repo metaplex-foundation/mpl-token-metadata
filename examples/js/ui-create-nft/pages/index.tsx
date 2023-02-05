@@ -29,7 +29,7 @@ async function createNft(metaplex: Metaplex, name: string, file: File) {
   if (!name) {
     throw new Error("Please enter a name for your NFT.");
   }
-  if (!file) {
+  if (!file || file.size === 0) {
     throw new Error("Please select an image for your NFT.");
   }
 
@@ -71,9 +71,7 @@ export default function Home() {
   const wallet = useWallet();
   const metaplex = useMetaplex();
   const [loading, setLoading] = useState(false);
-  const [mintCreated, setMintCreated] = useState<PublicKey | null>(
-    generateSigner(metaplex).publicKey
-  );
+  const [mintCreated, setMintCreated] = useState<PublicKey | null>(null);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
