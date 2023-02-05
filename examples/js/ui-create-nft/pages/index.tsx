@@ -3,6 +3,7 @@ import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import { FormEvent } from "react";
 import { useMetaplex } from "./useMetaplex";
 
 import styles from "@/styles/Home.module.css";
@@ -17,21 +18,37 @@ const WalletMultiButtonDynamic = dynamic(
 function useCreateNft() {
   const wallet = useWallet();
   const metaplex = useMetaplex();
-  if (!wallet.connected) return {};
+  if (!wallet.connected) {
+    return {
+      enabled: false,
+    };
+  }
 
   console.log("useCreateNft", {
     identity: base58PublicKey(metaplex.identity),
   });
 
   return {
-    createNft: () => {
-      console.log("Hello");
+    enabled: true,
+    createNft: (event: FormEvent) => {
+      event.preventDefault();
+      const formData = new FormData(event.target as HTMLFormElement);
+      const data = Object.fromEntries(formData);
+      console.log({ formData, data });
     },
   };
 }
 
 export default function Home() {
-  const { createNft } = useCreateNft();
+  const wallet = useWallet();
+  const metaplex = useMetaplex();
+
+  const onSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+    const { name, file } = Object.fromEntries(formData);
+    console.log({ metaplex, name, file });
+  };
 
   return (
     <>
@@ -53,7 +70,19 @@ export default function Home() {
         </div>
 
         <div className={styles.center}>
-          <button onClick={createNft}>Action</button>
+          {wallet.connected ? (
+            <form method="post" onSubmit={onSubmit}>
+              <label>
+                Name: <input name="name" defaultValue="My NFT" />
+              </label>
+              <label>
+                Image: <input name="image" type="file" />
+              </label>
+              <button type="submit">Submit form</button>
+            </form>
+          ) : (
+            <p>Connect your wallet to create an NFT</p>
+          )}
         </div>
 
         <div className={styles.grid}>
