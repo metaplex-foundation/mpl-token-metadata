@@ -1,4 +1,11 @@
-import { base58PublicKey } from "@lorisleiva/js";
+import {
+  base58PublicKey,
+  createGenericFileFromBrowserFile,
+  generateSigner,
+  percentAmount,
+  transactionBuilder,
+} from "@lorisleiva/js";
+import { createV1, mintV1, TokenStandard } from "@lorisleiva/mpl-digital-asset";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
@@ -15,39 +22,51 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-function useCreateNft() {
-  const wallet = useWallet();
-  const metaplex = useMetaplex();
-  if (!wallet.connected) {
-    return {
-      enabled: false,
-    };
-  }
-
-  console.log("useCreateNft", {
-    identity: base58PublicKey(metaplex.identity),
-  });
-
-  return {
-    enabled: true,
-    createNft: (event: FormEvent) => {
-      event.preventDefault();
-      const formData = new FormData(event.target as HTMLFormElement);
-      const data = Object.fromEntries(formData);
-      console.log({ formData, data });
-    },
-  };
-}
-
 export default function Home() {
   const wallet = useWallet();
   const metaplex = useMetaplex();
 
-  const onSubmit = (event: FormEvent) => {
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    const { name, file } = Object.fromEntries(formData);
-    console.log({ metaplex, name, file });
+    const data = Object.fromEntries(formData) as { name: string; image: File };
+    const imageFile = await createGenericFileFromBrowserFile(data.image);
+
+    // Upload image and JSON data.
+    const [imageUri] = await metaplex.uploader.upload([imageFile]);
+    const uri = await metaplex.uploader.uploadJson({
+      name: data.name,
+      description: "A test NFT created using the Metaplex JS SDK.",
+      image: imageUri,
+    });
+
+    // Create and mint NFT.
+    const mint = generateSigner(metaplex);
+    await transactionBuilder(metaplex)
+      .add(
+        createV1(metaplex, {
+          mint,
+          name: data.name,
+          uri,
+          sellerFeeBasisPoints: percentAmount(5.5, 2),
+          tokenStandard: TokenStandard.NonFungible,
+        })
+      )
+      .add(
+        mintV1(metaplex, {
+          mint: mint.publicKey,
+          tokenStandard: TokenStandard.NonFungible,
+          amount: 1,
+        })
+      )
+      .sendAndConfirm();
+
+    console.log({
+      metaplex,
+      uri,
+      mint: base58PublicKey(mint.publicKey),
+      ...data,
+    });
   };
 
   return (
