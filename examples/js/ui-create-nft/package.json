@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@lorisleiva/js": "^0.0.56",
-    "@lorisleiva/js-signer-wallet-adapters": "^0.0.56",
-    "@lorisleiva/js-uploader-nft-storage": "^0.0.56",
+    "@lorisleiva/js": "^0.0.57",
+    "@lorisleiva/js-signer-wallet-adapters": "^0.0.57",
+    "@lorisleiva/js-uploader-nft-storage": "^0.0.57",
     "@lorisleiva/mpl-digital-asset": "^0.0.2",
     "@next/font": "13.1.6",
     "@solana/wallet-adapter-base": "^0.9.20",
@@ -27,7 +27,6 @@
     "next": "13.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "tweetnacl": "^1.0.3",
     "typescript": "4.9.5"
   }
 }
