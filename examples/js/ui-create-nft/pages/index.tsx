@@ -1,5 +1,6 @@
 import { base58PublicKey } from "@lorisleiva/js";
 import { Inter } from "@next/font/google";
+import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useMetaplex } from "./useMetaplex";
@@ -14,9 +15,12 @@ const WalletMultiButtonDynamic = dynamic(
 );
 
 function useCreateNft() {
+  const wallet = useWallet();
   const metaplex = useMetaplex();
+  if (!wallet.connected) return {};
+
   console.log("useCreateNft", {
-    identity: metaplex.identity,
+    identity: base58PublicKey(metaplex.identity),
   });
 
   return {
