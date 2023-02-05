@@ -2,7 +2,9 @@ import {
   base58PublicKey,
   createGenericFileFromBrowserFile,
   generateSigner,
+  Metaplex,
   percentAmount,
+  PublicKey,
   transactionBuilder,
 } from "@lorisleiva/js";
 import { createV1, mintV1, TokenStandard } from "@lorisleiva/mpl-digital-asset";
@@ -10,7 +12,7 @@ import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { useMetaplex } from "./useMetaplex";
 
 import styles from "@/styles/Home.module.css";
@@ -22,51 +24,177 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
+async function createNft(metaplex: Metaplex, name: string, file: File) {
+  // Ensure input is valid.
+  if (!name) {
+    throw new Error("Please enter a name for your NFT.");
+  }
+  if (!file) {
+    throw new Error("Please select an image for your NFT.");
+  }
+
+  // Upload image and JSON data.
+  const imageFile = await createGenericFileFromBrowserFile(file);
+  const [imageUri] = await metaplex.uploader.upload([imageFile]);
+  const uri = await metaplex.uploader.uploadJson({
+    name,
+    description: "A test NFT created using the Metaplex JS SDK.",
+    image: imageUri,
+  });
+
+  // Create and mint NFT.
+  const mint = generateSigner(metaplex);
+  await transactionBuilder(metaplex)
+    .add(
+      createV1(metaplex, {
+        mint,
+        name,
+        uri,
+        sellerFeeBasisPoints: percentAmount(5.5, 2),
+        tokenStandard: TokenStandard.NonFungible,
+      })
+    )
+    .add(
+      mintV1(metaplex, {
+        mint: mint.publicKey,
+        tokenStandard: TokenStandard.NonFungible,
+        amount: 1,
+      })
+    )
+    .sendAndConfirm();
+
+  // Return the mint address.
+  return mint.publicKey;
+}
+
 export default function Home() {
   const wallet = useWallet();
   const metaplex = useMetaplex();
+  const [loading, setLoading] = useState(false);
+  const [mintCreated, setMintCreated] = useState<PublicKey | null>(
+    generateSigner(metaplex).publicKey
+  );
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    setLoading(true);
+
     const formData = new FormData(event.target as HTMLFormElement);
     const data = Object.fromEntries(formData) as { name: string; image: File };
-    const imageFile = await createGenericFileFromBrowserFile(data.image);
 
-    // Upload image and JSON data.
-    const [imageUri] = await metaplex.uploader.upload([imageFile]);
-    const uri = await metaplex.uploader.uploadJson({
-      name: data.name,
-      description: "A test NFT created using the Metaplex JS SDK.",
-      image: imageUri,
-    });
+    try {
+      const mint = await createNft(metaplex, data.name, data.image);
+      setMintCreated(mint);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Create and mint NFT.
-    const mint = generateSigner(metaplex);
-    await transactionBuilder(metaplex)
-      .add(
-        createV1(metaplex, {
-          mint,
-          name: data.name,
-          uri,
-          sellerFeeBasisPoints: percentAmount(5.5, 2),
-          tokenStandard: TokenStandard.NonFungible,
-        })
-      )
-      .add(
-        mintV1(metaplex, {
-          mint: mint.publicKey,
-          tokenStandard: TokenStandard.NonFungible,
-          amount: 1,
-        })
-      )
-      .sendAndConfirm();
+  const PageContent = () => {
+    if (!wallet.connected) {
+      return <p>Please connect your wallet to get started.</p>;
+    }
 
-    console.log({
-      metaplex,
-      uri,
-      mint: base58PublicKey(mint.publicKey),
-      ...data,
-    });
+    if (loading) {
+      return (
+        <div className={styles.loading}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="192"
+            height="192"
+            fill="currentColor"
+            viewBox="0 0 256 256"
+          >
+            <rect width="256" height="256" fill="none"></rect>
+            <path
+              d="M168,40.7a96,96,0,1,1-80,0"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></path>
+          </svg>
+          <p>Creating the NFT...</p>
+        </div>
+      );
+    }
+
+    if (mintCreated) {
+      return (
+        <a
+          className={styles.success}
+          href={
+            "https://www.solaneyes.com/address/" +
+            base58PublicKey(mintCreated) +
+            "?cluster=devnet"
+          }
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="192"
+            height="192"
+            fill="currentColor"
+            viewBox="0 0 256 256"
+          >
+            <rect width="256" height="256" fill="none"></rect>
+            <polyline
+              points="172 104 113.3 160 84 132"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></polyline>
+            <circle
+              cx="128"
+              cy="128"
+              r="96"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="24"
+            ></circle>
+          </svg>
+          <div>
+            <p>
+              <strong>NFT Created</strong> at the following address
+            </p>
+            <p>
+              <code>{base58PublicKey(mintCreated)}</code>
+            </p>
+          </div>
+        </a>
+      );
+    }
+
+    return (
+      <form method="post" onSubmit={onSubmit} className={styles.form}>
+        <label className={styles.field}>
+          <span>Name</span>
+          <input name="name" defaultValue="My NFT" />
+        </label>
+        <label className={styles.field}>
+          <span>Image</span>
+          <input name="image" type="file" />
+        </label>
+        <button type="submit">
+          <span>Create NFT</span>
+          <svg
+            aria-hidden="true"
+            role="img"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512"
+          >
+            <path
+              fill="currentColor"
+              d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+            ></path>
+          </svg>
+        </button>
+      </form>
+    );
   };
 
   return (
@@ -77,90 +205,13 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <WalletMultiButtonDynamic />
-          </div>
+      <main className={inter.className}>
+        <div className={styles.wallet}>
+          <WalletMultiButtonDynamic />
         </div>
 
         <div className={styles.center}>
-          {wallet.connected ? (
-            <form method="post" onSubmit={onSubmit}>
-              <label>
-                Name: <input name="name" defaultValue="My NFT" />
-              </label>
-              <label>
-                Image: <input name="image" type="file" />
-              </label>
-              <button type="submit">Submit form</button>
-            </form>
-          ) : (
-            <p>Connect your wallet to create an NFT</p>
-          )}
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+          <PageContent />
         </div>
       </main>
     </>
