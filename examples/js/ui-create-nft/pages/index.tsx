@@ -7,7 +7,7 @@ import {
   PublicKey,
   transactionBuilder,
 } from "@lorisleiva/js";
-import { createV1, mintV1, TokenStandard } from "@lorisleiva/mpl-digital-asset";
+import { createNft } from "@lorisleiva/mpl-digital-asset";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
@@ -24,7 +24,11 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-async function createNft(metaplex: Metaplex, name: string, file: File) {
+async function uploadAndCreateNft(
+  metaplex: Metaplex,
+  name: string,
+  file: File
+) {
   // Ensure input is valid.
   if (!name) {
     throw new Error("Please enter a name for your NFT.");
@@ -46,19 +50,11 @@ async function createNft(metaplex: Metaplex, name: string, file: File) {
   const mint = generateSigner(metaplex);
   await transactionBuilder(metaplex)
     .add(
-      createV1(metaplex, {
+      createNft(metaplex, {
         mint,
         name,
         uri,
         sellerFeeBasisPoints: percentAmount(5.5, 2),
-        tokenStandard: TokenStandard.NonFungible,
-      })
-    )
-    .add(
-      mintV1(metaplex, {
-        mint: mint.publicKey,
-        tokenStandard: TokenStandard.NonFungible,
-        amount: 1,
       })
     )
     .sendAndConfirm();
@@ -81,7 +77,7 @@ export default function Home() {
     const data = Object.fromEntries(formData) as { name: string; image: File };
 
     try {
-      const mint = await createNft(metaplex, data.name, data.image);
+      const mint = await uploadAndCreateNft(metaplex, data.name, data.image);
       setMintCreated(mint);
     } finally {
       setLoading(false);

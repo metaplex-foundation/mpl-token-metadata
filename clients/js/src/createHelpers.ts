@@ -1,4 +1,4 @@
-import type { WrappedInstruction } from '@lorisleiva/js-core';
+import { publicKey, WrappedInstruction } from '@lorisleiva/js-core';
 import { TokenStandard } from './generated';
 import {
   createV1,
@@ -9,8 +9,11 @@ import {
 
 export const createAndMint = (
   context: Parameters<typeof createV1>[0],
-  input: CreateV1InstructionInput & MintV1InstructionInput
-): WrappedInstruction[] => [createV1(context, input), mintV1(context, input)];
+  input: CreateV1InstructionInput & Omit<MintV1InstructionInput, 'mint'>
+): WrappedInstruction[] => [
+  createV1(context, input),
+  mintV1(context, { ...input, mint: publicKey(input.mint) }),
+];
 
 export const createNft = (
   context: Parameters<typeof createAndMint>[0],
