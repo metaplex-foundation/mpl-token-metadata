@@ -1,6 +1,6 @@
 {
   "name": "@lorisleiva/mpl-digital-asset",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "JavaScript client for handling Digital Assets on Solana",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
