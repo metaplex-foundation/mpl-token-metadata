@@ -1,8 +1,10 @@
-import Head from "next/head";
-import Image from "next/image";
+import { base58PublicKey } from "@lorisleiva/js";
 import { Inter } from "@next/font/google";
-import styles from "@/styles/Home.module.css";
 import dynamic from "next/dynamic";
+import Head from "next/head";
+import { useMetaplex } from "./useMetaplex";
+
+import styles from "@/styles/Home.module.css";
 const inter = Inter({ subsets: ["latin"] });
 
 const WalletMultiButtonDynamic = dynamic(
@@ -11,11 +13,22 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-async function createNft() {
-  console.log("Hello");
+function useCreateNft() {
+  const metaplex = useMetaplex();
+  console.log("useCreateNft", {
+    identity: metaplex.identity,
+  });
+
+  return {
+    createNft: () => {
+      console.log("Hello");
+    },
+  };
 }
 
 export default function Home() {
+  const { createNft } = useCreateNft();
+
   return (
     <>
       <Head>

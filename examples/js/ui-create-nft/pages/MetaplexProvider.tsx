@@ -1,15 +1,22 @@
-import { createMetaplex } from "@lorisleiva/js";
-import {
-  createSignerFromWalletAdapter,
-  walletAdapterIdentity,
-} from "@lorisleiva/js-signer-wallet-adapters";
+import { createMetaplex, defaultPlugins } from "@lorisleiva/js";
+import { walletAdapterIdentity } from "@lorisleiva/js-signer-wallet-adapters";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect } from "react";
 import { MetaplexContext } from "./useMetaplex";
 
-export const MetaplexProvider = ({ children }: any) => {
+export const MetaplexProvider = ({
+  endpoint,
+  children,
+}: {
+  endpoint: string;
+  children: React.ReactNode;
+}) => {
   const wallet = useWallet();
-  const metaplex = createMetaplex("");
+  const metaplex = createMetaplex(endpoint);
+
+  useEffect(() => {
+    metaplex.use(defaultPlugins(endpoint));
+  }, [metaplex, endpoint]);
 
   useEffect(() => {
     metaplex.use(walletAdapterIdentity(wallet));
