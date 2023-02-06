@@ -2,7 +2,6 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
-  BackpackWalletAdapter,
   LedgerWalletAdapter,
   PhantomWalletAdapter,
   SolflareWalletAdapter,
@@ -20,7 +19,6 @@ export default function App({ Component, pageProps }: AppProps) {
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
   const wallets = useMemo(
     () => [
-      new BackpackWalletAdapter(),
       new LedgerWalletAdapter(),
       new PhantomWalletAdapter(),
       new SolflareWalletAdapter({ network }),

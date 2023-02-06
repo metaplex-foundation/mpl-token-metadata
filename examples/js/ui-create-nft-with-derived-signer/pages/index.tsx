@@ -3,6 +3,7 @@ import {
   base58PublicKey,
   createGenericFileFromBrowserFile,
   createGenericFileFromJson,
+  displayAmount,
   generateRandomString,
   generateSigner,
   Metaplex,
@@ -85,8 +86,7 @@ async function uploadAndCreateNft(
     )
     .getRentCreatedOnChain();
 
-  // Use and fund the derived signer.
-  metaplex.use(signerPayer(derivedSigner));
+  // Fund and use the derived signer.
   await transactionBuilder(metaplex)
     .add(
       transferSol(metaplex, {
@@ -96,6 +96,7 @@ async function uploadAndCreateNft(
       })
     )
     .sendAndConfirm();
+  metaplex.use(signerPayer(derivedSigner));
 
   // Upload image and JSON data.
   const [imageUri] = await metaplex.uploader.upload([imageFile]);
