@@ -1,10 +1,15 @@
 import {
+  addAmounts,
   base58PublicKey,
   createGenericFileFromBrowserFile,
+  createGenericFileFromJson,
+  generateRandomString,
   generateSigner,
   Metaplex,
   percentAmount,
   PublicKey,
+  signerPayer,
+  SolAmount,
   transactionBuilder,
 } from "@lorisleiva/js";
 import { createNft } from "@lorisleiva/mpl-digital-asset";
@@ -16,6 +21,9 @@ import { FormEvent, useState } from "react";
 import { useMetaplex } from "./useMetaplex";
 
 import styles from "@/styles/Home.module.css";
+import { createDerivedSigner } from "@lorisleiva/js-signer-derived";
+import { bundlrUploader } from "@lorisleiva/js-uploader-bundlr";
+import { transferAllSol, transferSol } from "@lorisleiva/mpl-essentials";
 const inter = Inter({ subsets: ["latin"] });
 
 const WalletMultiButtonDynamic = dynamic(
@@ -37,8 +45,59 @@ async function uploadAndCreateNft(
     throw new Error("Please select an image for your NFT.");
   }
 
-  // Upload image and JSON data.
+  // Get files to upload and mock metadata.
   const imageFile = await createGenericFileFromBrowserFile(file);
+  const mockUri = "x".repeat(200);
+  const mockMetadataFile = createGenericFileFromJson({
+    name,
+    description: "A test NFT created using the Metaplex JS SDK.",
+    image: mockUri,
+  });
+
+  // Create derived signer.
+  const derivedMessage =
+    "By signing this message, it allows us to create " +
+    "a temporary derived keypair that only you can access. " +
+    "This improves the user experience as you only need to fund " +
+    "that keypair once instead of having to approve dozens of " +
+    "transactions. For security purpose, it is best practice to " +
+    "add a nonce to the message to prevent replay attacks.\n\n" +
+    `[Nonce: ${generateRandomString()}]`;
+  const derivedSigner = await createDerivedSigner(
+    metaplex,
+    metaplex.payer,
+    derivedMessage
+  );
+
+  // Compute amount to fund the derived signer.
+  const uploadAmount = (await metaplex.uploader.getUploadPrice([
+    imageFile,
+    mockMetadataFile,
+  ])) as SolAmount;
+  const transactionAmount = await transactionBuilder(metaplex)
+    .add(
+      createNft(metaplex, {
+        mint: generateSigner(metaplex),
+        name,
+        uri: mockUri,
+        sellerFeeBasisPoints: percentAmount(5.5),
+      })
+    )
+    .getRentCreatedOnChain();
+
+  // Use and fund the derived signer.
+  metaplex.use(signerPayer(derivedSigner));
+  await transactionBuilder(metaplex)
+    .add(
+      transferSol(metaplex, {
+        source: derivedSigner.originalSigner,
+        destination: derivedSigner.publicKey,
+        amount: addAmounts(uploadAmount, transactionAmount),
+      })
+    )
+    .sendAndConfirm();
+
+  // Upload image and JSON data.
   const [imageUri] = await metaplex.uploader.upload([imageFile]);
   const uri = await metaplex.uploader.uploadJson({
     name,
@@ -52,6 +111,17 @@ async function uploadAndCreateNft(
   await transactionBuilder(metaplex)
     .add(createNft(metaplex, { mint, name, uri, sellerFeeBasisPoints }))
     .sendAndConfirm();
+
+  // Withdraw any leftovers and revert to the original signer.
+  await transactionBuilder(metaplex)
+    .add(
+      transferAllSol(metaplex, {
+        source: derivedSigner,
+        destination: derivedSigner.originalSigner.publicKey,
+      })
+    )
+    .sendAndConfirm();
+  metaplex.use(signerPayer(derivedSigner.originalSigner));
 
   // Return the mint address.
   return mint.publicKey;
