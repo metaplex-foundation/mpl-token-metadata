@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@lorisleiva/js": "^0.0.59",
-    "@lorisleiva/js-signer-wallet-adapters": "^0.0.59",
-    "@lorisleiva/js-uploader-nft-storage": "^0.0.59",
+    "@lorisleiva/js": "^0.0.60",
+    "@lorisleiva/js-signer-wallet-adapters": "^0.0.60",
+    "@lorisleiva/js-uploader-nft-storage": "^0.0.60",
     "@lorisleiva/mpl-digital-asset": "^0.0.4",
     "@next/font": "13.1.6",
     "@solana/wallet-adapter-base": "^0.9.20",
