@@ -3,7 +3,6 @@ import {
   base58PublicKey,
   createGenericFileFromBrowserFile,
   createGenericFileFromJson,
-  displayAmount,
   generateRandomString,
   generateSigner,
   Metaplex,
@@ -98,6 +97,13 @@ async function uploadAndCreateNft(
     .sendAndConfirm();
   metaplex.use(signerPayer(derivedSigner));
 
+  // Re-initialize the Bundlr uploader as each Bundlr instance
+  // is tied to a specific signer.
+  // TODO: Fix this in the Bundlr uploader.
+  // Check if Bundlr signer is different to Metaplex signer
+  // And re-initialize if so.
+  metaplex.use(bundlrUploader());
+
   // Upload image and JSON data.
   const [imageUri] = await metaplex.uploader.upload([imageFile]);
   const uri = await metaplex.uploader.uploadJson({
@@ -106,15 +112,11 @@ async function uploadAndCreateNft(
     image: imageUri,
   });
 
-  // Create and mint NFT.
+  // Create the NFT and transfer any leftover SOL.
   const mint = generateSigner(metaplex);
   const sellerFeeBasisPoints = percentAmount(5.5, 2);
   await transactionBuilder(metaplex)
     .add(createNft(metaplex, { mint, name, uri, sellerFeeBasisPoints }))
-    .sendAndConfirm();
-
-  // Withdraw any leftovers and revert to the original signer.
-  await transactionBuilder(metaplex)
     .add(
       transferAllSol(metaplex, {
         source: derivedSigner,
@@ -122,6 +124,8 @@ async function uploadAndCreateNft(
       })
     )
     .sendAndConfirm();
+
+  // Revert to the original signer.
   metaplex.use(signerPayer(derivedSigner.originalSigner));
 
   // Return the mint address.
