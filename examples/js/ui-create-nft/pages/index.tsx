@@ -112,11 +112,13 @@ export default function Home() {
       return (
         <a
           className={styles.success}
+          target="_blank"
           href={
             "https://www.solaneyes.com/address/" +
             base58PublicKey(mintCreated) +
             "?cluster=devnet"
           }
+          rel="noreferrer"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
