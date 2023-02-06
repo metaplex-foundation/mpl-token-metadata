@@ -120,7 +120,7 @@
 }
 
 .success:hover {
-  background-color: rgb(var(--tertiary-background-rgb));
+  background-color: rgb(var(--hover-background-rgb));
 }
 
 .success:hover code {
