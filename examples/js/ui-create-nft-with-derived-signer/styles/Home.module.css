@@ -1,0 +1,128 @@
+.wallet { 
+  display: flex;
+  padding: 3rem;
+  flex-direction: row-reverse;
+}
+
+.center {
+  position: relative;
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form > * + * {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.form button {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  color: rgb(var(--on-accent-rgb));
+  background-color: rgb(var(--accent-rgb));
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form button:hover {
+  cursor: pointer;
+  background-color: rgb(var(--darker-accent-rgb));
+}
+
+.form button span {
+  white-space: nowrap;
+}
+
+.form button svg {
+  width: 1rem;
+  fill: currentColor;
+}
+
+.field {
+  display: block;
+}
+
+.field span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.field input {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  margin-top: .5rem;
+  border: 1px solid rgb(var(--tertiary-background-rgb));
+  border-radius: var(--border-radius);
+  background: rgb(var(--secondary-background-rgb));
+  color: rgb(var(--hint-rgb));
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.loading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.loading svg {
+  width: 2rem;
+  height: 2rem;
+  color: rgb(var(--accent-rgb));
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.success {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  background: rgb(var(--secondary-background-rgb));
+  border: 1px solid rgb(var(--tertiary-background-rgb));
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+.success > div {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.success code {
+  font-family: var(--font-mono);
+  color: rgb(var(--secondary-foreground-rgb));
+}
+
+.success svg {
+  width: 2rem;
+  height: 2rem;
+  color: rgb(var(--accent-rgb));
+}
+
+.success:hover {
+  background-color: rgb(var(--hover-background-rgb));
+}
+
+.success:hover code {
+  color: rgb(var(--accent-rgb));
+}
