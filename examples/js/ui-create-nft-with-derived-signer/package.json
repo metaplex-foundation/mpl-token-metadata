@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@lorisleiva/js": "^0.0.58",
-    "@lorisleiva/js-signer-wallet-adapters": "^0.0.58",
-    "@lorisleiva/js-signer-derived": "^0.0.58",
-    "@lorisleiva/js-uploader-bundlr": "^0.0.58",
+    "@lorisleiva/js": "^0.0.59",
+    "@lorisleiva/js-signer-wallet-adapters": "^0.0.59",
+    "@lorisleiva/js-signer-derived": "^0.0.59",
+    "@lorisleiva/js-uploader-bundlr": "^0.0.59",
     "@lorisleiva/mpl-digital-asset": "^0.0.4",
     "@next/font": "13.1.6",
     "@solana/wallet-adapter-base": "^0.9.20",
