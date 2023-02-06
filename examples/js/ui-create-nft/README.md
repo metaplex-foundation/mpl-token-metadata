@@ -1,5 +1,9 @@
 # Upload and Create NFTs using Wallet Adapters
 
+- Uses wallet adapters to connect to a wallet in the browser.
+- Uploads image and metadata via NFT Storage.
+- Creates an NFT from the uploaded image and metadata.
+
 ```shell
 # Create a new Next app with all default values.
 npx create-next-app@latest ui-create-nft

@@ -1,4 +1,9 @@
-# Upload and Create NFTs using Wallet Adapters
+# Upload and Create NFTs using a Derived Signer
+
+- Uses wallet adapters to connect to a wallet in the browser.
+- Creates, funds and uses a derived signer.
+- Uploads image and metadata via Bundlr.
+- Creates an NFT from the uploaded image and metadata.
 
 ```shell
 # Create a new Next app with all default values.
@@ -8,7 +13,9 @@ cd ui-create-nft
 # Install dependencies.
 npm install @lorisleiva/js \
   @lorisleiva/js-signer-wallet-adapters \
-  @lorisleiva/js-uploader-nft-storage \
+  @lorisleiva/js-uploader-bundlr \
+  @lorisleiva/js-signer-derived \
+  @lorisleiva/mpl-essentials \
   @lorisleiva/mpl-digital-asset \
   @solana/web3.js \
   @solana/wallet-adapter-base \

@@ -106,6 +106,9 @@ async function uploadAndCreateNft(
   });
 
   // Create the NFT and transfer any leftover SOL.
+  // Note that, the original signer will need to sign this transaction as well
+  // in order to be a verified creator of the NFT. If that was not a requirement,
+  // we could save an extra wallet approval.
   const mint = generateSigner(metaplex);
   const sellerFeeBasisPoints = percentAmount(5.5, 2);
   await transactionBuilder(metaplex)
