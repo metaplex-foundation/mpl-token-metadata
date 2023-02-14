@@ -17,12 +17,13 @@ import {
   findMasterEditionPda,
   findMetadataPda,
   getMetadataGpaBuilder,
-  getTokenMetadataKeySerializer,
+  getKeySerializer,
   MasterEdition,
   Metadata,
-  TokenMetadataKey,
+  Key,
   TokenStandard,
 } from './generated';
+import { TokenMetadataError } from './errors';
 
 const CREATORS_OFFSET = 326;
 const MAX_CREATOR_SIZE = 34;
@@ -134,26 +135,27 @@ export function deserializeDigitalAsset(
   const digitalAsset = { publicKey: mint.publicKey, mint, metadata };
   if (!editionAccount) return digitalAsset;
 
-  const editionKey = getTokenMetadataKeySerializer(context).deserialize(
+  const editionKey = getKeySerializer(context).deserialize(
     editionAccount.data
   )[0];
   let edition: DigitalAsset['edition'];
   if (
-    editionKey === TokenMetadataKey.MasterEditionV1 ||
-    editionKey === TokenMetadataKey.MasterEditionV2
+    editionKey === Key.MasterEditionV1 ||
+    editionKey === Key.MasterEditionV2
   ) {
     edition = {
       isOriginal: true,
       ...deserializeMasterEdition(context, editionAccount),
     };
-  } else if (editionKey === TokenMetadataKey.EditionV1) {
+  } else if (editionKey === Key.EditionV1) {
     edition = {
       isOriginal: false,
       ...deserializeEdition(context, editionAccount),
     };
   } else {
-    // TODO(loris): Custom error.
-    throw new Error(`Invalid key "${editionKey}" for edition account.`);
+    throw new TokenMetadataError(
+      `Invalid key "${editionKey}" for edition account.`
+    );
   }
 
   return { ...digitalAsset, edition };
