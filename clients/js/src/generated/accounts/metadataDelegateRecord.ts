@@ -21,16 +21,16 @@ import {
   utf8,
 } from '@metaplex-foundation/umi-core';
 import {
+  Key,
   MetadataDelegateRole,
-  TokenMetadataKey,
+  getKeySerializer,
   getMetadataDelegateRoleSerializer,
-  getTokenMetadataKeySerializer,
 } from '../types';
 
 export type MetadataDelegateRecord = Account<MetadataDelegateRecordAccountData>;
 
 export type MetadataDelegateRecordAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   bump: number;
   mint: PublicKey;
   delegate: PublicKey;
@@ -90,13 +90,13 @@ export function getMetadataDelegateRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: TokenMetadataKey;
+      key: Key;
       bump: number;
       mint: PublicKey;
       delegate: PublicKey;
       updateAuthority: PublicKey;
     }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['bump', s.u8],
       ['mint', s.publicKey],
       ['delegate', s.publicKey],
@@ -123,7 +123,7 @@ export function getMetadataDelegateRecordAccountDataSerializer(
   const s = context.serializer;
   return s.struct<MetadataDelegateRecordAccountData>(
     [
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['bump', s.u8],
       ['mint', s.publicKey],
       ['delegate', s.publicKey],

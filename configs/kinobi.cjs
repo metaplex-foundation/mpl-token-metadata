@@ -11,9 +11,7 @@ const {
   TypeDefinedLinkNode,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
-  UpdateProgramsVisitor,
   UpdateAccountsVisitor,
-  UpdateDefinedTypesVisitor,
   UpdateInstructionsVisitor,
   vScalar,
   vNone,
@@ -25,18 +23,7 @@ const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 
 // Instanciate Kinobi.
-const kinobi = new Kinobi([
-  path.join(idlDir, "mpl_token_auth_rules.json"),
-  path.join(idlDir, "mpl_token_metadata.json"),
-]);
-
-// Update Programs.
-kinobi.update(
-  new UpdateProgramsVisitor({
-    mplTokenAuthRules: { prefix: "Ta" },
-    mplTokenMetadata: { prefix: "Tm" },
-  })
-);
+const kinobi = new Kinobi([path.join(idlDir, "mpl_token_metadata.json")]);
 
 // Update Accounts.
 const metadataSeeds = [
@@ -117,7 +104,6 @@ kinobi.update(
         },
       ],
     },
-    FrequencyAccount: { name: "RuleSetFrequency" },
     // Deprecated nodes.
     "mplTokenMetadata.ReservationListV1": { delete: true },
     "mplTokenMetadata.ReservationListV2": { delete: true },
@@ -128,9 +114,6 @@ kinobi.update(
 // Update Instructions.
 kinobi.update(
   new UpdateInstructionsVisitor({
-    "mplTokenAuthRules.CreateOrUpdate": { name: "CreateOrUpdateRuleSet" },
-    "mplTokenAuthRules.Validate": { name: "ValidateRuleSet" },
-    "mplTokenAuthRules.WriteToBuffer": { name: "WriteRuleSetToBuffer" },
     Create: {
       bytesCreatedOnChain: {
         kind: "number",
@@ -167,45 +150,22 @@ kinobi.update(
   })
 );
 
-// Update Types.
-kinobi.update(
-  new UpdateDefinedTypesVisitor({
-    "mplTokenMetadata.Key": { name: "TokenMetadataKey" },
-    "mplTokenAuthRules.Key": { name: "TokenAuthRulesKey" },
-    "mplTokenAuthRules.CreateOrUpdateArgs": {
-      name: "CreateOrUpdateRuleSetArgs",
-    },
-    "mplTokenAuthRules.ValidateArgs": { name: "ValidateRuleSetArgs" },
-    "mplTokenAuthRules.WriteToBufferArgs": { name: "WriteRuleSetToBufferArgs" },
-    // Duplicated types.
-    "mplTokenMetadata.Payload": { delete: true },
-    "mplTokenMetadata.PayloadType": { delete: true },
-  })
-);
-
 // Set account discriminators.
-const tmKey = (name) => ({
+const key = (name) => ({
   field: "key",
-  value: vEnum("TokenMetadataKey", name),
-});
-const taKey = (name) => ({
-  field: "key",
-  value: vEnum("TokenAuthRulesKey", name),
+  value: vEnum("Key", name),
 });
 kinobi.update(
   new SetAccountDiscriminatorFromFieldVisitor({
-    "mplTokenMetadata.Edition": tmKey("EditionV1"),
-    "mplTokenMetadata.Metadata": tmKey("MetadataV1"),
-    "mplTokenMetadata.MasterEdition": tmKey("MasterEditionV2"),
-    "mplTokenMetadata.EditionMarker": tmKey("EditionMarker"),
-    "mplTokenMetadata.UseAuthorityRecord": tmKey("UseAuthorityRecord"),
-    "mplTokenMetadata.CollectionAuthorityRecord": tmKey(
-      "CollectionAuthorityRecord"
-    ),
-    "mplTokenMetadata.TokenOwnedEscrow": tmKey("TokenOwnedEscrow"),
-    "mplTokenMetadata.TokenRecord": tmKey("TokenRecord"),
-    "mplTokenMetadata.MetadataDelegate": tmKey("MetadataDelegate"),
-    "mplTokenAuthRules.FrequencyAccount": taKey("Frequency"),
+    Edition: key("EditionV1"),
+    Metadata: key("MetadataV1"),
+    MasterEdition: key("MasterEditionV2"),
+    EditionMarker: key("EditionMarker"),
+    UseAuthorityRecord: key("UseAuthorityRecord"),
+    CollectionAuthorityRecord: key("CollectionAuthorityRecord"),
+    TokenOwnedEscrow: key("TokenOwnedEscrow"),
+    TokenRecord: key("TokenRecord"),
+    MetadataDelegate: key("MetadataDelegate"),
   })
 );
 
@@ -227,7 +187,7 @@ kinobi.update(
 // Wrap leaves.
 kinobi.update(
   new SetLeafWrappersVisitor({
-    "mplTokenMetadata.AssetData.sellerFeeBasisPoints": {
+    "AssetData.sellerFeeBasisPoints": {
       kind: "Amount",
       identifier: "%",
       decimals: 2,
@@ -238,7 +198,7 @@ kinobi.update(
 // Set struct default values.
 kinobi.update(
   new SetStructDefaultValuesVisitor({
-    "mplTokenMetadata.assetData": {
+    assetData: {
       symbol: vScalar(""),
       isMutable: vScalar(true),
       primarySaleHappened: vScalar(false),
@@ -247,11 +207,11 @@ kinobi.update(
       collectionDetails: vNone(),
       ruleSet: vNone(),
     },
-    "mplTokenMetadata.createArgs.V1": {
+    "createArgs.V1": {
       decimals: vNone(),
       printSupply: vNone(),
     },
-    "mplTokenMetadata.updateArgs.V1": {
+    "updateArgs.V1": {
       newUpdateAuthority: vNone(),
       data: vNone(),
       primarySaleHappened: vNone(),
@@ -262,7 +222,7 @@ kinobi.update(
       ruleSet: vEnum("RuleSetToggle", "None"),
       authorizationData: vNone(),
     },
-    "mplTokenMetadata.mintArgs.V1": {
+    "mintArgs.V1": {
       authorizationData: vNone(),
     },
   })
@@ -272,9 +232,9 @@ kinobi.update(
 kinobi.update(new UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(
   new UnwrapStructVisitor({
-    "mplTokenMetadata.Metadata": ["data"],
-    "mplTokenMetadata.CreateMetadataAccountInstructionArgs": ["data"],
-    "mplTokenMetadata.CreateArgs.V1": ["assetData"],
+    Metadata: ["data"],
+    CreateMetadataAccountInstructionArgs: ["data"],
+    "CreateArgs.V1": ["assetData"],
   })
 );
 

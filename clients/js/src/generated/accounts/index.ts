@@ -12,7 +12,6 @@ export * from './editionMarker';
 export * from './masterEdition';
 export * from './metadata';
 export * from './metadataDelegateRecord';
-export * from './ruleSetFrequency';
 export * from './tokenOwnedEscrow';
 export * from './tokenRecord';
 export * from './useAuthorityRecord';

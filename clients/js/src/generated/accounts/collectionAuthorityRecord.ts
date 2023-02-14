@@ -22,13 +22,13 @@ import {
   mapSerializer,
   utf8,
 } from '@metaplex-foundation/umi-core';
-import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
+import { Key, getKeySerializer } from '../types';
 
 export type CollectionAuthorityRecord =
   Account<CollectionAuthorityRecordAccountData>;
 
 export type CollectionAuthorityRecordAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   bump: number;
   updateAuthority: Option<PublicKey>;
 };
@@ -91,18 +91,18 @@ export function getCollectionAuthorityRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: TokenMetadataKey;
+      key: Key;
       bump: number;
       updateAuthority: Option<PublicKey>;
     }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['bump', s.u8],
       ['updateAuthority', s.option(s.publicKey)],
     ])
     .deserializeUsing<CollectionAuthorityRecord>((account) =>
       deserializeCollectionAuthorityRecord(context, account)
     )
-    .whereField('key', TokenMetadataKey.CollectionAuthorityRecord);
+    .whereField('key', Key.CollectionAuthorityRecord);
 }
 
 export function deserializeCollectionAuthorityRecord(
@@ -129,7 +129,7 @@ export function getCollectionAuthorityRecordAccountDataSerializer(
   >(
     s.struct<CollectionAuthorityRecordAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['bump', s.u8],
         ['updateAuthority', s.option(s.publicKey)],
       ],
@@ -138,7 +138,7 @@ export function getCollectionAuthorityRecordAccountDataSerializer(
     (value) =>
       ({
         ...value,
-        key: TokenMetadataKey.CollectionAuthorityRecord,
+        key: Key.CollectionAuthorityRecord,
       } as CollectionAuthorityRecordAccountData)
   ) as Serializer<
     CollectionAuthorityRecordAccountArgs,

@@ -19,14 +19,11 @@ import {
   gpaBuilder,
   mapSerializer,
 } from '@metaplex-foundation/umi-core';
-import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
+import { Key, getKeySerializer } from '../types';
 
 export type EditionMarker = Account<EditionMarkerAccountData>;
 
-export type EditionMarkerAccountData = {
-  key: TokenMetadataKey;
-  ledger: Array<number>;
-};
+export type EditionMarkerAccountData = { key: Key; ledger: Array<number> };
 
 export type EditionMarkerAccountArgs = { ledger: Array<number> };
 
@@ -82,14 +79,14 @@ export function getEditionMarkerGpaBuilder(
   const s = context.serializer;
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
-    .registerFields<{ key: TokenMetadataKey; ledger: Array<number> }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+    .registerFields<{ key: Key; ledger: Array<number> }>([
+      ['key', getKeySerializer(context)],
       ['ledger', s.array(s.u8, 31)],
     ])
     .deserializeUsing<EditionMarker>((account) =>
       deserializeEditionMarker(context, account)
     )
-    .whereField('key', TokenMetadataKey.EditionMarker);
+    .whereField('key', Key.EditionMarker);
 }
 
 export function deserializeEditionMarker(
@@ -113,16 +110,13 @@ export function getEditionMarkerAccountDataSerializer(
   >(
     s.struct<EditionMarkerAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['ledger', s.array(s.u8, 31)],
       ],
       'EditionMarker'
     ),
     (value) =>
-      ({
-        ...value,
-        key: TokenMetadataKey.EditionMarker,
-      } as EditionMarkerAccountData)
+      ({ ...value, key: Key.EditionMarker } as EditionMarkerAccountData)
   ) as Serializer<EditionMarkerAccountArgs, EditionMarkerAccountData>;
 }
 

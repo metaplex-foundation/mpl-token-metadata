@@ -21,15 +21,15 @@ import {
 } from '@metaplex-foundation/umi-core';
 import {
   EscrowAuthority,
-  TokenMetadataKey,
+  Key,
   getEscrowAuthoritySerializer,
-  getTokenMetadataKeySerializer,
+  getKeySerializer,
 } from '../types';
 
 export type TokenOwnedEscrow = Account<TokenOwnedEscrowAccountData>;
 
 export type TokenOwnedEscrowAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   baseToken: PublicKey;
   authority: EscrowAuthority;
   bump: number;
@@ -94,12 +94,12 @@ export function getTokenOwnedEscrowGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: TokenMetadataKey;
+      key: Key;
       baseToken: PublicKey;
       authority: EscrowAuthority;
       bump: number;
     }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['baseToken', s.publicKey],
       ['authority', getEscrowAuthoritySerializer(context)],
       ['bump', s.u8],
@@ -107,7 +107,7 @@ export function getTokenOwnedEscrowGpaBuilder(
     .deserializeUsing<TokenOwnedEscrow>((account) =>
       deserializeTokenOwnedEscrow(context, account)
     )
-    .whereField('key', TokenMetadataKey.TokenOwnedEscrow);
+    .whereField('key', Key.TokenOwnedEscrow);
 }
 
 export function deserializeTokenOwnedEscrow(
@@ -131,7 +131,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
   >(
     s.struct<TokenOwnedEscrowAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['baseToken', s.publicKey],
         ['authority', getEscrowAuthoritySerializer(context)],
         ['bump', s.u8],
@@ -139,10 +139,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
       'TokenOwnedEscrow'
     ),
     (value) =>
-      ({
-        ...value,
-        key: TokenMetadataKey.TokenOwnedEscrow,
-      } as TokenOwnedEscrowAccountData)
+      ({ ...value, key: Key.TokenOwnedEscrow } as TokenOwnedEscrowAccountData)
   ) as Serializer<TokenOwnedEscrowAccountArgs, TokenOwnedEscrowAccountData>;
 }
 

@@ -27,16 +27,16 @@ import {
   CollectionDetails,
   CollectionDetailsArgs,
   Creator,
+  Key,
   ProgrammableConfig,
-  TokenMetadataKey,
   TokenStandard,
   Uses,
   UsesArgs,
   getCollectionDetailsSerializer,
   getCollectionSerializer,
   getCreatorSerializer,
+  getKeySerializer,
   getProgrammableConfigSerializer,
-  getTokenMetadataKeySerializer,
   getTokenStandardSerializer,
   getUsesSerializer,
 } from '../types';
@@ -44,7 +44,7 @@ import {
 export type Metadata = Account<MetadataAccountData>;
 
 export type MetadataAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   updateAuthority: PublicKey;
   mint: PublicKey;
   name: string;
@@ -133,7 +133,7 @@ export function getMetadataGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: TokenMetadataKey;
+      key: Key;
       updateAuthority: PublicKey;
       mint: PublicKey;
       name: string;
@@ -150,7 +150,7 @@ export function getMetadataGpaBuilder(
       collectionDetails: Option<CollectionDetailsArgs>;
       programmableConfig: Option<ProgrammableConfig>;
     }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['updateAuthority', s.publicKey],
       ['mint', s.publicKey],
       ['name', s.string()],
@@ -173,7 +173,7 @@ export function getMetadataGpaBuilder(
     .deserializeUsing<Metadata>((account) =>
       deserializeMetadata(context, account)
     )
-    .whereField('key', TokenMetadataKey.MetadataV1);
+    .whereField('key', Key.MetadataV1);
 }
 
 export function deserializeMetadata(
@@ -197,7 +197,7 @@ export function getMetadataAccountDataSerializer(
   >(
     s.struct<MetadataAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['updateAuthority', s.publicKey],
         ['mint', s.publicKey],
         ['name', s.string()],
@@ -222,8 +222,7 @@ export function getMetadataAccountDataSerializer(
       ],
       'Metadata'
     ),
-    (value) =>
-      ({ ...value, key: TokenMetadataKey.MetadataV1 } as MetadataAccountData)
+    (value) => ({ ...value, key: Key.MetadataV1 } as MetadataAccountData)
   ) as Serializer<MetadataAccountArgs, MetadataAccountData>;
 }
 

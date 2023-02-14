@@ -16,7 +16,7 @@ const codeToErrorMap: Map<number, ProgramErrorConstructor> = new Map();
 const nameToErrorMap: Map<string, ProgramErrorConstructor> = new Map();
 
 /** InstructionUnpackError: 'Failed to unpack instruction data' */
-export class TmInstructionUnpackErrorError extends ProgramError {
+export class InstructionUnpackErrorError extends ProgramError {
   readonly name: string = 'InstructionUnpackError';
 
   readonly code: number = 0x0; // 0
@@ -25,11 +25,11 @@ export class TmInstructionUnpackErrorError extends ProgramError {
     super('Failed to unpack instruction data', program, cause);
   }
 }
-codeToErrorMap.set(0x0, TmInstructionUnpackErrorError);
-nameToErrorMap.set('InstructionUnpackError', TmInstructionUnpackErrorError);
+codeToErrorMap.set(0x0, InstructionUnpackErrorError);
+nameToErrorMap.set('InstructionUnpackError', InstructionUnpackErrorError);
 
 /** InstructionPackError: 'Failed to pack instruction data' */
-export class TmInstructionPackErrorError extends ProgramError {
+export class InstructionPackErrorError extends ProgramError {
   readonly name: string = 'InstructionPackError';
 
   readonly code: number = 0x1; // 1
@@ -38,11 +38,11 @@ export class TmInstructionPackErrorError extends ProgramError {
     super('Failed to pack instruction data', program, cause);
   }
 }
-codeToErrorMap.set(0x1, TmInstructionPackErrorError);
-nameToErrorMap.set('InstructionPackError', TmInstructionPackErrorError);
+codeToErrorMap.set(0x1, InstructionPackErrorError);
+nameToErrorMap.set('InstructionPackError', InstructionPackErrorError);
 
 /** NotRentExempt: 'Lamport balance below rent-exempt threshold' */
-export class TmNotRentExemptError extends ProgramError {
+export class NotRentExemptError extends ProgramError {
   readonly name: string = 'NotRentExempt';
 
   readonly code: number = 0x2; // 2
@@ -51,11 +51,11 @@ export class TmNotRentExemptError extends ProgramError {
     super('Lamport balance below rent-exempt threshold', program, cause);
   }
 }
-codeToErrorMap.set(0x2, TmNotRentExemptError);
-nameToErrorMap.set('NotRentExempt', TmNotRentExemptError);
+codeToErrorMap.set(0x2, NotRentExemptError);
+nameToErrorMap.set('NotRentExempt', NotRentExemptError);
 
 /** AlreadyInitialized: 'Already initialized' */
-export class TmAlreadyInitializedError extends ProgramError {
+export class AlreadyInitializedError extends ProgramError {
   readonly name: string = 'AlreadyInitialized';
 
   readonly code: number = 0x3; // 3
@@ -64,11 +64,11 @@ export class TmAlreadyInitializedError extends ProgramError {
     super('Already initialized', program, cause);
   }
 }
-codeToErrorMap.set(0x3, TmAlreadyInitializedError);
-nameToErrorMap.set('AlreadyInitialized', TmAlreadyInitializedError);
+codeToErrorMap.set(0x3, AlreadyInitializedError);
+nameToErrorMap.set('AlreadyInitialized', AlreadyInitializedError);
 
 /** Uninitialized: 'Uninitialized' */
-export class TmUninitializedError extends ProgramError {
+export class UninitializedError extends ProgramError {
   readonly name: string = 'Uninitialized';
 
   readonly code: number = 0x4; // 4
@@ -77,11 +77,11 @@ export class TmUninitializedError extends ProgramError {
     super('Uninitialized', program, cause);
   }
 }
-codeToErrorMap.set(0x4, TmUninitializedError);
-nameToErrorMap.set('Uninitialized', TmUninitializedError);
+codeToErrorMap.set(0x4, UninitializedError);
+nameToErrorMap.set('Uninitialized', UninitializedError);
 
 /** InvalidMetadataKey: ' Metadata's key must match seed of ['metadata', program id, mint] provided' */
-export class TmInvalidMetadataKeyError extends ProgramError {
+export class InvalidMetadataKeyError extends ProgramError {
   readonly name: string = 'InvalidMetadataKey';
 
   readonly code: number = 0x5; // 5
@@ -94,11 +94,11 @@ export class TmInvalidMetadataKeyError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x5, TmInvalidMetadataKeyError);
-nameToErrorMap.set('InvalidMetadataKey', TmInvalidMetadataKeyError);
+codeToErrorMap.set(0x5, InvalidMetadataKeyError);
+nameToErrorMap.set('InvalidMetadataKey', InvalidMetadataKeyError);
 
 /** InvalidEditionKey: 'Edition's key must match seed of ['metadata', program id, name, 'edition'] provided' */
-export class TmInvalidEditionKeyError extends ProgramError {
+export class InvalidEditionKeyError extends ProgramError {
   readonly name: string = 'InvalidEditionKey';
 
   readonly code: number = 0x6; // 6
@@ -111,11 +111,11 @@ export class TmInvalidEditionKeyError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x6, TmInvalidEditionKeyError);
-nameToErrorMap.set('InvalidEditionKey', TmInvalidEditionKeyError);
+codeToErrorMap.set(0x6, InvalidEditionKeyError);
+nameToErrorMap.set('InvalidEditionKey', InvalidEditionKeyError);
 
 /** UpdateAuthorityIncorrect: 'Update Authority given does not match' */
-export class TmUpdateAuthorityIncorrectError extends ProgramError {
+export class UpdateAuthorityIncorrectError extends ProgramError {
   readonly name: string = 'UpdateAuthorityIncorrect';
 
   readonly code: number = 0x7; // 7
@@ -124,11 +124,11 @@ export class TmUpdateAuthorityIncorrectError extends ProgramError {
     super('Update Authority given does not match', program, cause);
   }
 }
-codeToErrorMap.set(0x7, TmUpdateAuthorityIncorrectError);
-nameToErrorMap.set('UpdateAuthorityIncorrect', TmUpdateAuthorityIncorrectError);
+codeToErrorMap.set(0x7, UpdateAuthorityIncorrectError);
+nameToErrorMap.set('UpdateAuthorityIncorrect', UpdateAuthorityIncorrectError);
 
 /** UpdateAuthorityIsNotSigner: 'Update Authority needs to be signer to update metadata' */
-export class TmUpdateAuthorityIsNotSignerError extends ProgramError {
+export class UpdateAuthorityIsNotSignerError extends ProgramError {
   readonly name: string = 'UpdateAuthorityIsNotSigner';
 
   readonly code: number = 0x8; // 8
@@ -141,14 +141,14 @@ export class TmUpdateAuthorityIsNotSignerError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x8, TmUpdateAuthorityIsNotSignerError);
+codeToErrorMap.set(0x8, UpdateAuthorityIsNotSignerError);
 nameToErrorMap.set(
   'UpdateAuthorityIsNotSigner',
-  TmUpdateAuthorityIsNotSignerError
+  UpdateAuthorityIsNotSignerError
 );
 
 /** NotMintAuthority: 'You must be the mint authority and signer on this transaction' */
-export class TmNotMintAuthorityError extends ProgramError {
+export class NotMintAuthorityError extends ProgramError {
   readonly name: string = 'NotMintAuthority';
 
   readonly code: number = 0x9; // 9
@@ -161,11 +161,11 @@ export class TmNotMintAuthorityError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x9, TmNotMintAuthorityError);
-nameToErrorMap.set('NotMintAuthority', TmNotMintAuthorityError);
+codeToErrorMap.set(0x9, NotMintAuthorityError);
+nameToErrorMap.set('NotMintAuthority', NotMintAuthorityError);
 
 /** InvalidMintAuthority: 'Mint authority provided does not match the authority on the mint' */
-export class TmInvalidMintAuthorityError extends ProgramError {
+export class InvalidMintAuthorityError extends ProgramError {
   readonly name: string = 'InvalidMintAuthority';
 
   readonly code: number = 0xa; // 10
@@ -178,11 +178,11 @@ export class TmInvalidMintAuthorityError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0xa, TmInvalidMintAuthorityError);
-nameToErrorMap.set('InvalidMintAuthority', TmInvalidMintAuthorityError);
+codeToErrorMap.set(0xa, InvalidMintAuthorityError);
+nameToErrorMap.set('InvalidMintAuthority', InvalidMintAuthorityError);
 
 /** NameTooLong: 'Name too long' */
-export class TmNameTooLongError extends ProgramError {
+export class NameTooLongError extends ProgramError {
   readonly name: string = 'NameTooLong';
 
   readonly code: number = 0xb; // 11
@@ -191,11 +191,11 @@ export class TmNameTooLongError extends ProgramError {
     super('Name too long', program, cause);
   }
 }
-codeToErrorMap.set(0xb, TmNameTooLongError);
-nameToErrorMap.set('NameTooLong', TmNameTooLongError);
+codeToErrorMap.set(0xb, NameTooLongError);
+nameToErrorMap.set('NameTooLong', NameTooLongError);
 
 /** SymbolTooLong: 'Symbol too long' */
-export class TmSymbolTooLongError extends ProgramError {
+export class SymbolTooLongError extends ProgramError {
   readonly name: string = 'SymbolTooLong';
 
   readonly code: number = 0xc; // 12
@@ -204,11 +204,11 @@ export class TmSymbolTooLongError extends ProgramError {
     super('Symbol too long', program, cause);
   }
 }
-codeToErrorMap.set(0xc, TmSymbolTooLongError);
-nameToErrorMap.set('SymbolTooLong', TmSymbolTooLongError);
+codeToErrorMap.set(0xc, SymbolTooLongError);
+nameToErrorMap.set('SymbolTooLong', SymbolTooLongError);
 
 /** UriTooLong: 'URI too long' */
-export class TmUriTooLongError extends ProgramError {
+export class UriTooLongError extends ProgramError {
   readonly name: string = 'UriTooLong';
 
   readonly code: number = 0xd; // 13
@@ -217,11 +217,11 @@ export class TmUriTooLongError extends ProgramError {
     super('URI too long', program, cause);
   }
 }
-codeToErrorMap.set(0xd, TmUriTooLongError);
-nameToErrorMap.set('UriTooLong', TmUriTooLongError);
+codeToErrorMap.set(0xd, UriTooLongError);
+nameToErrorMap.set('UriTooLong', UriTooLongError);
 
 /** UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner: 'Update authority must be equivalent to the metadata's authority and also signer of this transaction' */
-export class TmUpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError extends ProgramError {
+export class UpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError extends ProgramError {
   readonly name: string =
     'UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner';
 
@@ -237,15 +237,15 @@ export class TmUpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError exten
 }
 codeToErrorMap.set(
   0xe,
-  TmUpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError
+  UpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError
 );
 nameToErrorMap.set(
   'UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner',
-  TmUpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError
+  UpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError
 );
 
 /** MintMismatch: 'Mint given does not match mint on Metadata' */
-export class TmMintMismatchError extends ProgramError {
+export class MintMismatchError extends ProgramError {
   readonly name: string = 'MintMismatch';
 
   readonly code: number = 0xf; // 15
@@ -254,11 +254,11 @@ export class TmMintMismatchError extends ProgramError {
     super('Mint given does not match mint on Metadata', program, cause);
   }
 }
-codeToErrorMap.set(0xf, TmMintMismatchError);
-nameToErrorMap.set('MintMismatch', TmMintMismatchError);
+codeToErrorMap.set(0xf, MintMismatchError);
+nameToErrorMap.set('MintMismatch', MintMismatchError);
 
 /** EditionsMustHaveExactlyOneToken: 'Editions must have exactly one token' */
-export class TmEditionsMustHaveExactlyOneTokenError extends ProgramError {
+export class EditionsMustHaveExactlyOneTokenError extends ProgramError {
   readonly name: string = 'EditionsMustHaveExactlyOneToken';
 
   readonly code: number = 0x10; // 16
@@ -267,14 +267,14 @@ export class TmEditionsMustHaveExactlyOneTokenError extends ProgramError {
     super('Editions must have exactly one token', program, cause);
   }
 }
-codeToErrorMap.set(0x10, TmEditionsMustHaveExactlyOneTokenError);
+codeToErrorMap.set(0x10, EditionsMustHaveExactlyOneTokenError);
 nameToErrorMap.set(
   'EditionsMustHaveExactlyOneToken',
-  TmEditionsMustHaveExactlyOneTokenError
+  EditionsMustHaveExactlyOneTokenError
 );
 
 /** MaxEditionsMintedAlready: 'Maximum editions printed already' */
-export class TmMaxEditionsMintedAlreadyError extends ProgramError {
+export class MaxEditionsMintedAlreadyError extends ProgramError {
   readonly name: string = 'MaxEditionsMintedAlready';
 
   readonly code: number = 0x11; // 17
@@ -283,11 +283,11 @@ export class TmMaxEditionsMintedAlreadyError extends ProgramError {
     super('Maximum editions printed already', program, cause);
   }
 }
-codeToErrorMap.set(0x11, TmMaxEditionsMintedAlreadyError);
-nameToErrorMap.set('MaxEditionsMintedAlready', TmMaxEditionsMintedAlreadyError);
+codeToErrorMap.set(0x11, MaxEditionsMintedAlreadyError);
+nameToErrorMap.set('MaxEditionsMintedAlready', MaxEditionsMintedAlreadyError);
 
 /** TokenMintToFailed: 'Token mint to failed' */
-export class TmTokenMintToFailedError extends ProgramError {
+export class TokenMintToFailedError extends ProgramError {
   readonly name: string = 'TokenMintToFailed';
 
   readonly code: number = 0x12; // 18
@@ -296,11 +296,11 @@ export class TmTokenMintToFailedError extends ProgramError {
     super('Token mint to failed', program, cause);
   }
 }
-codeToErrorMap.set(0x12, TmTokenMintToFailedError);
-nameToErrorMap.set('TokenMintToFailed', TmTokenMintToFailedError);
+codeToErrorMap.set(0x12, TokenMintToFailedError);
+nameToErrorMap.set('TokenMintToFailed', TokenMintToFailedError);
 
 /** MasterRecordMismatch: 'The master edition record passed must match the master record on the edition given' */
-export class TmMasterRecordMismatchError extends ProgramError {
+export class MasterRecordMismatchError extends ProgramError {
   readonly name: string = 'MasterRecordMismatch';
 
   readonly code: number = 0x13; // 19
@@ -313,11 +313,11 @@ export class TmMasterRecordMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x13, TmMasterRecordMismatchError);
-nameToErrorMap.set('MasterRecordMismatch', TmMasterRecordMismatchError);
+codeToErrorMap.set(0x13, MasterRecordMismatchError);
+nameToErrorMap.set('MasterRecordMismatch', MasterRecordMismatchError);
 
 /** DestinationMintMismatch: 'The destination account does not have the right mint' */
-export class TmDestinationMintMismatchError extends ProgramError {
+export class DestinationMintMismatchError extends ProgramError {
   readonly name: string = 'DestinationMintMismatch';
 
   readonly code: number = 0x14; // 20
@@ -330,11 +330,11 @@ export class TmDestinationMintMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x14, TmDestinationMintMismatchError);
-nameToErrorMap.set('DestinationMintMismatch', TmDestinationMintMismatchError);
+codeToErrorMap.set(0x14, DestinationMintMismatchError);
+nameToErrorMap.set('DestinationMintMismatch', DestinationMintMismatchError);
 
 /** EditionAlreadyMinted: 'An edition can only mint one of its kind!' */
-export class TmEditionAlreadyMintedError extends ProgramError {
+export class EditionAlreadyMintedError extends ProgramError {
   readonly name: string = 'EditionAlreadyMinted';
 
   readonly code: number = 0x15; // 21
@@ -343,11 +343,11 @@ export class TmEditionAlreadyMintedError extends ProgramError {
     super('An edition can only mint one of its kind!', program, cause);
   }
 }
-codeToErrorMap.set(0x15, TmEditionAlreadyMintedError);
-nameToErrorMap.set('EditionAlreadyMinted', TmEditionAlreadyMintedError);
+codeToErrorMap.set(0x15, EditionAlreadyMintedError);
+nameToErrorMap.set('EditionAlreadyMinted', EditionAlreadyMintedError);
 
 /** PrintingMintDecimalsShouldBeZero: 'Printing mint decimals should be zero' */
-export class TmPrintingMintDecimalsShouldBeZeroError extends ProgramError {
+export class PrintingMintDecimalsShouldBeZeroError extends ProgramError {
   readonly name: string = 'PrintingMintDecimalsShouldBeZero';
 
   readonly code: number = 0x16; // 22
@@ -356,14 +356,14 @@ export class TmPrintingMintDecimalsShouldBeZeroError extends ProgramError {
     super('Printing mint decimals should be zero', program, cause);
   }
 }
-codeToErrorMap.set(0x16, TmPrintingMintDecimalsShouldBeZeroError);
+codeToErrorMap.set(0x16, PrintingMintDecimalsShouldBeZeroError);
 nameToErrorMap.set(
   'PrintingMintDecimalsShouldBeZero',
-  TmPrintingMintDecimalsShouldBeZeroError
+  PrintingMintDecimalsShouldBeZeroError
 );
 
 /** OneTimePrintingAuthorizationMintDecimalsShouldBeZero: 'OneTimePrintingAuthorization mint decimals should be zero' */
-export class TmOneTimePrintingAuthorizationMintDecimalsShouldBeZeroError extends ProgramError {
+export class OneTimePrintingAuthorizationMintDecimalsShouldBeZeroError extends ProgramError {
   readonly name: string =
     'OneTimePrintingAuthorizationMintDecimalsShouldBeZero';
 
@@ -379,15 +379,15 @@ export class TmOneTimePrintingAuthorizationMintDecimalsShouldBeZeroError extends
 }
 codeToErrorMap.set(
   0x17,
-  TmOneTimePrintingAuthorizationMintDecimalsShouldBeZeroError
+  OneTimePrintingAuthorizationMintDecimalsShouldBeZeroError
 );
 nameToErrorMap.set(
   'OneTimePrintingAuthorizationMintDecimalsShouldBeZero',
-  TmOneTimePrintingAuthorizationMintDecimalsShouldBeZeroError
+  OneTimePrintingAuthorizationMintDecimalsShouldBeZeroError
 );
 
 /** EditionMintDecimalsShouldBeZero: 'EditionMintDecimalsShouldBeZero' */
-export class TmEditionMintDecimalsShouldBeZeroError extends ProgramError {
+export class EditionMintDecimalsShouldBeZeroError extends ProgramError {
   readonly name: string = 'EditionMintDecimalsShouldBeZero';
 
   readonly code: number = 0x18; // 24
@@ -396,14 +396,14 @@ export class TmEditionMintDecimalsShouldBeZeroError extends ProgramError {
     super('EditionMintDecimalsShouldBeZero', program, cause);
   }
 }
-codeToErrorMap.set(0x18, TmEditionMintDecimalsShouldBeZeroError);
+codeToErrorMap.set(0x18, EditionMintDecimalsShouldBeZeroError);
 nameToErrorMap.set(
   'EditionMintDecimalsShouldBeZero',
-  TmEditionMintDecimalsShouldBeZeroError
+  EditionMintDecimalsShouldBeZeroError
 );
 
 /** TokenBurnFailed: 'Token burn failed' */
-export class TmTokenBurnFailedError extends ProgramError {
+export class TokenBurnFailedError extends ProgramError {
   readonly name: string = 'TokenBurnFailed';
 
   readonly code: number = 0x19; // 25
@@ -412,11 +412,11 @@ export class TmTokenBurnFailedError extends ProgramError {
     super('Token burn failed', program, cause);
   }
 }
-codeToErrorMap.set(0x19, TmTokenBurnFailedError);
-nameToErrorMap.set('TokenBurnFailed', TmTokenBurnFailedError);
+codeToErrorMap.set(0x19, TokenBurnFailedError);
+nameToErrorMap.set('TokenBurnFailed', TokenBurnFailedError);
 
 /** TokenAccountOneTimeAuthMintMismatch: 'The One Time authorization mint does not match that on the token account!' */
-export class TmTokenAccountOneTimeAuthMintMismatchError extends ProgramError {
+export class TokenAccountOneTimeAuthMintMismatchError extends ProgramError {
   readonly name: string = 'TokenAccountOneTimeAuthMintMismatch';
 
   readonly code: number = 0x1a; // 26
@@ -429,14 +429,14 @@ export class TmTokenAccountOneTimeAuthMintMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x1a, TmTokenAccountOneTimeAuthMintMismatchError);
+codeToErrorMap.set(0x1a, TokenAccountOneTimeAuthMintMismatchError);
 nameToErrorMap.set(
   'TokenAccountOneTimeAuthMintMismatch',
-  TmTokenAccountOneTimeAuthMintMismatchError
+  TokenAccountOneTimeAuthMintMismatchError
 );
 
 /** DerivedKeyInvalid: 'Derived key invalid' */
-export class TmDerivedKeyInvalidError extends ProgramError {
+export class DerivedKeyInvalidError extends ProgramError {
   readonly name: string = 'DerivedKeyInvalid';
 
   readonly code: number = 0x1b; // 27
@@ -445,11 +445,11 @@ export class TmDerivedKeyInvalidError extends ProgramError {
     super('Derived key invalid', program, cause);
   }
 }
-codeToErrorMap.set(0x1b, TmDerivedKeyInvalidError);
-nameToErrorMap.set('DerivedKeyInvalid', TmDerivedKeyInvalidError);
+codeToErrorMap.set(0x1b, DerivedKeyInvalidError);
+nameToErrorMap.set('DerivedKeyInvalid', DerivedKeyInvalidError);
 
 /** PrintingMintMismatch: 'The Printing mint does not match that on the master edition!' */
-export class TmPrintingMintMismatchError extends ProgramError {
+export class PrintingMintMismatchError extends ProgramError {
   readonly name: string = 'PrintingMintMismatch';
 
   readonly code: number = 0x1c; // 28
@@ -462,11 +462,11 @@ export class TmPrintingMintMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x1c, TmPrintingMintMismatchError);
-nameToErrorMap.set('PrintingMintMismatch', TmPrintingMintMismatchError);
+codeToErrorMap.set(0x1c, PrintingMintMismatchError);
+nameToErrorMap.set('PrintingMintMismatch', PrintingMintMismatchError);
 
 /** OneTimePrintingAuthMintMismatch: 'The One Time Printing Auth mint does not match that on the master edition!' */
-export class TmOneTimePrintingAuthMintMismatchError extends ProgramError {
+export class OneTimePrintingAuthMintMismatchError extends ProgramError {
   readonly name: string = 'OneTimePrintingAuthMintMismatch';
 
   readonly code: number = 0x1d; // 29
@@ -479,14 +479,14 @@ export class TmOneTimePrintingAuthMintMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x1d, TmOneTimePrintingAuthMintMismatchError);
+codeToErrorMap.set(0x1d, OneTimePrintingAuthMintMismatchError);
 nameToErrorMap.set(
   'OneTimePrintingAuthMintMismatch',
-  TmOneTimePrintingAuthMintMismatchError
+  OneTimePrintingAuthMintMismatchError
 );
 
 /** TokenAccountMintMismatch: 'The mint of the token account does not match the Printing mint!' */
-export class TmTokenAccountMintMismatchError extends ProgramError {
+export class TokenAccountMintMismatchError extends ProgramError {
   readonly name: string = 'TokenAccountMintMismatch';
 
   readonly code: number = 0x1e; // 30
@@ -499,11 +499,11 @@ export class TmTokenAccountMintMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x1e, TmTokenAccountMintMismatchError);
-nameToErrorMap.set('TokenAccountMintMismatch', TmTokenAccountMintMismatchError);
+codeToErrorMap.set(0x1e, TokenAccountMintMismatchError);
+nameToErrorMap.set('TokenAccountMintMismatch', TokenAccountMintMismatchError);
 
 /** TokenAccountMintMismatchV2: 'The mint of the token account does not match the master metadata mint!' */
-export class TmTokenAccountMintMismatchV2Error extends ProgramError {
+export class TokenAccountMintMismatchV2Error extends ProgramError {
   readonly name: string = 'TokenAccountMintMismatchV2';
 
   readonly code: number = 0x1f; // 31
@@ -516,14 +516,14 @@ export class TmTokenAccountMintMismatchV2Error extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x1f, TmTokenAccountMintMismatchV2Error);
+codeToErrorMap.set(0x1f, TokenAccountMintMismatchV2Error);
 nameToErrorMap.set(
   'TokenAccountMintMismatchV2',
-  TmTokenAccountMintMismatchV2Error
+  TokenAccountMintMismatchV2Error
 );
 
 /** NotEnoughTokens: 'Not enough tokens to mint a limited edition' */
-export class TmNotEnoughTokensError extends ProgramError {
+export class NotEnoughTokensError extends ProgramError {
   readonly name: string = 'NotEnoughTokens';
 
   readonly code: number = 0x20; // 32
@@ -532,11 +532,11 @@ export class TmNotEnoughTokensError extends ProgramError {
     super('Not enough tokens to mint a limited edition', program, cause);
   }
 }
-codeToErrorMap.set(0x20, TmNotEnoughTokensError);
-nameToErrorMap.set('NotEnoughTokens', TmNotEnoughTokensError);
+codeToErrorMap.set(0x20, NotEnoughTokensError);
+nameToErrorMap.set('NotEnoughTokens', NotEnoughTokensError);
 
 /** PrintingMintAuthorizationAccountMismatch: 'The mint on your authorization token holding account does not match your Printing mint!' */
-export class TmPrintingMintAuthorizationAccountMismatchError extends ProgramError {
+export class PrintingMintAuthorizationAccountMismatchError extends ProgramError {
   readonly name: string = 'PrintingMintAuthorizationAccountMismatch';
 
   readonly code: number = 0x21; // 33
@@ -549,14 +549,14 @@ export class TmPrintingMintAuthorizationAccountMismatchError extends ProgramErro
     );
   }
 }
-codeToErrorMap.set(0x21, TmPrintingMintAuthorizationAccountMismatchError);
+codeToErrorMap.set(0x21, PrintingMintAuthorizationAccountMismatchError);
 nameToErrorMap.set(
   'PrintingMintAuthorizationAccountMismatch',
-  TmPrintingMintAuthorizationAccountMismatchError
+  PrintingMintAuthorizationAccountMismatchError
 );
 
 /** AuthorizationTokenAccountOwnerMismatch: 'The authorization token account has a different owner than the update authority for the master edition!' */
-export class TmAuthorizationTokenAccountOwnerMismatchError extends ProgramError {
+export class AuthorizationTokenAccountOwnerMismatchError extends ProgramError {
   readonly name: string = 'AuthorizationTokenAccountOwnerMismatch';
 
   readonly code: number = 0x22; // 34
@@ -569,14 +569,14 @@ export class TmAuthorizationTokenAccountOwnerMismatchError extends ProgramError 
     );
   }
 }
-codeToErrorMap.set(0x22, TmAuthorizationTokenAccountOwnerMismatchError);
+codeToErrorMap.set(0x22, AuthorizationTokenAccountOwnerMismatchError);
 nameToErrorMap.set(
   'AuthorizationTokenAccountOwnerMismatch',
-  TmAuthorizationTokenAccountOwnerMismatchError
+  AuthorizationTokenAccountOwnerMismatchError
 );
 
 /** Disabled: 'This feature is currently disabled.' */
-export class TmDisabledError extends ProgramError {
+export class DisabledError extends ProgramError {
   readonly name: string = 'Disabled';
 
   readonly code: number = 0x23; // 35
@@ -585,11 +585,11 @@ export class TmDisabledError extends ProgramError {
     super('This feature is currently disabled.', program, cause);
   }
 }
-codeToErrorMap.set(0x23, TmDisabledError);
-nameToErrorMap.set('Disabled', TmDisabledError);
+codeToErrorMap.set(0x23, DisabledError);
+nameToErrorMap.set('Disabled', DisabledError);
 
 /** CreatorsTooLong: 'Creators list too long' */
-export class TmCreatorsTooLongError extends ProgramError {
+export class CreatorsTooLongError extends ProgramError {
   readonly name: string = 'CreatorsTooLong';
 
   readonly code: number = 0x24; // 36
@@ -598,11 +598,11 @@ export class TmCreatorsTooLongError extends ProgramError {
     super('Creators list too long', program, cause);
   }
 }
-codeToErrorMap.set(0x24, TmCreatorsTooLongError);
-nameToErrorMap.set('CreatorsTooLong', TmCreatorsTooLongError);
+codeToErrorMap.set(0x24, CreatorsTooLongError);
+nameToErrorMap.set('CreatorsTooLong', CreatorsTooLongError);
 
 /** CreatorsMustBeAtleastOne: 'Creators must be at least one if set' */
-export class TmCreatorsMustBeAtleastOneError extends ProgramError {
+export class CreatorsMustBeAtleastOneError extends ProgramError {
   readonly name: string = 'CreatorsMustBeAtleastOne';
 
   readonly code: number = 0x25; // 37
@@ -611,11 +611,11 @@ export class TmCreatorsMustBeAtleastOneError extends ProgramError {
     super('Creators must be at least one if set', program, cause);
   }
 }
-codeToErrorMap.set(0x25, TmCreatorsMustBeAtleastOneError);
-nameToErrorMap.set('CreatorsMustBeAtleastOne', TmCreatorsMustBeAtleastOneError);
+codeToErrorMap.set(0x25, CreatorsMustBeAtleastOneError);
+nameToErrorMap.set('CreatorsMustBeAtleastOne', CreatorsMustBeAtleastOneError);
 
 /** MustBeOneOfCreators: 'If using a creators array, you must be one of the creators listed' */
-export class TmMustBeOneOfCreatorsError extends ProgramError {
+export class MustBeOneOfCreatorsError extends ProgramError {
   readonly name: string = 'MustBeOneOfCreators';
 
   readonly code: number = 0x26; // 38
@@ -628,11 +628,11 @@ export class TmMustBeOneOfCreatorsError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x26, TmMustBeOneOfCreatorsError);
-nameToErrorMap.set('MustBeOneOfCreators', TmMustBeOneOfCreatorsError);
+codeToErrorMap.set(0x26, MustBeOneOfCreatorsError);
+nameToErrorMap.set('MustBeOneOfCreators', MustBeOneOfCreatorsError);
 
 /** NoCreatorsPresentOnMetadata: 'This metadata does not have creators' */
-export class TmNoCreatorsPresentOnMetadataError extends ProgramError {
+export class NoCreatorsPresentOnMetadataError extends ProgramError {
   readonly name: string = 'NoCreatorsPresentOnMetadata';
 
   readonly code: number = 0x27; // 39
@@ -641,14 +641,14 @@ export class TmNoCreatorsPresentOnMetadataError extends ProgramError {
     super('This metadata does not have creators', program, cause);
   }
 }
-codeToErrorMap.set(0x27, TmNoCreatorsPresentOnMetadataError);
+codeToErrorMap.set(0x27, NoCreatorsPresentOnMetadataError);
 nameToErrorMap.set(
   'NoCreatorsPresentOnMetadata',
-  TmNoCreatorsPresentOnMetadataError
+  NoCreatorsPresentOnMetadataError
 );
 
 /** CreatorNotFound: 'This creator address was not found' */
-export class TmCreatorNotFoundError extends ProgramError {
+export class CreatorNotFoundError extends ProgramError {
   readonly name: string = 'CreatorNotFound';
 
   readonly code: number = 0x28; // 40
@@ -657,11 +657,11 @@ export class TmCreatorNotFoundError extends ProgramError {
     super('This creator address was not found', program, cause);
   }
 }
-codeToErrorMap.set(0x28, TmCreatorNotFoundError);
-nameToErrorMap.set('CreatorNotFound', TmCreatorNotFoundError);
+codeToErrorMap.set(0x28, CreatorNotFoundError);
+nameToErrorMap.set('CreatorNotFound', CreatorNotFoundError);
 
 /** InvalidBasisPoints: 'Basis points cannot be more than 10000' */
-export class TmInvalidBasisPointsError extends ProgramError {
+export class InvalidBasisPointsError extends ProgramError {
   readonly name: string = 'InvalidBasisPoints';
 
   readonly code: number = 0x29; // 41
@@ -670,11 +670,11 @@ export class TmInvalidBasisPointsError extends ProgramError {
     super('Basis points cannot be more than 10000', program, cause);
   }
 }
-codeToErrorMap.set(0x29, TmInvalidBasisPointsError);
-nameToErrorMap.set('InvalidBasisPoints', TmInvalidBasisPointsError);
+codeToErrorMap.set(0x29, InvalidBasisPointsError);
+nameToErrorMap.set('InvalidBasisPoints', InvalidBasisPointsError);
 
 /** PrimarySaleCanOnlyBeFlippedToTrue: 'Primary sale can only be flipped to true and is immutable' */
-export class TmPrimarySaleCanOnlyBeFlippedToTrueError extends ProgramError {
+export class PrimarySaleCanOnlyBeFlippedToTrueError extends ProgramError {
   readonly name: string = 'PrimarySaleCanOnlyBeFlippedToTrue';
 
   readonly code: number = 0x2a; // 42
@@ -687,14 +687,14 @@ export class TmPrimarySaleCanOnlyBeFlippedToTrueError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x2a, TmPrimarySaleCanOnlyBeFlippedToTrueError);
+codeToErrorMap.set(0x2a, PrimarySaleCanOnlyBeFlippedToTrueError);
 nameToErrorMap.set(
   'PrimarySaleCanOnlyBeFlippedToTrue',
-  TmPrimarySaleCanOnlyBeFlippedToTrueError
+  PrimarySaleCanOnlyBeFlippedToTrueError
 );
 
 /** OwnerMismatch: 'Owner does not match that on the account given' */
-export class TmOwnerMismatchError extends ProgramError {
+export class OwnerMismatchError extends ProgramError {
   readonly name: string = 'OwnerMismatch';
 
   readonly code: number = 0x2b; // 43
@@ -703,11 +703,11 @@ export class TmOwnerMismatchError extends ProgramError {
     super('Owner does not match that on the account given', program, cause);
   }
 }
-codeToErrorMap.set(0x2b, TmOwnerMismatchError);
-nameToErrorMap.set('OwnerMismatch', TmOwnerMismatchError);
+codeToErrorMap.set(0x2b, OwnerMismatchError);
+nameToErrorMap.set('OwnerMismatch', OwnerMismatchError);
 
 /** NoBalanceInAccountForAuthorization: 'This account has no tokens to be used for authorization' */
-export class TmNoBalanceInAccountForAuthorizationError extends ProgramError {
+export class NoBalanceInAccountForAuthorizationError extends ProgramError {
   readonly name: string = 'NoBalanceInAccountForAuthorization';
 
   readonly code: number = 0x2c; // 44
@@ -720,14 +720,14 @@ export class TmNoBalanceInAccountForAuthorizationError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x2c, TmNoBalanceInAccountForAuthorizationError);
+codeToErrorMap.set(0x2c, NoBalanceInAccountForAuthorizationError);
 nameToErrorMap.set(
   'NoBalanceInAccountForAuthorization',
-  TmNoBalanceInAccountForAuthorizationError
+  NoBalanceInAccountForAuthorizationError
 );
 
 /** ShareTotalMustBe100: 'Share total must equal 100 for creator array' */
-export class TmShareTotalMustBe100Error extends ProgramError {
+export class ShareTotalMustBe100Error extends ProgramError {
   readonly name: string = 'ShareTotalMustBe100';
 
   readonly code: number = 0x2d; // 45
@@ -736,11 +736,11 @@ export class TmShareTotalMustBe100Error extends ProgramError {
     super('Share total must equal 100 for creator array', program, cause);
   }
 }
-codeToErrorMap.set(0x2d, TmShareTotalMustBe100Error);
-nameToErrorMap.set('ShareTotalMustBe100', TmShareTotalMustBe100Error);
+codeToErrorMap.set(0x2d, ShareTotalMustBe100Error);
+nameToErrorMap.set('ShareTotalMustBe100', ShareTotalMustBe100Error);
 
 /** ReservationExists: 'This reservation list already exists!' */
-export class TmReservationExistsError extends ProgramError {
+export class ReservationExistsError extends ProgramError {
   readonly name: string = 'ReservationExists';
 
   readonly code: number = 0x2e; // 46
@@ -749,11 +749,11 @@ export class TmReservationExistsError extends ProgramError {
     super('This reservation list already exists!', program, cause);
   }
 }
-codeToErrorMap.set(0x2e, TmReservationExistsError);
-nameToErrorMap.set('ReservationExists', TmReservationExistsError);
+codeToErrorMap.set(0x2e, ReservationExistsError);
+nameToErrorMap.set('ReservationExists', ReservationExistsError);
 
 /** ReservationDoesNotExist: 'This reservation list does not exist!' */
-export class TmReservationDoesNotExistError extends ProgramError {
+export class ReservationDoesNotExistError extends ProgramError {
   readonly name: string = 'ReservationDoesNotExist';
 
   readonly code: number = 0x2f; // 47
@@ -762,11 +762,11 @@ export class TmReservationDoesNotExistError extends ProgramError {
     super('This reservation list does not exist!', program, cause);
   }
 }
-codeToErrorMap.set(0x2f, TmReservationDoesNotExistError);
-nameToErrorMap.set('ReservationDoesNotExist', TmReservationDoesNotExistError);
+codeToErrorMap.set(0x2f, ReservationDoesNotExistError);
+nameToErrorMap.set('ReservationDoesNotExist', ReservationDoesNotExistError);
 
 /** ReservationNotSet: 'This reservation list exists but was never set with reservations' */
-export class TmReservationNotSetError extends ProgramError {
+export class ReservationNotSetError extends ProgramError {
   readonly name: string = 'ReservationNotSet';
 
   readonly code: number = 0x30; // 48
@@ -779,11 +779,11 @@ export class TmReservationNotSetError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x30, TmReservationNotSetError);
-nameToErrorMap.set('ReservationNotSet', TmReservationNotSetError);
+codeToErrorMap.set(0x30, ReservationNotSetError);
+nameToErrorMap.set('ReservationNotSet', ReservationNotSetError);
 
 /** ReservationAlreadyMade: 'This reservation list has already been set!' */
-export class TmReservationAlreadyMadeError extends ProgramError {
+export class ReservationAlreadyMadeError extends ProgramError {
   readonly name: string = 'ReservationAlreadyMade';
 
   readonly code: number = 0x31; // 49
@@ -792,11 +792,11 @@ export class TmReservationAlreadyMadeError extends ProgramError {
     super('This reservation list has already been set!', program, cause);
   }
 }
-codeToErrorMap.set(0x31, TmReservationAlreadyMadeError);
-nameToErrorMap.set('ReservationAlreadyMade', TmReservationAlreadyMadeError);
+codeToErrorMap.set(0x31, ReservationAlreadyMadeError);
+nameToErrorMap.set('ReservationAlreadyMade', ReservationAlreadyMadeError);
 
 /** BeyondMaxAddressSize: 'Provided more addresses than max allowed in single reservation' */
-export class TmBeyondMaxAddressSizeError extends ProgramError {
+export class BeyondMaxAddressSizeError extends ProgramError {
   readonly name: string = 'BeyondMaxAddressSize';
 
   readonly code: number = 0x32; // 50
@@ -809,11 +809,11 @@ export class TmBeyondMaxAddressSizeError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x32, TmBeyondMaxAddressSizeError);
-nameToErrorMap.set('BeyondMaxAddressSize', TmBeyondMaxAddressSizeError);
+codeToErrorMap.set(0x32, BeyondMaxAddressSizeError);
+nameToErrorMap.set('BeyondMaxAddressSize', BeyondMaxAddressSizeError);
 
 /** NumericalOverflowError: 'NumericalOverflowError' */
-export class TmNumericalOverflowErrorError extends ProgramError {
+export class NumericalOverflowErrorError extends ProgramError {
   readonly name: string = 'NumericalOverflowError';
 
   readonly code: number = 0x33; // 51
@@ -822,11 +822,11 @@ export class TmNumericalOverflowErrorError extends ProgramError {
     super('NumericalOverflowError', program, cause);
   }
 }
-codeToErrorMap.set(0x33, TmNumericalOverflowErrorError);
-nameToErrorMap.set('NumericalOverflowError', TmNumericalOverflowErrorError);
+codeToErrorMap.set(0x33, NumericalOverflowErrorError);
+nameToErrorMap.set('NumericalOverflowError', NumericalOverflowErrorError);
 
 /** ReservationBreachesMaximumSupply: 'This reservation would go beyond the maximum supply of the master edition!' */
-export class TmReservationBreachesMaximumSupplyError extends ProgramError {
+export class ReservationBreachesMaximumSupplyError extends ProgramError {
   readonly name: string = 'ReservationBreachesMaximumSupply';
 
   readonly code: number = 0x34; // 52
@@ -839,14 +839,14 @@ export class TmReservationBreachesMaximumSupplyError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x34, TmReservationBreachesMaximumSupplyError);
+codeToErrorMap.set(0x34, ReservationBreachesMaximumSupplyError);
 nameToErrorMap.set(
   'ReservationBreachesMaximumSupply',
-  TmReservationBreachesMaximumSupplyError
+  ReservationBreachesMaximumSupplyError
 );
 
 /** AddressNotInReservation: 'Address not in reservation!' */
-export class TmAddressNotInReservationError extends ProgramError {
+export class AddressNotInReservationError extends ProgramError {
   readonly name: string = 'AddressNotInReservation';
 
   readonly code: number = 0x35; // 53
@@ -855,11 +855,11 @@ export class TmAddressNotInReservationError extends ProgramError {
     super('Address not in reservation!', program, cause);
   }
 }
-codeToErrorMap.set(0x35, TmAddressNotInReservationError);
-nameToErrorMap.set('AddressNotInReservation', TmAddressNotInReservationError);
+codeToErrorMap.set(0x35, AddressNotInReservationError);
+nameToErrorMap.set('AddressNotInReservation', AddressNotInReservationError);
 
 /** CannotVerifyAnotherCreator: 'You cannot unilaterally verify another creator, they must sign' */
-export class TmCannotVerifyAnotherCreatorError extends ProgramError {
+export class CannotVerifyAnotherCreatorError extends ProgramError {
   readonly name: string = 'CannotVerifyAnotherCreator';
 
   readonly code: number = 0x36; // 54
@@ -872,14 +872,14 @@ export class TmCannotVerifyAnotherCreatorError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x36, TmCannotVerifyAnotherCreatorError);
+codeToErrorMap.set(0x36, CannotVerifyAnotherCreatorError);
 nameToErrorMap.set(
   'CannotVerifyAnotherCreator',
-  TmCannotVerifyAnotherCreatorError
+  CannotVerifyAnotherCreatorError
 );
 
 /** CannotUnverifyAnotherCreator: 'You cannot unilaterally unverify another creator' */
-export class TmCannotUnverifyAnotherCreatorError extends ProgramError {
+export class CannotUnverifyAnotherCreatorError extends ProgramError {
   readonly name: string = 'CannotUnverifyAnotherCreator';
 
   readonly code: number = 0x37; // 55
@@ -888,14 +888,14 @@ export class TmCannotUnverifyAnotherCreatorError extends ProgramError {
     super('You cannot unilaterally unverify another creator', program, cause);
   }
 }
-codeToErrorMap.set(0x37, TmCannotUnverifyAnotherCreatorError);
+codeToErrorMap.set(0x37, CannotUnverifyAnotherCreatorError);
 nameToErrorMap.set(
   'CannotUnverifyAnotherCreator',
-  TmCannotUnverifyAnotherCreatorError
+  CannotUnverifyAnotherCreatorError
 );
 
 /** SpotMismatch: 'In initial reservation setting, spots remaining should equal total spots' */
-export class TmSpotMismatchError extends ProgramError {
+export class SpotMismatchError extends ProgramError {
   readonly name: string = 'SpotMismatch';
 
   readonly code: number = 0x38; // 56
@@ -908,11 +908,11 @@ export class TmSpotMismatchError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x38, TmSpotMismatchError);
-nameToErrorMap.set('SpotMismatch', TmSpotMismatchError);
+codeToErrorMap.set(0x38, SpotMismatchError);
+nameToErrorMap.set('SpotMismatch', SpotMismatchError);
 
 /** IncorrectOwner: 'Incorrect account owner' */
-export class TmIncorrectOwnerError extends ProgramError {
+export class IncorrectOwnerError extends ProgramError {
   readonly name: string = 'IncorrectOwner';
 
   readonly code: number = 0x39; // 57
@@ -921,11 +921,11 @@ export class TmIncorrectOwnerError extends ProgramError {
     super('Incorrect account owner', program, cause);
   }
 }
-codeToErrorMap.set(0x39, TmIncorrectOwnerError);
-nameToErrorMap.set('IncorrectOwner', TmIncorrectOwnerError);
+codeToErrorMap.set(0x39, IncorrectOwnerError);
+nameToErrorMap.set('IncorrectOwner', IncorrectOwnerError);
 
 /** PrintingWouldBreachMaximumSupply: 'printing these tokens would breach the maximum supply limit of the master edition' */
-export class TmPrintingWouldBreachMaximumSupplyError extends ProgramError {
+export class PrintingWouldBreachMaximumSupplyError extends ProgramError {
   readonly name: string = 'PrintingWouldBreachMaximumSupply';
 
   readonly code: number = 0x3a; // 58
@@ -938,14 +938,14 @@ export class TmPrintingWouldBreachMaximumSupplyError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x3a, TmPrintingWouldBreachMaximumSupplyError);
+codeToErrorMap.set(0x3a, PrintingWouldBreachMaximumSupplyError);
 nameToErrorMap.set(
   'PrintingWouldBreachMaximumSupply',
-  TmPrintingWouldBreachMaximumSupplyError
+  PrintingWouldBreachMaximumSupplyError
 );
 
 /** DataIsImmutable: 'Data is immutable' */
-export class TmDataIsImmutableError extends ProgramError {
+export class DataIsImmutableError extends ProgramError {
   readonly name: string = 'DataIsImmutable';
 
   readonly code: number = 0x3b; // 59
@@ -954,11 +954,11 @@ export class TmDataIsImmutableError extends ProgramError {
     super('Data is immutable', program, cause);
   }
 }
-codeToErrorMap.set(0x3b, TmDataIsImmutableError);
-nameToErrorMap.set('DataIsImmutable', TmDataIsImmutableError);
+codeToErrorMap.set(0x3b, DataIsImmutableError);
+nameToErrorMap.set('DataIsImmutable', DataIsImmutableError);
 
 /** DuplicateCreatorAddress: 'No duplicate creator addresses' */
-export class TmDuplicateCreatorAddressError extends ProgramError {
+export class DuplicateCreatorAddressError extends ProgramError {
   readonly name: string = 'DuplicateCreatorAddress';
 
   readonly code: number = 0x3c; // 60
@@ -967,11 +967,11 @@ export class TmDuplicateCreatorAddressError extends ProgramError {
     super('No duplicate creator addresses', program, cause);
   }
 }
-codeToErrorMap.set(0x3c, TmDuplicateCreatorAddressError);
-nameToErrorMap.set('DuplicateCreatorAddress', TmDuplicateCreatorAddressError);
+codeToErrorMap.set(0x3c, DuplicateCreatorAddressError);
+nameToErrorMap.set('DuplicateCreatorAddress', DuplicateCreatorAddressError);
 
 /** ReservationSpotsRemainingShouldMatchTotalSpotsAtStart: 'Reservation spots remaining should match total spots when first being created' */
-export class TmReservationSpotsRemainingShouldMatchTotalSpotsAtStartError extends ProgramError {
+export class ReservationSpotsRemainingShouldMatchTotalSpotsAtStartError extends ProgramError {
   readonly name: string =
     'ReservationSpotsRemainingShouldMatchTotalSpotsAtStart';
 
@@ -987,15 +987,15 @@ export class TmReservationSpotsRemainingShouldMatchTotalSpotsAtStartError extend
 }
 codeToErrorMap.set(
   0x3d,
-  TmReservationSpotsRemainingShouldMatchTotalSpotsAtStartError
+  ReservationSpotsRemainingShouldMatchTotalSpotsAtStartError
 );
 nameToErrorMap.set(
   'ReservationSpotsRemainingShouldMatchTotalSpotsAtStart',
-  TmReservationSpotsRemainingShouldMatchTotalSpotsAtStartError
+  ReservationSpotsRemainingShouldMatchTotalSpotsAtStartError
 );
 
 /** InvalidTokenProgram: 'Invalid token program' */
-export class TmInvalidTokenProgramError extends ProgramError {
+export class InvalidTokenProgramError extends ProgramError {
   readonly name: string = 'InvalidTokenProgram';
 
   readonly code: number = 0x3e; // 62
@@ -1004,11 +1004,11 @@ export class TmInvalidTokenProgramError extends ProgramError {
     super('Invalid token program', program, cause);
   }
 }
-codeToErrorMap.set(0x3e, TmInvalidTokenProgramError);
-nameToErrorMap.set('InvalidTokenProgram', TmInvalidTokenProgramError);
+codeToErrorMap.set(0x3e, InvalidTokenProgramError);
+nameToErrorMap.set('InvalidTokenProgram', InvalidTokenProgramError);
 
 /** DataTypeMismatch: 'Data type mismatch' */
-export class TmDataTypeMismatchError extends ProgramError {
+export class DataTypeMismatchError extends ProgramError {
   readonly name: string = 'DataTypeMismatch';
 
   readonly code: number = 0x3f; // 63
@@ -1017,11 +1017,11 @@ export class TmDataTypeMismatchError extends ProgramError {
     super('Data type mismatch', program, cause);
   }
 }
-codeToErrorMap.set(0x3f, TmDataTypeMismatchError);
-nameToErrorMap.set('DataTypeMismatch', TmDataTypeMismatchError);
+codeToErrorMap.set(0x3f, DataTypeMismatchError);
+nameToErrorMap.set('DataTypeMismatch', DataTypeMismatchError);
 
 /** BeyondAlottedAddressSize: 'Beyond alotted address size in reservation!' */
-export class TmBeyondAlottedAddressSizeError extends ProgramError {
+export class BeyondAlottedAddressSizeError extends ProgramError {
   readonly name: string = 'BeyondAlottedAddressSize';
 
   readonly code: number = 0x40; // 64
@@ -1030,11 +1030,11 @@ export class TmBeyondAlottedAddressSizeError extends ProgramError {
     super('Beyond alotted address size in reservation!', program, cause);
   }
 }
-codeToErrorMap.set(0x40, TmBeyondAlottedAddressSizeError);
-nameToErrorMap.set('BeyondAlottedAddressSize', TmBeyondAlottedAddressSizeError);
+codeToErrorMap.set(0x40, BeyondAlottedAddressSizeError);
+nameToErrorMap.set('BeyondAlottedAddressSize', BeyondAlottedAddressSizeError);
 
 /** ReservationNotComplete: 'The reservation has only been partially alotted' */
-export class TmReservationNotCompleteError extends ProgramError {
+export class ReservationNotCompleteError extends ProgramError {
   readonly name: string = 'ReservationNotComplete';
 
   readonly code: number = 0x41; // 65
@@ -1043,11 +1043,11 @@ export class TmReservationNotCompleteError extends ProgramError {
     super('The reservation has only been partially alotted', program, cause);
   }
 }
-codeToErrorMap.set(0x41, TmReservationNotCompleteError);
-nameToErrorMap.set('ReservationNotComplete', TmReservationNotCompleteError);
+codeToErrorMap.set(0x41, ReservationNotCompleteError);
+nameToErrorMap.set('ReservationNotComplete', ReservationNotCompleteError);
 
 /** TriedToReplaceAnExistingReservation: 'You cannot splice over an existing reservation!' */
-export class TmTriedToReplaceAnExistingReservationError extends ProgramError {
+export class TriedToReplaceAnExistingReservationError extends ProgramError {
   readonly name: string = 'TriedToReplaceAnExistingReservation';
 
   readonly code: number = 0x42; // 66
@@ -1056,14 +1056,14 @@ export class TmTriedToReplaceAnExistingReservationError extends ProgramError {
     super('You cannot splice over an existing reservation!', program, cause);
   }
 }
-codeToErrorMap.set(0x42, TmTriedToReplaceAnExistingReservationError);
+codeToErrorMap.set(0x42, TriedToReplaceAnExistingReservationError);
 nameToErrorMap.set(
   'TriedToReplaceAnExistingReservation',
-  TmTriedToReplaceAnExistingReservationError
+  TriedToReplaceAnExistingReservationError
 );
 
 /** InvalidOperation: 'Invalid operation' */
-export class TmInvalidOperationError extends ProgramError {
+export class InvalidOperationError extends ProgramError {
   readonly name: string = 'InvalidOperation';
 
   readonly code: number = 0x43; // 67
@@ -1072,11 +1072,11 @@ export class TmInvalidOperationError extends ProgramError {
     super('Invalid operation', program, cause);
   }
 }
-codeToErrorMap.set(0x43, TmInvalidOperationError);
-nameToErrorMap.set('InvalidOperation', TmInvalidOperationError);
+codeToErrorMap.set(0x43, InvalidOperationError);
+nameToErrorMap.set('InvalidOperation', InvalidOperationError);
 
 /** InvalidOwner: 'Invalid Owner' */
-export class TmInvalidOwnerError extends ProgramError {
+export class InvalidOwnerError extends ProgramError {
   readonly name: string = 'InvalidOwner';
 
   readonly code: number = 0x44; // 68
@@ -1085,11 +1085,11 @@ export class TmInvalidOwnerError extends ProgramError {
     super('Invalid Owner', program, cause);
   }
 }
-codeToErrorMap.set(0x44, TmInvalidOwnerError);
-nameToErrorMap.set('InvalidOwner', TmInvalidOwnerError);
+codeToErrorMap.set(0x44, InvalidOwnerError);
+nameToErrorMap.set('InvalidOwner', InvalidOwnerError);
 
 /** PrintingMintSupplyMustBeZeroForConversion: 'Printing mint supply must be zero for conversion' */
-export class TmPrintingMintSupplyMustBeZeroForConversionError extends ProgramError {
+export class PrintingMintSupplyMustBeZeroForConversionError extends ProgramError {
   readonly name: string = 'PrintingMintSupplyMustBeZeroForConversion';
 
   readonly code: number = 0x45; // 69
@@ -1098,14 +1098,14 @@ export class TmPrintingMintSupplyMustBeZeroForConversionError extends ProgramErr
     super('Printing mint supply must be zero for conversion', program, cause);
   }
 }
-codeToErrorMap.set(0x45, TmPrintingMintSupplyMustBeZeroForConversionError);
+codeToErrorMap.set(0x45, PrintingMintSupplyMustBeZeroForConversionError);
 nameToErrorMap.set(
   'PrintingMintSupplyMustBeZeroForConversion',
-  TmPrintingMintSupplyMustBeZeroForConversionError
+  PrintingMintSupplyMustBeZeroForConversionError
 );
 
 /** OneTimeAuthMintSupplyMustBeZeroForConversion: 'One Time Auth mint supply must be zero for conversion' */
-export class TmOneTimeAuthMintSupplyMustBeZeroForConversionError extends ProgramError {
+export class OneTimeAuthMintSupplyMustBeZeroForConversionError extends ProgramError {
   readonly name: string = 'OneTimeAuthMintSupplyMustBeZeroForConversion';
 
   readonly code: number = 0x46; // 70
@@ -1118,14 +1118,14 @@ export class TmOneTimeAuthMintSupplyMustBeZeroForConversionError extends Program
     );
   }
 }
-codeToErrorMap.set(0x46, TmOneTimeAuthMintSupplyMustBeZeroForConversionError);
+codeToErrorMap.set(0x46, OneTimeAuthMintSupplyMustBeZeroForConversionError);
 nameToErrorMap.set(
   'OneTimeAuthMintSupplyMustBeZeroForConversion',
-  TmOneTimeAuthMintSupplyMustBeZeroForConversionError
+  OneTimeAuthMintSupplyMustBeZeroForConversionError
 );
 
 /** InvalidEditionIndex: 'You tried to insert one edition too many into an edition mark pda' */
-export class TmInvalidEditionIndexError extends ProgramError {
+export class InvalidEditionIndexError extends ProgramError {
   readonly name: string = 'InvalidEditionIndex';
 
   readonly code: number = 0x47; // 71
@@ -1138,11 +1138,11 @@ export class TmInvalidEditionIndexError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x47, TmInvalidEditionIndexError);
-nameToErrorMap.set('InvalidEditionIndex', TmInvalidEditionIndexError);
+codeToErrorMap.set(0x47, InvalidEditionIndexError);
+nameToErrorMap.set('InvalidEditionIndex', InvalidEditionIndexError);
 
 /** ReservationArrayShouldBeSizeOne: 'In the legacy system the reservation needs to be of size one for cpu limit reasons' */
-export class TmReservationArrayShouldBeSizeOneError extends ProgramError {
+export class ReservationArrayShouldBeSizeOneError extends ProgramError {
   readonly name: string = 'ReservationArrayShouldBeSizeOne';
 
   readonly code: number = 0x48; // 72
@@ -1155,14 +1155,14 @@ export class TmReservationArrayShouldBeSizeOneError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x48, TmReservationArrayShouldBeSizeOneError);
+codeToErrorMap.set(0x48, ReservationArrayShouldBeSizeOneError);
 nameToErrorMap.set(
   'ReservationArrayShouldBeSizeOne',
-  TmReservationArrayShouldBeSizeOneError
+  ReservationArrayShouldBeSizeOneError
 );
 
 /** IsMutableCanOnlyBeFlippedToFalse: 'Is Mutable can only be flipped to false' */
-export class TmIsMutableCanOnlyBeFlippedToFalseError extends ProgramError {
+export class IsMutableCanOnlyBeFlippedToFalseError extends ProgramError {
   readonly name: string = 'IsMutableCanOnlyBeFlippedToFalse';
 
   readonly code: number = 0x49; // 73
@@ -1171,14 +1171,14 @@ export class TmIsMutableCanOnlyBeFlippedToFalseError extends ProgramError {
     super('Is Mutable can only be flipped to false', program, cause);
   }
 }
-codeToErrorMap.set(0x49, TmIsMutableCanOnlyBeFlippedToFalseError);
+codeToErrorMap.set(0x49, IsMutableCanOnlyBeFlippedToFalseError);
 nameToErrorMap.set(
   'IsMutableCanOnlyBeFlippedToFalse',
-  TmIsMutableCanOnlyBeFlippedToFalseError
+  IsMutableCanOnlyBeFlippedToFalseError
 );
 
 /** CollectionCannotBeVerifiedInThisInstruction: 'Collection cannot be verified in this instruction' */
-export class TmCollectionCannotBeVerifiedInThisInstructionError extends ProgramError {
+export class CollectionCannotBeVerifiedInThisInstructionError extends ProgramError {
   readonly name: string = 'CollectionCannotBeVerifiedInThisInstruction';
 
   readonly code: number = 0x4a; // 74
@@ -1187,14 +1187,14 @@ export class TmCollectionCannotBeVerifiedInThisInstructionError extends ProgramE
     super('Collection cannot be verified in this instruction', program, cause);
   }
 }
-codeToErrorMap.set(0x4a, TmCollectionCannotBeVerifiedInThisInstructionError);
+codeToErrorMap.set(0x4a, CollectionCannotBeVerifiedInThisInstructionError);
 nameToErrorMap.set(
   'CollectionCannotBeVerifiedInThisInstruction',
-  TmCollectionCannotBeVerifiedInThisInstructionError
+  CollectionCannotBeVerifiedInThisInstructionError
 );
 
 /** Removed: 'This instruction was deprecated in a previous release and is now removed' */
-export class TmRemovedError extends ProgramError {
+export class RemovedError extends ProgramError {
   readonly name: string = 'Removed';
 
   readonly code: number = 0x4b; // 75
@@ -1207,11 +1207,11 @@ export class TmRemovedError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x4b, TmRemovedError);
-nameToErrorMap.set('Removed', TmRemovedError);
+codeToErrorMap.set(0x4b, RemovedError);
+nameToErrorMap.set('Removed', RemovedError);
 
 /** MustBeBurned: 'This token use method is burn and there are no remaining uses, it must be burned' */
-export class TmMustBeBurnedError extends ProgramError {
+export class MustBeBurnedError extends ProgramError {
   readonly name: string = 'MustBeBurned';
 
   readonly code: number = 0x4c; // 76
@@ -1224,11 +1224,11 @@ export class TmMustBeBurnedError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x4c, TmMustBeBurnedError);
-nameToErrorMap.set('MustBeBurned', TmMustBeBurnedError);
+codeToErrorMap.set(0x4c, MustBeBurnedError);
+nameToErrorMap.set('MustBeBurned', MustBeBurnedError);
 
 /** InvalidUseMethod: 'This use method is invalid' */
-export class TmInvalidUseMethodError extends ProgramError {
+export class InvalidUseMethodError extends ProgramError {
   readonly name: string = 'InvalidUseMethod';
 
   readonly code: number = 0x4d; // 77
@@ -1237,11 +1237,11 @@ export class TmInvalidUseMethodError extends ProgramError {
     super('This use method is invalid', program, cause);
   }
 }
-codeToErrorMap.set(0x4d, TmInvalidUseMethodError);
-nameToErrorMap.set('InvalidUseMethod', TmInvalidUseMethodError);
+codeToErrorMap.set(0x4d, InvalidUseMethodError);
+nameToErrorMap.set('InvalidUseMethod', InvalidUseMethodError);
 
 /** CannotChangeUseMethodAfterFirstUse: 'Cannot Change Use Method after the first use' */
-export class TmCannotChangeUseMethodAfterFirstUseError extends ProgramError {
+export class CannotChangeUseMethodAfterFirstUseError extends ProgramError {
   readonly name: string = 'CannotChangeUseMethodAfterFirstUse';
 
   readonly code: number = 0x4e; // 78
@@ -1250,14 +1250,14 @@ export class TmCannotChangeUseMethodAfterFirstUseError extends ProgramError {
     super('Cannot Change Use Method after the first use', program, cause);
   }
 }
-codeToErrorMap.set(0x4e, TmCannotChangeUseMethodAfterFirstUseError);
+codeToErrorMap.set(0x4e, CannotChangeUseMethodAfterFirstUseError);
 nameToErrorMap.set(
   'CannotChangeUseMethodAfterFirstUse',
-  TmCannotChangeUseMethodAfterFirstUseError
+  CannotChangeUseMethodAfterFirstUseError
 );
 
 /** CannotChangeUsesAfterFirstUse: 'Cannot Change Remaining or Available uses after the first use' */
-export class TmCannotChangeUsesAfterFirstUseError extends ProgramError {
+export class CannotChangeUsesAfterFirstUseError extends ProgramError {
   readonly name: string = 'CannotChangeUsesAfterFirstUse';
 
   readonly code: number = 0x4f; // 79
@@ -1270,14 +1270,14 @@ export class TmCannotChangeUsesAfterFirstUseError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x4f, TmCannotChangeUsesAfterFirstUseError);
+codeToErrorMap.set(0x4f, CannotChangeUsesAfterFirstUseError);
 nameToErrorMap.set(
   'CannotChangeUsesAfterFirstUse',
-  TmCannotChangeUsesAfterFirstUseError
+  CannotChangeUsesAfterFirstUseError
 );
 
 /** CollectionNotFound: 'Collection Not Found on Metadata' */
-export class TmCollectionNotFoundError extends ProgramError {
+export class CollectionNotFoundError extends ProgramError {
   readonly name: string = 'CollectionNotFound';
 
   readonly code: number = 0x50; // 80
@@ -1286,11 +1286,11 @@ export class TmCollectionNotFoundError extends ProgramError {
     super('Collection Not Found on Metadata', program, cause);
   }
 }
-codeToErrorMap.set(0x50, TmCollectionNotFoundError);
-nameToErrorMap.set('CollectionNotFound', TmCollectionNotFoundError);
+codeToErrorMap.set(0x50, CollectionNotFoundError);
+nameToErrorMap.set('CollectionNotFound', CollectionNotFoundError);
 
 /** InvalidCollectionUpdateAuthority: 'Collection Update Authority is invalid' */
-export class TmInvalidCollectionUpdateAuthorityError extends ProgramError {
+export class InvalidCollectionUpdateAuthorityError extends ProgramError {
   readonly name: string = 'InvalidCollectionUpdateAuthority';
 
   readonly code: number = 0x51; // 81
@@ -1299,14 +1299,14 @@ export class TmInvalidCollectionUpdateAuthorityError extends ProgramError {
     super('Collection Update Authority is invalid', program, cause);
   }
 }
-codeToErrorMap.set(0x51, TmInvalidCollectionUpdateAuthorityError);
+codeToErrorMap.set(0x51, InvalidCollectionUpdateAuthorityError);
 nameToErrorMap.set(
   'InvalidCollectionUpdateAuthority',
-  TmInvalidCollectionUpdateAuthorityError
+  InvalidCollectionUpdateAuthorityError
 );
 
 /** CollectionMustBeAUniqueMasterEdition: 'Collection Must Be a Unique Master Edition v2' */
-export class TmCollectionMustBeAUniqueMasterEditionError extends ProgramError {
+export class CollectionMustBeAUniqueMasterEditionError extends ProgramError {
   readonly name: string = 'CollectionMustBeAUniqueMasterEdition';
 
   readonly code: number = 0x52; // 82
@@ -1315,14 +1315,14 @@ export class TmCollectionMustBeAUniqueMasterEditionError extends ProgramError {
     super('Collection Must Be a Unique Master Edition v2', program, cause);
   }
 }
-codeToErrorMap.set(0x52, TmCollectionMustBeAUniqueMasterEditionError);
+codeToErrorMap.set(0x52, CollectionMustBeAUniqueMasterEditionError);
 nameToErrorMap.set(
   'CollectionMustBeAUniqueMasterEdition',
-  TmCollectionMustBeAUniqueMasterEditionError
+  CollectionMustBeAUniqueMasterEditionError
 );
 
 /** UseAuthorityRecordAlreadyExists: 'The Use Authority Record Already Exists, to modify it Revoke, then Approve' */
-export class TmUseAuthorityRecordAlreadyExistsError extends ProgramError {
+export class UseAuthorityRecordAlreadyExistsError extends ProgramError {
   readonly name: string = 'UseAuthorityRecordAlreadyExists';
 
   readonly code: number = 0x53; // 83
@@ -1335,14 +1335,14 @@ export class TmUseAuthorityRecordAlreadyExistsError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x53, TmUseAuthorityRecordAlreadyExistsError);
+codeToErrorMap.set(0x53, UseAuthorityRecordAlreadyExistsError);
 nameToErrorMap.set(
   'UseAuthorityRecordAlreadyExists',
-  TmUseAuthorityRecordAlreadyExistsError
+  UseAuthorityRecordAlreadyExistsError
 );
 
 /** UseAuthorityRecordAlreadyRevoked: 'The Use Authority Record is empty or already revoked' */
-export class TmUseAuthorityRecordAlreadyRevokedError extends ProgramError {
+export class UseAuthorityRecordAlreadyRevokedError extends ProgramError {
   readonly name: string = 'UseAuthorityRecordAlreadyRevoked';
 
   readonly code: number = 0x54; // 84
@@ -1355,14 +1355,14 @@ export class TmUseAuthorityRecordAlreadyRevokedError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x54, TmUseAuthorityRecordAlreadyRevokedError);
+codeToErrorMap.set(0x54, UseAuthorityRecordAlreadyRevokedError);
 nameToErrorMap.set(
   'UseAuthorityRecordAlreadyRevoked',
-  TmUseAuthorityRecordAlreadyRevokedError
+  UseAuthorityRecordAlreadyRevokedError
 );
 
 /** Unusable: 'This token has no uses' */
-export class TmUnusableError extends ProgramError {
+export class UnusableError extends ProgramError {
   readonly name: string = 'Unusable';
 
   readonly code: number = 0x55; // 85
@@ -1371,11 +1371,11 @@ export class TmUnusableError extends ProgramError {
     super('This token has no uses', program, cause);
   }
 }
-codeToErrorMap.set(0x55, TmUnusableError);
-nameToErrorMap.set('Unusable', TmUnusableError);
+codeToErrorMap.set(0x55, UnusableError);
+nameToErrorMap.set('Unusable', UnusableError);
 
 /** NotEnoughUses: 'There are not enough Uses left on this token.' */
-export class TmNotEnoughUsesError extends ProgramError {
+export class NotEnoughUsesError extends ProgramError {
   readonly name: string = 'NotEnoughUses';
 
   readonly code: number = 0x56; // 86
@@ -1384,11 +1384,11 @@ export class TmNotEnoughUsesError extends ProgramError {
     super('There are not enough Uses left on this token.', program, cause);
   }
 }
-codeToErrorMap.set(0x56, TmNotEnoughUsesError);
-nameToErrorMap.set('NotEnoughUses', TmNotEnoughUsesError);
+codeToErrorMap.set(0x56, NotEnoughUsesError);
+nameToErrorMap.set('NotEnoughUses', NotEnoughUsesError);
 
 /** CollectionAuthorityRecordAlreadyExists: 'This Collection Authority Record Already Exists.' */
-export class TmCollectionAuthorityRecordAlreadyExistsError extends ProgramError {
+export class CollectionAuthorityRecordAlreadyExistsError extends ProgramError {
   readonly name: string = 'CollectionAuthorityRecordAlreadyExists';
 
   readonly code: number = 0x57; // 87
@@ -1397,14 +1397,14 @@ export class TmCollectionAuthorityRecordAlreadyExistsError extends ProgramError 
     super('This Collection Authority Record Already Exists.', program, cause);
   }
 }
-codeToErrorMap.set(0x57, TmCollectionAuthorityRecordAlreadyExistsError);
+codeToErrorMap.set(0x57, CollectionAuthorityRecordAlreadyExistsError);
 nameToErrorMap.set(
   'CollectionAuthorityRecordAlreadyExists',
-  TmCollectionAuthorityRecordAlreadyExistsError
+  CollectionAuthorityRecordAlreadyExistsError
 );
 
 /** CollectionAuthorityDoesNotExist: 'This Collection Authority Record Does Not Exist.' */
-export class TmCollectionAuthorityDoesNotExistError extends ProgramError {
+export class CollectionAuthorityDoesNotExistError extends ProgramError {
   readonly name: string = 'CollectionAuthorityDoesNotExist';
 
   readonly code: number = 0x58; // 88
@@ -1413,14 +1413,14 @@ export class TmCollectionAuthorityDoesNotExistError extends ProgramError {
     super('This Collection Authority Record Does Not Exist.', program, cause);
   }
 }
-codeToErrorMap.set(0x58, TmCollectionAuthorityDoesNotExistError);
+codeToErrorMap.set(0x58, CollectionAuthorityDoesNotExistError);
 nameToErrorMap.set(
   'CollectionAuthorityDoesNotExist',
-  TmCollectionAuthorityDoesNotExistError
+  CollectionAuthorityDoesNotExistError
 );
 
 /** InvalidUseAuthorityRecord: 'This Use Authority Record is invalid.' */
-export class TmInvalidUseAuthorityRecordError extends ProgramError {
+export class InvalidUseAuthorityRecordError extends ProgramError {
   readonly name: string = 'InvalidUseAuthorityRecord';
 
   readonly code: number = 0x59; // 89
@@ -1429,14 +1429,11 @@ export class TmInvalidUseAuthorityRecordError extends ProgramError {
     super('This Use Authority Record is invalid.', program, cause);
   }
 }
-codeToErrorMap.set(0x59, TmInvalidUseAuthorityRecordError);
-nameToErrorMap.set(
-  'InvalidUseAuthorityRecord',
-  TmInvalidUseAuthorityRecordError
-);
+codeToErrorMap.set(0x59, InvalidUseAuthorityRecordError);
+nameToErrorMap.set('InvalidUseAuthorityRecord', InvalidUseAuthorityRecordError);
 
 /** InvalidCollectionAuthorityRecord: 'This Collection Authority Record is invalid.' */
-export class TmInvalidCollectionAuthorityRecordError extends ProgramError {
+export class InvalidCollectionAuthorityRecordError extends ProgramError {
   readonly name: string = 'InvalidCollectionAuthorityRecord';
 
   readonly code: number = 0x5a; // 90
@@ -1445,14 +1442,14 @@ export class TmInvalidCollectionAuthorityRecordError extends ProgramError {
     super('This Collection Authority Record is invalid.', program, cause);
   }
 }
-codeToErrorMap.set(0x5a, TmInvalidCollectionAuthorityRecordError);
+codeToErrorMap.set(0x5a, InvalidCollectionAuthorityRecordError);
 nameToErrorMap.set(
   'InvalidCollectionAuthorityRecord',
-  TmInvalidCollectionAuthorityRecordError
+  InvalidCollectionAuthorityRecordError
 );
 
 /** InvalidFreezeAuthority: 'Metadata does not match the freeze authority on the mint' */
-export class TmInvalidFreezeAuthorityError extends ProgramError {
+export class InvalidFreezeAuthorityError extends ProgramError {
   readonly name: string = 'InvalidFreezeAuthority';
 
   readonly code: number = 0x5b; // 91
@@ -1465,11 +1462,11 @@ export class TmInvalidFreezeAuthorityError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x5b, TmInvalidFreezeAuthorityError);
-nameToErrorMap.set('InvalidFreezeAuthority', TmInvalidFreezeAuthorityError);
+codeToErrorMap.set(0x5b, InvalidFreezeAuthorityError);
+nameToErrorMap.set('InvalidFreezeAuthority', InvalidFreezeAuthorityError);
 
 /** InvalidDelegate: 'All tokens in this account have not been delegated to this user.' */
-export class TmInvalidDelegateError extends ProgramError {
+export class InvalidDelegateError extends ProgramError {
   readonly name: string = 'InvalidDelegate';
 
   readonly code: number = 0x5c; // 92
@@ -1482,11 +1479,11 @@ export class TmInvalidDelegateError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x5c, TmInvalidDelegateError);
-nameToErrorMap.set('InvalidDelegate', TmInvalidDelegateError);
+codeToErrorMap.set(0x5c, InvalidDelegateError);
+nameToErrorMap.set('InvalidDelegate', InvalidDelegateError);
 
 /** CannotAdjustVerifiedCreator: 'Creator can not be adjusted once they are verified.' */
-export class TmCannotAdjustVerifiedCreatorError extends ProgramError {
+export class CannotAdjustVerifiedCreatorError extends ProgramError {
   readonly name: string = 'CannotAdjustVerifiedCreator';
 
   readonly code: number = 0x5d; // 93
@@ -1499,14 +1496,14 @@ export class TmCannotAdjustVerifiedCreatorError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x5d, TmCannotAdjustVerifiedCreatorError);
+codeToErrorMap.set(0x5d, CannotAdjustVerifiedCreatorError);
 nameToErrorMap.set(
   'CannotAdjustVerifiedCreator',
-  TmCannotAdjustVerifiedCreatorError
+  CannotAdjustVerifiedCreatorError
 );
 
 /** CannotRemoveVerifiedCreator: 'Verified creators cannot be removed.' */
-export class TmCannotRemoveVerifiedCreatorError extends ProgramError {
+export class CannotRemoveVerifiedCreatorError extends ProgramError {
   readonly name: string = 'CannotRemoveVerifiedCreator';
 
   readonly code: number = 0x5e; // 94
@@ -1515,14 +1512,14 @@ export class TmCannotRemoveVerifiedCreatorError extends ProgramError {
     super('Verified creators cannot be removed.', program, cause);
   }
 }
-codeToErrorMap.set(0x5e, TmCannotRemoveVerifiedCreatorError);
+codeToErrorMap.set(0x5e, CannotRemoveVerifiedCreatorError);
 nameToErrorMap.set(
   'CannotRemoveVerifiedCreator',
-  TmCannotRemoveVerifiedCreatorError
+  CannotRemoveVerifiedCreatorError
 );
 
 /** CannotWipeVerifiedCreators: 'Can not wipe verified creators.' */
-export class TmCannotWipeVerifiedCreatorsError extends ProgramError {
+export class CannotWipeVerifiedCreatorsError extends ProgramError {
   readonly name: string = 'CannotWipeVerifiedCreators';
 
   readonly code: number = 0x5f; // 95
@@ -1531,14 +1528,14 @@ export class TmCannotWipeVerifiedCreatorsError extends ProgramError {
     super('Can not wipe verified creators.', program, cause);
   }
 }
-codeToErrorMap.set(0x5f, TmCannotWipeVerifiedCreatorsError);
+codeToErrorMap.set(0x5f, CannotWipeVerifiedCreatorsError);
 nameToErrorMap.set(
   'CannotWipeVerifiedCreators',
-  TmCannotWipeVerifiedCreatorsError
+  CannotWipeVerifiedCreatorsError
 );
 
 /** NotAllowedToChangeSellerFeeBasisPoints: 'Not allowed to change seller fee basis points.' */
-export class TmNotAllowedToChangeSellerFeeBasisPointsError extends ProgramError {
+export class NotAllowedToChangeSellerFeeBasisPointsError extends ProgramError {
   readonly name: string = 'NotAllowedToChangeSellerFeeBasisPoints';
 
   readonly code: number = 0x60; // 96
@@ -1547,14 +1544,14 @@ export class TmNotAllowedToChangeSellerFeeBasisPointsError extends ProgramError 
     super('Not allowed to change seller fee basis points.', program, cause);
   }
 }
-codeToErrorMap.set(0x60, TmNotAllowedToChangeSellerFeeBasisPointsError);
+codeToErrorMap.set(0x60, NotAllowedToChangeSellerFeeBasisPointsError);
 nameToErrorMap.set(
   'NotAllowedToChangeSellerFeeBasisPoints',
-  TmNotAllowedToChangeSellerFeeBasisPointsError
+  NotAllowedToChangeSellerFeeBasisPointsError
 );
 
 /** EditionOverrideCannotBeZero: 'Edition override cannot be zero' */
-export class TmEditionOverrideCannotBeZeroError extends ProgramError {
+export class EditionOverrideCannotBeZeroError extends ProgramError {
   readonly name: string = 'EditionOverrideCannotBeZero';
 
   readonly code: number = 0x61; // 97
@@ -1563,14 +1560,14 @@ export class TmEditionOverrideCannotBeZeroError extends ProgramError {
     super('Edition override cannot be zero', program, cause);
   }
 }
-codeToErrorMap.set(0x61, TmEditionOverrideCannotBeZeroError);
+codeToErrorMap.set(0x61, EditionOverrideCannotBeZeroError);
 nameToErrorMap.set(
   'EditionOverrideCannotBeZero',
-  TmEditionOverrideCannotBeZeroError
+  EditionOverrideCannotBeZeroError
 );
 
 /** InvalidUser: 'Invalid User' */
-export class TmInvalidUserError extends ProgramError {
+export class InvalidUserError extends ProgramError {
   readonly name: string = 'InvalidUser';
 
   readonly code: number = 0x62; // 98
@@ -1579,11 +1576,11 @@ export class TmInvalidUserError extends ProgramError {
     super('Invalid User', program, cause);
   }
 }
-codeToErrorMap.set(0x62, TmInvalidUserError);
-nameToErrorMap.set('InvalidUser', TmInvalidUserError);
+codeToErrorMap.set(0x62, InvalidUserError);
+nameToErrorMap.set('InvalidUser', InvalidUserError);
 
 /** RevokeCollectionAuthoritySignerIncorrect: 'Revoke Collection Authority signer is incorrect' */
-export class TmRevokeCollectionAuthoritySignerIncorrectError extends ProgramError {
+export class RevokeCollectionAuthoritySignerIncorrectError extends ProgramError {
   readonly name: string = 'RevokeCollectionAuthoritySignerIncorrect';
 
   readonly code: number = 0x63; // 99
@@ -1592,14 +1589,14 @@ export class TmRevokeCollectionAuthoritySignerIncorrectError extends ProgramErro
     super('Revoke Collection Authority signer is incorrect', program, cause);
   }
 }
-codeToErrorMap.set(0x63, TmRevokeCollectionAuthoritySignerIncorrectError);
+codeToErrorMap.set(0x63, RevokeCollectionAuthoritySignerIncorrectError);
 nameToErrorMap.set(
   'RevokeCollectionAuthoritySignerIncorrect',
-  TmRevokeCollectionAuthoritySignerIncorrectError
+  RevokeCollectionAuthoritySignerIncorrectError
 );
 
 /** TokenCloseFailed: 'Token close failed' */
-export class TmTokenCloseFailedError extends ProgramError {
+export class TokenCloseFailedError extends ProgramError {
   readonly name: string = 'TokenCloseFailed';
 
   readonly code: number = 0x64; // 100
@@ -1608,11 +1605,11 @@ export class TmTokenCloseFailedError extends ProgramError {
     super('Token close failed', program, cause);
   }
 }
-codeToErrorMap.set(0x64, TmTokenCloseFailedError);
-nameToErrorMap.set('TokenCloseFailed', TmTokenCloseFailedError);
+codeToErrorMap.set(0x64, TokenCloseFailedError);
+nameToErrorMap.set('TokenCloseFailed', TokenCloseFailedError);
 
 /** UnsizedCollection: 'Can't use this function on unsized collection' */
-export class TmUnsizedCollectionError extends ProgramError {
+export class UnsizedCollectionError extends ProgramError {
   readonly name: string = 'UnsizedCollection';
 
   readonly code: number = 0x65; // 101
@@ -1621,11 +1618,11 @@ export class TmUnsizedCollectionError extends ProgramError {
     super("Can't use this function on unsized collection", program, cause);
   }
 }
-codeToErrorMap.set(0x65, TmUnsizedCollectionError);
-nameToErrorMap.set('UnsizedCollection', TmUnsizedCollectionError);
+codeToErrorMap.set(0x65, UnsizedCollectionError);
+nameToErrorMap.set('UnsizedCollection', UnsizedCollectionError);
 
 /** SizedCollection: 'Can't use this function on a sized collection' */
-export class TmSizedCollectionError extends ProgramError {
+export class SizedCollectionError extends ProgramError {
   readonly name: string = 'SizedCollection';
 
   readonly code: number = 0x66; // 102
@@ -1634,11 +1631,11 @@ export class TmSizedCollectionError extends ProgramError {
     super("Can't use this function on a sized collection", program, cause);
   }
 }
-codeToErrorMap.set(0x66, TmSizedCollectionError);
-nameToErrorMap.set('SizedCollection', TmSizedCollectionError);
+codeToErrorMap.set(0x66, SizedCollectionError);
+nameToErrorMap.set('SizedCollection', SizedCollectionError);
 
 /** MissingCollectionMetadata: 'Can't burn a verified member of a collection w/o providing collection metadata account' */
-export class TmMissingCollectionMetadataError extends ProgramError {
+export class MissingCollectionMetadataError extends ProgramError {
   readonly name: string = 'MissingCollectionMetadata';
 
   readonly code: number = 0x67; // 103
@@ -1651,14 +1648,11 @@ export class TmMissingCollectionMetadataError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x67, TmMissingCollectionMetadataError);
-nameToErrorMap.set(
-  'MissingCollectionMetadata',
-  TmMissingCollectionMetadataError
-);
+codeToErrorMap.set(0x67, MissingCollectionMetadataError);
+nameToErrorMap.set('MissingCollectionMetadata', MissingCollectionMetadataError);
 
 /** NotAMemberOfCollection: 'This NFT is not a member of the specified collection.' */
-export class TmNotAMemberOfCollectionError extends ProgramError {
+export class NotAMemberOfCollectionError extends ProgramError {
   readonly name: string = 'NotAMemberOfCollection';
 
   readonly code: number = 0x68; // 104
@@ -1671,11 +1665,11 @@ export class TmNotAMemberOfCollectionError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x68, TmNotAMemberOfCollectionError);
-nameToErrorMap.set('NotAMemberOfCollection', TmNotAMemberOfCollectionError);
+codeToErrorMap.set(0x68, NotAMemberOfCollectionError);
+nameToErrorMap.set('NotAMemberOfCollection', NotAMemberOfCollectionError);
 
 /** NotVerifiedMemberOfCollection: 'This NFT is not a verified member of the specified collection.' */
-export class TmNotVerifiedMemberOfCollectionError extends ProgramError {
+export class NotVerifiedMemberOfCollectionError extends ProgramError {
   readonly name: string = 'NotVerifiedMemberOfCollection';
 
   readonly code: number = 0x69; // 105
@@ -1688,14 +1682,14 @@ export class TmNotVerifiedMemberOfCollectionError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x69, TmNotVerifiedMemberOfCollectionError);
+codeToErrorMap.set(0x69, NotVerifiedMemberOfCollectionError);
 nameToErrorMap.set(
   'NotVerifiedMemberOfCollection',
-  TmNotVerifiedMemberOfCollectionError
+  NotVerifiedMemberOfCollectionError
 );
 
 /** NotACollectionParent: 'This NFT is not a collection parent NFT.' */
-export class TmNotACollectionParentError extends ProgramError {
+export class NotACollectionParentError extends ProgramError {
   readonly name: string = 'NotACollectionParent';
 
   readonly code: number = 0x6a; // 106
@@ -1704,11 +1698,11 @@ export class TmNotACollectionParentError extends ProgramError {
     super('This NFT is not a collection parent NFT.', program, cause);
   }
 }
-codeToErrorMap.set(0x6a, TmNotACollectionParentError);
-nameToErrorMap.set('NotACollectionParent', TmNotACollectionParentError);
+codeToErrorMap.set(0x6a, NotACollectionParentError);
+nameToErrorMap.set('NotACollectionParent', NotACollectionParentError);
 
 /** CouldNotDetermineTokenStandard: 'Could not determine a TokenStandard type.' */
-export class TmCouldNotDetermineTokenStandardError extends ProgramError {
+export class CouldNotDetermineTokenStandardError extends ProgramError {
   readonly name: string = 'CouldNotDetermineTokenStandard';
 
   readonly code: number = 0x6b; // 107
@@ -1717,14 +1711,14 @@ export class TmCouldNotDetermineTokenStandardError extends ProgramError {
     super('Could not determine a TokenStandard type.', program, cause);
   }
 }
-codeToErrorMap.set(0x6b, TmCouldNotDetermineTokenStandardError);
+codeToErrorMap.set(0x6b, CouldNotDetermineTokenStandardError);
 nameToErrorMap.set(
   'CouldNotDetermineTokenStandard',
-  TmCouldNotDetermineTokenStandardError
+  CouldNotDetermineTokenStandardError
 );
 
 /** MissingEditionAccount: 'This mint account has an edition but none was provided.' */
-export class TmMissingEditionAccountError extends ProgramError {
+export class MissingEditionAccountError extends ProgramError {
   readonly name: string = 'MissingEditionAccount';
 
   readonly code: number = 0x6c; // 108
@@ -1737,11 +1731,11 @@ export class TmMissingEditionAccountError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x6c, TmMissingEditionAccountError);
-nameToErrorMap.set('MissingEditionAccount', TmMissingEditionAccountError);
+codeToErrorMap.set(0x6c, MissingEditionAccountError);
+nameToErrorMap.set('MissingEditionAccount', MissingEditionAccountError);
 
 /** NotAMasterEdition: 'This edition is not a Master Edition' */
-export class TmNotAMasterEditionError extends ProgramError {
+export class NotAMasterEditionError extends ProgramError {
   readonly name: string = 'NotAMasterEdition';
 
   readonly code: number = 0x6d; // 109
@@ -1750,11 +1744,11 @@ export class TmNotAMasterEditionError extends ProgramError {
     super('This edition is not a Master Edition', program, cause);
   }
 }
-codeToErrorMap.set(0x6d, TmNotAMasterEditionError);
-nameToErrorMap.set('NotAMasterEdition', TmNotAMasterEditionError);
+codeToErrorMap.set(0x6d, NotAMasterEditionError);
+nameToErrorMap.set('NotAMasterEdition', NotAMasterEditionError);
 
 /** MasterEditionHasPrints: 'This Master Edition has existing prints' */
-export class TmMasterEditionHasPrintsError extends ProgramError {
+export class MasterEditionHasPrintsError extends ProgramError {
   readonly name: string = 'MasterEditionHasPrints';
 
   readonly code: number = 0x6e; // 110
@@ -1763,11 +1757,11 @@ export class TmMasterEditionHasPrintsError extends ProgramError {
     super('This Master Edition has existing prints', program, cause);
   }
 }
-codeToErrorMap.set(0x6e, TmMasterEditionHasPrintsError);
-nameToErrorMap.set('MasterEditionHasPrints', TmMasterEditionHasPrintsError);
+codeToErrorMap.set(0x6e, MasterEditionHasPrintsError);
+nameToErrorMap.set('MasterEditionHasPrints', MasterEditionHasPrintsError);
 
 /** BorshDeserializationError: 'Borsh Deserialization Error' */
-export class TmBorshDeserializationErrorError extends ProgramError {
+export class BorshDeserializationErrorError extends ProgramError {
   readonly name: string = 'BorshDeserializationError';
 
   readonly code: number = 0x6f; // 111
@@ -1776,14 +1770,11 @@ export class TmBorshDeserializationErrorError extends ProgramError {
     super('Borsh Deserialization Error', program, cause);
   }
 }
-codeToErrorMap.set(0x6f, TmBorshDeserializationErrorError);
-nameToErrorMap.set(
-  'BorshDeserializationError',
-  TmBorshDeserializationErrorError
-);
+codeToErrorMap.set(0x6f, BorshDeserializationErrorError);
+nameToErrorMap.set('BorshDeserializationError', BorshDeserializationErrorError);
 
 /** CannotUpdateVerifiedCollection: 'Cannot update a verified collection in this command' */
-export class TmCannotUpdateVerifiedCollectionError extends ProgramError {
+export class CannotUpdateVerifiedCollectionError extends ProgramError {
   readonly name: string = 'CannotUpdateVerifiedCollection';
 
   readonly code: number = 0x70; // 112
@@ -1796,14 +1787,14 @@ export class TmCannotUpdateVerifiedCollectionError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x70, TmCannotUpdateVerifiedCollectionError);
+codeToErrorMap.set(0x70, CannotUpdateVerifiedCollectionError);
 nameToErrorMap.set(
   'CannotUpdateVerifiedCollection',
-  TmCannotUpdateVerifiedCollectionError
+  CannotUpdateVerifiedCollectionError
 );
 
 /** CollectionMasterEditionAccountInvalid: 'Edition account doesnt match collection ' */
-export class TmCollectionMasterEditionAccountInvalidError extends ProgramError {
+export class CollectionMasterEditionAccountInvalidError extends ProgramError {
   readonly name: string = 'CollectionMasterEditionAccountInvalid';
 
   readonly code: number = 0x71; // 113
@@ -1812,14 +1803,14 @@ export class TmCollectionMasterEditionAccountInvalidError extends ProgramError {
     super('Edition account doesnt match collection ', program, cause);
   }
 }
-codeToErrorMap.set(0x71, TmCollectionMasterEditionAccountInvalidError);
+codeToErrorMap.set(0x71, CollectionMasterEditionAccountInvalidError);
 nameToErrorMap.set(
   'CollectionMasterEditionAccountInvalid',
-  TmCollectionMasterEditionAccountInvalidError
+  CollectionMasterEditionAccountInvalidError
 );
 
 /** AlreadyVerified: 'Item is already verified.' */
-export class TmAlreadyVerifiedError extends ProgramError {
+export class AlreadyVerifiedError extends ProgramError {
   readonly name: string = 'AlreadyVerified';
 
   readonly code: number = 0x72; // 114
@@ -1828,11 +1819,11 @@ export class TmAlreadyVerifiedError extends ProgramError {
     super('Item is already verified.', program, cause);
   }
 }
-codeToErrorMap.set(0x72, TmAlreadyVerifiedError);
-nameToErrorMap.set('AlreadyVerified', TmAlreadyVerifiedError);
+codeToErrorMap.set(0x72, AlreadyVerifiedError);
+nameToErrorMap.set('AlreadyVerified', AlreadyVerifiedError);
 
 /** AlreadyUnverified: 'Item is already unverified.' */
-export class TmAlreadyUnverifiedError extends ProgramError {
+export class AlreadyUnverifiedError extends ProgramError {
   readonly name: string = 'AlreadyUnverified';
 
   readonly code: number = 0x73; // 115
@@ -1841,11 +1832,11 @@ export class TmAlreadyUnverifiedError extends ProgramError {
     super('Item is already unverified.', program, cause);
   }
 }
-codeToErrorMap.set(0x73, TmAlreadyUnverifiedError);
-nameToErrorMap.set('AlreadyUnverified', TmAlreadyUnverifiedError);
+codeToErrorMap.set(0x73, AlreadyUnverifiedError);
+nameToErrorMap.set('AlreadyUnverified', AlreadyUnverifiedError);
 
 /** NotAPrintEdition: 'This edition is not a Print Edition' */
-export class TmNotAPrintEditionError extends ProgramError {
+export class NotAPrintEditionError extends ProgramError {
   readonly name: string = 'NotAPrintEdition';
 
   readonly code: number = 0x74; // 116
@@ -1854,11 +1845,11 @@ export class TmNotAPrintEditionError extends ProgramError {
     super('This edition is not a Print Edition', program, cause);
   }
 }
-codeToErrorMap.set(0x74, TmNotAPrintEditionError);
-nameToErrorMap.set('NotAPrintEdition', TmNotAPrintEditionError);
+codeToErrorMap.set(0x74, NotAPrintEditionError);
+nameToErrorMap.set('NotAPrintEdition', NotAPrintEditionError);
 
 /** InvalidMasterEdition: 'Invalid Master Edition' */
-export class TmInvalidMasterEditionError extends ProgramError {
+export class InvalidMasterEditionError extends ProgramError {
   readonly name: string = 'InvalidMasterEdition';
 
   readonly code: number = 0x75; // 117
@@ -1867,11 +1858,11 @@ export class TmInvalidMasterEditionError extends ProgramError {
     super('Invalid Master Edition', program, cause);
   }
 }
-codeToErrorMap.set(0x75, TmInvalidMasterEditionError);
-nameToErrorMap.set('InvalidMasterEdition', TmInvalidMasterEditionError);
+codeToErrorMap.set(0x75, InvalidMasterEditionError);
+nameToErrorMap.set('InvalidMasterEdition', InvalidMasterEditionError);
 
 /** InvalidPrintEdition: 'Invalid Print Edition' */
-export class TmInvalidPrintEditionError extends ProgramError {
+export class InvalidPrintEditionError extends ProgramError {
   readonly name: string = 'InvalidPrintEdition';
 
   readonly code: number = 0x76; // 118
@@ -1880,11 +1871,11 @@ export class TmInvalidPrintEditionError extends ProgramError {
     super('Invalid Print Edition', program, cause);
   }
 }
-codeToErrorMap.set(0x76, TmInvalidPrintEditionError);
-nameToErrorMap.set('InvalidPrintEdition', TmInvalidPrintEditionError);
+codeToErrorMap.set(0x76, InvalidPrintEditionError);
+nameToErrorMap.set('InvalidPrintEdition', InvalidPrintEditionError);
 
 /** InvalidEditionMarker: 'Invalid Edition Marker' */
-export class TmInvalidEditionMarkerError extends ProgramError {
+export class InvalidEditionMarkerError extends ProgramError {
   readonly name: string = 'InvalidEditionMarker';
 
   readonly code: number = 0x77; // 119
@@ -1893,11 +1884,11 @@ export class TmInvalidEditionMarkerError extends ProgramError {
     super('Invalid Edition Marker', program, cause);
   }
 }
-codeToErrorMap.set(0x77, TmInvalidEditionMarkerError);
-nameToErrorMap.set('InvalidEditionMarker', TmInvalidEditionMarkerError);
+codeToErrorMap.set(0x77, InvalidEditionMarkerError);
+nameToErrorMap.set('InvalidEditionMarker', InvalidEditionMarkerError);
 
 /** ReservationListDeprecated: 'Reservation List is Deprecated' */
-export class TmReservationListDeprecatedError extends ProgramError {
+export class ReservationListDeprecatedError extends ProgramError {
   readonly name: string = 'ReservationListDeprecated';
 
   readonly code: number = 0x78; // 120
@@ -1906,14 +1897,11 @@ export class TmReservationListDeprecatedError extends ProgramError {
     super('Reservation List is Deprecated', program, cause);
   }
 }
-codeToErrorMap.set(0x78, TmReservationListDeprecatedError);
-nameToErrorMap.set(
-  'ReservationListDeprecated',
-  TmReservationListDeprecatedError
-);
+codeToErrorMap.set(0x78, ReservationListDeprecatedError);
+nameToErrorMap.set('ReservationListDeprecated', ReservationListDeprecatedError);
 
 /** PrintEditionDoesNotMatchMasterEdition: 'Print Edition does not match Master Edition' */
-export class TmPrintEditionDoesNotMatchMasterEditionError extends ProgramError {
+export class PrintEditionDoesNotMatchMasterEditionError extends ProgramError {
   readonly name: string = 'PrintEditionDoesNotMatchMasterEdition';
 
   readonly code: number = 0x79; // 121
@@ -1922,14 +1910,14 @@ export class TmPrintEditionDoesNotMatchMasterEditionError extends ProgramError {
     super('Print Edition does not match Master Edition', program, cause);
   }
 }
-codeToErrorMap.set(0x79, TmPrintEditionDoesNotMatchMasterEditionError);
+codeToErrorMap.set(0x79, PrintEditionDoesNotMatchMasterEditionError);
 nameToErrorMap.set(
   'PrintEditionDoesNotMatchMasterEdition',
-  TmPrintEditionDoesNotMatchMasterEditionError
+  PrintEditionDoesNotMatchMasterEditionError
 );
 
 /** EditionNumberGreaterThanMaxSupply: 'Edition Number greater than max supply' */
-export class TmEditionNumberGreaterThanMaxSupplyError extends ProgramError {
+export class EditionNumberGreaterThanMaxSupplyError extends ProgramError {
   readonly name: string = 'EditionNumberGreaterThanMaxSupply';
 
   readonly code: number = 0x7a; // 122
@@ -1938,14 +1926,14 @@ export class TmEditionNumberGreaterThanMaxSupplyError extends ProgramError {
     super('Edition Number greater than max supply', program, cause);
   }
 }
-codeToErrorMap.set(0x7a, TmEditionNumberGreaterThanMaxSupplyError);
+codeToErrorMap.set(0x7a, EditionNumberGreaterThanMaxSupplyError);
 nameToErrorMap.set(
   'EditionNumberGreaterThanMaxSupply',
-  TmEditionNumberGreaterThanMaxSupplyError
+  EditionNumberGreaterThanMaxSupplyError
 );
 
 /** MustUnverify: 'Must unverify before migrating collections.' */
-export class TmMustUnverifyError extends ProgramError {
+export class MustUnverifyError extends ProgramError {
   readonly name: string = 'MustUnverify';
 
   readonly code: number = 0x7b; // 123
@@ -1954,11 +1942,11 @@ export class TmMustUnverifyError extends ProgramError {
     super('Must unverify before migrating collections.', program, cause);
   }
 }
-codeToErrorMap.set(0x7b, TmMustUnverifyError);
-nameToErrorMap.set('MustUnverify', TmMustUnverifyError);
+codeToErrorMap.set(0x7b, MustUnverifyError);
+nameToErrorMap.set('MustUnverify', MustUnverifyError);
 
 /** InvalidEscrowBumpSeed: 'Invalid Escrow Account Bump Seed' */
-export class TmInvalidEscrowBumpSeedError extends ProgramError {
+export class InvalidEscrowBumpSeedError extends ProgramError {
   readonly name: string = 'InvalidEscrowBumpSeed';
 
   readonly code: number = 0x7c; // 124
@@ -1967,11 +1955,11 @@ export class TmInvalidEscrowBumpSeedError extends ProgramError {
     super('Invalid Escrow Account Bump Seed', program, cause);
   }
 }
-codeToErrorMap.set(0x7c, TmInvalidEscrowBumpSeedError);
-nameToErrorMap.set('InvalidEscrowBumpSeed', TmInvalidEscrowBumpSeedError);
+codeToErrorMap.set(0x7c, InvalidEscrowBumpSeedError);
+nameToErrorMap.set('InvalidEscrowBumpSeed', InvalidEscrowBumpSeedError);
 
 /** MustBeEscrowAuthority: 'Must Escrow Authority' */
-export class TmMustBeEscrowAuthorityError extends ProgramError {
+export class MustBeEscrowAuthorityError extends ProgramError {
   readonly name: string = 'MustBeEscrowAuthority';
 
   readonly code: number = 0x7d; // 125
@@ -1980,11 +1968,11 @@ export class TmMustBeEscrowAuthorityError extends ProgramError {
     super('Must Escrow Authority', program, cause);
   }
 }
-codeToErrorMap.set(0x7d, TmMustBeEscrowAuthorityError);
-nameToErrorMap.set('MustBeEscrowAuthority', TmMustBeEscrowAuthorityError);
+codeToErrorMap.set(0x7d, MustBeEscrowAuthorityError);
+nameToErrorMap.set('MustBeEscrowAuthority', MustBeEscrowAuthorityError);
 
 /** InvalidSystemProgram: 'Invalid System Program' */
-export class TmInvalidSystemProgramError extends ProgramError {
+export class InvalidSystemProgramError extends ProgramError {
   readonly name: string = 'InvalidSystemProgram';
 
   readonly code: number = 0x7e; // 126
@@ -1993,11 +1981,11 @@ export class TmInvalidSystemProgramError extends ProgramError {
     super('Invalid System Program', program, cause);
   }
 }
-codeToErrorMap.set(0x7e, TmInvalidSystemProgramError);
-nameToErrorMap.set('InvalidSystemProgram', TmInvalidSystemProgramError);
+codeToErrorMap.set(0x7e, InvalidSystemProgramError);
+nameToErrorMap.set('InvalidSystemProgram', InvalidSystemProgramError);
 
 /** MustBeNonFungible: 'Must be a Non Fungible Token' */
-export class TmMustBeNonFungibleError extends ProgramError {
+export class MustBeNonFungibleError extends ProgramError {
   readonly name: string = 'MustBeNonFungible';
 
   readonly code: number = 0x7f; // 127
@@ -2006,11 +1994,11 @@ export class TmMustBeNonFungibleError extends ProgramError {
     super('Must be a Non Fungible Token', program, cause);
   }
 }
-codeToErrorMap.set(0x7f, TmMustBeNonFungibleError);
-nameToErrorMap.set('MustBeNonFungible', TmMustBeNonFungibleError);
+codeToErrorMap.set(0x7f, MustBeNonFungibleError);
+nameToErrorMap.set('MustBeNonFungible', MustBeNonFungibleError);
 
 /** InsufficientTokens: 'Insufficient tokens for transfer' */
-export class TmInsufficientTokensError extends ProgramError {
+export class InsufficientTokensError extends ProgramError {
   readonly name: string = 'InsufficientTokens';
 
   readonly code: number = 0x80; // 128
@@ -2019,11 +2007,11 @@ export class TmInsufficientTokensError extends ProgramError {
     super('Insufficient tokens for transfer', program, cause);
   }
 }
-codeToErrorMap.set(0x80, TmInsufficientTokensError);
-nameToErrorMap.set('InsufficientTokens', TmInsufficientTokensError);
+codeToErrorMap.set(0x80, InsufficientTokensError);
+nameToErrorMap.set('InsufficientTokens', InsufficientTokensError);
 
 /** BorshSerializationError: 'Borsh Serialization Error' */
-export class TmBorshSerializationErrorError extends ProgramError {
+export class BorshSerializationErrorError extends ProgramError {
   readonly name: string = 'BorshSerializationError';
 
   readonly code: number = 0x81; // 129
@@ -2032,11 +2020,11 @@ export class TmBorshSerializationErrorError extends ProgramError {
     super('Borsh Serialization Error', program, cause);
   }
 }
-codeToErrorMap.set(0x81, TmBorshSerializationErrorError);
-nameToErrorMap.set('BorshSerializationError', TmBorshSerializationErrorError);
+codeToErrorMap.set(0x81, BorshSerializationErrorError);
+nameToErrorMap.set('BorshSerializationError', BorshSerializationErrorError);
 
 /** NoFreezeAuthoritySet: 'Cannot create NFT with no Freeze Authority.' */
-export class TmNoFreezeAuthoritySetError extends ProgramError {
+export class NoFreezeAuthoritySetError extends ProgramError {
   readonly name: string = 'NoFreezeAuthoritySet';
 
   readonly code: number = 0x82; // 130
@@ -2045,11 +2033,11 @@ export class TmNoFreezeAuthoritySetError extends ProgramError {
     super('Cannot create NFT with no Freeze Authority.', program, cause);
   }
 }
-codeToErrorMap.set(0x82, TmNoFreezeAuthoritySetError);
-nameToErrorMap.set('NoFreezeAuthoritySet', TmNoFreezeAuthoritySetError);
+codeToErrorMap.set(0x82, NoFreezeAuthoritySetError);
+nameToErrorMap.set('NoFreezeAuthoritySet', NoFreezeAuthoritySetError);
 
 /** InvalidCollectionSizeChange: 'Invalid collection size change' */
-export class TmInvalidCollectionSizeChangeError extends ProgramError {
+export class InvalidCollectionSizeChangeError extends ProgramError {
   readonly name: string = 'InvalidCollectionSizeChange';
 
   readonly code: number = 0x83; // 131
@@ -2058,14 +2046,14 @@ export class TmInvalidCollectionSizeChangeError extends ProgramError {
     super('Invalid collection size change', program, cause);
   }
 }
-codeToErrorMap.set(0x83, TmInvalidCollectionSizeChangeError);
+codeToErrorMap.set(0x83, InvalidCollectionSizeChangeError);
 nameToErrorMap.set(
   'InvalidCollectionSizeChange',
-  TmInvalidCollectionSizeChangeError
+  InvalidCollectionSizeChangeError
 );
 
 /** InvalidBubblegumSigner: 'Invalid bubblegum signer' */
-export class TmInvalidBubblegumSignerError extends ProgramError {
+export class InvalidBubblegumSignerError extends ProgramError {
   readonly name: string = 'InvalidBubblegumSigner';
 
   readonly code: number = 0x84; // 132
@@ -2074,11 +2062,11 @@ export class TmInvalidBubblegumSignerError extends ProgramError {
     super('Invalid bubblegum signer', program, cause);
   }
 }
-codeToErrorMap.set(0x84, TmInvalidBubblegumSignerError);
-nameToErrorMap.set('InvalidBubblegumSigner', TmInvalidBubblegumSignerError);
+codeToErrorMap.set(0x84, InvalidBubblegumSignerError);
+nameToErrorMap.set('InvalidBubblegumSigner', InvalidBubblegumSignerError);
 
 /** EscrowParentHasDelegate: 'Escrow parent cannot have a delegate' */
-export class TmEscrowParentHasDelegateError extends ProgramError {
+export class EscrowParentHasDelegateError extends ProgramError {
   readonly name: string = 'EscrowParentHasDelegate';
 
   readonly code: number = 0x85; // 133
@@ -2087,11 +2075,11 @@ export class TmEscrowParentHasDelegateError extends ProgramError {
     super('Escrow parent cannot have a delegate', program, cause);
   }
 }
-codeToErrorMap.set(0x85, TmEscrowParentHasDelegateError);
-nameToErrorMap.set('EscrowParentHasDelegate', TmEscrowParentHasDelegateError);
+codeToErrorMap.set(0x85, EscrowParentHasDelegateError);
+nameToErrorMap.set('EscrowParentHasDelegate', EscrowParentHasDelegateError);
 
 /** MintIsNotSigner: 'Mint needs to be signer to initialize the account' */
-export class TmMintIsNotSignerError extends ProgramError {
+export class MintIsNotSignerError extends ProgramError {
   readonly name: string = 'MintIsNotSigner';
 
   readonly code: number = 0x86; // 134
@@ -2100,11 +2088,11 @@ export class TmMintIsNotSignerError extends ProgramError {
     super('Mint needs to be signer to initialize the account', program, cause);
   }
 }
-codeToErrorMap.set(0x86, TmMintIsNotSignerError);
-nameToErrorMap.set('MintIsNotSigner', TmMintIsNotSignerError);
+codeToErrorMap.set(0x86, MintIsNotSignerError);
+nameToErrorMap.set('MintIsNotSigner', MintIsNotSignerError);
 
 /** InvalidTokenStandard: 'Invalid token standard' */
-export class TmInvalidTokenStandardError extends ProgramError {
+export class InvalidTokenStandardError extends ProgramError {
   readonly name: string = 'InvalidTokenStandard';
 
   readonly code: number = 0x87; // 135
@@ -2113,11 +2101,11 @@ export class TmInvalidTokenStandardError extends ProgramError {
     super('Invalid token standard', program, cause);
   }
 }
-codeToErrorMap.set(0x87, TmInvalidTokenStandardError);
-nameToErrorMap.set('InvalidTokenStandard', TmInvalidTokenStandardError);
+codeToErrorMap.set(0x87, InvalidTokenStandardError);
+nameToErrorMap.set('InvalidTokenStandard', InvalidTokenStandardError);
 
 /** InvalidMintForTokenStandard: 'Invalid mint account for specified token standard' */
-export class TmInvalidMintForTokenStandardError extends ProgramError {
+export class InvalidMintForTokenStandardError extends ProgramError {
   readonly name: string = 'InvalidMintForTokenStandard';
 
   readonly code: number = 0x88; // 136
@@ -2126,14 +2114,14 @@ export class TmInvalidMintForTokenStandardError extends ProgramError {
     super('Invalid mint account for specified token standard', program, cause);
   }
 }
-codeToErrorMap.set(0x88, TmInvalidMintForTokenStandardError);
+codeToErrorMap.set(0x88, InvalidMintForTokenStandardError);
 nameToErrorMap.set(
   'InvalidMintForTokenStandard',
-  TmInvalidMintForTokenStandardError
+  InvalidMintForTokenStandardError
 );
 
 /** InvalidAuthorizationRules: 'Invalid authorization rules account' */
-export class TmInvalidAuthorizationRulesError extends ProgramError {
+export class InvalidAuthorizationRulesError extends ProgramError {
   readonly name: string = 'InvalidAuthorizationRules';
 
   readonly code: number = 0x89; // 137
@@ -2142,14 +2130,11 @@ export class TmInvalidAuthorizationRulesError extends ProgramError {
     super('Invalid authorization rules account', program, cause);
   }
 }
-codeToErrorMap.set(0x89, TmInvalidAuthorizationRulesError);
-nameToErrorMap.set(
-  'InvalidAuthorizationRules',
-  TmInvalidAuthorizationRulesError
-);
+codeToErrorMap.set(0x89, InvalidAuthorizationRulesError);
+nameToErrorMap.set('InvalidAuthorizationRules', InvalidAuthorizationRulesError);
 
 /** MissingAuthorizationRules: 'Missing authorization rules account' */
-export class TmMissingAuthorizationRulesError extends ProgramError {
+export class MissingAuthorizationRulesError extends ProgramError {
   readonly name: string = 'MissingAuthorizationRules';
 
   readonly code: number = 0x8a; // 138
@@ -2158,14 +2143,11 @@ export class TmMissingAuthorizationRulesError extends ProgramError {
     super('Missing authorization rules account', program, cause);
   }
 }
-codeToErrorMap.set(0x8a, TmMissingAuthorizationRulesError);
-nameToErrorMap.set(
-  'MissingAuthorizationRules',
-  TmMissingAuthorizationRulesError
-);
+codeToErrorMap.set(0x8a, MissingAuthorizationRulesError);
+nameToErrorMap.set('MissingAuthorizationRules', MissingAuthorizationRulesError);
 
 /** MissingProgrammableConfig: 'Missing programmable configuration' */
-export class TmMissingProgrammableConfigError extends ProgramError {
+export class MissingProgrammableConfigError extends ProgramError {
   readonly name: string = 'MissingProgrammableConfig';
 
   readonly code: number = 0x8b; // 139
@@ -2174,14 +2156,11 @@ export class TmMissingProgrammableConfigError extends ProgramError {
     super('Missing programmable configuration', program, cause);
   }
 }
-codeToErrorMap.set(0x8b, TmMissingProgrammableConfigError);
-nameToErrorMap.set(
-  'MissingProgrammableConfig',
-  TmMissingProgrammableConfigError
-);
+codeToErrorMap.set(0x8b, MissingProgrammableConfigError);
+nameToErrorMap.set('MissingProgrammableConfig', MissingProgrammableConfigError);
 
 /** InvalidProgrammableConfig: 'Invalid programmable configuration' */
-export class TmInvalidProgrammableConfigError extends ProgramError {
+export class InvalidProgrammableConfigError extends ProgramError {
   readonly name: string = 'InvalidProgrammableConfig';
 
   readonly code: number = 0x8c; // 140
@@ -2190,14 +2169,11 @@ export class TmInvalidProgrammableConfigError extends ProgramError {
     super('Invalid programmable configuration', program, cause);
   }
 }
-codeToErrorMap.set(0x8c, TmInvalidProgrammableConfigError);
-nameToErrorMap.set(
-  'InvalidProgrammableConfig',
-  TmInvalidProgrammableConfigError
-);
+codeToErrorMap.set(0x8c, InvalidProgrammableConfigError);
+nameToErrorMap.set('InvalidProgrammableConfig', InvalidProgrammableConfigError);
 
 /** DelegateAlreadyExists: 'Delegate already exists' */
-export class TmDelegateAlreadyExistsError extends ProgramError {
+export class DelegateAlreadyExistsError extends ProgramError {
   readonly name: string = 'DelegateAlreadyExists';
 
   readonly code: number = 0x8d; // 141
@@ -2206,11 +2182,11 @@ export class TmDelegateAlreadyExistsError extends ProgramError {
     super('Delegate already exists', program, cause);
   }
 }
-codeToErrorMap.set(0x8d, TmDelegateAlreadyExistsError);
-nameToErrorMap.set('DelegateAlreadyExists', TmDelegateAlreadyExistsError);
+codeToErrorMap.set(0x8d, DelegateAlreadyExistsError);
+nameToErrorMap.set('DelegateAlreadyExists', DelegateAlreadyExistsError);
 
 /** DelegateNotFound: 'Delegate not found' */
-export class TmDelegateNotFoundError extends ProgramError {
+export class DelegateNotFoundError extends ProgramError {
   readonly name: string = 'DelegateNotFound';
 
   readonly code: number = 0x8e; // 142
@@ -2219,11 +2195,11 @@ export class TmDelegateNotFoundError extends ProgramError {
     super('Delegate not found', program, cause);
   }
 }
-codeToErrorMap.set(0x8e, TmDelegateNotFoundError);
-nameToErrorMap.set('DelegateNotFound', TmDelegateNotFoundError);
+codeToErrorMap.set(0x8e, DelegateNotFoundError);
+nameToErrorMap.set('DelegateNotFound', DelegateNotFoundError);
 
 /** MissingAccountInBuilder: 'Required account not set in instruction builder' */
-export class TmMissingAccountInBuilderError extends ProgramError {
+export class MissingAccountInBuilderError extends ProgramError {
   readonly name: string = 'MissingAccountInBuilder';
 
   readonly code: number = 0x8f; // 143
@@ -2232,11 +2208,11 @@ export class TmMissingAccountInBuilderError extends ProgramError {
     super('Required account not set in instruction builder', program, cause);
   }
 }
-codeToErrorMap.set(0x8f, TmMissingAccountInBuilderError);
-nameToErrorMap.set('MissingAccountInBuilder', TmMissingAccountInBuilderError);
+codeToErrorMap.set(0x8f, MissingAccountInBuilderError);
+nameToErrorMap.set('MissingAccountInBuilder', MissingAccountInBuilderError);
 
 /** MissingArgumentInBuilder: 'Required argument not set in instruction builder' */
-export class TmMissingArgumentInBuilderError extends ProgramError {
+export class MissingArgumentInBuilderError extends ProgramError {
   readonly name: string = 'MissingArgumentInBuilder';
 
   readonly code: number = 0x90; // 144
@@ -2245,11 +2221,11 @@ export class TmMissingArgumentInBuilderError extends ProgramError {
     super('Required argument not set in instruction builder', program, cause);
   }
 }
-codeToErrorMap.set(0x90, TmMissingArgumentInBuilderError);
-nameToErrorMap.set('MissingArgumentInBuilder', TmMissingArgumentInBuilderError);
+codeToErrorMap.set(0x90, MissingArgumentInBuilderError);
+nameToErrorMap.set('MissingArgumentInBuilder', MissingArgumentInBuilderError);
 
 /** FeatureNotSupported: 'Feature not supported currently' */
-export class TmFeatureNotSupportedError extends ProgramError {
+export class FeatureNotSupportedError extends ProgramError {
   readonly name: string = 'FeatureNotSupported';
 
   readonly code: number = 0x91; // 145
@@ -2258,11 +2234,11 @@ export class TmFeatureNotSupportedError extends ProgramError {
     super('Feature not supported currently', program, cause);
   }
 }
-codeToErrorMap.set(0x91, TmFeatureNotSupportedError);
-nameToErrorMap.set('FeatureNotSupported', TmFeatureNotSupportedError);
+codeToErrorMap.set(0x91, FeatureNotSupportedError);
+nameToErrorMap.set('FeatureNotSupported', FeatureNotSupportedError);
 
 /** InvalidSystemWallet: 'Invalid system wallet' */
-export class TmInvalidSystemWalletError extends ProgramError {
+export class InvalidSystemWalletError extends ProgramError {
   readonly name: string = 'InvalidSystemWallet';
 
   readonly code: number = 0x92; // 146
@@ -2271,11 +2247,11 @@ export class TmInvalidSystemWalletError extends ProgramError {
     super('Invalid system wallet', program, cause);
   }
 }
-codeToErrorMap.set(0x92, TmInvalidSystemWalletError);
-nameToErrorMap.set('InvalidSystemWallet', TmInvalidSystemWalletError);
+codeToErrorMap.set(0x92, InvalidSystemWalletError);
+nameToErrorMap.set('InvalidSystemWallet', InvalidSystemWalletError);
 
 /** OnlySaleDelegateCanTransfer: 'Only the sale delegate can transfer while its set' */
-export class TmOnlySaleDelegateCanTransferError extends ProgramError {
+export class OnlySaleDelegateCanTransferError extends ProgramError {
   readonly name: string = 'OnlySaleDelegateCanTransfer';
 
   readonly code: number = 0x93; // 147
@@ -2284,14 +2260,14 @@ export class TmOnlySaleDelegateCanTransferError extends ProgramError {
     super('Only the sale delegate can transfer while its set', program, cause);
   }
 }
-codeToErrorMap.set(0x93, TmOnlySaleDelegateCanTransferError);
+codeToErrorMap.set(0x93, OnlySaleDelegateCanTransferError);
 nameToErrorMap.set(
   'OnlySaleDelegateCanTransfer',
-  TmOnlySaleDelegateCanTransferError
+  OnlySaleDelegateCanTransferError
 );
 
 /** MissingTokenAccount: 'Missing token account' */
-export class TmMissingTokenAccountError extends ProgramError {
+export class MissingTokenAccountError extends ProgramError {
   readonly name: string = 'MissingTokenAccount';
 
   readonly code: number = 0x94; // 148
@@ -2300,11 +2276,11 @@ export class TmMissingTokenAccountError extends ProgramError {
     super('Missing token account', program, cause);
   }
 }
-codeToErrorMap.set(0x94, TmMissingTokenAccountError);
-nameToErrorMap.set('MissingTokenAccount', TmMissingTokenAccountError);
+codeToErrorMap.set(0x94, MissingTokenAccountError);
+nameToErrorMap.set('MissingTokenAccount', MissingTokenAccountError);
 
 /** MissingSplTokenProgram: 'Missing SPL token program' */
-export class TmMissingSplTokenProgramError extends ProgramError {
+export class MissingSplTokenProgramError extends ProgramError {
   readonly name: string = 'MissingSplTokenProgram';
 
   readonly code: number = 0x95; // 149
@@ -2313,11 +2289,11 @@ export class TmMissingSplTokenProgramError extends ProgramError {
     super('Missing SPL token program', program, cause);
   }
 }
-codeToErrorMap.set(0x95, TmMissingSplTokenProgramError);
-nameToErrorMap.set('MissingSplTokenProgram', TmMissingSplTokenProgramError);
+codeToErrorMap.set(0x95, MissingSplTokenProgramError);
+nameToErrorMap.set('MissingSplTokenProgram', MissingSplTokenProgramError);
 
 /** MissingAuthorizationRulesProgram: 'Missing authorization rules program' */
-export class TmMissingAuthorizationRulesProgramError extends ProgramError {
+export class MissingAuthorizationRulesProgramError extends ProgramError {
   readonly name: string = 'MissingAuthorizationRulesProgram';
 
   readonly code: number = 0x96; // 150
@@ -2326,14 +2302,14 @@ export class TmMissingAuthorizationRulesProgramError extends ProgramError {
     super('Missing authorization rules program', program, cause);
   }
 }
-codeToErrorMap.set(0x96, TmMissingAuthorizationRulesProgramError);
+codeToErrorMap.set(0x96, MissingAuthorizationRulesProgramError);
 nameToErrorMap.set(
   'MissingAuthorizationRulesProgram',
-  TmMissingAuthorizationRulesProgramError
+  MissingAuthorizationRulesProgramError
 );
 
 /** InvalidDelegateRoleForTransfer: 'Invalid delegate role for transfer' */
-export class TmInvalidDelegateRoleForTransferError extends ProgramError {
+export class InvalidDelegateRoleForTransferError extends ProgramError {
   readonly name: string = 'InvalidDelegateRoleForTransfer';
 
   readonly code: number = 0x97; // 151
@@ -2342,14 +2318,14 @@ export class TmInvalidDelegateRoleForTransferError extends ProgramError {
     super('Invalid delegate role for transfer', program, cause);
   }
 }
-codeToErrorMap.set(0x97, TmInvalidDelegateRoleForTransferError);
+codeToErrorMap.set(0x97, InvalidDelegateRoleForTransferError);
 nameToErrorMap.set(
   'InvalidDelegateRoleForTransfer',
-  TmInvalidDelegateRoleForTransferError
+  InvalidDelegateRoleForTransferError
 );
 
 /** InvalidTransferAuthority: 'Invalid transfer authority' */
-export class TmInvalidTransferAuthorityError extends ProgramError {
+export class InvalidTransferAuthorityError extends ProgramError {
   readonly name: string = 'InvalidTransferAuthority';
 
   readonly code: number = 0x98; // 152
@@ -2358,11 +2334,11 @@ export class TmInvalidTransferAuthorityError extends ProgramError {
     super('Invalid transfer authority', program, cause);
   }
 }
-codeToErrorMap.set(0x98, TmInvalidTransferAuthorityError);
-nameToErrorMap.set('InvalidTransferAuthority', TmInvalidTransferAuthorityError);
+codeToErrorMap.set(0x98, InvalidTransferAuthorityError);
+nameToErrorMap.set('InvalidTransferAuthority', InvalidTransferAuthorityError);
 
 /** InstructionNotSupported: 'Instruction not supported for ProgrammableNonFungible assets' */
-export class TmInstructionNotSupportedError extends ProgramError {
+export class InstructionNotSupportedError extends ProgramError {
   readonly name: string = 'InstructionNotSupported';
 
   readonly code: number = 0x99; // 153
@@ -2375,11 +2351,11 @@ export class TmInstructionNotSupportedError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0x99, TmInstructionNotSupportedError);
-nameToErrorMap.set('InstructionNotSupported', TmInstructionNotSupportedError);
+codeToErrorMap.set(0x99, InstructionNotSupportedError);
+nameToErrorMap.set('InstructionNotSupported', InstructionNotSupportedError);
 
 /** KeyMismatch: 'Public key does not match expected value' */
-export class TmKeyMismatchError extends ProgramError {
+export class KeyMismatchError extends ProgramError {
   readonly name: string = 'KeyMismatch';
 
   readonly code: number = 0x9a; // 154
@@ -2388,11 +2364,11 @@ export class TmKeyMismatchError extends ProgramError {
     super('Public key does not match expected value', program, cause);
   }
 }
-codeToErrorMap.set(0x9a, TmKeyMismatchError);
-nameToErrorMap.set('KeyMismatch', TmKeyMismatchError);
+codeToErrorMap.set(0x9a, KeyMismatchError);
+nameToErrorMap.set('KeyMismatch', KeyMismatchError);
 
 /** LockedToken: 'Token is locked' */
-export class TmLockedTokenError extends ProgramError {
+export class LockedTokenError extends ProgramError {
   readonly name: string = 'LockedToken';
 
   readonly code: number = 0x9b; // 155
@@ -2401,11 +2377,11 @@ export class TmLockedTokenError extends ProgramError {
     super('Token is locked', program, cause);
   }
 }
-codeToErrorMap.set(0x9b, TmLockedTokenError);
-nameToErrorMap.set('LockedToken', TmLockedTokenError);
+codeToErrorMap.set(0x9b, LockedTokenError);
+nameToErrorMap.set('LockedToken', LockedTokenError);
 
 /** UnlockedToken: 'Token is unlocked' */
-export class TmUnlockedTokenError extends ProgramError {
+export class UnlockedTokenError extends ProgramError {
   readonly name: string = 'UnlockedToken';
 
   readonly code: number = 0x9c; // 156
@@ -2414,11 +2390,11 @@ export class TmUnlockedTokenError extends ProgramError {
     super('Token is unlocked', program, cause);
   }
 }
-codeToErrorMap.set(0x9c, TmUnlockedTokenError);
-nameToErrorMap.set('UnlockedToken', TmUnlockedTokenError);
+codeToErrorMap.set(0x9c, UnlockedTokenError);
+nameToErrorMap.set('UnlockedToken', UnlockedTokenError);
 
 /** MissingDelegateRole: 'Missing delegate role' */
-export class TmMissingDelegateRoleError extends ProgramError {
+export class MissingDelegateRoleError extends ProgramError {
   readonly name: string = 'MissingDelegateRole';
 
   readonly code: number = 0x9d; // 157
@@ -2427,11 +2403,11 @@ export class TmMissingDelegateRoleError extends ProgramError {
     super('Missing delegate role', program, cause);
   }
 }
-codeToErrorMap.set(0x9d, TmMissingDelegateRoleError);
-nameToErrorMap.set('MissingDelegateRole', TmMissingDelegateRoleError);
+codeToErrorMap.set(0x9d, MissingDelegateRoleError);
+nameToErrorMap.set('MissingDelegateRole', MissingDelegateRoleError);
 
 /** InvalidAuthorityType: 'Invalid authority type' */
-export class TmInvalidAuthorityTypeError extends ProgramError {
+export class InvalidAuthorityTypeError extends ProgramError {
   readonly name: string = 'InvalidAuthorityType';
 
   readonly code: number = 0x9e; // 158
@@ -2440,11 +2416,11 @@ export class TmInvalidAuthorityTypeError extends ProgramError {
     super('Invalid authority type', program, cause);
   }
 }
-codeToErrorMap.set(0x9e, TmInvalidAuthorityTypeError);
-nameToErrorMap.set('InvalidAuthorityType', TmInvalidAuthorityTypeError);
+codeToErrorMap.set(0x9e, InvalidAuthorityTypeError);
+nameToErrorMap.set('InvalidAuthorityType', InvalidAuthorityTypeError);
 
 /** MissingTokenRecord: 'Missing token record account' */
-export class TmMissingTokenRecordError extends ProgramError {
+export class MissingTokenRecordError extends ProgramError {
   readonly name: string = 'MissingTokenRecord';
 
   readonly code: number = 0x9f; // 159
@@ -2453,11 +2429,11 @@ export class TmMissingTokenRecordError extends ProgramError {
     super('Missing token record account', program, cause);
   }
 }
-codeToErrorMap.set(0x9f, TmMissingTokenRecordError);
-nameToErrorMap.set('MissingTokenRecord', TmMissingTokenRecordError);
+codeToErrorMap.set(0x9f, MissingTokenRecordError);
+nameToErrorMap.set('MissingTokenRecord', MissingTokenRecordError);
 
 /** MintSupplyMustBeZero: 'Mint supply must be zero for programmable assets' */
-export class TmMintSupplyMustBeZeroError extends ProgramError {
+export class MintSupplyMustBeZeroError extends ProgramError {
   readonly name: string = 'MintSupplyMustBeZero';
 
   readonly code: number = 0xa0; // 160
@@ -2466,11 +2442,11 @@ export class TmMintSupplyMustBeZeroError extends ProgramError {
     super('Mint supply must be zero for programmable assets', program, cause);
   }
 }
-codeToErrorMap.set(0xa0, TmMintSupplyMustBeZeroError);
-nameToErrorMap.set('MintSupplyMustBeZero', TmMintSupplyMustBeZeroError);
+codeToErrorMap.set(0xa0, MintSupplyMustBeZeroError);
+nameToErrorMap.set('MintSupplyMustBeZero', MintSupplyMustBeZeroError);
 
 /** DataIsEmptyOrZeroed: 'Data is empty or zeroed' */
-export class TmDataIsEmptyOrZeroedError extends ProgramError {
+export class DataIsEmptyOrZeroedError extends ProgramError {
   readonly name: string = 'DataIsEmptyOrZeroed';
 
   readonly code: number = 0xa1; // 161
@@ -2479,11 +2455,11 @@ export class TmDataIsEmptyOrZeroedError extends ProgramError {
     super('Data is empty or zeroed', program, cause);
   }
 }
-codeToErrorMap.set(0xa1, TmDataIsEmptyOrZeroedError);
-nameToErrorMap.set('DataIsEmptyOrZeroed', TmDataIsEmptyOrZeroedError);
+codeToErrorMap.set(0xa1, DataIsEmptyOrZeroedError);
+nameToErrorMap.set('DataIsEmptyOrZeroed', DataIsEmptyOrZeroedError);
 
 /** MissingTokenOwnerAccount: 'Missing token owner' */
-export class TmMissingTokenOwnerAccountError extends ProgramError {
+export class MissingTokenOwnerAccountError extends ProgramError {
   readonly name: string = 'MissingTokenOwnerAccount';
 
   readonly code: number = 0xa2; // 162
@@ -2492,11 +2468,11 @@ export class TmMissingTokenOwnerAccountError extends ProgramError {
     super('Missing token owner', program, cause);
   }
 }
-codeToErrorMap.set(0xa2, TmMissingTokenOwnerAccountError);
-nameToErrorMap.set('MissingTokenOwnerAccount', TmMissingTokenOwnerAccountError);
+codeToErrorMap.set(0xa2, MissingTokenOwnerAccountError);
+nameToErrorMap.set('MissingTokenOwnerAccount', MissingTokenOwnerAccountError);
 
 /** InvalidMasterEditionAccountLength: 'Master edition account has an invalid length' */
-export class TmInvalidMasterEditionAccountLengthError extends ProgramError {
+export class InvalidMasterEditionAccountLengthError extends ProgramError {
   readonly name: string = 'InvalidMasterEditionAccountLength';
 
   readonly code: number = 0xa3; // 163
@@ -2505,14 +2481,14 @@ export class TmInvalidMasterEditionAccountLengthError extends ProgramError {
     super('Master edition account has an invalid length', program, cause);
   }
 }
-codeToErrorMap.set(0xa3, TmInvalidMasterEditionAccountLengthError);
+codeToErrorMap.set(0xa3, InvalidMasterEditionAccountLengthError);
 nameToErrorMap.set(
   'InvalidMasterEditionAccountLength',
-  TmInvalidMasterEditionAccountLengthError
+  InvalidMasterEditionAccountLengthError
 );
 
 /** IncorrectTokenState: 'Incorrect token state' */
-export class TmIncorrectTokenStateError extends ProgramError {
+export class IncorrectTokenStateError extends ProgramError {
   readonly name: string = 'IncorrectTokenState';
 
   readonly code: number = 0xa4; // 164
@@ -2521,11 +2497,11 @@ export class TmIncorrectTokenStateError extends ProgramError {
     super('Incorrect token state', program, cause);
   }
 }
-codeToErrorMap.set(0xa4, TmIncorrectTokenStateError);
-nameToErrorMap.set('IncorrectTokenState', TmIncorrectTokenStateError);
+codeToErrorMap.set(0xa4, IncorrectTokenStateError);
+nameToErrorMap.set('IncorrectTokenState', IncorrectTokenStateError);
 
 /** InvalidDelegateRole: 'Invalid delegate role' */
-export class TmInvalidDelegateRoleError extends ProgramError {
+export class InvalidDelegateRoleError extends ProgramError {
   readonly name: string = 'InvalidDelegateRole';
 
   readonly code: number = 0xa5; // 165
@@ -2534,11 +2510,11 @@ export class TmInvalidDelegateRoleError extends ProgramError {
     super('Invalid delegate role', program, cause);
   }
 }
-codeToErrorMap.set(0xa5, TmInvalidDelegateRoleError);
-nameToErrorMap.set('InvalidDelegateRole', TmInvalidDelegateRoleError);
+codeToErrorMap.set(0xa5, InvalidDelegateRoleError);
+nameToErrorMap.set('InvalidDelegateRole', InvalidDelegateRoleError);
 
 /** MissingPrintSupply: 'Print supply is required for non-fungibles' */
-export class TmMissingPrintSupplyError extends ProgramError {
+export class MissingPrintSupplyError extends ProgramError {
   readonly name: string = 'MissingPrintSupply';
 
   readonly code: number = 0xa6; // 166
@@ -2547,11 +2523,11 @@ export class TmMissingPrintSupplyError extends ProgramError {
     super('Print supply is required for non-fungibles', program, cause);
   }
 }
-codeToErrorMap.set(0xa6, TmMissingPrintSupplyError);
-nameToErrorMap.set('MissingPrintSupply', TmMissingPrintSupplyError);
+codeToErrorMap.set(0xa6, MissingPrintSupplyError);
+nameToErrorMap.set('MissingPrintSupply', MissingPrintSupplyError);
 
 /** MissingMasterEditionAccount: 'Missing master edition account' */
-export class TmMissingMasterEditionAccountError extends ProgramError {
+export class MissingMasterEditionAccountError extends ProgramError {
   readonly name: string = 'MissingMasterEditionAccount';
 
   readonly code: number = 0xa7; // 167
@@ -2560,14 +2536,14 @@ export class TmMissingMasterEditionAccountError extends ProgramError {
     super('Missing master edition account', program, cause);
   }
 }
-codeToErrorMap.set(0xa7, TmMissingMasterEditionAccountError);
+codeToErrorMap.set(0xa7, MissingMasterEditionAccountError);
 nameToErrorMap.set(
   'MissingMasterEditionAccount',
-  TmMissingMasterEditionAccountError
+  MissingMasterEditionAccountError
 );
 
 /** AmountMustBeGreaterThanZero: 'Amount must be greater than zero' */
-export class TmAmountMustBeGreaterThanZeroError extends ProgramError {
+export class AmountMustBeGreaterThanZeroError extends ProgramError {
   readonly name: string = 'AmountMustBeGreaterThanZero';
 
   readonly code: number = 0xa8; // 168
@@ -2576,14 +2552,14 @@ export class TmAmountMustBeGreaterThanZeroError extends ProgramError {
     super('Amount must be greater than zero', program, cause);
   }
 }
-codeToErrorMap.set(0xa8, TmAmountMustBeGreaterThanZeroError);
+codeToErrorMap.set(0xa8, AmountMustBeGreaterThanZeroError);
 nameToErrorMap.set(
   'AmountMustBeGreaterThanZero',
-  TmAmountMustBeGreaterThanZeroError
+  AmountMustBeGreaterThanZeroError
 );
 
 /** InvalidDelegateArgs: 'Invalid delegate args' */
-export class TmInvalidDelegateArgsError extends ProgramError {
+export class InvalidDelegateArgsError extends ProgramError {
   readonly name: string = 'InvalidDelegateArgs';
 
   readonly code: number = 0xa9; // 169
@@ -2592,11 +2568,11 @@ export class TmInvalidDelegateArgsError extends ProgramError {
     super('Invalid delegate args', program, cause);
   }
 }
-codeToErrorMap.set(0xa9, TmInvalidDelegateArgsError);
-nameToErrorMap.set('InvalidDelegateArgs', TmInvalidDelegateArgsError);
+codeToErrorMap.set(0xa9, InvalidDelegateArgsError);
+nameToErrorMap.set('InvalidDelegateArgs', InvalidDelegateArgsError);
 
 /** MissingLockedTransferAddress: 'Missing address for locked transfer' */
-export class TmMissingLockedTransferAddressError extends ProgramError {
+export class MissingLockedTransferAddressError extends ProgramError {
   readonly name: string = 'MissingLockedTransferAddress';
 
   readonly code: number = 0xaa; // 170
@@ -2605,14 +2581,14 @@ export class TmMissingLockedTransferAddressError extends ProgramError {
     super('Missing address for locked transfer', program, cause);
   }
 }
-codeToErrorMap.set(0xaa, TmMissingLockedTransferAddressError);
+codeToErrorMap.set(0xaa, MissingLockedTransferAddressError);
 nameToErrorMap.set(
   'MissingLockedTransferAddress',
-  TmMissingLockedTransferAddressError
+  MissingLockedTransferAddressError
 );
 
 /** InvalidLockedTransferAddress: 'Invalid destination address for locked transfer' */
-export class TmInvalidLockedTransferAddressError extends ProgramError {
+export class InvalidLockedTransferAddressError extends ProgramError {
   readonly name: string = 'InvalidLockedTransferAddress';
 
   readonly code: number = 0xab; // 171
@@ -2621,14 +2597,14 @@ export class TmInvalidLockedTransferAddressError extends ProgramError {
     super('Invalid destination address for locked transfer', program, cause);
   }
 }
-codeToErrorMap.set(0xab, TmInvalidLockedTransferAddressError);
+codeToErrorMap.set(0xab, InvalidLockedTransferAddressError);
 nameToErrorMap.set(
   'InvalidLockedTransferAddress',
-  TmInvalidLockedTransferAddressError
+  InvalidLockedTransferAddressError
 );
 
 /** DataIncrementLimitExceeded: 'Exceeded account realloc increase limit' */
-export class TmDataIncrementLimitExceededError extends ProgramError {
+export class DataIncrementLimitExceededError extends ProgramError {
   readonly name: string = 'DataIncrementLimitExceeded';
 
   readonly code: number = 0xac; // 172
@@ -2637,14 +2613,14 @@ export class TmDataIncrementLimitExceededError extends ProgramError {
     super('Exceeded account realloc increase limit', program, cause);
   }
 }
-codeToErrorMap.set(0xac, TmDataIncrementLimitExceededError);
+codeToErrorMap.set(0xac, DataIncrementLimitExceededError);
 nameToErrorMap.set(
   'DataIncrementLimitExceeded',
-  TmDataIncrementLimitExceededError
+  DataIncrementLimitExceededError
 );
 
 /** CannotUpdateAssetWithDelegate: 'Cannot update the rule set of a programmable asset that has a delegate' */
-export class TmCannotUpdateAssetWithDelegateError extends ProgramError {
+export class CannotUpdateAssetWithDelegateError extends ProgramError {
   readonly name: string = 'CannotUpdateAssetWithDelegate';
 
   readonly code: number = 0xad; // 173
@@ -2657,10 +2633,10 @@ export class TmCannotUpdateAssetWithDelegateError extends ProgramError {
     );
   }
 }
-codeToErrorMap.set(0xad, TmCannotUpdateAssetWithDelegateError);
+codeToErrorMap.set(0xad, CannotUpdateAssetWithDelegateError);
 nameToErrorMap.set(
   'CannotUpdateAssetWithDelegate',
-  TmCannotUpdateAssetWithDelegateError
+  CannotUpdateAssetWithDelegateError
 );
 
 /**

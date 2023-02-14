@@ -23,18 +23,18 @@ import {
   utf8,
 } from '@metaplex-foundation/umi-core';
 import {
+  Key,
   TokenDelegateRole,
-  TokenMetadataKey,
   TokenState,
+  getKeySerializer,
   getTokenDelegateRoleSerializer,
-  getTokenMetadataKeySerializer,
   getTokenStateSerializer,
 } from '../types';
 
 export type TokenRecord = Account<TokenRecordAccountData>;
 
 export type TokenRecordAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   bump: number;
   state: TokenState;
   ruleSetRevision: Option<bigint>;
@@ -105,7 +105,7 @@ export function getTokenRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: TokenMetadataKey;
+      key: Key;
       bump: number;
       state: TokenState;
       ruleSetRevision: Option<number | bigint>;
@@ -113,7 +113,7 @@ export function getTokenRecordGpaBuilder(
       delegateRole: Option<TokenDelegateRole>;
       lockedTransfer: Option<PublicKey>;
     }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+      ['key', getKeySerializer(context)],
       ['bump', s.u8],
       ['state', getTokenStateSerializer(context)],
       ['ruleSetRevision', s.option(s.u64)],
@@ -124,7 +124,7 @@ export function getTokenRecordGpaBuilder(
     .deserializeUsing<TokenRecord>((account) =>
       deserializeTokenRecord(context, account)
     )
-    .whereField('key', TokenMetadataKey.TokenRecord);
+    .whereField('key', Key.TokenRecord);
 }
 
 export function deserializeTokenRecord(
@@ -148,7 +148,7 @@ export function getTokenRecordAccountDataSerializer(
   >(
     s.struct<TokenRecordAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['bump', s.u8],
         ['state', getTokenStateSerializer(context)],
         ['ruleSetRevision', s.option(s.u64)],
@@ -158,11 +158,7 @@ export function getTokenRecordAccountDataSerializer(
       ],
       'TokenRecord'
     ),
-    (value) =>
-      ({
-        ...value,
-        key: TokenMetadataKey.TokenRecord,
-      } as TokenRecordAccountData)
+    (value) => ({ ...value, key: Key.TokenRecord } as TokenRecordAccountData)
   ) as Serializer<TokenRecordAccountArgs, TokenRecordAccountData>;
 }
 

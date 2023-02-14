@@ -8,15 +8,25 @@
 
 import { Context, Serializer } from '@metaplex-foundation/umi-core';
 
-export enum TokenAuthRulesKey {
+export enum Key {
   Uninitialized,
-  RuleSet,
-  Frequency,
+  EditionV1,
+  MasterEditionV1,
+  ReservationListV1,
+  MetadataV1,
+  ReservationListV2,
+  MasterEditionV2,
+  EditionMarker,
+  UseAuthorityRecord,
+  CollectionAuthorityRecord,
+  TokenOwnedEscrow,
+  TokenRecord,
+  MetadataDelegate,
 }
 
-export function getTokenAuthRulesKeySerializer(
+export function getKeySerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TokenAuthRulesKey> {
+): Serializer<Key> {
   const s = context.serializer;
-  return s.enum<TokenAuthRulesKey>(TokenAuthRulesKey, 'TokenAuthRulesKey');
+  return s.enum<Key>(Key, 'Key');
 }

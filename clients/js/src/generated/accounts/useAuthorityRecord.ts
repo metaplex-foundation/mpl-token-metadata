@@ -21,12 +21,12 @@ import {
   mapSerializer,
   utf8,
 } from '@metaplex-foundation/umi-core';
-import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
+import { Key, getKeySerializer } from '../types';
 
 export type UseAuthorityRecord = Account<UseAuthorityRecordAccountData>;
 
 export type UseAuthorityRecordAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   allowedUses: bigint;
   bump: number;
 };
@@ -88,19 +88,15 @@ export function getUseAuthorityRecordGpaBuilder(
   const s = context.serializer;
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
-    .registerFields<{
-      key: TokenMetadataKey;
-      allowedUses: number | bigint;
-      bump: number;
-    }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+    .registerFields<{ key: Key; allowedUses: number | bigint; bump: number }>([
+      ['key', getKeySerializer(context)],
       ['allowedUses', s.u64],
       ['bump', s.u8],
     ])
     .deserializeUsing<UseAuthorityRecord>((account) =>
       deserializeUseAuthorityRecord(context, account)
     )
-    .whereField('key', TokenMetadataKey.UseAuthorityRecord);
+    .whereField('key', Key.UseAuthorityRecord);
 }
 
 export function deserializeUseAuthorityRecord(
@@ -124,7 +120,7 @@ export function getUseAuthorityRecordAccountDataSerializer(
   >(
     s.struct<UseAuthorityRecordAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['allowedUses', s.u64],
         ['bump', s.u8],
       ],
@@ -133,7 +129,7 @@ export function getUseAuthorityRecordAccountDataSerializer(
     (value) =>
       ({
         ...value,
-        key: TokenMetadataKey.UseAuthorityRecord,
+        key: Key.UseAuthorityRecord,
       } as UseAuthorityRecordAccountData)
   ) as Serializer<UseAuthorityRecordAccountArgs, UseAuthorityRecordAccountData>;
 }

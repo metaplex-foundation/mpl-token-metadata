@@ -19,12 +19,12 @@ import {
   gpaBuilder,
   mapSerializer,
 } from '@metaplex-foundation/umi-core';
-import { TokenMetadataKey, getTokenMetadataKeySerializer } from '../types';
+import { Key, getKeySerializer } from '../types';
 
 export type Edition = Account<EditionAccountData>;
 
 export type EditionAccountData = {
-  key: TokenMetadataKey;
+  key: Key;
   parent: PublicKey;
   edition: bigint;
 };
@@ -84,19 +84,15 @@ export function getEditionGpaBuilder(
   const s = context.serializer;
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
-    .registerFields<{
-      key: TokenMetadataKey;
-      parent: PublicKey;
-      edition: number | bigint;
-    }>([
-      ['key', getTokenMetadataKeySerializer(context)],
+    .registerFields<{ key: Key; parent: PublicKey; edition: number | bigint }>([
+      ['key', getKeySerializer(context)],
       ['parent', s.publicKey],
       ['edition', s.u64],
     ])
     .deserializeUsing<Edition>((account) =>
       deserializeEdition(context, account)
     )
-    .whereField('key', TokenMetadataKey.EditionV1);
+    .whereField('key', Key.EditionV1);
 }
 
 export function deserializeEdition(
@@ -120,14 +116,13 @@ export function getEditionAccountDataSerializer(
   >(
     s.struct<EditionAccountData>(
       [
-        ['key', getTokenMetadataKeySerializer(context)],
+        ['key', getKeySerializer(context)],
         ['parent', s.publicKey],
         ['edition', s.u64],
       ],
       'Edition'
     ),
-    (value) =>
-      ({ ...value, key: TokenMetadataKey.EditionV1 } as EditionAccountData)
+    (value) => ({ ...value, key: Key.EditionV1 } as EditionAccountData)
   ) as Serializer<EditionAccountArgs, EditionAccountData>;
 }
 
