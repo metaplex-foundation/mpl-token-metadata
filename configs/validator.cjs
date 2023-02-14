@@ -20,16 +20,7 @@ module.exports = {
       {
         label: "Token Metadata",
         programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
-        deployPath: path.join(
-          __dirname,
-          "..",
-          "submodules",
-          "metaplex-program-library",
-          "token-metadata",
-          "target",
-          "deploy",
-          "mpl_token_metadata.so"
-        ),
+        deployPath: getProgram("token-metadata", "mpl_token_metadata.so"),
       },
       {
         label: "System Extras",

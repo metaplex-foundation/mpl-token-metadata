@@ -11,7 +11,7 @@ generateIdl({
   programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
   idlDir,
   binaryInstallDir,
-  programDir: path.join(programDir, "token-metadata"),
+  programDir: path.join(programDir, "token-metadata", "program"),
 });
 
 generateIdl({
