@@ -5,8 +5,8 @@ import {
   publicKey,
   some,
   transactionBuilder,
-} from '@lorisleiva/js-test';
-import { fetchMint, Mint } from '@lorisleiva/mpl-essentials';
+} from '@metaplex-foundation/umi-test';
+import { fetchMint, Mint } from '@metaplex-foundation/mpl-essentials';
 import test from 'ava';
 import {
   createV1,

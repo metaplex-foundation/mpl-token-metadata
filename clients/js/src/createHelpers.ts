@@ -1,4 +1,4 @@
-import { publicKey, WrappedInstruction } from '@lorisleiva/js-core';
+import { publicKey, WrappedInstruction } from '@metaplex-foundation/umi-core';
 import { TokenStandard } from './generated';
 import {
   createV1,

@@ -4,7 +4,7 @@ import {
   PublicKey,
   publicKey,
   some,
-} from '@lorisleiva/js-test';
+} from '@metaplex-foundation/umi-test';
 import test from 'ava';
 import {
   DigitalAsset,

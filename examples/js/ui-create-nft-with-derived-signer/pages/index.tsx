@@ -11,7 +11,7 @@ import {
   signerPayer,
   SolAmount,
   transactionBuilder,
-} from "@lorisleiva/js";
+} from "@metaplex-foundation/umi";
 import { createNft } from "@lorisleiva/mpl-digital-asset";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
@@ -21,9 +21,12 @@ import { FormEvent, useState } from "react";
 import { useMetaplex } from "./useMetaplex";
 
 import styles from "@/styles/Home.module.css";
-import { createDerivedSigner } from "@lorisleiva/js-signer-derived";
-import { bundlrUploader } from "@lorisleiva/js-uploader-bundlr";
-import { transferAllSol, transferSol } from "@lorisleiva/mpl-essentials";
+import { createDerivedSigner } from "@metaplex-foundation/umi-signer-derived";
+import { bundlrUploader } from "@metaplex-foundation/umi-uploader-bundlr";
+import {
+  transferAllSol,
+  transferSol,
+} from "@metaplex-foundation/mpl-essentials";
 const inter = Inter({ subsets: ["latin"] });
 
 const WalletMultiButtonDynamic = dynamic(

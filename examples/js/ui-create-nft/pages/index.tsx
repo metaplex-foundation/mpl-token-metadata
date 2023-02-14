@@ -6,7 +6,7 @@ import {
   percentAmount,
   PublicKey,
   transactionBuilder,
-} from "@lorisleiva/js";
+} from "@metaplex-foundation/umi";
 import { createNft } from "@lorisleiva/mpl-digital-asset";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";

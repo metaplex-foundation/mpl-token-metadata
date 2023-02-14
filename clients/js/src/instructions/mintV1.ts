@@ -1,5 +1,9 @@
-import { PublicKey, publicKey, WrappedInstruction } from '@lorisleiva/js-core';
-import { findAssociatedTokenPda } from '@lorisleiva/mpl-essentials';
+import {
+  PublicKey,
+  publicKey,
+  WrappedInstruction,
+} from '@metaplex-foundation/umi-core';
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import { isFungible } from '../digitalAsset';
 import { findMasterEditionPda, TokenStandard } from '../generated';
 import {

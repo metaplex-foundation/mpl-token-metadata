@@ -1,5 +1,5 @@
-import { MetaplexPlugin } from '@lorisleiva/js-core';
-import { mplEssentials } from '@lorisleiva/mpl-essentials';
+import { MetaplexPlugin } from '@metaplex-foundation/umi-core';
+import { mplEssentials } from '@metaplex-foundation/mpl-essentials';
 import {
   getMplTokenAuthRulesProgram,
   getMplTokenMetadataProgram,

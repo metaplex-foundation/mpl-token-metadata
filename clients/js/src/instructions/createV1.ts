@@ -5,7 +5,7 @@ import {
   publicKey,
   some,
   WrappedInstruction,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { isFungible } from '../digitalAsset';
 import {
   CollectionDetails,

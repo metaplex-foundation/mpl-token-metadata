@@ -9,12 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@lorisleiva/js": "^0.0.61",
-    "@lorisleiva/js-signer-derived": "^0.0.61",
-    "@lorisleiva/js-signer-wallet-adapters": "^0.0.61",
-    "@lorisleiva/js-uploader-bundlr": "^0.0.61",
+    "@metaplex-foundation/umi": "^0.1.2",
+    "@metaplex-foundation/umi-signer-derived": "^0.1.2",
+    "@metaplex-foundation/umi-signer-wallet-adapters": "^0.1.2",
+    "@metaplex-foundation/umi-uploader-bundlr": "^0.1.2",
+    "@metaplex-foundation/mpl-essentials": "^0.1.0",
     "@lorisleiva/mpl-digital-asset": "^0.0.4",
-    "@lorisleiva/mpl-essentials": "^0.0.5",
     "@next/font": "13.1.6",
     "@solana/wallet-adapter-base": "^0.9.20",
     "@solana/wallet-adapter-react": "^0.15.28",

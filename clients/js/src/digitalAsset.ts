@@ -6,8 +6,8 @@ import {
   RpcAccount,
   RpcGetAccountsOptions,
   unwrapSome,
-} from '@lorisleiva/js-core';
-import { deserializeMint, Mint } from '@lorisleiva/mpl-essentials';
+} from '@metaplex-foundation/umi-core';
+import { deserializeMint, Mint } from '@metaplex-foundation/mpl-essentials';
 import {
   deserializeEdition,
   deserializeMasterEdition,

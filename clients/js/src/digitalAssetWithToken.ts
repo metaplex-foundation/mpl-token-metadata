@@ -7,14 +7,14 @@ import {
   RpcGetAccountsOptions,
   chunk,
   zipMap,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   deserializeToken,
   fetchTokensByOwner,
   findAssociatedTokenPda,
   findLargestTokensByMint,
   Token,
-} from '@lorisleiva/mpl-essentials';
+} from '@metaplex-foundation/mpl-essentials';
 import { deserializeDigitalAsset, DigitalAsset } from './digitalAsset';
 import {
   deserializeTokenRecord,

@@ -7,7 +7,7 @@ import {
   PublicKey,
   Signer,
   transactionBuilder,
-} from '@lorisleiva/js-test';
+} from '@metaplex-foundation/umi-test';
 import { createV1, mintV1, mplDigitalAsset, TokenStandard } from '../src';
 
 export const createMetaplex = async () =>

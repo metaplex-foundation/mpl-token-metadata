@@ -10,9 +10,9 @@ npx create-next-app@latest ui-create-nft
 cd ui-create-nft
 
 # Install dependencies.
-npm install @lorisleiva/js \
-  @lorisleiva/js-signer-wallet-adapters \
-  @lorisleiva/js-uploader-nft-storage \
+npm install @metaplex-foundation/umi \
+  @metaplex-foundation/umi-signer-wallet-adapters \
+  @metaplex-foundation/umi-uploader-nft-storage \
   @lorisleiva/mpl-digital-asset \
   @solana/web3.js \
   @solana/wallet-adapter-base \

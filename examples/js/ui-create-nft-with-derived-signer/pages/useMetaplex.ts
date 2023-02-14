@@ -1,4 +1,4 @@
-import type { Metaplex } from "@lorisleiva/js";
+import type { Metaplex } from "@metaplex-foundation/umi";
 import { createContext, useContext } from "react";
 
 type MetaplexContext = {

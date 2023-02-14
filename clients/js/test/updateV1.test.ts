@@ -1,4 +1,4 @@
-import { some, transactionBuilder } from '@lorisleiva/js-test';
+import { some, transactionBuilder } from '@metaplex-foundation/umi-test';
 import test from 'ava';
 import { fetchMetadata, findMetadataPda, Metadata, updateV1 } from '../src';
 import { createMetaplex, createDigitalAsset } from './_setup';

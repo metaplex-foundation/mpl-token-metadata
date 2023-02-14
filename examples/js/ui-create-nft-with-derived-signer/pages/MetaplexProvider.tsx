@@ -1,6 +1,6 @@
-import { createMetaplex } from "@lorisleiva/js";
-import { walletAdapterIdentity } from "@lorisleiva/js-signer-wallet-adapters";
-import { bundlrUploader } from "@lorisleiva/js-uploader-bundlr";
+import { createMetaplex } from "@metaplex-foundation/umi";
+import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
+import { bundlrUploader } from "@metaplex-foundation/umi-uploader-bundlr";
 import { mplDigitalAsset } from "@lorisleiva/mpl-digital-asset";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ReactNode } from "react";

@@ -4,11 +4,11 @@ import {
   publicKey,
   some,
   transactionBuilder,
-} from '@lorisleiva/js-test';
+} from '@metaplex-foundation/umi-test';
 import {
   createToken,
   findAssociatedTokenPda,
-} from '@lorisleiva/mpl-essentials';
+} from '@metaplex-foundation/mpl-essentials';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
