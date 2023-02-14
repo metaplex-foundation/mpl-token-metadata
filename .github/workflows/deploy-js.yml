@@ -94,7 +94,7 @@ jobs:
           tagging_message: js@v${{ steps.bump.outputs.new_version }}
 
       - name: Create GitHub release
-        if: inputs.create_release == 'true'
+        if: github.event.inputs.create_release == 'true'
         uses: ncipollo/release-action@v1
         with:
           tag: js@v${{ steps.bump.outputs.new_version }}
