@@ -16,6 +16,7 @@ export enum RevokeArgs {
   UtilityV1,
   StakingV1,
   StandardV1,
+  LockedTransferV1,
 }
 
 export function getRevokeArgsSerializer(

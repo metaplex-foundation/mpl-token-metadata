@@ -9,10 +9,16 @@
 import { Context, Serializer } from '@metaplex-foundation/umi-core';
 
 export enum PayloadKey {
-  Target,
-  Holder,
-  Authority,
   Amount,
+  Authority,
+  AuthoritySeeds,
+  Delegate,
+  DelegateSeeds,
+  Destination,
+  DestinationSeeds,
+  Holder,
+  Source,
+  SourceSeeds,
 }
 
 export function getPayloadKeySerializer(

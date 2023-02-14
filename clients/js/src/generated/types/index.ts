@@ -34,6 +34,7 @@ export * from './payloadType';
 export * from './printSupply';
 export * from './programmableConfig';
 export * from './proofInfo';
+export * from './puffRuleSetArgs';
 export * from './reservation';
 export * from './reservationV1';
 export * from './revokeArgs';

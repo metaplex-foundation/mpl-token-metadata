@@ -41,11 +41,11 @@ export type TransferV1InstructionAccounts = {
   metadata?: PublicKey;
   /** Edition of token asset */
   edition?: PublicKey;
-  /** Token record account */
+  /** Owner token record account */
   ownerTokenRecord?: PublicKey;
-  /** Token record account */
+  /** Destination token record account */
   destinationTokenRecord?: PublicKey;
-  /** Transfer authority (token or delegate owner) */
+  /** Transfer authority (token owner or delegate) */
   authority?: Signer;
   /** Payer */
   payer?: Signer;

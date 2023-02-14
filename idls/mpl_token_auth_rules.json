@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.2.0",
   "name": "mpl_token_auth_rules",
   "instructions": [
     {
@@ -135,6 +135,41 @@
       "discriminant": {
         "type": "u8",
         "value": 2
+      }
+    },
+    {
+      "name": "PuffRuleSet",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Payer and creator of the RuleSet"
+        },
+        {
+          "name": "ruleSetPda",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The PDA account where the RuleSet is stored"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ],
+      "args": [
+        {
+          "name": "puffRuleSetArgs",
+          "type": {
+            "defined": "PuffRuleSetArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
       }
     }
   ],
@@ -312,6 +347,23 @@
               {
                 "name": "overwrite",
                 "type": "bool"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "PuffRuleSetArgs",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "V1",
+            "fields": [
+              {
+                "name": "rule_set_name",
+                "type": "string"
               }
             ]
           }
@@ -547,6 +599,11 @@
       "code": 34,
       "name": "IsWalletCheckFailed",
       "msg": "IsWallet check failed"
+    },
+    {
+      "code": 35,
+      "name": "ProgramOwnedSetCheckFailed",
+      "msg": "Program Owned Set check failed"
     }
   ],
   "metadata": {

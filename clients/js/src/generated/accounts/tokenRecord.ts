@@ -40,6 +40,7 @@ export type TokenRecordAccountData = {
   ruleSetRevision: Option<bigint>;
   delegate: Option<PublicKey>;
   delegateRole: Option<TokenDelegateRole>;
+  lockedTransfer: Option<PublicKey>;
 };
 
 export type TokenRecordAccountArgs = {
@@ -48,6 +49,7 @@ export type TokenRecordAccountArgs = {
   ruleSetRevision: Option<number | bigint>;
   delegate: Option<PublicKey>;
   delegateRole: Option<TokenDelegateRole>;
+  lockedTransfer: Option<PublicKey>;
 };
 
 export async function fetchTokenRecord(
@@ -109,6 +111,7 @@ export function getTokenRecordGpaBuilder(
       ruleSetRevision: Option<number | bigint>;
       delegate: Option<PublicKey>;
       delegateRole: Option<TokenDelegateRole>;
+      lockedTransfer: Option<PublicKey>;
     }>([
       ['key', getTokenMetadataKeySerializer(context)],
       ['bump', s.u8],
@@ -116,6 +119,7 @@ export function getTokenRecordGpaBuilder(
       ['ruleSetRevision', s.option(s.u64)],
       ['delegate', s.option(s.publicKey)],
       ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
+      ['lockedTransfer', s.option(s.publicKey)],
     ])
     .deserializeUsing<TokenRecord>((account) =>
       deserializeTokenRecord(context, account)
@@ -150,6 +154,7 @@ export function getTokenRecordAccountDataSerializer(
         ['ruleSetRevision', s.option(s.u64)],
         ['delegate', s.option(s.publicKey)],
         ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
+        ['lockedTransfer', s.option(s.publicKey)],
       ],
       'TokenRecord'
     ),

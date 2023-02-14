@@ -2582,6 +2582,87 @@ nameToErrorMap.set(
   TmAmountMustBeGreaterThanZeroError
 );
 
+/** InvalidDelegateArgs: 'Invalid delegate args' */
+export class TmInvalidDelegateArgsError extends ProgramError {
+  readonly name: string = 'InvalidDelegateArgs';
+
+  readonly code: number = 0xa9; // 169
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid delegate args', program, cause);
+  }
+}
+codeToErrorMap.set(0xa9, TmInvalidDelegateArgsError);
+nameToErrorMap.set('InvalidDelegateArgs', TmInvalidDelegateArgsError);
+
+/** MissingLockedTransferAddress: 'Missing address for locked transfer' */
+export class TmMissingLockedTransferAddressError extends ProgramError {
+  readonly name: string = 'MissingLockedTransferAddress';
+
+  readonly code: number = 0xaa; // 170
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing address for locked transfer', program, cause);
+  }
+}
+codeToErrorMap.set(0xaa, TmMissingLockedTransferAddressError);
+nameToErrorMap.set(
+  'MissingLockedTransferAddress',
+  TmMissingLockedTransferAddressError
+);
+
+/** InvalidLockedTransferAddress: 'Invalid destination address for locked transfer' */
+export class TmInvalidLockedTransferAddressError extends ProgramError {
+  readonly name: string = 'InvalidLockedTransferAddress';
+
+  readonly code: number = 0xab; // 171
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid destination address for locked transfer', program, cause);
+  }
+}
+codeToErrorMap.set(0xab, TmInvalidLockedTransferAddressError);
+nameToErrorMap.set(
+  'InvalidLockedTransferAddress',
+  TmInvalidLockedTransferAddressError
+);
+
+/** DataIncrementLimitExceeded: 'Exceeded account realloc increase limit' */
+export class TmDataIncrementLimitExceededError extends ProgramError {
+  readonly name: string = 'DataIncrementLimitExceeded';
+
+  readonly code: number = 0xac; // 172
+
+  constructor(program: Program, cause?: Error) {
+    super('Exceeded account realloc increase limit', program, cause);
+  }
+}
+codeToErrorMap.set(0xac, TmDataIncrementLimitExceededError);
+nameToErrorMap.set(
+  'DataIncrementLimitExceeded',
+  TmDataIncrementLimitExceededError
+);
+
+/** CannotUpdateAssetWithDelegate: 'Cannot update the rule set of a programmable asset that has a delegate' */
+export class TmCannotUpdateAssetWithDelegateError extends ProgramError {
+  readonly name: string = 'CannotUpdateAssetWithDelegate';
+
+  readonly code: number = 0xad; // 173
+
+  constructor(program: Program, cause?: Error) {
+    super(
+      'Cannot update the rule set of a programmable asset that has a delegate',
+      program,
+      cause
+    );
+  }
+}
+codeToErrorMap.set(0xad, TmCannotUpdateAssetWithDelegateError);
+nameToErrorMap.set(
+  'CannotUpdateAssetWithDelegate',
+  TmCannotUpdateAssetWithDelegateError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

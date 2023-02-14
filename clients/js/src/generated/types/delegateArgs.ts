@@ -11,6 +11,7 @@ import {
   GetDataEnumKind,
   GetDataEnumKindContent,
   Option,
+  PublicKey,
   Serializer,
 } from '@metaplex-foundation/umi-core';
 import {
@@ -42,7 +43,13 @@ export type DelegateArgs =
       amount: bigint;
       authorizationData: Option<AuthorizationData>;
     }
-  | { __kind: 'StandardV1'; amount: bigint };
+  | { __kind: 'StandardV1'; amount: bigint }
+  | {
+      __kind: 'LockedTransferV1';
+      amount: bigint;
+      lockedAddress: PublicKey;
+      authorizationData: Option<AuthorizationData>;
+    };
 
 export type DelegateArgsArgs =
   | { __kind: 'CollectionV1'; authorizationData: Option<AuthorizationDataArgs> }
@@ -67,7 +74,13 @@ export type DelegateArgsArgs =
       amount: number | bigint;
       authorizationData: Option<AuthorizationDataArgs>;
     }
-  | { __kind: 'StandardV1'; amount: number | bigint };
+  | { __kind: 'StandardV1'; amount: number | bigint }
+  | {
+      __kind: 'LockedTransferV1';
+      amount: number | bigint;
+      lockedAddress: PublicKey;
+      authorizationData: Option<AuthorizationDataArgs>;
+    };
 
 export function getDelegateArgsSerializer(
   context: Pick<Context, 'serializer'>
@@ -158,6 +171,20 @@ export function getDelegateArgsSerializer(
           'StandardV1'
         ),
       ],
+      [
+        'LockedTransferV1',
+        s.struct<GetDataEnumKindContent<DelegateArgs, 'LockedTransferV1'>>(
+          [
+            ['amount', s.u64],
+            ['lockedAddress', s.publicKey],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ],
+          'LockedTransferV1'
+        ),
+      ],
     ],
     undefined,
     'DelegateArgs'
@@ -193,6 +220,10 @@ export function delegateArgs(
   kind: 'StandardV1',
   data: GetDataEnumKindContent<DelegateArgsArgs, 'StandardV1'>
 ): GetDataEnumKind<DelegateArgsArgs, 'StandardV1'>;
+export function delegateArgs(
+  kind: 'LockedTransferV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'LockedTransferV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'LockedTransferV1'>;
 export function delegateArgs<K extends DelegateArgsArgs['__kind']>(
   kind: K,
   data?: any

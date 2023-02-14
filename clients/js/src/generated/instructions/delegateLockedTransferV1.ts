@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Option,
   PublicKey,
   Serializer,
   Signer,
@@ -19,32 +20,28 @@ import {
 } from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
 import {
-  TransferArgs,
-  TransferArgsArgs,
-  getTransferArgsSerializer,
+  AuthorizationData,
+  AuthorizationDataArgs,
+  getAuthorizationDataSerializer,
 } from '../types';
 
 // Accounts.
-export type TransferInstructionAccounts = {
-  /** Token account */
-  token: PublicKey;
-  /** Token account owner */
-  tokenOwner: PublicKey;
-  /** Destination token account */
-  destination: PublicKey;
-  /** Destination token account owner */
-  destinationOwner: PublicKey;
-  /** Mint of token asset */
-  mint: PublicKey;
-  /** Metadata (pda of ['metadata', program id, mint id]) */
+export type DelegateLockedTransferV1InstructionAccounts = {
+  /** Delegate record account */
+  delegateRecord?: PublicKey;
+  /** Owner of the delegated account */
+  delegate: PublicKey;
+  /** Metadata account */
   metadata?: PublicKey;
-  /** Edition of token asset */
-  edition?: PublicKey;
-  /** Owner token record account */
-  ownerTokenRecord?: PublicKey;
-  /** Destination token record account */
-  destinationTokenRecord?: PublicKey;
-  /** Transfer authority (token owner or delegate) */
+  /** Master Edition account */
+  masterEdition?: PublicKey;
+  /** Token record account */
+  tokenRecord?: PublicKey;
+  /** Mint of metadata */
+  mint: PublicKey;
+  /** Token account of mint */
+  token?: PublicKey;
+  /** Update authority or token owner */
   authority?: Signer;
   /** Payer */
   payer?: Signer;
@@ -54,8 +51,6 @@ export type TransferInstructionAccounts = {
   sysvarInstructions?: PublicKey;
   /** SPL Token Program */
   splTokenProgram?: PublicKey;
-  /** SPL Associated Token Account program */
-  splAtaProgram?: PublicKey;
   /** Token Authorization Rules Program */
   authorizationRulesProgram?: PublicKey;
   /** Token Authorization Rules account */
@@ -63,40 +58,65 @@ export type TransferInstructionAccounts = {
 };
 
 // Arguments.
-export type TransferInstructionData = {
+export type DelegateLockedTransferV1InstructionData = {
   discriminator: number;
-  transferArgs: TransferArgs;
+  delegateLockedTransferV1Discriminator: number;
+  amount: bigint;
+  lockedAddress: PublicKey;
+  authorizationData: Option<AuthorizationData>;
 };
 
-export type TransferInstructionArgs = { transferArgs: TransferArgsArgs };
+export type DelegateLockedTransferV1InstructionArgs = {
+  amount: number | bigint;
+  lockedAddress: PublicKey;
+  authorizationData: Option<AuthorizationDataArgs>;
+};
 
-export function getTransferInstructionDataSerializer(
+export function getDelegateLockedTransferV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TransferInstructionArgs, TransferInstructionData> {
+): Serializer<
+  DelegateLockedTransferV1InstructionArgs,
+  DelegateLockedTransferV1InstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    TransferInstructionArgs,
-    TransferInstructionData,
-    TransferInstructionData
+    DelegateLockedTransferV1InstructionArgs,
+    DelegateLockedTransferV1InstructionData,
+    DelegateLockedTransferV1InstructionData
   >(
-    s.struct<TransferInstructionData>(
+    s.struct<DelegateLockedTransferV1InstructionData>(
       [
         ['discriminator', s.u8],
-        ['transferArgs', getTransferArgsSerializer(context)],
+        ['delegateLockedTransferV1Discriminator', s.u8],
+        ['amount', s.u64],
+        ['lockedAddress', s.publicKey],
+        [
+          'authorizationData',
+          s.option(getAuthorizationDataSerializer(context)),
+        ],
       ],
-      'TransferInstructionArgs'
+      'DelegateLockedTransferV1InstructionArgs'
     ),
-    (value) => ({ ...value, discriminator: 49 } as TransferInstructionData)
-  ) as Serializer<TransferInstructionArgs, TransferInstructionData>;
+    (value) =>
+      ({
+        ...value,
+        discriminator: 44,
+        delegateLockedTransferV1Discriminator: 7,
+      } as DelegateLockedTransferV1InstructionData)
+  ) as Serializer<
+    DelegateLockedTransferV1InstructionArgs,
+    DelegateLockedTransferV1InstructionData
+  >;
 }
 
 // Instruction.
-export function transfer(
+export function delegateLockedTransferV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: TransferInstructionAccounts & TransferInstructionArgs
+  input: DelegateLockedTransferV1InstructionAccounts &
+    DelegateLockedTransferV1InstructionArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -106,23 +126,24 @@ export function transfer(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const tokenAccount = input.token;
-  const tokenOwnerAccount = input.tokenOwner;
-  const destinationAccount = input.destination;
-  const destinationOwnerAccount = input.destinationOwner;
+  const delegateRecordAccount = input.delegateRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const delegateAccount = input.delegate;
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount = input.edition ?? { ...programId, isWritable: false };
-  const ownerTokenRecordAccount = input.ownerTokenRecord ?? {
+  const masterEditionAccount = input.masterEdition ?? {
     ...programId,
     isWritable: false,
   };
-  const destinationTokenRecordAccount = input.destinationTokenRecord ?? {
+  const tokenRecordAccount = input.tokenRecord ?? {
     ...programId,
     isWritable: false,
   };
+  const tokenAccount = input.token ?? { ...programId, isWritable: false };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
@@ -133,11 +154,7 @@ export function transfer(
     input.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
   const splTokenProgramAccount = input.splTokenProgram ?? {
-    ...context.programs.get('splToken').publicKey,
-    isWritable: false,
-  };
-  const splAtaProgramAccount = input.splAtaProgram ?? {
-    ...context.programs.get('splAssociatedToken').publicKey,
+    ...programId,
     isWritable: false,
   };
   const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
@@ -149,39 +166,18 @@ export function transfer(
     isWritable: false,
   };
 
-  // Token.
+  // Delegate Record.
   keys.push({
-    pubkey: tokenAccount,
+    pubkey: delegateRecordAccount,
     isSigner: false,
-    isWritable: isWritable(tokenAccount, true),
+    isWritable: isWritable(delegateRecordAccount, true),
   });
 
-  // Token Owner.
+  // Delegate.
   keys.push({
-    pubkey: tokenOwnerAccount,
+    pubkey: delegateAccount,
     isSigner: false,
-    isWritable: isWritable(tokenOwnerAccount, false),
-  });
-
-  // Destination.
-  keys.push({
-    pubkey: destinationAccount,
-    isSigner: false,
-    isWritable: isWritable(destinationAccount, true),
-  });
-
-  // Destination Owner.
-  keys.push({
-    pubkey: destinationOwnerAccount,
-    isSigner: false,
-    isWritable: isWritable(destinationOwnerAccount, false),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: mintAccount,
-    isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(delegateAccount, false),
   });
 
   // Metadata.
@@ -191,25 +187,32 @@ export function transfer(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition.
+  // Master Edition.
   keys.push({
-    pubkey: editionAccount,
+    pubkey: masterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(editionAccount, false),
+    isWritable: isWritable(masterEditionAccount, false),
   });
 
-  // Owner Token Record.
+  // Token Record.
   keys.push({
-    pubkey: ownerTokenRecordAccount,
+    pubkey: tokenRecordAccount,
     isSigner: false,
-    isWritable: isWritable(ownerTokenRecordAccount, true),
+    isWritable: isWritable(tokenRecordAccount, true),
   });
 
-  // Destination Token Record.
+  // Mint.
   keys.push({
-    pubkey: destinationTokenRecordAccount,
+    pubkey: mintAccount,
     isSigner: false,
-    isWritable: isWritable(destinationTokenRecordAccount, true),
+    isWritable: isWritable(mintAccount, false),
+  });
+
+  // Token.
+  keys.push({
+    pubkey: tokenAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenAccount, true),
   });
 
   // Authority.
@@ -249,13 +252,6 @@ export function transfer(
     isWritable: isWritable(splTokenProgramAccount, false),
   });
 
-  // Spl Ata Program.
-  keys.push({
-    pubkey: splAtaProgramAccount,
-    isSigner: false,
-    isWritable: isWritable(splAtaProgramAccount, false),
-  });
-
   // Authorization Rules Program.
   keys.push({
     pubkey: authorizationRulesProgramAccount,
@@ -271,7 +267,10 @@ export function transfer(
   });
 
   // Data.
-  const data = getTransferInstructionDataSerializer(context).serialize(input);
+  const data =
+    getDelegateLockedTransferV1InstructionDataSerializer(context).serialize(
+      input
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -36,7 +36,7 @@ export type MigrateInstructionAccounts = {
   tokenOwner: PublicKey;
   /** Mint account */
   mint: PublicKey;
-  /** Update authority */
+  /** Payer */
   payer?: Signer;
   /** Update authority */
   authority?: Signer;
@@ -50,7 +50,7 @@ export type MigrateInstructionAccounts = {
   systemProgram?: PublicKey;
   /** Instruction sysvar account */
   sysvarInstructions?: PublicKey;
-  /** Token Program */
+  /** SPL Token Program */
   splTokenProgram?: PublicKey;
   /** Token Authorization Rules Program */
   authorizationRulesProgram?: PublicKey;
@@ -210,7 +210,7 @@ export function migrate(
   keys.push({
     pubkey: tokenRecordAccount,
     isSigner: false,
-    isWritable: isWritable(tokenRecordAccount, false),
+    isWritable: isWritable(tokenRecordAccount, true),
   });
 
   // System Program.

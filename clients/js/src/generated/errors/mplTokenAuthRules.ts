@@ -510,6 +510,22 @@ export class TaIsWalletCheckFailedError extends ProgramError {
 codeToErrorMap.set(0x22, TaIsWalletCheckFailedError);
 nameToErrorMap.set('IsWalletCheckFailed', TaIsWalletCheckFailedError);
 
+/** ProgramOwnedSetCheckFailed: 'Program Owned Set check failed' */
+export class TaProgramOwnedSetCheckFailedError extends ProgramError {
+  readonly name: string = 'ProgramOwnedSetCheckFailed';
+
+  readonly code: number = 0x23; // 35
+
+  constructor(program: Program, cause?: Error) {
+    super('Program Owned Set check failed', program, cause);
+  }
+}
+codeToErrorMap.set(0x23, TaProgramOwnedSetCheckFailedError);
+nameToErrorMap.set(
+  'ProgramOwnedSetCheckFailed',
+  TaProgramOwnedSetCheckFailedError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
