@@ -11,17 +11,9 @@ program_common: &program_common
   - ".github/workflows/test-programs.yml"
   - ".github/workflows/main.yml"
 
-system_extras_program: &system_extras_program
-  - *program_common
-  - "programs/system-extras/**"
-
-token_extras_program: &token_extras_program
-  - *program_common
-  - "programs/token-extras/**"
-
 programs: &programs
-  - *system_extras_program
-  - *token_extras_program
+  - *program_common
+  - "submodules/**"
 
 # Clients.
 

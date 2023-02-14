@@ -1,18 +1,17 @@
 {
-  "name": "@lorisleiva/mpl-digital-asset",
-  "version": "0.0.4",
+  "name": "@lorisleiva/mpl-token-metadata",
+  "version": "0.0.1",
   "description": "JavaScript client for Token Metadata",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.json",
-    "test": "ava",
-    "bump": "pnpm version",
-    "deploy": "pnpm build && pnpm test && pnpm publish",
     "build:docs": "typedoc",
+    "test": "ava",
     "lint": "eslint --ext js,ts,tsx src",
     "lint:fix": "eslint --fix --ext js,ts,tsx src",
-    "format": "prettier --write src/ && prettier --write test/"
+    "format": "prettier --check src test",
+    "format:fix": "prettier --write src test"
   },
   "files": [
     "/dist/src"

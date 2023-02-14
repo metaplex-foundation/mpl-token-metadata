@@ -16,7 +16,6 @@ jobs:
     outputs:
       any: ${{ steps.changes.outputs.any }}
       programs: ${{ steps.changes.outputs.programs }}
-      program_matrix: ${{ steps.program_matrix.outputs.matrix }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
@@ -27,37 +26,12 @@ jobs:
         with:
           filters: .github/file-filters.yml
 
-      - name: Get matrix of programs to test
-        id: program_matrix
-        env:
-          PROGRAMS: ${{ vars.PROGRAMS }}
-        run: |
-          CHANGES=$(echo ${{ toJSON(steps.changes.outputs.changes) }})
-          KEYS=$(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g')
-          CHANGED_KEYS=$(for key in $KEYS; do
-            change_key=$(echo $key | sed 's/-/_/g' | sed 's/$/_program/')
-            index=$(echo $CHANGES | jq -c ". | index(\"$change_key\")")
-            if [ $(echo $index) != 'null' ]; then
-              echo $key
-            fi
-          done)
-          echo "matrix=$(echo "$CHANGED_KEYS" | jq -R . | jq -sc . | sed 's/""//')" | tee $GITHUB_OUTPUT
-
   build_programs:
     name: Programs
     if: ${{ needs.changes.outputs.any == 'true' }}
     needs: changes
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
-
-  test_programs:
-    name: Programs
-    if: ${{ needs.changes.outputs.programs == 'true' }}
-    needs: changes
-    uses: ./.github/workflows/test-programs.yml
-    secrets: inherit
-    with:
-      program_matrix: ${{ needs.changes.outputs.program_matrix }}
 
   generate_clients:
     name: Generate clients
