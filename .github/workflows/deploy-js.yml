@@ -12,6 +12,15 @@ on:
           - patch
           - minor
           - major
+          - prerelease
+          - prepatch
+          - preminor
+          - premajor
+      tag:
+        description: NPM Tag (and preid for pre-releases)
+        required: true
+        type: string
+        default: latest
       create_release:
         description: Create a GitHub release
         required: true
@@ -62,7 +71,11 @@ jobs:
         id: bump
         working-directory: ./clients/js
         run: |
-          pnpm version ${{ github.event.inputs.bump }} --no-git-tag-version
+          if [ "${{ startsWith(inputs.bump, 'pre') }}" == "true" ]; then
+            pnpm version ${{ inputs.bump }} --preid ${{ inputs.tag }} --no-git-tag-version
+          else
+            pnpm version ${{ inputs.bump }} --no-git-tag-version
+          fi
           echo "new_version=$(pnpm pkg get version | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Set publishing config
@@ -72,7 +85,7 @@ jobs:
 
       - name: Publish
         working-directory: ./clients/js
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --tag ${{ inputs.tag }}
 
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -81,7 +94,7 @@ jobs:
           tagging_message: js@v${{ steps.bump.outputs.new_version }}
 
       - name: Create GitHub release
-        if: github.event.inputs.create_release == 'true'
+        if: inputs.create_release == 'true'
         uses: ncipollo/release-action@v1
         with:
           tag: js@v${{ steps.bump.outputs.new_version }}
