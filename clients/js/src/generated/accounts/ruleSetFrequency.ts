@@ -17,7 +17,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { TokenAuthRulesKey, getTokenAuthRulesKeySerializer } from '../types';
 
 export type RuleSetFrequency = Account<RuleSetFrequencyAccountData>;

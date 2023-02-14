@@ -21,7 +21,7 @@ import {
   gpaBuilder,
   mapSerializer,
   utf8,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   Collection,
   CollectionDetails,

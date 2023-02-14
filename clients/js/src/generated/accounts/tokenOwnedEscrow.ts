@@ -18,7 +18,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   EscrowAuthority,
   TokenMetadataKey,

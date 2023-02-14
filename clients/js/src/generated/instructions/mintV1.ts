@@ -18,7 +18,7 @@ import {
   mapSerializer,
   none,
   publicKey,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
 import {
   AuthorizationData,

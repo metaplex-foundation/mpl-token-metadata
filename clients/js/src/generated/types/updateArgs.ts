@@ -15,7 +15,7 @@ import {
   Serializer,
   mapSerializer,
   none,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   AuthorizationData,
   AuthorizationDataArgs,

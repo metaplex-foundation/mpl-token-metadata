@@ -1,7 +1,7 @@
 {
   "name": "@lorisleiva/mpl-digital-asset",
   "version": "0.0.4",
-  "description": "JavaScript client for handling Digital Assets on Solana",
+  "description": "JavaScript client for Token Metadata",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
@@ -26,12 +26,12 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lorisleiva/js-core": "^0.0.54",
-    "@lorisleiva/mpl-essentials": "^0.0.5"
+    "@metaplex-foundation/umi-core": "^0.1.2",
+    "@metaplex-foundation/mpl-essentials": "^0.1.0"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
-    "@lorisleiva/js-test": "^0.0.54",
+    "@metaplex-foundation/umi-test": "^0.1.3",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",

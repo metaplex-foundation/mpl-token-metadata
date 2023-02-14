@@ -13,7 +13,7 @@ import {
   Option,
   PublicKey,
   Serializer,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { MigrationType, getMigrationTypeSerializer } from '.';
 
 export type MigrateArgs = {

@@ -16,7 +16,7 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { DataV2, DataV2Args, getDataV2Serializer } from '../types';
 
 // Accounts.

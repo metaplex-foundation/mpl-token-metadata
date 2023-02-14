@@ -17,7 +17,7 @@ import {
   isSigner,
   mapSerializer,
   publicKey,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
 import { CreateArgs, CreateArgsArgs, getCreateArgsSerializer } from '../types';
 

@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, PublicKey, Serializer } from '@lorisleiva/js-core';
+import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi-core';
 
 export type Creator = { address: PublicKey; verified: boolean; share: number };
 

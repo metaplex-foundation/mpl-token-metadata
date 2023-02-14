@@ -17,7 +17,7 @@ import {
   isSigner,
   mapSerializer,
   publicKey,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   ValidateRuleSetArgs,
   ValidateRuleSetArgsArgs,

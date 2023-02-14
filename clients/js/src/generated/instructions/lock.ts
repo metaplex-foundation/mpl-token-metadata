@@ -16,7 +16,7 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
 import { LockArgs, LockArgsArgs, getLockArgsSerializer } from '../types';
 

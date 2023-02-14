@@ -4,14 +4,14 @@ importers:
 
   .:
     specifiers:
-      '@lorisleiva/kinobi': ^0.0.51
-      '@lorisleiva/shank-js': ^0.0.1
       '@metaplex-foundation/amman': ^0.12.1
+      '@metaplex-foundation/kinobi': ^0.1.0
+      '@metaplex-foundation/shank-js': ^0.1.0
       typescript: ^4.9.4
     devDependencies:
-      '@lorisleiva/kinobi': 0.0.51
-      '@lorisleiva/shank-js': 0.0.1
       '@metaplex-foundation/amman': 0.12.1_typescript@4.9.4
+      '@metaplex-foundation/kinobi': 0.1.0
+      '@metaplex-foundation/shank-js': 0.1.0
       typescript: 4.9.4
 
   clients/js:
@@ -214,32 +214,11 @@ packages:
       buffer: 6.0.3
     dev: true
 
-  /@lorisleiva/kinobi/0.0.51:
-    resolution: {integrity: sha512-OOrv+T/6+1GhKFYd2kUY4x6A9ORE14jATWNOSITOfn9vPBt31UPjY0miSjgvPA0hfvAT5oCfvBL9mR1kIuG+yQ==}
-    dependencies:
-      '@noble/hashes': 1.1.5
-      chalk: 4.1.2
-      nunjucks: 3.2.3
-      prettier: 2.8.1
-    transitivePeerDependencies:
-      - chokidar
-    dev: true
-
   /@lorisleiva/mpl-essentials/0.0.5:
     resolution: {integrity: sha512-P/lmj1ASo8uILW956WmDHbFHnjh5w8TzXkJqy9kAkwE7OyJSc8DVdrtd9JDMmcdytnYCfS3yAyE180llGLx6OA==}
     dependencies:
       '@lorisleiva/js-core': 0.0.54
     dev: false
-
-  /@lorisleiva/shank-js/0.0.1:
-    resolution: {integrity: sha512-ucO2r7IL8tAKKgMKGBMyxE5OUv184Ln9Bjl7IA548M3wqZPt94B0NMBClenlnJG8VIq6qTBnPY4t3QJTwhvvIA==}
-    dependencies:
-      '@metaplex-foundation/rustbin': 0.3.1
-      ansi-colors: 4.1.3
-      debug: 4.3.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /@metaplex-foundation/amman-client/0.2.4:
     resolution: {integrity: sha512-AB2zKDrGyJtQqUmOswsZCflIuldYmsPvL/zIU/66JOD9HDo8yyz5ITCrs+/0QoW+CIJkotC5JEhuYuBnqLhmNw==}
@@ -303,6 +282,17 @@ packages:
     resolution: {integrity: sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==}
     dev: true
 
+  /@metaplex-foundation/kinobi/0.1.0:
+    resolution: {integrity: sha512-2Jykz+Jcv10xW1rZQPdL7Hwg/Xp99JrtEVSlRLnD/Ij2n8DypsQq6ztONtxyhu0afyDduwvdErKrvCTC+BBQ4w==}
+    dependencies:
+      '@noble/hashes': 1.1.5
+      chalk: 4.1.2
+      nunjucks: 3.2.3
+      prettier: 2.8.1
+    transitivePeerDependencies:
+      - chokidar
+    dev: true
+
   /@metaplex-foundation/rustbin/0.3.1:
     resolution: {integrity: sha512-hWd2JPrnt2/nJzkBpZD3Y6ZfCUlJujv2K7qUfsxdS0jSwLrSrOvYwmNWFw6mc3lbULj6VP4WDyuy9W5/CHU/lQ==}
     dependencies:
@@ -310,6 +300,16 @@ packages:
       semver: 7.3.8
       text-table: 0.2.0
       toml: 3.0.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@metaplex-foundation/shank-js/0.1.0:
+    resolution: {integrity: sha512-ExTOIIZFJw8WNHfv+anJifP6/Al9gcWJaUXMifGOB6BxV/J0+jfMg13sm0uMlovU7/tiZSPboS09HXnKaykETg==}
+    dependencies:
+      '@metaplex-foundation/rustbin': 0.3.1
+      ansi-colors: 4.1.3
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: true

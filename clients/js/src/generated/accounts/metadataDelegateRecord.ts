@@ -19,7 +19,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   utf8,
-} from '@lorisleiva/js-core';
+} from '@metaplex-foundation/umi-core';
 import {
   MetadataDelegateRole,
   TokenMetadataKey,

@@ -18,7 +18,7 @@ const {
   vScalar,
   vNone,
   vEnum,
-} = require("@lorisleiva/kinobi");
+} = require("@metaplex-foundation/kinobi");
 
 // Paths.
 const clientDir = path.join(__dirname, "..", "clients");
