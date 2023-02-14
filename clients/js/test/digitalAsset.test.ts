@@ -17,11 +17,11 @@ import {
   findMetadataPda,
   TokenStandard,
 } from '../src';
-import { createDigitalAsset, createMetaplex } from './_setup';
+import { createDigitalAsset, createUmi } from './_setup';
 
 test('it can fetch a DigitalAsset by mint', async (t) => {
   // Given an existing NFT.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = await createDigitalAsset(mx);
 
   // When we fetch a digital asset using its mint address.
@@ -47,7 +47,7 @@ test('it can fetch a DigitalAsset by mint', async (t) => {
 
 test('it can fetch a DigitalAsset by metadata', async (t) => {
   // Given an existing NFT.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = await createDigitalAsset(mx);
 
   // When we fetch a digital asset using its metadata address.
@@ -73,7 +73,7 @@ test('it can fetch a DigitalAsset by metadata', async (t) => {
 
 test('it can fetch all DigitalAssets by mint list', async (t) => {
   // Given two existing NFTs.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mintA = await createDigitalAsset(mx);
   const mintB = await createDigitalAsset(mx);
 
@@ -92,7 +92,7 @@ test('it can fetch all DigitalAssets by mint list', async (t) => {
 
 test('it can fetch all DigitalAssets by creators', async (t) => {
   // Given two creators A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const creatorA = generateSigner(mx).publicKey;
   const creatorB = generateSigner(mx).publicKey;
 
@@ -116,7 +116,7 @@ test('it can fetch all DigitalAssets by creators', async (t) => {
 
 test('it can fetch all DigitalAssets by creators in different positions', async (t) => {
   // Given two creators A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const creatorA = generateSigner(mx).publicKey;
   const creatorB = generateSigner(mx).publicKey;
 
@@ -143,7 +143,7 @@ test('it can fetch all DigitalAssets by creators in different positions', async 
 
 test('it can fetch all DigitalAssets by update authority', async (t) => {
   // Given two update authorities A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const updateAuthorityA = generateSigner(mx);
   const updateAuthorityB = generateSigner(mx);
 

@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@metaplex-foundation/umi": "^0.1.2",
-    "@metaplex-foundation/umi-signer-derived": "^0.1.2",
-    "@metaplex-foundation/umi-signer-wallet-adapters": "^0.1.2",
-    "@metaplex-foundation/umi-uploader-bundlr": "^0.1.2",
+    "@metaplex-foundation/umi": "^0.2.0",
+    "@metaplex-foundation/umi-signer-derived": "^0.2.0",
+    "@metaplex-foundation/umi-signer-wallet-adapters": "^0.2.0",
+    "@metaplex-foundation/umi-uploader-bundlr": "^0.2.0",
     "@metaplex-foundation/mpl-essentials": "^0.1.0",
     "@lorisleiva/mpl-digital-asset": "^0.0.4",
     "@next/font": "13.1.6",

@@ -22,11 +22,11 @@ import {
   mintV1,
   TokenStandard,
 } from '../src';
-import { createDigitalAssetWithToken, createMetaplex } from './_setup';
+import { createDigitalAssetWithToken, createUmi } from './_setup';
 
 test('it can fetch a DigitalAssetWithToken from its mint and token accounts', async (t) => {
   // Given an existing NFT.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const owner = generateSigner(mx).publicKey;
   const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
 
@@ -63,7 +63,7 @@ test('it can fetch a DigitalAssetWithToken from its mint and token accounts', as
 
 test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
   // Given an existing NFT.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const owner = generateSigner(mx).publicKey;
   const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
 
@@ -98,7 +98,7 @@ test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
   // Given two owner A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const ownerA = generateSigner(mx).publicKey;
   const ownerB = generateSigner(mx).publicKey;
 
@@ -122,7 +122,7 @@ test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
   // Given two owner A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const ownerA = generateSigner(mx).publicKey;
   const ownerB = generateSigner(mx).publicKey;
 
@@ -182,7 +182,7 @@ test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by mint', async (t) => {
   // Given two owner A and B.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const ownerA = generateSigner(mx).publicKey;
   const ownerB = generateSigner(mx).publicKey;
 

@@ -1,26 +1,26 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import {
-  createMetaplex as baseCreateMetaplex,
+  createUmi as baseCreateUmi,
   generateSigner,
-  Metaplex,
   percentAmount,
   PublicKey,
   Signer,
   transactionBuilder,
+  Umi,
 } from '@metaplex-foundation/umi-test';
 import { createV1, mintV1, mplDigitalAsset, TokenStandard } from '../src';
 
-export const createMetaplex = async () =>
-  (await baseCreateMetaplex()).use(mplDigitalAsset());
+export const createUmi = async () =>
+  (await baseCreateUmi()).use(mplDigitalAsset());
 
 export const createDigitalAsset = async (
-  mx: Metaplex,
+  umi: Umi,
   input: Partial<Parameters<typeof createV1>[1]> = {}
 ): Promise<Signer> => {
-  const mint = generateSigner(mx);
-  await transactionBuilder(mx)
+  const mint = generateSigner(umi);
+  await transactionBuilder(umi)
     .add(
-      createV1(mx, {
+      createV1(umi, {
         mint,
         name: 'My NFT',
         uri: 'https://example.com',
@@ -33,17 +33,17 @@ export const createDigitalAsset = async (
 };
 
 export const createDigitalAssetWithToken = async (
-  mx: Metaplex,
+  umi: Umi,
   input: Partial<Parameters<typeof createV1>[1]> & {
     token?: PublicKey;
     tokenOwner?: PublicKey;
     amount?: number | bigint;
   } = {}
 ): Promise<Signer> => {
-  const mint = generateSigner(mx);
-  await transactionBuilder(mx)
+  const mint = generateSigner(umi);
+  await transactionBuilder(umi)
     .add(
-      createV1(mx, {
+      createV1(umi, {
         mint,
         name: 'My NFT',
         uri: 'https://example.com',
@@ -52,7 +52,7 @@ export const createDigitalAssetWithToken = async (
       })
     )
     .add(
-      mintV1(mx, {
+      mintV1(umi, {
         mint: mint.publicKey,
         token: input.token,
         tokenOwner: input.tokenOwner,

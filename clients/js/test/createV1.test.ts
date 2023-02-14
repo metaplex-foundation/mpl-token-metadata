@@ -19,11 +19,11 @@ import {
   programmableConfig,
   TokenStandard,
 } from '../src';
-import { createMetaplex } from './_setup';
+import { createUmi } from './_setup';
 
 test('it can create a new NonFungible', async (t) => {
   // Given a new mint Signer.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = generateSigner(mx);
   const masterEdition = findMasterEditionPda(mx, { mint: mint.publicKey });
 
@@ -82,7 +82,7 @@ test('it can create a new NonFungible', async (t) => {
 
 test('it can create a new ProgrammableNonFungible', async (t) => {
   // Given a new mint Signer.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = generateSigner(mx);
 
   // When we create a new ProgrammableNonFungible at this address.
@@ -142,7 +142,7 @@ test('it can create a new ProgrammableNonFungible', async (t) => {
 
 test('it can create a new Fungible', async (t) => {
   // Given a new mint Signer.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = generateSigner(mx);
 
   // When we create a new Fungible at this address.
@@ -193,7 +193,7 @@ test('it can create a new Fungible', async (t) => {
 
 test('it can create a new FungibleAsset', async (t) => {
   // Given a new mint Signer.
-  const mx = await createMetaplex();
+  const mx = await createUmi();
   const mint = generateSigner(mx);
 
   // When we create a new FungibleAsset at this address.

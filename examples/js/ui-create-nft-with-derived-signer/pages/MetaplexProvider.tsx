@@ -1,4 +1,4 @@
-import { createMetaplex } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { bundlrUploader } from "@metaplex-foundation/umi-uploader-bundlr";
 import { mplDigitalAsset } from "@lorisleiva/mpl-digital-asset";
@@ -14,7 +14,7 @@ export const MetaplexProvider = ({
   children: ReactNode;
 }) => {
   const wallet = useWallet();
-  const metaplex = createMetaplex(endpoint)
+  const metaplex = createUmi(endpoint)
     .use(walletAdapterIdentity(wallet))
     .use(bundlrUploader())
     .use(mplDigitalAsset());

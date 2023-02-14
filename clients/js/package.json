@@ -25,12 +25,12 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@metaplex-foundation/umi-core": "^0.1.2",
-    "@metaplex-foundation/mpl-essentials": "^0.1.0"
+    "@metaplex-foundation/umi-core": "^0.2.0",
+    "@metaplex-foundation/mpl-essentials": "^0.2.0"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
-    "@metaplex-foundation/umi-test": "^0.1.3",
+    "@metaplex-foundation/umi-test": "^0.2.0",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",
