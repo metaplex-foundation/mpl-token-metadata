@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@lorisleiva/mpl-digital-asset': ^0.0.4
+  '@lorisleiva/mpl-token-metadata': ^0.2.0
   '@metaplex-foundation/mpl-essentials': ^0.1.0
   '@metaplex-foundation/umi': ^0.2.0
   '@metaplex-foundation/umi-signer-derived': ^0.2.0
@@ -24,7 +24,7 @@ specifiers:
   typescript: 4.9.5
 
 dependencies:
-  '@lorisleiva/mpl-digital-asset': 0.0.4
+  '@lorisleiva/mpl-token-metadata': 0.2.0
   '@metaplex-foundation/mpl-essentials': 0.1.0
   '@metaplex-foundation/umi': 0.2.0_@solana+web3.js@1.73.2
   '@metaplex-foundation/umi-signer-derived': 0.2.0
@@ -623,21 +623,11 @@ packages:
     resolution: {integrity: sha512-z+ILK8Q3y+nfUl43ctCPuR4Y2bIxk/ooCQFwZxhtci1EhAtMDzMAx2W25qx8G1PPL9UUOdnUax19+F0OjXoj4w==}
     dev: false
 
-  /@lorisleiva/js-core/0.0.54:
-    resolution: {integrity: sha512-syxJMNnNqisIKcrr7QPbq15iR8aopjAd5PzmNZE/FV7QlHq9xjqZaTpsljg8INLlUshoa71W2MDGA8BBlfI4Dg==}
-    dev: false
-
-  /@lorisleiva/mpl-digital-asset/0.0.4:
-    resolution: {integrity: sha512-3NmJISq2Imwd9FGzni9LqISNHVNc3XFY3b5AsTzk/0yDuy1Cv18GENcBoIw9Es2NIWD2J2T95ueeLlkHW4pMQQ==}
+  /@lorisleiva/mpl-token-metadata/0.2.0:
+    resolution: {integrity: sha512-1xX2ilHUiFtO2nLQQRm/6D1vsB/gFKQq4b+OFBeGGpu5hC1XK7M+9b/zmOs+Qr1l/XglcyeF7kuPBVKWxZefag==}
     dependencies:
-      '@lorisleiva/js-core': 0.0.54
-      '@lorisleiva/mpl-essentials': 0.0.5
-    dev: false
-
-  /@lorisleiva/mpl-essentials/0.0.5:
-    resolution: {integrity: sha512-P/lmj1ASo8uILW956WmDHbFHnjh5w8TzXkJqy9kAkwE7OyJSc8DVdrtd9JDMmcdytnYCfS3yAyE180llGLx6OA==}
-    dependencies:
-      '@lorisleiva/js-core': 0.0.54
+      '@metaplex-foundation/mpl-essentials': 0.2.0
+      '@metaplex-foundation/umi-core': 0.2.0
     dev: false
 
   /@metaplex-foundation/beet/0.7.1:
@@ -654,6 +644,12 @@ packages:
     resolution: {integrity: sha512-KmDiovz7x0HRKcz5b5/6n4tHReryo7I59R4zO9mq+CkYPh/zCUwbpFHYFJbeiNG+JwY6ZBEE3UvIKBa/0W3BZg==}
     dependencies:
       '@metaplex-foundation/umi-core': 0.1.2
+    dev: false
+
+  /@metaplex-foundation/mpl-essentials/0.2.0:
+    resolution: {integrity: sha512-puoLaFbGmibQiDSSxabhwoVxl6LME6s53YSIpEWOzQ9hagnt0VQd+FlGj2EgmfFM662XqjujRguZVtdgJmTuqQ==}
+    dependencies:
+      '@metaplex-foundation/umi-core': 0.2.0
     dev: false
 
   /@metaplex-foundation/umi-core/0.1.2:

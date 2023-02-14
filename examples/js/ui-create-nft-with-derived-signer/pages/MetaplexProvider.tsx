@@ -1,7 +1,7 @@
 import { createUmi } from "@metaplex-foundation/umi";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { bundlrUploader } from "@metaplex-foundation/umi-uploader-bundlr";
-import { mplDigitalAsset } from "@lorisleiva/mpl-digital-asset";
+import { mplDigitalAsset } from "@lorisleiva/mpl-token-metadata";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ReactNode } from "react";
 import { MetaplexContext } from "./useMetaplex";

@@ -1,8 +1,8 @@
-import type { Metaplex } from "@metaplex-foundation/umi";
+import type { Umi } from "@metaplex-foundation/umi";
 import { createContext, useContext } from "react";
 
 type MetaplexContext = {
-  metaplex: Metaplex | null;
+  metaplex: Umi | null;
 };
 
 const DEFAULT_CONTEXT: MetaplexContext = {
@@ -11,7 +11,7 @@ const DEFAULT_CONTEXT: MetaplexContext = {
 
 export const MetaplexContext = createContext<MetaplexContext>(DEFAULT_CONTEXT);
 
-export function useMetaplex(): Metaplex {
+export function useMetaplex(): Umi {
   const metaplex = useContext(MetaplexContext).metaplex;
   if (!metaplex) {
     throw new Error(

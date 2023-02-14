@@ -2,12 +2,12 @@ import {
   base58PublicKey,
   createGenericFileFromBrowserFile,
   generateSigner,
-  Metaplex,
+  Umi,
   percentAmount,
   PublicKey,
   transactionBuilder,
 } from "@metaplex-foundation/umi";
-import { createNft } from "@lorisleiva/mpl-digital-asset";
+import { createNft } from "@lorisleiva/mpl-token-metadata";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
@@ -24,11 +24,7 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-async function uploadAndCreateNft(
-  metaplex: Metaplex,
-  name: string,
-  file: File
-) {
+async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
   // Ensure input is valid.
   if (!name) {
     throw new Error("Please enter a name for your NFT.");
