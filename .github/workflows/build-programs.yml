@@ -1,0 +1,74 @@
+name: Build Programs
+
+on:
+  workflow_call:
+    inputs:
+      rust:
+        default: ${{ vars.RUST_VERSION }}
+        type: string
+      solana:
+        default: ${{ vars.SOLANA_VERSION }}
+        type: string
+  workflow_dispatch:
+    inputs:
+      rust:
+        description: Rust version
+        default: 1.65.0
+        required: true
+        type: string
+      solana:
+        description: Solana version
+        default: 1.13.6
+        required: true
+        type: string
+
+env:
+  CACHE: true
+
+jobs:
+  build_programs:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        program: ${{ fromJson(vars.PROGRAMS) }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: ./.github/actions/install-rust
+        with:
+          version: ${{ inputs.rust }}
+
+      - name: Install Solana
+        uses: ./.github/actions/install-solana
+        with:
+          version: ${{ inputs.solana }}
+          cache: ${{ env.CACHE }}
+
+      - name: Cache program dependencies
+        if: env.CACHE == 'true'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./programs/${{ matrix.program }}/target/
+          key: ${{ runner.os }}-program-${{ matrix.program }}-${{ hashFiles(format('./programs/{0}/Cargo.lock', matrix.program)) }}
+          restore-keys: |
+            ${{ runner.os }}-program-${{ matrix.program }}
+
+      - name: Build program
+        working-directory: ./programs/${{ matrix.program }}
+        run: cargo build-bpf
+
+      - name: Upload program builds
+        uses: actions/upload-artifact@v3
+        with:
+          name: program-builds
+          # First wildcard ensures exported paths are consistently under the programs folder.
+          path: ./program*/**/target/deploy/*.so
+          if-no-files-found: error

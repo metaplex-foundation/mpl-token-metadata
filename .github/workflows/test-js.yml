@@ -1,0 +1,71 @@
+name: Test JS client
+
+on:
+  workflow_call:
+    inputs:
+      solana:
+        default: ${{ vars.SOLANA_VERSION }}
+        type: string
+      node:
+        default: ${{ vars.NODE_VERSION }}
+        type: string
+
+env:
+  CACHE: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["16.x", "18.x"]
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Start validator
+        uses: ./.github/actions/start-validator
+        with:
+          node: ${{ matrix.node }}
+          solana: ${{ inputs.solana }}
+          cache: ${{ env.CACHE }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-js-client
+        with:
+          cache: ${{ env.CACHE }}
+
+      - name: Build
+        working-directory: ./clients/js
+        run: pnpm build
+
+      - name: Test
+        working-directory: ./clients/js
+        run: pnpm test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: ./.github/actions/install-node
+        with:
+          version: ${{ inputs.node }}
+          cache: ${{ env.CACHE }}
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-js-client
+        with:
+          cache: ${{ env.CACHE }}
+
+      - name: Format
+        working-directory: ./clients/js
+        run: pnpm format
+
+      - name: Lint
+        working-directory: ./clients/js
+        run: pnpm lint

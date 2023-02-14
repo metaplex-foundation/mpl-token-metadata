@@ -1,0 +1,49 @@
+# This file is used by the dorny/paths-filter action to figure out if a program or
+# client has changed and thus if it should be built or tested. Any changes in the
+# files listed below will trigger the appropriate workflow for that program or client.
+
+# Programs.
+
+program_common: &program_common
+  - ".github/actions/install-rust/**"
+  - ".github/actions/install-solana/**"
+  - ".github/workflows/build-programs.yml"
+  - ".github/workflows/test-programs.yml"
+  - ".github/workflows/main.yml"
+
+system_extras_program: &system_extras_program
+  - *program_common
+  - "programs/system-extras/**"
+
+token_extras_program: &token_extras_program
+  - *program_common
+  - "programs/token-extras/**"
+
+programs: &programs
+  - *system_extras_program
+  - *token_extras_program
+
+# Clients.
+
+client_common: &client_common
+  - ".github/actions/install-js-client/**"
+  - ".github/actions/install-node/**"
+  - ".github/actions/install-solana/**"
+  - ".github/actions/start-validator/**"
+  - ".github/workflows/test-js.yml"
+  - ".github/workflows/main.yml"
+  - "configs/shank.cjs"
+  - "configs/kinobi.cjs"
+
+js_client: &js_client
+  - *client_common
+  - "clients/js/**"
+
+clients: &clients
+  - *js_client
+
+# Any.
+
+any: &any
+  - *programs
+  - *clients

@@ -1,30 +1,30 @@
 name: Install Rust
 
 inputs:
-  toolchain:
-    description: The Rust version to use, default env.RUST_TOOLCHAIN
+  version:
+    description: The Rust version to install
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Install Rust Stable
+    - name: Install Rust
       id: rust_toolchain
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: ${{ inputs.toolchain }} 
-          override: true
-          profile: minimal
-          components: rustfmt, clippy
+        toolchain: ${{ inputs.version }}
+        override: true
+        profile: minimal
+        components: rustfmt, clippy
 
-    - name: Add Cargo bin to Path 
+    - name: Add Cargo bin to Path
       run: |
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       shell: bash
 
-    - name: Verify Rust install 
+    - name: Verify Rust install
       run: |
-        echo "Verifying rust '${{ inputs.toolchain }}' ..."
+        echo "Verifying rust '${{ inputs.version }}' ..."
         rustc --version
         cargo --version
         cargo clippy --version
@@ -33,5 +33,5 @@ runs:
 
     - name: Share rustc hash
       run: |
-       echo 'RUSTC_HASH=${{ steps.rust_toolchain.outputs.rustc_hash }}' >> $GITHUB_ENV
+        echo 'RUSTC_HASH=${{ steps.rust_toolchain.outputs.rustc_hash }}' >> $GITHUB_ENV
       shell: bash

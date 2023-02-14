@@ -1,0 +1,82 @@
+name: Test Programs
+
+on:
+  workflow_call:
+    inputs:
+      rust:
+        default: ${{ vars.RUST_VERSION }}
+        type: string
+      solana:
+        default: ${{ vars.SOLANA_VERSION }}
+        type: string
+      program_matrix:
+        type: string
+  workflow_dispatch:
+    inputs:
+      rust:
+        description: Rust version
+        default: 1.65.0
+        required: true
+        type: string
+      solana:
+        description: Solana version
+        default: 1.13.6
+        required: true
+        type: string
+
+env:
+  CACHE: true
+
+jobs:
+  test_programs:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        program: ${{ fromJson(inputs.program_matrix || vars.PROGRAMS) }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: ./.github/actions/install-rust
+        with:
+          version: ${{ inputs.rust }}
+
+      - name: Install Solana
+        uses: ./.github/actions/install-solana
+        with:
+          version: ${{ inputs.solana }}
+          cache: ${{ env.CACHE }}
+
+      - name: Cache program dev dependencies
+        if: env.CACHE == 'true'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./programs/${{ matrix.program }}/target/
+          key: ${{ runner.os }}-program-${{ matrix.program }}-dev-${{ hashFiles(format('./programs/{0}/Cargo.lock', matrix.program)) }}
+          restore-keys: |
+            ${{ runner.os }}-program-${{ matrix.program }}-dev
+            ${{ runner.os }}-program-${{ matrix.program }}-${{ hashFiles(format('./programs/{0}/Cargo.lock', matrix.program)) }}
+            ${{ runner.os }}-program-${{ matrix.program }}
+
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --manifest-path ./programs/${{ matrix.program }}/Cargo.toml -- --check
+
+      - name: Run cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features --no-deps --manifest-path ./programs/${{ matrix.program }}/Cargo.toml
+
+      - name: Run tests
+        working-directory: ./programs/${{ matrix.program }}
+        run: cargo test-bpf

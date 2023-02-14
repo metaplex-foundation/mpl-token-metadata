@@ -1,0 +1,37 @@
+name: Start validator
+
+inputs:
+  node:
+    description: The Node.js version to install
+    required: true
+  solana:
+    description: The Solana version to install
+    required: true
+  cache:
+    description: Whether we should cache files between workflow runs
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download program builds
+      id: download
+      uses: actions/download-artifact@v3
+      with:
+        name: program-builds
+
+    - name: Install Solana
+      uses: ./.github/actions/install-solana
+      with:
+        version: ${{ inputs.solana }}
+        cache: ${{ inputs.cache }}
+
+    - name: Install Node.js
+      uses: ./.github/actions/install-node
+      with:
+        version: ${{ inputs.node }}
+        cache: ${{ inputs.cache }}
+
+    - name: Start local validator
+      run: pnpm validator
+      shell: bash
