@@ -6,7 +6,7 @@ on:
       bump:
         description: Version bump
         required: true
-        default: patch
+        default: prerelease
         type: choice
         options:
           - patch
@@ -20,7 +20,7 @@ on:
         description: NPM Tag (and preid for pre-releases)
         required: true
         type: string
-        default: latest
+        default: alpha
       create_release:
         description: Create a GitHub release
         required: true
@@ -101,23 +101,23 @@ jobs:
         with:
           tag: js@v${{ steps.bump.outputs.new_version }}
 
-  # deploy_js_docs:
-  #   name: JS client / Deploy docs
-  #   runs-on: ubuntu-latest
-  #   needs: deploy_js
-  #   environment:
-  #     name: js-client-documentation
-  #     url: ${{ steps.deploy.outputs.url }}
-  #   steps:
-  #     - name: Git checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         ref: ${{ github.ref }}
+  deploy_js_docs:
+    name: JS client / Deploy docs
+    runs-on: ubuntu-latest
+    needs: deploy_js
+    environment:
+      name: js-client-documentation
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
 
-  #     - name: Deploy to Vercel
-  #       id: deploy
-  #       env:
-  #         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  #         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  #       working-directory: ./clients/js
-  #       run: echo "url=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})" | tee $GITHUB_OUTPUT
+      - name: Deploy to Vercel
+        id: deploy
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./clients/js
+        run: echo "url=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})" | tee $GITHUB_OUTPUT
