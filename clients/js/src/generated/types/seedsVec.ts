@@ -10,9 +10,13 @@ import { Context, Serializer } from '@metaplex-foundation/umi-core';
 
 export type SeedsVec = { seeds: Array<Uint8Array> };
 
+export type SeedsVecArgs = SeedsVec;
+
 export function getSeedsVecSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<SeedsVec> {
+): Serializer<SeedsVecArgs, SeedsVec> {
   const s = context.serializer;
-  return s.struct<SeedsVec>([['seeds', s.vec(s.bytes)]], 'SeedsVec');
+  return s.struct<SeedsVec>([['seeds', s.array(s.bytes())]], {
+    description: 'SeedsVec',
+  }) as Serializer<SeedsVecArgs, SeedsVec>;
 }

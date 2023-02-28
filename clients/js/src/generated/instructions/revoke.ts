@@ -18,7 +18,7 @@ import {
   publicKey,
 } from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
-import { RevokeArgs, getRevokeArgsSerializer } from '../types';
+import { RevokeArgs, RevokeArgsArgs, getRevokeArgsSerializer } from '../types';
 
 // Accounts.
 export type RevokeInstructionAccounts = {
@@ -58,26 +58,26 @@ export type RevokeInstructionData = {
   revokeArgs: RevokeArgs;
 };
 
-export type RevokeInstructionArgs = { revokeArgs: RevokeArgs };
+export type RevokeInstructionDataArgs = { revokeArgs: RevokeArgsArgs };
 
 export function getRevokeInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<RevokeInstructionArgs, RevokeInstructionData> {
+): Serializer<RevokeInstructionDataArgs, RevokeInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    RevokeInstructionArgs,
+    RevokeInstructionDataArgs,
     RevokeInstructionData,
     RevokeInstructionData
   >(
     s.struct<RevokeInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['revokeArgs', getRevokeArgsSerializer(context)],
       ],
-      'RevokeInstructionArgs'
+      { description: 'RevokeInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 45 } as RevokeInstructionData)
-  ) as Serializer<RevokeInstructionArgs, RevokeInstructionData>;
+  ) as Serializer<RevokeInstructionDataArgs, RevokeInstructionData>;
 }
 
 // Instruction.
@@ -86,7 +86,7 @@ export function revoke(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: RevokeInstructionAccounts & RevokeInstructionArgs
+  input: RevokeInstructionAccounts & RevokeInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

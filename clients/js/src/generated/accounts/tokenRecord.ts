@@ -20,12 +20,14 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-  utf8,
 } from '@metaplex-foundation/umi-core';
 import {
   Key,
+  KeyArgs,
   TokenDelegateRole,
+  TokenDelegateRoleArgs,
   TokenState,
+  TokenStateArgs,
   getKeySerializer,
   getTokenDelegateRoleSerializer,
   getTokenStateSerializer,
@@ -43,14 +45,49 @@ export type TokenRecordAccountData = {
   lockedTransfer: Option<PublicKey>;
 };
 
-export type TokenRecordAccountArgs = {
+export type TokenRecordAccountDataArgs = {
   bump: number;
-  state: TokenState;
+  state: TokenStateArgs;
   ruleSetRevision: Option<number | bigint>;
   delegate: Option<PublicKey>;
-  delegateRole: Option<TokenDelegateRole>;
+  delegateRole: Option<TokenDelegateRoleArgs>;
   lockedTransfer: Option<PublicKey>;
 };
+
+export function getTokenRecordAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData> {
+  const s = context.serializer;
+  return mapSerializer<
+    TokenRecordAccountDataArgs,
+    TokenRecordAccountData,
+    TokenRecordAccountData
+  >(
+    s.struct<TokenRecordAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['bump', s.u8()],
+        ['state', getTokenStateSerializer(context)],
+        ['ruleSetRevision', s.option(s.u64())],
+        ['delegate', s.option(s.publicKey())],
+        ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
+        ['lockedTransfer', s.option(s.publicKey())],
+      ],
+      { description: 'TokenRecord' }
+    ),
+    (value) => ({ ...value, key: Key.TokenRecord } as TokenRecordAccountData)
+  ) as Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData>;
+}
+
+export function deserializeTokenRecord(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): TokenRecord {
+  return deserializeAccount(
+    rawAccount,
+    getTokenRecordAccountDataSerializer(context)
+  );
+}
 
 export async function fetchTokenRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -105,61 +142,26 @@ export function getTokenRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: Key;
+      key: KeyArgs;
       bump: number;
-      state: TokenState;
+      state: TokenStateArgs;
       ruleSetRevision: Option<number | bigint>;
       delegate: Option<PublicKey>;
-      delegateRole: Option<TokenDelegateRole>;
+      delegateRole: Option<TokenDelegateRoleArgs>;
       lockedTransfer: Option<PublicKey>;
     }>([
       ['key', getKeySerializer(context)],
-      ['bump', s.u8],
+      ['bump', s.u8()],
       ['state', getTokenStateSerializer(context)],
-      ['ruleSetRevision', s.option(s.u64)],
-      ['delegate', s.option(s.publicKey)],
+      ['ruleSetRevision', s.option(s.u64())],
+      ['delegate', s.option(s.publicKey())],
       ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
-      ['lockedTransfer', s.option(s.publicKey)],
+      ['lockedTransfer', s.option(s.publicKey())],
     ])
     .deserializeUsing<TokenRecord>((account) =>
       deserializeTokenRecord(context, account)
     )
     .whereField('key', Key.TokenRecord);
-}
-
-export function deserializeTokenRecord(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): TokenRecord {
-  return deserializeAccount(
-    rawAccount,
-    getTokenRecordAccountDataSerializer(context)
-  );
-}
-
-export function getTokenRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<TokenRecordAccountArgs, TokenRecordAccountData> {
-  const s = context.serializer;
-  return mapSerializer<
-    TokenRecordAccountArgs,
-    TokenRecordAccountData,
-    TokenRecordAccountData
-  >(
-    s.struct<TokenRecordAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['bump', s.u8],
-        ['state', getTokenStateSerializer(context)],
-        ['ruleSetRevision', s.option(s.u64)],
-        ['delegate', s.option(s.publicKey)],
-        ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
-        ['lockedTransfer', s.option(s.publicKey)],
-      ],
-      'TokenRecord'
-    ),
-    (value) => ({ ...value, key: Key.TokenRecord } as TokenRecordAccountData)
-  ) as Serializer<TokenRecordAccountArgs, TokenRecordAccountData>;
 }
 
 export function getTokenRecordSize(
@@ -181,10 +183,10 @@ export function findTokenRecordPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
-    utf8.serialize('token_record'),
-    s.publicKey.serialize(seeds.token),
+    s.publicKey().serialize(seeds.mint),
+    s.string({ size: 'variable' }).serialize('token_record'),
+    s.publicKey().serialize(seeds.token),
   ]);
 }

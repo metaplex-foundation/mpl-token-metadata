@@ -1,6 +1,6 @@
-import { MetaplexError } from '@metaplex-foundation/umi-core';
+import { UmiError } from '@metaplex-foundation/umi-core';
 
-export class TokenMetadataError extends MetaplexError {
+export class TokenMetadataError extends UmiError {
   readonly name: string = 'TokenMetadataError';
 
   constructor(message: string, cause?: Error) {

@@ -64,32 +64,32 @@ export type DelegateUpdateV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateUpdateV1InstructionArgs = {
+export type DelegateUpdateV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateUpdateV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateUpdateV1InstructionArgs,
+  DelegateUpdateV1InstructionDataArgs,
   DelegateUpdateV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateUpdateV1InstructionArgs,
+    DelegateUpdateV1InstructionDataArgs,
     DelegateUpdateV1InstructionData,
     DelegateUpdateV1InstructionData
   >(
     s.struct<DelegateUpdateV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateUpdateV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['delegateUpdateV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'DelegateUpdateV1InstructionArgs'
+      { description: 'DelegateUpdateV1InstructionData' }
     ),
     (value) =>
       ({
@@ -98,7 +98,7 @@ export function getDelegateUpdateV1InstructionDataSerializer(
         delegateUpdateV1Discriminator: 3,
       } as DelegateUpdateV1InstructionData)
   ) as Serializer<
-    DelegateUpdateV1InstructionArgs,
+    DelegateUpdateV1InstructionDataArgs,
     DelegateUpdateV1InstructionData
   >;
 }
@@ -109,7 +109,8 @@ export function delegateUpdateV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateUpdateV1InstructionAccounts & DelegateUpdateV1InstructionArgs
+  input: DelegateUpdateV1InstructionAccounts &
+    DelegateUpdateV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

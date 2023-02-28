@@ -19,42 +19,43 @@ export type RuleSetToggle =
   | { __kind: 'Clear' }
   | { __kind: 'Set'; fields: [PublicKey] };
 
+export type RuleSetToggleArgs = RuleSetToggle;
+
 export function getRuleSetToggleSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<RuleSetToggle> {
+): Serializer<RuleSetToggleArgs, RuleSetToggle> {
   const s = context.serializer;
   return s.dataEnum<RuleSetToggle>(
     [
-      ['None', s.unit],
-      ['Clear', s.unit],
+      ['None', s.unit()],
+      ['Clear', s.unit()],
       [
         'Set',
         s.struct<GetDataEnumKindContent<RuleSetToggle, 'Set'>>(
-          [['fields', s.tuple([s.publicKey])]],
-          'Set'
+          [['fields', s.tuple([s.publicKey()])]],
+          { description: 'Set' }
         ),
       ],
     ],
-    undefined,
-    'RuleSetToggle'
-  );
+    { description: 'RuleSetToggle' }
+  ) as Serializer<RuleSetToggleArgs, RuleSetToggle>;
 }
 
 // Data Enum Helpers.
 export function ruleSetToggle(
   kind: 'None'
-): GetDataEnumKind<RuleSetToggle, 'None'>;
+): GetDataEnumKind<RuleSetToggleArgs, 'None'>;
 export function ruleSetToggle(
   kind: 'Clear'
-): GetDataEnumKind<RuleSetToggle, 'Clear'>;
+): GetDataEnumKind<RuleSetToggleArgs, 'Clear'>;
 export function ruleSetToggle(
   kind: 'Set',
-  data: GetDataEnumKindContent<RuleSetToggle, 'Set'>['fields']
-): GetDataEnumKind<RuleSetToggle, 'Set'>;
-export function ruleSetToggle<K extends RuleSetToggle['__kind']>(
+  data: GetDataEnumKindContent<RuleSetToggleArgs, 'Set'>['fields']
+): GetDataEnumKind<RuleSetToggleArgs, 'Set'>;
+export function ruleSetToggle<K extends RuleSetToggleArgs['__kind']>(
   kind: K,
   data?: any
-): Extract<RuleSetToggle, { __kind: K }> {
+): Extract<RuleSetToggleArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

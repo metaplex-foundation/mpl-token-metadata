@@ -53,26 +53,26 @@ export type LockInstructionAccounts = {
 // Arguments.
 export type LockInstructionData = { discriminator: number; lockArgs: LockArgs };
 
-export type LockInstructionArgs = { lockArgs: LockArgsArgs };
+export type LockInstructionDataArgs = { lockArgs: LockArgsArgs };
 
 export function getLockInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<LockInstructionArgs, LockInstructionData> {
+): Serializer<LockInstructionDataArgs, LockInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    LockInstructionArgs,
+    LockInstructionDataArgs,
     LockInstructionData,
     LockInstructionData
   >(
     s.struct<LockInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['lockArgs', getLockArgsSerializer(context)],
       ],
-      'LockInstructionArgs'
+      { description: 'LockInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 46 } as LockInstructionData)
-  ) as Serializer<LockInstructionArgs, LockInstructionData>;
+  ) as Serializer<LockInstructionDataArgs, LockInstructionData>;
 }
 
 // Instruction.
@@ -81,7 +81,7 @@ export function lock(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: LockInstructionAccounts & LockInstructionArgs
+  input: LockInstructionAccounts & LockInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

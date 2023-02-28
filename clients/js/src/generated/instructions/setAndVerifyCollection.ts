@@ -40,28 +40,28 @@ export type SetAndVerifyCollectionInstructionAccounts = {
 // Arguments.
 export type SetAndVerifyCollectionInstructionData = { discriminator: number };
 
-export type SetAndVerifyCollectionInstructionArgs = {};
+export type SetAndVerifyCollectionInstructionDataArgs = {};
 
 export function getSetAndVerifyCollectionInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  SetAndVerifyCollectionInstructionArgs,
+  SetAndVerifyCollectionInstructionDataArgs,
   SetAndVerifyCollectionInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    SetAndVerifyCollectionInstructionArgs,
+    SetAndVerifyCollectionInstructionDataArgs,
     SetAndVerifyCollectionInstructionData,
     SetAndVerifyCollectionInstructionData
   >(
     s.struct<SetAndVerifyCollectionInstructionData>(
-      [['discriminator', s.u8]],
-      'SetAndVerifyCollectionInstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'SetAndVerifyCollectionInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 25 } as SetAndVerifyCollectionInstructionData)
   ) as Serializer<
-    SetAndVerifyCollectionInstructionArgs,
+    SetAndVerifyCollectionInstructionDataArgs,
     SetAndVerifyCollectionInstructionData
   >;
 }

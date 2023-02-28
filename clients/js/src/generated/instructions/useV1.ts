@@ -60,29 +60,29 @@ export type UseV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type UseV1InstructionArgs = {
+export type UseV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getUseV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UseV1InstructionArgs, UseV1InstructionData> {
+): Serializer<UseV1InstructionDataArgs, UseV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    UseV1InstructionArgs,
+    UseV1InstructionDataArgs,
     UseV1InstructionData,
     UseV1InstructionData
   >(
     s.struct<UseV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['useV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['useV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'UseV1InstructionArgs'
+      { description: 'UseV1InstructionData' }
     ),
     (value) =>
       ({
@@ -90,7 +90,7 @@ export function getUseV1InstructionDataSerializer(
         discriminator: 51,
         useV1Discriminator: 0,
       } as UseV1InstructionData)
-  ) as Serializer<UseV1InstructionArgs, UseV1InstructionData>;
+  ) as Serializer<UseV1InstructionDataArgs, UseV1InstructionData>;
 }
 
 // Instruction.
@@ -99,7 +99,7 @@ export function useV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UseV1InstructionAccounts & UseV1InstructionArgs
+  input: UseV1InstructionAccounts & UseV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -51,33 +51,33 @@ export type ApproveUseAuthorityInstructionData = {
   numberOfUses: bigint;
 };
 
-export type ApproveUseAuthorityInstructionArgs = {
+export type ApproveUseAuthorityInstructionDataArgs = {
   numberOfUses: number | bigint;
 };
 
 export function getApproveUseAuthorityInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  ApproveUseAuthorityInstructionArgs,
+  ApproveUseAuthorityInstructionDataArgs,
   ApproveUseAuthorityInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    ApproveUseAuthorityInstructionArgs,
+    ApproveUseAuthorityInstructionDataArgs,
     ApproveUseAuthorityInstructionData,
     ApproveUseAuthorityInstructionData
   >(
     s.struct<ApproveUseAuthorityInstructionData>(
       [
-        ['discriminator', s.u8],
-        ['numberOfUses', s.u64],
+        ['discriminator', s.u8()],
+        ['numberOfUses', s.u64()],
       ],
-      'ApproveUseAuthorityInstructionArgs'
+      { description: 'ApproveUseAuthorityInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 20 } as ApproveUseAuthorityInstructionData)
   ) as Serializer<
-    ApproveUseAuthorityInstructionArgs,
+    ApproveUseAuthorityInstructionDataArgs,
     ApproveUseAuthorityInstructionData
   >;
 }
@@ -86,7 +86,7 @@ export function getApproveUseAuthorityInstructionDataSerializer(
 export function approveUseAuthority(
   context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
   input: ApproveUseAuthorityInstructionAccounts &
-    ApproveUseAuthorityInstructionArgs
+    ApproveUseAuthorityInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

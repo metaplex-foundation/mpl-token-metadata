@@ -24,9 +24,11 @@ export enum Key {
   MetadataDelegate,
 }
 
+export type KeyArgs = Key;
+
 export function getKeySerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Key> {
+): Serializer<KeyArgs, Key> {
   const s = context.serializer;
-  return s.enum<Key>(Key, 'Key');
+  return s.enum<Key>(Key, { description: 'Key' }) as Serializer<KeyArgs, Key>;
 }

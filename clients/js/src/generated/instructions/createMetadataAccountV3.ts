@@ -54,7 +54,7 @@ export type CreateMetadataAccountV3InstructionData = {
   collectionDetails: Option<CollectionDetails>;
 };
 
-export type CreateMetadataAccountV3InstructionArgs = {
+export type CreateMetadataAccountV3InstructionDataArgs = {
   data: DataV2Args;
   isMutable: boolean;
   collectionDetails: Option<CollectionDetailsArgs>;
@@ -63,18 +63,18 @@ export type CreateMetadataAccountV3InstructionArgs = {
 export function getCreateMetadataAccountV3InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  CreateMetadataAccountV3InstructionArgs,
+  CreateMetadataAccountV3InstructionDataArgs,
   CreateMetadataAccountV3InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    CreateMetadataAccountV3InstructionArgs,
+    CreateMetadataAccountV3InstructionDataArgs,
     CreateMetadataAccountV3InstructionData,
     CreateMetadataAccountV3InstructionData
   >(
     s.struct<CreateMetadataAccountV3InstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['data', getDataV2Serializer(context)],
         ['isMutable', s.bool()],
         [
@@ -82,7 +82,7 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
           s.option(getCollectionDetailsSerializer(context)),
         ],
       ],
-      'CreateMetadataAccountV3InstructionArgs'
+      { description: 'CreateMetadataAccountV3InstructionData' }
     ),
     (value) =>
       ({
@@ -90,7 +90,7 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
         discriminator: 33,
       } as CreateMetadataAccountV3InstructionData)
   ) as Serializer<
-    CreateMetadataAccountV3InstructionArgs,
+    CreateMetadataAccountV3InstructionDataArgs,
     CreateMetadataAccountV3InstructionData
   >;
 }
@@ -102,7 +102,7 @@ export function createMetadataAccountV3(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: CreateMetadataAccountV3InstructionAccounts &
-    CreateMetadataAccountV3InstructionArgs
+    CreateMetadataAccountV3InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

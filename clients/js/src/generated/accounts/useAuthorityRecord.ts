@@ -19,9 +19,8 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-  utf8,
 } from '@metaplex-foundation/umi-core';
-import { Key, getKeySerializer } from '../types';
+import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type UseAuthorityRecord = Account<UseAuthorityRecordAccountData>;
 
@@ -31,10 +30,51 @@ export type UseAuthorityRecordAccountData = {
   bump: number;
 };
 
-export type UseAuthorityRecordAccountArgs = {
+export type UseAuthorityRecordAccountDataArgs = {
   allowedUses: number | bigint;
   bump: number;
 };
+
+export function getUseAuthorityRecordAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<
+  UseAuthorityRecordAccountDataArgs,
+  UseAuthorityRecordAccountData
+> {
+  const s = context.serializer;
+  return mapSerializer<
+    UseAuthorityRecordAccountDataArgs,
+    UseAuthorityRecordAccountData,
+    UseAuthorityRecordAccountData
+  >(
+    s.struct<UseAuthorityRecordAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['allowedUses', s.u64()],
+        ['bump', s.u8()],
+      ],
+      { description: 'UseAuthorityRecord' }
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: Key.UseAuthorityRecord,
+      } as UseAuthorityRecordAccountData)
+  ) as Serializer<
+    UseAuthorityRecordAccountDataArgs,
+    UseAuthorityRecordAccountData
+  >;
+}
+
+export function deserializeUseAuthorityRecord(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): UseAuthorityRecord {
+  return deserializeAccount(
+    rawAccount,
+    getUseAuthorityRecordAccountDataSerializer(context)
+  );
+}
 
 export async function fetchUseAuthorityRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -88,50 +128,19 @@ export function getUseAuthorityRecordGpaBuilder(
   const s = context.serializer;
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
-    .registerFields<{ key: Key; allowedUses: number | bigint; bump: number }>([
+    .registerFields<{
+      key: KeyArgs;
+      allowedUses: number | bigint;
+      bump: number;
+    }>([
       ['key', getKeySerializer(context)],
-      ['allowedUses', s.u64],
-      ['bump', s.u8],
+      ['allowedUses', s.u64()],
+      ['bump', s.u8()],
     ])
     .deserializeUsing<UseAuthorityRecord>((account) =>
       deserializeUseAuthorityRecord(context, account)
     )
     .whereField('key', Key.UseAuthorityRecord);
-}
-
-export function deserializeUseAuthorityRecord(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): UseAuthorityRecord {
-  return deserializeAccount(
-    rawAccount,
-    getUseAuthorityRecordAccountDataSerializer(context)
-  );
-}
-
-export function getUseAuthorityRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<UseAuthorityRecordAccountArgs, UseAuthorityRecordAccountData> {
-  const s = context.serializer;
-  return mapSerializer<
-    UseAuthorityRecordAccountArgs,
-    UseAuthorityRecordAccountData,
-    UseAuthorityRecordAccountData
-  >(
-    s.struct<UseAuthorityRecordAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['allowedUses', s.u64],
-        ['bump', s.u8],
-      ],
-      'UseAuthorityRecord'
-    ),
-    (value) =>
-      ({
-        ...value,
-        key: Key.UseAuthorityRecord,
-      } as UseAuthorityRecordAccountData)
-  ) as Serializer<UseAuthorityRecordAccountArgs, UseAuthorityRecordAccountData>;
 }
 
 export function getUseAuthorityRecordSize(_context = {}): number {
@@ -151,10 +160,10 @@ export function findUseAuthorityRecordPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
-    utf8.serialize('user'),
-    s.publicKey.serialize(seeds.useAuthority),
+    s.publicKey().serialize(seeds.mint),
+    s.string({ size: 'variable' }).serialize('user'),
+    s.publicKey().serialize(seeds.useAuthority),
   ]);
 }

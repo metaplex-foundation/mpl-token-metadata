@@ -65,31 +65,34 @@ export type DelegateSaleV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateSaleV1InstructionArgs = {
+export type DelegateSaleV1InstructionDataArgs = {
   amount: number | bigint;
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateSaleV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<DelegateSaleV1InstructionArgs, DelegateSaleV1InstructionData> {
+): Serializer<
+  DelegateSaleV1InstructionDataArgs,
+  DelegateSaleV1InstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    DelegateSaleV1InstructionArgs,
+    DelegateSaleV1InstructionDataArgs,
     DelegateSaleV1InstructionData,
     DelegateSaleV1InstructionData
   >(
     s.struct<DelegateSaleV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateSaleV1Discriminator', s.u8],
-        ['amount', s.u64],
+        ['discriminator', s.u8()],
+        ['delegateSaleV1Discriminator', s.u8()],
+        ['amount', s.u64()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'DelegateSaleV1InstructionArgs'
+      { description: 'DelegateSaleV1InstructionData' }
     ),
     (value) =>
       ({
@@ -97,7 +100,10 @@ export function getDelegateSaleV1InstructionDataSerializer(
         discriminator: 44,
         delegateSaleV1Discriminator: 1,
       } as DelegateSaleV1InstructionData)
-  ) as Serializer<DelegateSaleV1InstructionArgs, DelegateSaleV1InstructionData>;
+  ) as Serializer<
+    DelegateSaleV1InstructionDataArgs,
+    DelegateSaleV1InstructionData
+  >;
 }
 
 // Instruction.
@@ -106,7 +112,7 @@ export function delegateSaleV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateSaleV1InstructionAccounts & DelegateSaleV1InstructionArgs
+  input: DelegateSaleV1InstructionAccounts & DelegateSaleV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

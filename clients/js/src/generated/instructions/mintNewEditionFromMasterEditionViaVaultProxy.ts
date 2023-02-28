@@ -66,31 +66,34 @@ export type MintNewEditionFromMasterEditionViaVaultProxyInstructionData = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgs;
 };
 
-export type MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs = {
+export type MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgsArgs;
 };
 
 export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
   MintNewEditionFromMasterEditionViaVaultProxyInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
+    MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData
   >(
     s.struct<MintNewEditionFromMasterEditionViaVaultProxyInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         [
           'mintNewEditionFromMasterEditionViaTokenArgs',
           getMintNewEditionFromMasterEditionViaTokenArgsSerializer(context),
         ],
       ],
-      'MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs'
+      {
+        description:
+          'MintNewEditionFromMasterEditionViaVaultProxyInstructionData',
+      }
     ),
     (value) =>
       ({
@@ -98,7 +101,7 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
         discriminator: 13,
       } as MintNewEditionFromMasterEditionViaVaultProxyInstructionData)
   ) as Serializer<
-    MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
+    MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData
   >;
 }
@@ -107,7 +110,7 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
 export function mintNewEditionFromMasterEditionViaVaultProxy(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
   input: MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts &
-    MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs
+    MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

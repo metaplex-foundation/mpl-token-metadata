@@ -20,12 +20,15 @@ import {
 } from '@metaplex-foundation/umi-core';
 import {
   Collection,
+  CollectionArgs,
   CollectionDetails,
   CollectionDetailsArgs,
   Creator,
+  CreatorArgs,
   PrintSupply,
   PrintSupplyArgs,
   TokenStandard,
+  TokenStandardArgs,
   Uses,
   UsesArgs,
   getCollectionDetailsSerializer,
@@ -60,11 +63,11 @@ export type CreateArgsArgs = {
   symbol?: string;
   uri: string;
   sellerFeeBasisPoints: Amount<'%', 2>;
-  creators: Option<Array<Creator>>;
+  creators: Option<Array<CreatorArgs>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
-  tokenStandard: TokenStandard;
-  collection?: Option<Collection>;
+  tokenStandard: TokenStandardArgs;
+  collection?: Option<CollectionArgs>;
   uses?: Option<UsesArgs>;
   collectionDetails?: Option<CollectionDetailsArgs>;
   ruleSet?: Option<PublicKey>;
@@ -90,8 +93,8 @@ export function getCreateArgsSerializer(
               ['name', s.string()],
               ['symbol', s.string()],
               ['uri', s.string()],
-              ['sellerFeeBasisPoints', mapAmountSerializer(s.u16, '%', 2)],
-              ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+              ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
+              ['creators', s.option(s.array(getCreatorSerializer(context)))],
               ['primarySaleHappened', s.bool()],
               ['isMutable', s.bool()],
               ['tokenStandard', getTokenStandardSerializer(context)],
@@ -101,11 +104,11 @@ export function getCreateArgsSerializer(
                 'collectionDetails',
                 s.option(getCollectionDetailsSerializer(context)),
               ],
-              ['ruleSet', s.option(s.publicKey)],
-              ['decimals', s.option(s.u8)],
+              ['ruleSet', s.option(s.publicKey())],
+              ['decimals', s.option(s.u8())],
               ['printSupply', s.option(getPrintSupplySerializer(context))],
             ],
-            'V1'
+            { description: 'V1' }
           ),
           (value) =>
             ({
@@ -123,8 +126,7 @@ export function getCreateArgsSerializer(
         ),
       ],
     ],
-    undefined,
-    'CreateArgs'
+    { description: 'CreateArgs' }
   ) as Serializer<CreateArgsArgs, CreateArgs>;
 }
 

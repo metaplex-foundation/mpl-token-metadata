@@ -22,7 +22,11 @@ import {
   findMetadataPda,
   findTokenRecordPda,
 } from '../accounts';
-import { MigrateArgs, getMigrateArgsSerializer } from '../types';
+import {
+  MigrateArgs,
+  MigrateArgsArgs,
+  getMigrateArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type MigrateInstructionAccounts = {
@@ -64,26 +68,26 @@ export type MigrateInstructionData = {
   migrateArgs: MigrateArgs;
 };
 
-export type MigrateInstructionArgs = { migrateArgs: MigrateArgs };
+export type MigrateInstructionDataArgs = { migrateArgs: MigrateArgsArgs };
 
 export function getMigrateInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MigrateInstructionArgs, MigrateInstructionData> {
+): Serializer<MigrateInstructionDataArgs, MigrateInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    MigrateInstructionArgs,
+    MigrateInstructionDataArgs,
     MigrateInstructionData,
     MigrateInstructionData
   >(
     s.struct<MigrateInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['migrateArgs', getMigrateArgsSerializer(context)],
       ],
-      'MigrateInstructionArgs'
+      { description: 'MigrateInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 48 } as MigrateInstructionData)
-  ) as Serializer<MigrateInstructionArgs, MigrateInstructionData>;
+  ) as Serializer<MigrateInstructionDataArgs, MigrateInstructionData>;
 }
 
 // Instruction.
@@ -92,7 +96,7 @@ export function migrate(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: MigrateInstructionAccounts & MigrateInstructionArgs
+  input: MigrateInstructionAccounts & MigrateInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

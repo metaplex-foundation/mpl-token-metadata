@@ -60,31 +60,31 @@ export type MintNewEditionFromMasterEditionViaTokenInstructionData = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgs;
 };
 
-export type MintNewEditionFromMasterEditionViaTokenInstructionArgs = {
+export type MintNewEditionFromMasterEditionViaTokenInstructionDataArgs = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgsArgs;
 };
 
 export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  MintNewEditionFromMasterEditionViaTokenInstructionArgs,
+  MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
   MintNewEditionFromMasterEditionViaTokenInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    MintNewEditionFromMasterEditionViaTokenInstructionArgs,
+    MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
     MintNewEditionFromMasterEditionViaTokenInstructionData,
     MintNewEditionFromMasterEditionViaTokenInstructionData
   >(
     s.struct<MintNewEditionFromMasterEditionViaTokenInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         [
           'mintNewEditionFromMasterEditionViaTokenArgs',
           getMintNewEditionFromMasterEditionViaTokenArgsSerializer(context),
         ],
       ],
-      'MintNewEditionFromMasterEditionViaTokenInstructionArgs'
+      { description: 'MintNewEditionFromMasterEditionViaTokenInstructionData' }
     ),
     (value) =>
       ({
@@ -92,7 +92,7 @@ export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSeriali
         discriminator: 11,
       } as MintNewEditionFromMasterEditionViaTokenInstructionData)
   ) as Serializer<
-    MintNewEditionFromMasterEditionViaTokenInstructionArgs,
+    MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
     MintNewEditionFromMasterEditionViaTokenInstructionData
   >;
 }
@@ -101,7 +101,7 @@ export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSeriali
 export function mintNewEditionFromMasterEditionViaToken(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
   input: MintNewEditionFromMasterEditionViaTokenInstructionAccounts &
-    MintNewEditionFromMasterEditionViaTokenInstructionArgs
+    MintNewEditionFromMasterEditionViaTokenInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

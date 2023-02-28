@@ -34,28 +34,27 @@ export type SetTokenStandardInstructionAccounts = {
 // Arguments.
 export type SetTokenStandardInstructionData = { discriminator: number };
 
-export type SetTokenStandardInstructionArgs = {};
+export type SetTokenStandardInstructionDataArgs = {};
 
 export function getSetTokenStandardInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  SetTokenStandardInstructionArgs,
+  SetTokenStandardInstructionDataArgs,
   SetTokenStandardInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    SetTokenStandardInstructionArgs,
+    SetTokenStandardInstructionDataArgs,
     SetTokenStandardInstructionData,
     SetTokenStandardInstructionData
   >(
-    s.struct<SetTokenStandardInstructionData>(
-      [['discriminator', s.u8]],
-      'SetTokenStandardInstructionArgs'
-    ),
+    s.struct<SetTokenStandardInstructionData>([['discriminator', s.u8()]], {
+      description: 'SetTokenStandardInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 35 } as SetTokenStandardInstructionData)
   ) as Serializer<
-    SetTokenStandardInstructionArgs,
+    SetTokenStandardInstructionDataArgs,
     SetTokenStandardInstructionData
   >;
 }

@@ -20,16 +20,20 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-  utf8,
 } from '@metaplex-foundation/umi-core';
 import {
   Collection,
+  CollectionArgs,
   CollectionDetails,
   CollectionDetailsArgs,
   Creator,
+  CreatorArgs,
   Key,
+  KeyArgs,
   ProgrammableConfig,
+  ProgrammableConfigArgs,
   TokenStandard,
+  TokenStandardArgs,
   Uses,
   UsesArgs,
   getCollectionDetailsSerializer,
@@ -62,23 +66,73 @@ export type MetadataAccountData = {
   programmableConfig: Option<ProgrammableConfig>;
 };
 
-export type MetadataAccountArgs = {
+export type MetadataAccountDataArgs = {
   updateAuthority: PublicKey;
   mint: PublicKey;
   name: string;
   symbol: string;
   uri: string;
   sellerFeeBasisPoints: number;
-  creators: Option<Array<Creator>>;
+  creators: Option<Array<CreatorArgs>>;
   primarySaleHappened: boolean;
   isMutable: boolean;
   editionNonce: Option<number>;
-  tokenStandard: Option<TokenStandard>;
-  collection: Option<Collection>;
+  tokenStandard: Option<TokenStandardArgs>;
+  collection: Option<CollectionArgs>;
   uses: Option<UsesArgs>;
   collectionDetails: Option<CollectionDetailsArgs>;
-  programmableConfig: Option<ProgrammableConfig>;
+  programmableConfig: Option<ProgrammableConfigArgs>;
 };
+
+export function getMetadataAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<MetadataAccountDataArgs, MetadataAccountData> {
+  const s = context.serializer;
+  return mapSerializer<
+    MetadataAccountDataArgs,
+    MetadataAccountData,
+    MetadataAccountData
+  >(
+    s.struct<MetadataAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['updateAuthority', s.publicKey()],
+        ['mint', s.publicKey()],
+        ['name', s.string()],
+        ['symbol', s.string()],
+        ['uri', s.string()],
+        ['sellerFeeBasisPoints', s.u16()],
+        ['creators', s.option(s.array(getCreatorSerializer(context)))],
+        ['primarySaleHappened', s.bool()],
+        ['isMutable', s.bool()],
+        ['editionNonce', s.option(s.u8())],
+        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
+        ['collection', s.option(getCollectionSerializer(context))],
+        ['uses', s.option(getUsesSerializer(context))],
+        [
+          'collectionDetails',
+          s.option(getCollectionDetailsSerializer(context)),
+        ],
+        [
+          'programmableConfig',
+          s.option(getProgrammableConfigSerializer(context)),
+        ],
+      ],
+      { description: 'Metadata' }
+    ),
+    (value) => ({ ...value, key: Key.MetadataV1 } as MetadataAccountData)
+  ) as Serializer<MetadataAccountDataArgs, MetadataAccountData>;
+}
+
+export function deserializeMetadata(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): Metadata {
+  return deserializeAccount(
+    rawAccount,
+    getMetadataAccountDataSerializer(context)
+  );
+}
 
 export async function fetchMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -133,34 +187,34 @@ export function getMetadataGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: Key;
+      key: KeyArgs;
       updateAuthority: PublicKey;
       mint: PublicKey;
       name: string;
       symbol: string;
       uri: string;
       sellerFeeBasisPoints: number;
-      creators: Option<Array<Creator>>;
+      creators: Option<Array<CreatorArgs>>;
       primarySaleHappened: boolean;
       isMutable: boolean;
       editionNonce: Option<number>;
-      tokenStandard: Option<TokenStandard>;
-      collection: Option<Collection>;
+      tokenStandard: Option<TokenStandardArgs>;
+      collection: Option<CollectionArgs>;
       uses: Option<UsesArgs>;
       collectionDetails: Option<CollectionDetailsArgs>;
-      programmableConfig: Option<ProgrammableConfig>;
+      programmableConfig: Option<ProgrammableConfigArgs>;
     }>([
       ['key', getKeySerializer(context)],
-      ['updateAuthority', s.publicKey],
-      ['mint', s.publicKey],
+      ['updateAuthority', s.publicKey()],
+      ['mint', s.publicKey()],
       ['name', s.string()],
       ['symbol', s.string()],
       ['uri', s.string()],
-      ['sellerFeeBasisPoints', s.u16],
-      ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+      ['sellerFeeBasisPoints', s.u16()],
+      ['creators', s.option(s.array(getCreatorSerializer(context)))],
       ['primarySaleHappened', s.bool()],
       ['isMutable', s.bool()],
-      ['editionNonce', s.option(s.u8)],
+      ['editionNonce', s.option(s.u8())],
       ['tokenStandard', s.option(getTokenStandardSerializer(context))],
       ['collection', s.option(getCollectionSerializer(context))],
       ['uses', s.option(getUsesSerializer(context))],
@@ -174,56 +228,6 @@ export function getMetadataGpaBuilder(
       deserializeMetadata(context, account)
     )
     .whereField('key', Key.MetadataV1);
-}
-
-export function deserializeMetadata(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): Metadata {
-  return deserializeAccount(
-    rawAccount,
-    getMetadataAccountDataSerializer(context)
-  );
-}
-
-export function getMetadataAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<MetadataAccountArgs, MetadataAccountData> {
-  const s = context.serializer;
-  return mapSerializer<
-    MetadataAccountArgs,
-    MetadataAccountData,
-    MetadataAccountData
-  >(
-    s.struct<MetadataAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['updateAuthority', s.publicKey],
-        ['mint', s.publicKey],
-        ['name', s.string()],
-        ['symbol', s.string()],
-        ['uri', s.string()],
-        ['sellerFeeBasisPoints', s.u16],
-        ['creators', s.option(s.vec(getCreatorSerializer(context)))],
-        ['primarySaleHappened', s.bool()],
-        ['isMutable', s.bool()],
-        ['editionNonce', s.option(s.u8)],
-        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-        ['collection', s.option(getCollectionSerializer(context))],
-        ['uses', s.option(getUsesSerializer(context))],
-        [
-          'collectionDetails',
-          s.option(getCollectionDetailsSerializer(context)),
-        ],
-        [
-          'programmableConfig',
-          s.option(getProgrammableConfigSerializer(context)),
-        ],
-      ],
-      'Metadata'
-    ),
-    (value) => ({ ...value, key: Key.MetadataV1 } as MetadataAccountData)
-  ) as Serializer<MetadataAccountArgs, MetadataAccountData>;
 }
 
 export function getMetadataSize(
@@ -243,8 +247,8 @@ export function findMetadataPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
+    s.publicKey().serialize(seeds.mint),
   ]);
 }

@@ -47,31 +47,31 @@ export type DeprecatedMintPrintingTokensInstructionData = {
   mintPrintingTokensViaTokenArgs: MintPrintingTokensViaTokenArgs;
 };
 
-export type DeprecatedMintPrintingTokensInstructionArgs = {
+export type DeprecatedMintPrintingTokensInstructionDataArgs = {
   mintPrintingTokensViaTokenArgs: MintPrintingTokensViaTokenArgsArgs;
 };
 
 export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DeprecatedMintPrintingTokensInstructionArgs,
+  DeprecatedMintPrintingTokensInstructionDataArgs,
   DeprecatedMintPrintingTokensInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DeprecatedMintPrintingTokensInstructionArgs,
+    DeprecatedMintPrintingTokensInstructionDataArgs,
     DeprecatedMintPrintingTokensInstructionData,
     DeprecatedMintPrintingTokensInstructionData
   >(
     s.struct<DeprecatedMintPrintingTokensInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         [
           'mintPrintingTokensViaTokenArgs',
           getMintPrintingTokensViaTokenArgsSerializer(context),
         ],
       ],
-      'DeprecatedMintPrintingTokensInstructionArgs'
+      { description: 'DeprecatedMintPrintingTokensInstructionData' }
     ),
     (value) =>
       ({
@@ -79,7 +79,7 @@ export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
         discriminator: 9,
       } as DeprecatedMintPrintingTokensInstructionData)
   ) as Serializer<
-    DeprecatedMintPrintingTokensInstructionArgs,
+    DeprecatedMintPrintingTokensInstructionDataArgs,
     DeprecatedMintPrintingTokensInstructionData
   >;
 }
@@ -88,7 +88,7 @@ export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
 export function deprecatedMintPrintingTokens(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: DeprecatedMintPrintingTokensInstructionAccounts &
-    DeprecatedMintPrintingTokensInstructionArgs
+    DeprecatedMintPrintingTokensInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

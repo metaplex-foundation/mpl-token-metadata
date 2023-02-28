@@ -9,7 +9,9 @@
 import { Context, Option, Serializer } from '@metaplex-foundation/umi-core';
 import {
   Collection,
+  CollectionArgs,
   Creator,
+  CreatorArgs,
   Uses,
   UsesArgs,
   getCollectionSerializer,
@@ -32,8 +34,8 @@ export type DataV2Args = {
   symbol: string;
   uri: string;
   sellerFeeBasisPoints: number;
-  creators: Option<Array<Creator>>;
-  collection: Option<Collection>;
+  creators: Option<Array<CreatorArgs>>;
+  collection: Option<CollectionArgs>;
   uses: Option<UsesArgs>;
 };
 
@@ -46,11 +48,11 @@ export function getDataV2Serializer(
       ['name', s.string()],
       ['symbol', s.string()],
       ['uri', s.string()],
-      ['sellerFeeBasisPoints', s.u16],
-      ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+      ['sellerFeeBasisPoints', s.u16()],
+      ['creators', s.option(s.array(getCreatorSerializer(context)))],
       ['collection', s.option(getCollectionSerializer(context))],
       ['uses', s.option(getUsesSerializer(context))],
     ],
-    'DataV2'
+    { description: 'DataV2' }
   ) as Serializer<DataV2Args, DataV2>;
 }

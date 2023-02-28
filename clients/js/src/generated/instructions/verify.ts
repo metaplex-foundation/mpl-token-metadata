@@ -38,32 +38,32 @@ export type VerifyInstructionData = {
   verifyArgs: VerifyArgs;
 };
 
-export type VerifyInstructionArgs = { verifyArgs: VerifyArgsArgs };
+export type VerifyInstructionDataArgs = { verifyArgs: VerifyArgsArgs };
 
 export function getVerifyInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<VerifyInstructionArgs, VerifyInstructionData> {
+): Serializer<VerifyInstructionDataArgs, VerifyInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    VerifyInstructionArgs,
+    VerifyInstructionDataArgs,
     VerifyInstructionData,
     VerifyInstructionData
   >(
     s.struct<VerifyInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['verifyArgs', getVerifyArgsSerializer(context)],
       ],
-      'VerifyInstructionArgs'
+      { description: 'VerifyInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 52 } as VerifyInstructionData)
-  ) as Serializer<VerifyInstructionArgs, VerifyInstructionData>;
+  ) as Serializer<VerifyInstructionDataArgs, VerifyInstructionData>;
 }
 
 // Instruction.
 export function verify(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
-  input: VerifyInstructionAccounts & VerifyInstructionArgs
+  input: VerifyInstructionAccounts & VerifyInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -28,23 +28,22 @@ export type SignMetadataInstructionAccounts = {
 // Arguments.
 export type SignMetadataInstructionData = { discriminator: number };
 
-export type SignMetadataInstructionArgs = {};
+export type SignMetadataInstructionDataArgs = {};
 
 export function getSignMetadataInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<SignMetadataInstructionArgs, SignMetadataInstructionData> {
+): Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    SignMetadataInstructionArgs,
+    SignMetadataInstructionDataArgs,
     SignMetadataInstructionData,
     SignMetadataInstructionData
   >(
-    s.struct<SignMetadataInstructionData>(
-      [['discriminator', s.u8]],
-      'SignMetadataInstructionArgs'
-    ),
+    s.struct<SignMetadataInstructionData>([['discriminator', s.u8()]], {
+      description: 'SignMetadataInstructionData',
+    }),
     (value) => ({ ...value, discriminator: 7 } as SignMetadataInstructionData)
-  ) as Serializer<SignMetadataInstructionArgs, SignMetadataInstructionData>;
+  ) as Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData>;
 }
 
 // Instruction.

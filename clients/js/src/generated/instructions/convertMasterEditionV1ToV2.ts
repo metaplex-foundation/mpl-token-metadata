@@ -32,23 +32,23 @@ export type ConvertMasterEditionV1ToV2InstructionData = {
   discriminator: number;
 };
 
-export type ConvertMasterEditionV1ToV2InstructionArgs = {};
+export type ConvertMasterEditionV1ToV2InstructionDataArgs = {};
 
 export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  ConvertMasterEditionV1ToV2InstructionArgs,
+  ConvertMasterEditionV1ToV2InstructionDataArgs,
   ConvertMasterEditionV1ToV2InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    ConvertMasterEditionV1ToV2InstructionArgs,
+    ConvertMasterEditionV1ToV2InstructionDataArgs,
     ConvertMasterEditionV1ToV2InstructionData,
     ConvertMasterEditionV1ToV2InstructionData
   >(
     s.struct<ConvertMasterEditionV1ToV2InstructionData>(
-      [['discriminator', s.u8]],
-      'ConvertMasterEditionV1ToV2InstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'ConvertMasterEditionV1ToV2InstructionData' }
     ),
     (value) =>
       ({
@@ -56,7 +56,7 @@ export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
         discriminator: 12,
       } as ConvertMasterEditionV1ToV2InstructionData)
   ) as Serializer<
-    ConvertMasterEditionV1ToV2InstructionArgs,
+    ConvertMasterEditionV1ToV2InstructionDataArgs,
     ConvertMasterEditionV1ToV2InstructionData
   >;
 }

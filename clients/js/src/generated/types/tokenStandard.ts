@@ -16,9 +16,13 @@ export enum TokenStandard {
   ProgrammableNonFungible,
 }
 
+export type TokenStandardArgs = TokenStandard;
+
 export function getTokenStandardSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TokenStandard> {
+): Serializer<TokenStandardArgs, TokenStandard> {
   const s = context.serializer;
-  return s.enum<TokenStandard>(TokenStandard, 'TokenStandard');
+  return s.enum<TokenStandard>(TokenStandard, {
+    description: 'TokenStandard',
+  }) as Serializer<TokenStandardArgs, TokenStandard>;
 }

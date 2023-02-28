@@ -30,18 +30,17 @@ export function getUsesToggleSerializer(
   const s = context.serializer;
   return s.dataEnum<UsesToggle>(
     [
-      ['None', s.unit],
-      ['Clear', s.unit],
+      ['None', s.unit()],
+      ['Clear', s.unit()],
       [
         'Set',
         s.struct<GetDataEnumKindContent<UsesToggle, 'Set'>>(
           [['fields', s.tuple([getUsesSerializer(context)])]],
-          'Set'
+          { description: 'Set' }
         ),
       ],
     ],
-    undefined,
-    'UsesToggle'
+    { description: 'UsesToggle' }
   ) as Serializer<UsesToggleArgs, UsesToggle>;
 }
 

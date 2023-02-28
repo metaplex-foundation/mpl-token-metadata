@@ -36,28 +36,28 @@ export type FreezeDelegatedAccountInstructionAccounts = {
 // Arguments.
 export type FreezeDelegatedAccountInstructionData = { discriminator: number };
 
-export type FreezeDelegatedAccountInstructionArgs = {};
+export type FreezeDelegatedAccountInstructionDataArgs = {};
 
 export function getFreezeDelegatedAccountInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  FreezeDelegatedAccountInstructionArgs,
+  FreezeDelegatedAccountInstructionDataArgs,
   FreezeDelegatedAccountInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    FreezeDelegatedAccountInstructionArgs,
+    FreezeDelegatedAccountInstructionDataArgs,
     FreezeDelegatedAccountInstructionData,
     FreezeDelegatedAccountInstructionData
   >(
     s.struct<FreezeDelegatedAccountInstructionData>(
-      [['discriminator', s.u8]],
-      'FreezeDelegatedAccountInstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'FreezeDelegatedAccountInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 26 } as FreezeDelegatedAccountInstructionData)
   ) as Serializer<
-    FreezeDelegatedAccountInstructionArgs,
+    FreezeDelegatedAccountInstructionDataArgs,
     FreezeDelegatedAccountInstructionData
   >;
 }

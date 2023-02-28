@@ -19,7 +19,7 @@ import {
   gpaBuilder,
   mapSerializer,
 } from '@metaplex-foundation/umi-core';
-import { Key, getKeySerializer } from '../types';
+import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type Edition = Account<EditionAccountData>;
 
@@ -29,10 +29,41 @@ export type EditionAccountData = {
   edition: bigint;
 };
 
-export type EditionAccountArgs = {
+export type EditionAccountDataArgs = {
   parent: PublicKey;
   edition: number | bigint;
 };
+
+export function getEditionAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<EditionAccountDataArgs, EditionAccountData> {
+  const s = context.serializer;
+  return mapSerializer<
+    EditionAccountDataArgs,
+    EditionAccountData,
+    EditionAccountData
+  >(
+    s.struct<EditionAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['parent', s.publicKey()],
+        ['edition', s.u64()],
+      ],
+      { description: 'Edition' }
+    ),
+    (value) => ({ ...value, key: Key.EditionV1 } as EditionAccountData)
+  ) as Serializer<EditionAccountDataArgs, EditionAccountData>;
+}
+
+export function deserializeEdition(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): Edition {
+  return deserializeAccount(
+    rawAccount,
+    getEditionAccountDataSerializer(context)
+  );
+}
 
 export async function fetchEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -84,46 +115,19 @@ export function getEditionGpaBuilder(
   const s = context.serializer;
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
-    .registerFields<{ key: Key; parent: PublicKey; edition: number | bigint }>([
+    .registerFields<{
+      key: KeyArgs;
+      parent: PublicKey;
+      edition: number | bigint;
+    }>([
       ['key', getKeySerializer(context)],
-      ['parent', s.publicKey],
-      ['edition', s.u64],
+      ['parent', s.publicKey()],
+      ['edition', s.u64()],
     ])
     .deserializeUsing<Edition>((account) =>
       deserializeEdition(context, account)
     )
     .whereField('key', Key.EditionV1);
-}
-
-export function deserializeEdition(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): Edition {
-  return deserializeAccount(
-    rawAccount,
-    getEditionAccountDataSerializer(context)
-  );
-}
-
-export function getEditionAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<EditionAccountArgs, EditionAccountData> {
-  const s = context.serializer;
-  return mapSerializer<
-    EditionAccountArgs,
-    EditionAccountData,
-    EditionAccountData
-  >(
-    s.struct<EditionAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['parent', s.publicKey],
-        ['edition', s.u64],
-      ],
-      'Edition'
-    ),
-    (value) => ({ ...value, key: Key.EditionV1 } as EditionAccountData)
-  ) as Serializer<EditionAccountArgs, EditionAccountData>;
 }
 
 export function getEditionSize(_context = {}): number {

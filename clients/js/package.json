@@ -1,6 +1,6 @@
 {
-  "name": "@lorisleiva/mpl-token-metadata",
-  "version": "0.2.0",
+  "name": "@metaplex-foundation/mpl-token-metadata",
+  "version": "2.8.5",
   "description": "JavaScript client for Token Metadata",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -25,12 +25,12 @@
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "@metaplex-foundation/umi-core": "^0.2.0",
-    "@metaplex-foundation/mpl-essentials": "^0.2.0"
+    "@metaplex-foundation/umi-core": "^0.4.0",
+    "@metaplex-foundation/mpl-essentials": "^0.2.5"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
-    "@metaplex-foundation/umi-test": "^0.2.0",
+    "@metaplex-foundation/umi-test": "^0.4.0",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",

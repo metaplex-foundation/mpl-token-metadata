@@ -17,34 +17,35 @@ import {
 
 export type ProgrammableConfig = { __kind: 'V1'; ruleSet: Option<PublicKey> };
 
+export type ProgrammableConfigArgs = ProgrammableConfig;
+
 export function getProgrammableConfigSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<ProgrammableConfig> {
+): Serializer<ProgrammableConfigArgs, ProgrammableConfig> {
   const s = context.serializer;
   return s.dataEnum<ProgrammableConfig>(
     [
       [
         'V1',
         s.struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>(
-          [['ruleSet', s.option(s.publicKey)]],
-          'V1'
+          [['ruleSet', s.option(s.publicKey())]],
+          { description: 'V1' }
         ),
       ],
     ],
-    undefined,
-    'ProgrammableConfig'
-  );
+    { description: 'ProgrammableConfig' }
+  ) as Serializer<ProgrammableConfigArgs, ProgrammableConfig>;
 }
 
 // Data Enum Helpers.
 export function programmableConfig(
   kind: 'V1',
-  data: GetDataEnumKindContent<ProgrammableConfig, 'V1'>
-): GetDataEnumKind<ProgrammableConfig, 'V1'>;
-export function programmableConfig<K extends ProgrammableConfig['__kind']>(
+  data: GetDataEnumKindContent<ProgrammableConfigArgs, 'V1'>
+): GetDataEnumKind<ProgrammableConfigArgs, 'V1'>;
+export function programmableConfig<K extends ProgrammableConfigArgs['__kind']>(
   kind: K,
   data?: any
-): Extract<ProgrammableConfig, { __kind: K }> {
+): Extract<ProgrammableConfigArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

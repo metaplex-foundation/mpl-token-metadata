@@ -52,36 +52,36 @@ export type CreateMasterEditionInstructionData = {
   createMasterEditionArgs: CreateMasterEditionArgs;
 };
 
-export type CreateMasterEditionInstructionArgs = {
+export type CreateMasterEditionInstructionDataArgs = {
   createMasterEditionArgs: CreateMasterEditionArgsArgs;
 };
 
 export function getCreateMasterEditionInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  CreateMasterEditionInstructionArgs,
+  CreateMasterEditionInstructionDataArgs,
   CreateMasterEditionInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    CreateMasterEditionInstructionArgs,
+    CreateMasterEditionInstructionDataArgs,
     CreateMasterEditionInstructionData,
     CreateMasterEditionInstructionData
   >(
     s.struct<CreateMasterEditionInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         [
           'createMasterEditionArgs',
           getCreateMasterEditionArgsSerializer(context),
         ],
       ],
-      'CreateMasterEditionInstructionArgs'
+      { description: 'CreateMasterEditionInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 10 } as CreateMasterEditionInstructionData)
   ) as Serializer<
-    CreateMasterEditionInstructionArgs,
+    CreateMasterEditionInstructionDataArgs,
     CreateMasterEditionInstructionData
   >;
 }
@@ -93,7 +93,7 @@ export function createMasterEdition(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: CreateMasterEditionInstructionAccounts &
-    CreateMasterEditionInstructionArgs
+    CreateMasterEditionInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -20,9 +20,8 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-  utf8,
 } from '@metaplex-foundation/umi-core';
-import { Key, getKeySerializer } from '../types';
+import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type CollectionAuthorityRecord =
   Account<CollectionAuthorityRecordAccountData>;
@@ -33,10 +32,51 @@ export type CollectionAuthorityRecordAccountData = {
   updateAuthority: Option<PublicKey>;
 };
 
-export type CollectionAuthorityRecordAccountArgs = {
+export type CollectionAuthorityRecordAccountDataArgs = {
   bump: number;
   updateAuthority: Option<PublicKey>;
 };
+
+export function getCollectionAuthorityRecordAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<
+  CollectionAuthorityRecordAccountDataArgs,
+  CollectionAuthorityRecordAccountData
+> {
+  const s = context.serializer;
+  return mapSerializer<
+    CollectionAuthorityRecordAccountDataArgs,
+    CollectionAuthorityRecordAccountData,
+    CollectionAuthorityRecordAccountData
+  >(
+    s.struct<CollectionAuthorityRecordAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['bump', s.u8()],
+        ['updateAuthority', s.option(s.publicKey())],
+      ],
+      { description: 'CollectionAuthorityRecord' }
+    ),
+    (value) =>
+      ({
+        ...value,
+        key: Key.CollectionAuthorityRecord,
+      } as CollectionAuthorityRecordAccountData)
+  ) as Serializer<
+    CollectionAuthorityRecordAccountDataArgs,
+    CollectionAuthorityRecordAccountData
+  >;
+}
+
+export function deserializeCollectionAuthorityRecord(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): CollectionAuthorityRecord {
+  return deserializeAccount(
+    rawAccount,
+    getCollectionAuthorityRecordAccountDataSerializer(context)
+  );
+}
 
 export async function fetchCollectionAuthorityRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -91,59 +131,18 @@ export function getCollectionAuthorityRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: Key;
+      key: KeyArgs;
       bump: number;
       updateAuthority: Option<PublicKey>;
     }>([
       ['key', getKeySerializer(context)],
-      ['bump', s.u8],
-      ['updateAuthority', s.option(s.publicKey)],
+      ['bump', s.u8()],
+      ['updateAuthority', s.option(s.publicKey())],
     ])
     .deserializeUsing<CollectionAuthorityRecord>((account) =>
       deserializeCollectionAuthorityRecord(context, account)
     )
     .whereField('key', Key.CollectionAuthorityRecord);
-}
-
-export function deserializeCollectionAuthorityRecord(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): CollectionAuthorityRecord {
-  return deserializeAccount(
-    rawAccount,
-    getCollectionAuthorityRecordAccountDataSerializer(context)
-  );
-}
-
-export function getCollectionAuthorityRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<
-  CollectionAuthorityRecordAccountArgs,
-  CollectionAuthorityRecordAccountData
-> {
-  const s = context.serializer;
-  return mapSerializer<
-    CollectionAuthorityRecordAccountArgs,
-    CollectionAuthorityRecordAccountData,
-    CollectionAuthorityRecordAccountData
-  >(
-    s.struct<CollectionAuthorityRecordAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['bump', s.u8],
-        ['updateAuthority', s.option(s.publicKey)],
-      ],
-      'CollectionAuthorityRecord'
-    ),
-    (value) =>
-      ({
-        ...value,
-        key: Key.CollectionAuthorityRecord,
-      } as CollectionAuthorityRecordAccountData)
-  ) as Serializer<
-    CollectionAuthorityRecordAccountArgs,
-    CollectionAuthorityRecordAccountData
-  >;
 }
 
 export function getCollectionAuthorityRecordSize(
@@ -165,10 +164,10 @@ export function findCollectionAuthorityRecordPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
-    utf8.serialize('collection_authority'),
-    s.publicKey.serialize(seeds.collectionAuthority),
+    s.publicKey().serialize(seeds.mint),
+    s.string({ size: 'variable' }).serialize('collection_authority'),
+    s.publicKey().serialize(seeds.collectionAuthority),
   ]);
 }

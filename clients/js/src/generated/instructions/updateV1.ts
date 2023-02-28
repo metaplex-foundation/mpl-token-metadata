@@ -26,8 +26,11 @@ import {
   CollectionDetailsToggle,
   CollectionDetailsToggleArgs,
   CollectionToggle,
+  CollectionToggleArgs,
   Creator,
+  CreatorArgs,
   RuleSetToggle,
+  RuleSetToggleArgs,
   UsesToggle,
   UsesToggleArgs,
   collectionDetailsToggle,
@@ -89,38 +92,38 @@ export type UpdateV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type UpdateV1InstructionArgs = {
+export type UpdateV1InstructionDataArgs = {
   newUpdateAuthority?: Option<PublicKey>;
   data?: Option<{
     name: string;
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
+    creators: Option<Array<CreatorArgs>>;
   }>;
   primarySaleHappened?: Option<boolean>;
   isMutable?: Option<boolean>;
-  collection?: CollectionToggle;
+  collection?: CollectionToggleArgs;
   collectionDetails?: CollectionDetailsToggleArgs;
   uses?: UsesToggleArgs;
-  ruleSet?: RuleSetToggle;
+  ruleSet?: RuleSetToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getUpdateV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UpdateV1InstructionArgs, UpdateV1InstructionData> {
+): Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    UpdateV1InstructionArgs,
+    UpdateV1InstructionDataArgs,
     UpdateV1InstructionData,
     UpdateV1InstructionData
   >(
     s.struct<UpdateV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['updateV1Discriminator', s.u8],
-        ['newUpdateAuthority', s.option(s.publicKey)],
+        ['discriminator', s.u8()],
+        ['updateV1Discriminator', s.u8()],
+        ['newUpdateAuthority', s.option(s.publicKey())],
         [
           'data',
           s.option(
@@ -129,10 +132,10 @@ export function getUpdateV1InstructionDataSerializer(
                 ['name', s.string()],
                 ['symbol', s.string()],
                 ['uri', s.string()],
-                ['sellerFeeBasisPoints', s.u16],
-                ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+                ['sellerFeeBasisPoints', s.u16()],
+                ['creators', s.option(s.array(getCreatorSerializer(context)))],
               ],
-              'Data'
+              { description: 'Data' }
             )
           ),
         ],
@@ -147,7 +150,7 @@ export function getUpdateV1InstructionDataSerializer(
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'UpdateV1InstructionArgs'
+      { description: 'UpdateV1InstructionData' }
     ),
     (value) =>
       ({
@@ -165,7 +168,7 @@ export function getUpdateV1InstructionDataSerializer(
         ruleSet: value.ruleSet ?? ruleSetToggle('None'),
         authorizationData: value.authorizationData ?? none(),
       } as UpdateV1InstructionData)
-  ) as Serializer<UpdateV1InstructionArgs, UpdateV1InstructionData>;
+  ) as Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData>;
 }
 
 // Instruction.
@@ -174,7 +177,7 @@ export function updateV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UpdateV1InstructionAccounts & UpdateV1InstructionArgs
+  input: UpdateV1InstructionAccounts & UpdateV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

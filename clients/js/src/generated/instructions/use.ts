@@ -51,26 +51,26 @@ export type UseInstructionAccounts = {
 // Arguments.
 export type UseInstructionData = { discriminator: number; useArgs: UseArgs };
 
-export type UseInstructionArgs = { useArgs: UseArgsArgs };
+export type UseInstructionDataArgs = { useArgs: UseArgsArgs };
 
 export function getUseInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UseInstructionArgs, UseInstructionData> {
+): Serializer<UseInstructionDataArgs, UseInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    UseInstructionArgs,
+    UseInstructionDataArgs,
     UseInstructionData,
     UseInstructionData
   >(
     s.struct<UseInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['useArgs', getUseArgsSerializer(context)],
       ],
-      'UseInstructionArgs'
+      { description: 'UseInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 51 } as UseInstructionData)
-  ) as Serializer<UseInstructionArgs, UseInstructionData>;
+  ) as Serializer<UseInstructionDataArgs, UseInstructionData>;
 }
 
 // Instruction.
@@ -79,7 +79,7 @@ export function use(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UseInstructionAccounts & UseInstructionArgs
+  input: UseInstructionAccounts & UseInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

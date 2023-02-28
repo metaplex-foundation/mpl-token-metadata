@@ -14,9 +14,13 @@ export enum UseMethod {
   Single,
 }
 
+export type UseMethodArgs = UseMethod;
+
 export function getUseMethodSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UseMethod> {
+): Serializer<UseMethodArgs, UseMethod> {
   const s = context.serializer;
-  return s.enum<UseMethod>(UseMethod, 'UseMethod');
+  return s.enum<UseMethod>(UseMethod, {
+    description: 'UseMethod',
+  }) as Serializer<UseMethodArgs, UseMethod>;
 }

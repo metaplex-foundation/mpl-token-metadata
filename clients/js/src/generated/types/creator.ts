@@ -10,16 +10,18 @@ import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi-core';
 
 export type Creator = { address: PublicKey; verified: boolean; share: number };
 
+export type CreatorArgs = Creator;
+
 export function getCreatorSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Creator> {
+): Serializer<CreatorArgs, Creator> {
   const s = context.serializer;
   return s.struct<Creator>(
     [
-      ['address', s.publicKey],
+      ['address', s.publicKey()],
       ['verified', s.bool()],
-      ['share', s.u8],
+      ['share', s.u8()],
     ],
-    'Creator'
-  );
+    { description: 'Creator' }
+  ) as Serializer<CreatorArgs, Creator>;
 }

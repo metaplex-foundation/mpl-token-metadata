@@ -19,6 +19,6 @@ export function getAuthorizationDataSerializer(
   const s = context.serializer;
   return s.struct<AuthorizationData>(
     [['payload', getPayloadSerializer(context)]],
-    'AuthorizationData'
+    { description: 'AuthorizationData' }
   ) as Serializer<AuthorizationDataArgs, AuthorizationData>;
 }

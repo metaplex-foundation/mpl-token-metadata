@@ -18,9 +18,13 @@ export enum TokenDelegateRole {
   Migration,
 }
 
+export type TokenDelegateRoleArgs = TokenDelegateRole;
+
 export function getTokenDelegateRoleSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TokenDelegateRole> {
+): Serializer<TokenDelegateRoleArgs, TokenDelegateRole> {
   const s = context.serializer;
-  return s.enum<TokenDelegateRole>(TokenDelegateRole, 'TokenDelegateRole');
+  return s.enum<TokenDelegateRole>(TokenDelegateRole, {
+    description: 'TokenDelegateRole',
+  }) as Serializer<TokenDelegateRoleArgs, TokenDelegateRole>;
 }

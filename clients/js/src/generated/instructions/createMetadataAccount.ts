@@ -19,7 +19,7 @@ import {
   publicKey,
 } from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
-import { Creator, getCreatorSerializer } from '../types';
+import { Creator, CreatorArgs, getCreatorSerializer } from '../types';
 
 // Accounts.
 export type CreateMetadataAccountInstructionAccounts = {
@@ -42,51 +42,63 @@ export type CreateMetadataAccountInstructionAccounts = {
 // Arguments.
 export type CreateMetadataAccountInstructionData = {
   discriminator: number;
-  name: string;
-  symbol: string;
-  uri: string;
-  sellerFeeBasisPoints: number;
-  creators: Option<Array<Creator>>;
+  data: {
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  };
   isMutable: boolean;
 };
 
-export type CreateMetadataAccountInstructionArgs = {
-  name: string;
-  symbol: string;
-  uri: string;
-  sellerFeeBasisPoints: number;
-  creators: Option<Array<Creator>>;
+export type CreateMetadataAccountInstructionDataArgs = {
+  data: {
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<CreatorArgs>>;
+  };
   isMutable: boolean;
 };
 
 export function getCreateMetadataAccountInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  CreateMetadataAccountInstructionArgs,
+  CreateMetadataAccountInstructionDataArgs,
   CreateMetadataAccountInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    CreateMetadataAccountInstructionArgs,
+    CreateMetadataAccountInstructionDataArgs,
     CreateMetadataAccountInstructionData,
     CreateMetadataAccountInstructionData
   >(
     s.struct<CreateMetadataAccountInstructionData>(
       [
-        ['discriminator', s.u8],
-        ['name', s.string()],
-        ['symbol', s.string()],
-        ['uri', s.string()],
-        ['sellerFeeBasisPoints', s.u16],
-        ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+        ['discriminator', s.u8()],
+        [
+          'data',
+          s.struct<any>(
+            [
+              ['name', s.string()],
+              ['symbol', s.string()],
+              ['uri', s.string()],
+              ['sellerFeeBasisPoints', s.u16()],
+              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+            ],
+            { description: 'Data' }
+          ),
+        ],
         ['isMutable', s.bool()],
       ],
-      'CreateMetadataAccountInstructionArgs'
+      { description: 'CreateMetadataAccountInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 0 } as CreateMetadataAccountInstructionData)
   ) as Serializer<
-    CreateMetadataAccountInstructionArgs,
+    CreateMetadataAccountInstructionDataArgs,
     CreateMetadataAccountInstructionData
   >;
 }
@@ -98,7 +110,7 @@ export function createMetadataAccount(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: CreateMetadataAccountInstructionAccounts &
-    CreateMetadataAccountInstructionArgs
+    CreateMetadataAccountInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

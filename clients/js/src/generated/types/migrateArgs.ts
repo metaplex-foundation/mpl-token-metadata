@@ -14,7 +14,11 @@ import {
   PublicKey,
   Serializer,
 } from '@metaplex-foundation/umi-core';
-import { MigrationType, getMigrationTypeSerializer } from '.';
+import {
+  MigrationType,
+  MigrationTypeArgs,
+  getMigrationTypeSerializer,
+} from '.';
 
 export type MigrateArgs = {
   __kind: 'V1';
@@ -22,9 +26,15 @@ export type MigrateArgs = {
   ruleSet: Option<PublicKey>;
 };
 
+export type MigrateArgsArgs = {
+  __kind: 'V1';
+  migrationType: MigrationTypeArgs;
+  ruleSet: Option<PublicKey>;
+};
+
 export function getMigrateArgsSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MigrateArgs> {
+): Serializer<MigrateArgsArgs, MigrateArgs> {
   const s = context.serializer;
   return s.dataEnum<MigrateArgs>(
     [
@@ -33,26 +43,25 @@ export function getMigrateArgsSerializer(
         s.struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>(
           [
             ['migrationType', getMigrationTypeSerializer(context)],
-            ['ruleSet', s.option(s.publicKey)],
+            ['ruleSet', s.option(s.publicKey())],
           ],
-          'V1'
+          { description: 'V1' }
         ),
       ],
     ],
-    undefined,
-    'MigrateArgs'
-  );
+    { description: 'MigrateArgs' }
+  ) as Serializer<MigrateArgsArgs, MigrateArgs>;
 }
 
 // Data Enum Helpers.
 export function migrateArgs(
   kind: 'V1',
-  data: GetDataEnumKindContent<MigrateArgs, 'V1'>
-): GetDataEnumKind<MigrateArgs, 'V1'>;
-export function migrateArgs<K extends MigrateArgs['__kind']>(
+  data: GetDataEnumKindContent<MigrateArgsArgs, 'V1'>
+): GetDataEnumKind<MigrateArgsArgs, 'V1'>;
+export function migrateArgs<K extends MigrateArgsArgs['__kind']>(
   kind: K,
   data?: any
-): Extract<MigrateArgs, { __kind: K }> {
+): Extract<MigrateArgsArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

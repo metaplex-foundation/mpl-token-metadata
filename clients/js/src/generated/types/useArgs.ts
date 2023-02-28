@@ -44,12 +44,11 @@ export function getUseArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
-          'V1'
+          { description: 'V1' }
         ),
       ],
     ],
-    undefined,
-    'UseArgs'
+    { description: 'UseArgs' }
   ) as Serializer<UseArgsArgs, UseArgs>;
 }
 

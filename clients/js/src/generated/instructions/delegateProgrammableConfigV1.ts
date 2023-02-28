@@ -64,32 +64,32 @@ export type DelegateProgrammableConfigV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateProgrammableConfigV1InstructionArgs = {
+export type DelegateProgrammableConfigV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateProgrammableConfigV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateProgrammableConfigV1InstructionArgs,
+  DelegateProgrammableConfigV1InstructionDataArgs,
   DelegateProgrammableConfigV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateProgrammableConfigV1InstructionArgs,
+    DelegateProgrammableConfigV1InstructionDataArgs,
     DelegateProgrammableConfigV1InstructionData,
     DelegateProgrammableConfigV1InstructionData
   >(
     s.struct<DelegateProgrammableConfigV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateProgrammableConfigV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['delegateProgrammableConfigV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'DelegateProgrammableConfigV1InstructionArgs'
+      { description: 'DelegateProgrammableConfigV1InstructionData' }
     ),
     (value) =>
       ({
@@ -98,7 +98,7 @@ export function getDelegateProgrammableConfigV1InstructionDataSerializer(
         delegateProgrammableConfigV1Discriminator: 8,
       } as DelegateProgrammableConfigV1InstructionData)
   ) as Serializer<
-    DelegateProgrammableConfigV1InstructionArgs,
+    DelegateProgrammableConfigV1InstructionDataArgs,
     DelegateProgrammableConfigV1InstructionData
   >;
 }
@@ -110,7 +110,7 @@ export function delegateProgrammableConfigV1(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: DelegateProgrammableConfigV1InstructionAccounts &
-    DelegateProgrammableConfigV1InstructionArgs
+    DelegateProgrammableConfigV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

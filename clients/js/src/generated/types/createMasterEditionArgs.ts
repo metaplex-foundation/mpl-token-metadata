@@ -18,8 +18,7 @@ export function getCreateMasterEditionArgsSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<CreateMasterEditionArgsArgs, CreateMasterEditionArgs> {
   const s = context.serializer;
-  return s.struct<CreateMasterEditionArgs>(
-    [['maxSupply', s.option(s.u64)]],
-    'CreateMasterEditionArgs'
-  ) as Serializer<CreateMasterEditionArgsArgs, CreateMasterEditionArgs>;
+  return s.struct<CreateMasterEditionArgs>([['maxSupply', s.option(s.u64())]], {
+    description: 'CreateMasterEditionArgs',
+  }) as Serializer<CreateMasterEditionArgsArgs, CreateMasterEditionArgs>;
 }

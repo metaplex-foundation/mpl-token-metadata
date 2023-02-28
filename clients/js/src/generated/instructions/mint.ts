@@ -57,26 +57,26 @@ export type MintInstructionAccounts = {
 // Arguments.
 export type MintInstructionData = { discriminator: number; mintArgs: MintArgs };
 
-export type MintInstructionArgs = { mintArgs: MintArgsArgs };
+export type MintInstructionDataArgs = { mintArgs: MintArgsArgs };
 
 export function getMintInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MintInstructionArgs, MintInstructionData> {
+): Serializer<MintInstructionDataArgs, MintInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    MintInstructionArgs,
+    MintInstructionDataArgs,
     MintInstructionData,
     MintInstructionData
   >(
     s.struct<MintInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['mintArgs', getMintArgsSerializer(context)],
       ],
-      'MintInstructionArgs'
+      { description: 'MintInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 43 } as MintInstructionData)
-  ) as Serializer<MintInstructionArgs, MintInstructionData>;
+  ) as Serializer<MintInstructionDataArgs, MintInstructionData>;
 }
 
 // Instruction.
@@ -85,7 +85,7 @@ export function mint(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: MintInstructionAccounts & MintInstructionArgs
+  input: MintInstructionAccounts & MintInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

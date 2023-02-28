@@ -16,12 +16,13 @@ export enum MetadataDelegateRole {
   ProgrammableConfig,
 }
 
+export type MetadataDelegateRoleArgs = MetadataDelegateRole;
+
 export function getMetadataDelegateRoleSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MetadataDelegateRole> {
+): Serializer<MetadataDelegateRoleArgs, MetadataDelegateRole> {
   const s = context.serializer;
-  return s.enum<MetadataDelegateRole>(
-    MetadataDelegateRole,
-    'MetadataDelegateRole'
-  );
+  return s.enum<MetadataDelegateRole>(MetadataDelegateRole, {
+    description: 'MetadataDelegateRole',
+  }) as Serializer<MetadataDelegateRoleArgs, MetadataDelegateRole>;
 }

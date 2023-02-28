@@ -22,8 +22,8 @@ export function getMintNewEditionFromMasterEditionViaTokenArgsSerializer(
 > {
   const s = context.serializer;
   return s.struct<MintNewEditionFromMasterEditionViaTokenArgs>(
-    [['edition', s.u64]],
-    'MintNewEditionFromMasterEditionViaTokenArgs'
+    [['edition', s.u64()]],
+    { description: 'MintNewEditionFromMasterEditionViaTokenArgs' }
   ) as Serializer<
     MintNewEditionFromMasterEditionViaTokenArgsArgs,
     MintNewEditionFromMasterEditionViaTokenArgs

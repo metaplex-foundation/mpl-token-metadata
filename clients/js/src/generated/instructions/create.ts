@@ -49,26 +49,26 @@ export type CreateInstructionData = {
   createArgs: CreateArgs;
 };
 
-export type CreateInstructionArgs = { createArgs: CreateArgsArgs };
+export type CreateInstructionDataArgs = { createArgs: CreateArgsArgs };
 
 export function getCreateInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CreateInstructionArgs, CreateInstructionData> {
+): Serializer<CreateInstructionDataArgs, CreateInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    CreateInstructionArgs,
+    CreateInstructionDataArgs,
     CreateInstructionData,
     CreateInstructionData
   >(
     s.struct<CreateInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['createArgs', getCreateArgsSerializer(context)],
       ],
-      'CreateInstructionArgs'
+      { description: 'CreateInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 42 } as CreateInstructionData)
-  ) as Serializer<CreateInstructionArgs, CreateInstructionData>;
+  ) as Serializer<CreateInstructionDataArgs, CreateInstructionData>;
 }
 
 // Instruction.
@@ -77,7 +77,7 @@ export function create(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: CreateInstructionAccounts & CreateInstructionArgs
+  input: CreateInstructionAccounts & CreateInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -42,28 +42,27 @@ export type CloseEscrowAccountInstructionAccounts = {
 // Arguments.
 export type CloseEscrowAccountInstructionData = { discriminator: number };
 
-export type CloseEscrowAccountInstructionArgs = {};
+export type CloseEscrowAccountInstructionDataArgs = {};
 
 export function getCloseEscrowAccountInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  CloseEscrowAccountInstructionArgs,
+  CloseEscrowAccountInstructionDataArgs,
   CloseEscrowAccountInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    CloseEscrowAccountInstructionArgs,
+    CloseEscrowAccountInstructionDataArgs,
     CloseEscrowAccountInstructionData,
     CloseEscrowAccountInstructionData
   >(
-    s.struct<CloseEscrowAccountInstructionData>(
-      [['discriminator', s.u8]],
-      'CloseEscrowAccountInstructionArgs'
-    ),
+    s.struct<CloseEscrowAccountInstructionData>([['discriminator', s.u8()]], {
+      description: 'CloseEscrowAccountInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 39 } as CloseEscrowAccountInstructionData)
   ) as Serializer<
-    CloseEscrowAccountInstructionArgs,
+    CloseEscrowAccountInstructionDataArgs,
     CloseEscrowAccountInstructionData
   >;
 }

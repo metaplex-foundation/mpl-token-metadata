@@ -22,8 +22,11 @@ import {
   CollectionDetailsToggle,
   CollectionDetailsToggleArgs,
   CollectionToggle,
+  CollectionToggleArgs,
   Creator,
+  CreatorArgs,
   RuleSetToggle,
+  RuleSetToggleArgs,
   UsesToggle,
   UsesToggleArgs,
   collectionDetailsToggle,
@@ -65,14 +68,14 @@ export type UpdateArgsArgs = {
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
+    creators: Option<Array<CreatorArgs>>;
   }>;
   primarySaleHappened?: Option<boolean>;
   isMutable?: Option<boolean>;
-  collection?: CollectionToggle;
+  collection?: CollectionToggleArgs;
   collectionDetails?: CollectionDetailsToggleArgs;
   uses?: UsesToggleArgs;
-  ruleSet?: RuleSetToggle;
+  ruleSet?: RuleSetToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -91,7 +94,7 @@ export function getUpdateArgsSerializer(
         >(
           s.struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>(
             [
-              ['newUpdateAuthority', s.option(s.publicKey)],
+              ['newUpdateAuthority', s.option(s.publicKey())],
               [
                 'data',
                 s.option(
@@ -100,13 +103,13 @@ export function getUpdateArgsSerializer(
                       ['name', s.string()],
                       ['symbol', s.string()],
                       ['uri', s.string()],
-                      ['sellerFeeBasisPoints', s.u16],
+                      ['sellerFeeBasisPoints', s.u16()],
                       [
                         'creators',
-                        s.option(s.vec(getCreatorSerializer(context))),
+                        s.option(s.array(getCreatorSerializer(context))),
                       ],
                     ],
-                    'Data'
+                    { description: 'Data' }
                   )
                 ),
               ],
@@ -124,7 +127,7 @@ export function getUpdateArgsSerializer(
                 s.option(getAuthorizationDataSerializer(context)),
               ],
             ],
-            'V1'
+            { description: 'V1' }
           ),
           (value) =>
             ({
@@ -143,8 +146,7 @@ export function getUpdateArgsSerializer(
         ),
       ],
     ],
-    undefined,
-    'UpdateArgs'
+    { description: 'UpdateArgs' }
   ) as Serializer<UpdateArgsArgs, UpdateArgs>;
 }
 

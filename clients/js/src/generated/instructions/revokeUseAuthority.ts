@@ -44,28 +44,27 @@ export type RevokeUseAuthorityInstructionAccounts = {
 // Arguments.
 export type RevokeUseAuthorityInstructionData = { discriminator: number };
 
-export type RevokeUseAuthorityInstructionArgs = {};
+export type RevokeUseAuthorityInstructionDataArgs = {};
 
 export function getRevokeUseAuthorityInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  RevokeUseAuthorityInstructionArgs,
+  RevokeUseAuthorityInstructionDataArgs,
   RevokeUseAuthorityInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    RevokeUseAuthorityInstructionArgs,
+    RevokeUseAuthorityInstructionDataArgs,
     RevokeUseAuthorityInstructionData,
     RevokeUseAuthorityInstructionData
   >(
-    s.struct<RevokeUseAuthorityInstructionData>(
-      [['discriminator', s.u8]],
-      'RevokeUseAuthorityInstructionArgs'
-    ),
+    s.struct<RevokeUseAuthorityInstructionData>([['discriminator', s.u8()]], {
+      description: 'RevokeUseAuthorityInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 21 } as RevokeUseAuthorityInstructionData)
   ) as Serializer<
-    RevokeUseAuthorityInstructionArgs,
+    RevokeUseAuthorityInstructionDataArgs,
     RevokeUseAuthorityInstructionData
   >;
 }

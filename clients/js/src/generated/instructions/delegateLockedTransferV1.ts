@@ -66,7 +66,7 @@ export type DelegateLockedTransferV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateLockedTransferV1InstructionArgs = {
+export type DelegateLockedTransferV1InstructionDataArgs = {
   amount: number | bigint;
   lockedAddress: PublicKey;
   authorizationData: Option<AuthorizationDataArgs>;
@@ -75,27 +75,27 @@ export type DelegateLockedTransferV1InstructionArgs = {
 export function getDelegateLockedTransferV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateLockedTransferV1InstructionArgs,
+  DelegateLockedTransferV1InstructionDataArgs,
   DelegateLockedTransferV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateLockedTransferV1InstructionArgs,
+    DelegateLockedTransferV1InstructionDataArgs,
     DelegateLockedTransferV1InstructionData,
     DelegateLockedTransferV1InstructionData
   >(
     s.struct<DelegateLockedTransferV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateLockedTransferV1Discriminator', s.u8],
-        ['amount', s.u64],
-        ['lockedAddress', s.publicKey],
+        ['discriminator', s.u8()],
+        ['delegateLockedTransferV1Discriminator', s.u8()],
+        ['amount', s.u64()],
+        ['lockedAddress', s.publicKey()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'DelegateLockedTransferV1InstructionArgs'
+      { description: 'DelegateLockedTransferV1InstructionData' }
     ),
     (value) =>
       ({
@@ -104,7 +104,7 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
         delegateLockedTransferV1Discriminator: 7,
       } as DelegateLockedTransferV1InstructionData)
   ) as Serializer<
-    DelegateLockedTransferV1InstructionArgs,
+    DelegateLockedTransferV1InstructionDataArgs,
     DelegateLockedTransferV1InstructionData
   >;
 }
@@ -116,7 +116,7 @@ export function delegateLockedTransferV1(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: DelegateLockedTransferV1InstructionAccounts &
-    DelegateLockedTransferV1InstructionArgs
+    DelegateLockedTransferV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

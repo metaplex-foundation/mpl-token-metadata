@@ -14,16 +14,18 @@ export type ReservationV1 = {
   totalSpots: number;
 };
 
+export type ReservationV1Args = ReservationV1;
+
 export function getReservationV1Serializer(
   context: Pick<Context, 'serializer'>
-): Serializer<ReservationV1> {
+): Serializer<ReservationV1Args, ReservationV1> {
   const s = context.serializer;
   return s.struct<ReservationV1>(
     [
-      ['address', s.publicKey],
-      ['spotsRemaining', s.u8],
-      ['totalSpots', s.u8],
+      ['address', s.publicKey()],
+      ['spotsRemaining', s.u8()],
+      ['totalSpots', s.u8()],
     ],
-    'ReservationV1'
-  );
+    { description: 'ReservationV1' }
+  ) as Serializer<ReservationV1Args, ReservationV1>;
 }

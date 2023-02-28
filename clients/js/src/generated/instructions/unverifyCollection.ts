@@ -36,28 +36,27 @@ export type UnverifyCollectionInstructionAccounts = {
 // Arguments.
 export type UnverifyCollectionInstructionData = { discriminator: number };
 
-export type UnverifyCollectionInstructionArgs = {};
+export type UnverifyCollectionInstructionDataArgs = {};
 
 export function getUnverifyCollectionInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  UnverifyCollectionInstructionArgs,
+  UnverifyCollectionInstructionDataArgs,
   UnverifyCollectionInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    UnverifyCollectionInstructionArgs,
+    UnverifyCollectionInstructionDataArgs,
     UnverifyCollectionInstructionData,
     UnverifyCollectionInstructionData
   >(
-    s.struct<UnverifyCollectionInstructionData>(
-      [['discriminator', s.u8]],
-      'UnverifyCollectionInstructionArgs'
-    ),
+    s.struct<UnverifyCollectionInstructionData>([['discriminator', s.u8()]], {
+      description: 'UnverifyCollectionInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 22 } as UnverifyCollectionInstructionData)
   ) as Serializer<
-    UnverifyCollectionInstructionArgs,
+    UnverifyCollectionInstructionDataArgs,
     UnverifyCollectionInstructionData
   >;
 }

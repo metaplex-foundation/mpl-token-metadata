@@ -40,23 +40,23 @@ export type VerifySizedCollectionItemInstructionData = {
   discriminator: number;
 };
 
-export type VerifySizedCollectionItemInstructionArgs = {};
+export type VerifySizedCollectionItemInstructionDataArgs = {};
 
 export function getVerifySizedCollectionItemInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  VerifySizedCollectionItemInstructionArgs,
+  VerifySizedCollectionItemInstructionDataArgs,
   VerifySizedCollectionItemInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    VerifySizedCollectionItemInstructionArgs,
+    VerifySizedCollectionItemInstructionDataArgs,
     VerifySizedCollectionItemInstructionData,
     VerifySizedCollectionItemInstructionData
   >(
     s.struct<VerifySizedCollectionItemInstructionData>(
-      [['discriminator', s.u8]],
-      'VerifySizedCollectionItemInstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'VerifySizedCollectionItemInstructionData' }
     ),
     (value) =>
       ({
@@ -64,7 +64,7 @@ export function getVerifySizedCollectionItemInstructionDataSerializer(
         discriminator: 30,
       } as VerifySizedCollectionItemInstructionData)
   ) as Serializer<
-    VerifySizedCollectionItemInstructionArgs,
+    VerifySizedCollectionItemInstructionDataArgs,
     VerifySizedCollectionItemInstructionData
   >;
 }

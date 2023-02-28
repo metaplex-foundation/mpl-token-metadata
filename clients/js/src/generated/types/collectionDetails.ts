@@ -26,13 +26,12 @@ export function getCollectionDetailsSerializer(
       [
         'V1',
         s.struct<GetDataEnumKindContent<CollectionDetails, 'V1'>>(
-          [['size', s.u64]],
-          'V1'
+          [['size', s.u64()]],
+          { description: 'V1' }
         ),
       ],
     ],
-    undefined,
-    'CollectionDetails'
+    { description: 'CollectionDetails' }
   ) as Serializer<CollectionDetailsArgs, CollectionDetails>;
 }
 

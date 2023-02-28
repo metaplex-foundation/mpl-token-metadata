@@ -18,11 +18,12 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
-  utf8,
 } from '@metaplex-foundation/umi-core';
 import {
   Key,
+  KeyArgs,
   MetadataDelegateRole,
+  MetadataDelegateRoleArgs,
   getKeySerializer,
   getMetadataDelegateRoleSerializer,
 } from '../types';
@@ -36,6 +37,46 @@ export type MetadataDelegateRecordAccountData = {
   delegate: PublicKey;
   updateAuthority: PublicKey;
 };
+
+export type MetadataDelegateRecordAccountDataArgs = {
+  key: KeyArgs;
+  bump: number;
+  mint: PublicKey;
+  delegate: PublicKey;
+  updateAuthority: PublicKey;
+};
+
+export function getMetadataDelegateRecordAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<
+  MetadataDelegateRecordAccountDataArgs,
+  MetadataDelegateRecordAccountData
+> {
+  const s = context.serializer;
+  return s.struct<MetadataDelegateRecordAccountData>(
+    [
+      ['key', getKeySerializer(context)],
+      ['bump', s.u8()],
+      ['mint', s.publicKey()],
+      ['delegate', s.publicKey()],
+      ['updateAuthority', s.publicKey()],
+    ],
+    { description: 'MetadataDelegateRecord' }
+  ) as Serializer<
+    MetadataDelegateRecordAccountDataArgs,
+    MetadataDelegateRecordAccountData
+  >;
+}
+
+export function deserializeMetadataDelegateRecord(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): MetadataDelegateRecord {
+  return deserializeAccount(
+    rawAccount,
+    getMetadataDelegateRecordAccountDataSerializer(context)
+  );
+}
 
 export async function fetchMetadataDelegateRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -90,47 +131,21 @@ export function getMetadataDelegateRecordGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: Key;
+      key: KeyArgs;
       bump: number;
       mint: PublicKey;
       delegate: PublicKey;
       updateAuthority: PublicKey;
     }>([
       ['key', getKeySerializer(context)],
-      ['bump', s.u8],
-      ['mint', s.publicKey],
-      ['delegate', s.publicKey],
-      ['updateAuthority', s.publicKey],
+      ['bump', s.u8()],
+      ['mint', s.publicKey()],
+      ['delegate', s.publicKey()],
+      ['updateAuthority', s.publicKey()],
     ])
     .deserializeUsing<MetadataDelegateRecord>((account) =>
       deserializeMetadataDelegateRecord(context, account)
     );
-}
-
-export function deserializeMetadataDelegateRecord(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): MetadataDelegateRecord {
-  return deserializeAccount(
-    rawAccount,
-    getMetadataDelegateRecordAccountDataSerializer(context)
-  );
-}
-
-export function getMetadataDelegateRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<MetadataDelegateRecordAccountData> {
-  const s = context.serializer;
-  return s.struct<MetadataDelegateRecordAccountData>(
-    [
-      ['key', getKeySerializer(context)],
-      ['bump', s.u8],
-      ['mint', s.publicKey],
-      ['delegate', s.publicKey],
-      ['updateAuthority', s.publicKey],
-    ],
-    'MetadataDelegateRecord'
-  );
 }
 
 export function getMetadataDelegateRecordSize(_context = {}): number {
@@ -143,7 +158,7 @@ export function findMetadataDelegateRecordPda(
     /** The address of the mint account */
     mint: PublicKey;
     /** The role of the metadata delegate */
-    delegateRole: MetadataDelegateRole;
+    delegateRole: MetadataDelegateRoleArgs;
     /** The address of the metadata's update authority */
     updateAuthority: PublicKey;
     /** The address of delegate authority */
@@ -154,11 +169,11 @@ export function findMetadataDelegateRecordPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
+    s.publicKey().serialize(seeds.mint),
     getMetadataDelegateRoleSerializer(context).serialize(seeds.delegateRole),
-    s.publicKey.serialize(seeds.updateAuthority),
-    s.publicKey.serialize(seeds.delegate),
+    s.publicKey().serialize(seeds.updateAuthority),
+    s.publicKey().serialize(seeds.delegate),
   ]);
 }

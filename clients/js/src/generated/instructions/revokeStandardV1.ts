@@ -57,26 +57,26 @@ export type RevokeStandardV1InstructionData = {
   revokeStandardV1Discriminator: number;
 };
 
-export type RevokeStandardV1InstructionArgs = {};
+export type RevokeStandardV1InstructionDataArgs = {};
 
 export function getRevokeStandardV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  RevokeStandardV1InstructionArgs,
+  RevokeStandardV1InstructionDataArgs,
   RevokeStandardV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    RevokeStandardV1InstructionArgs,
+    RevokeStandardV1InstructionDataArgs,
     RevokeStandardV1InstructionData,
     RevokeStandardV1InstructionData
   >(
     s.struct<RevokeStandardV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['revokeStandardV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['revokeStandardV1Discriminator', s.u8()],
       ],
-      'RevokeStandardV1InstructionArgs'
+      { description: 'RevokeStandardV1InstructionData' }
     ),
     (value) =>
       ({
@@ -85,7 +85,7 @@ export function getRevokeStandardV1InstructionDataSerializer(
         revokeStandardV1Discriminator: 6,
       } as RevokeStandardV1InstructionData)
   ) as Serializer<
-    RevokeStandardV1InstructionArgs,
+    RevokeStandardV1InstructionDataArgs,
     RevokeStandardV1InstructionData
   >;
 }

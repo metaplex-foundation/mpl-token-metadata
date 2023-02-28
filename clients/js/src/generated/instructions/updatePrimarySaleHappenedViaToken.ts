@@ -32,23 +32,23 @@ export type UpdatePrimarySaleHappenedViaTokenInstructionData = {
   discriminator: number;
 };
 
-export type UpdatePrimarySaleHappenedViaTokenInstructionArgs = {};
+export type UpdatePrimarySaleHappenedViaTokenInstructionDataArgs = {};
 
 export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  UpdatePrimarySaleHappenedViaTokenInstructionArgs,
+  UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
   UpdatePrimarySaleHappenedViaTokenInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    UpdatePrimarySaleHappenedViaTokenInstructionArgs,
+    UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
     UpdatePrimarySaleHappenedViaTokenInstructionData,
     UpdatePrimarySaleHappenedViaTokenInstructionData
   >(
     s.struct<UpdatePrimarySaleHappenedViaTokenInstructionData>(
-      [['discriminator', s.u8]],
-      'UpdatePrimarySaleHappenedViaTokenInstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'UpdatePrimarySaleHappenedViaTokenInstructionData' }
     ),
     (value) =>
       ({
@@ -56,7 +56,7 @@ export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
         discriminator: 4,
       } as UpdatePrimarySaleHappenedViaTokenInstructionData)
   ) as Serializer<
-    UpdatePrimarySaleHappenedViaTokenInstructionArgs,
+    UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
     UpdatePrimarySaleHappenedViaTokenInstructionData
   >;
 }

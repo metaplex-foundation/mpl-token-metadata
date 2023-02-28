@@ -19,10 +19,9 @@ export function getMintPrintingTokensViaTokenArgsSerializer(
   MintPrintingTokensViaTokenArgs
 > {
   const s = context.serializer;
-  return s.struct<MintPrintingTokensViaTokenArgs>(
-    [['supply', s.u64]],
-    'MintPrintingTokensViaTokenArgs'
-  ) as Serializer<
+  return s.struct<MintPrintingTokensViaTokenArgs>([['supply', s.u64()]], {
+    description: 'MintPrintingTokensViaTokenArgs',
+  }) as Serializer<
     MintPrintingTokensViaTokenArgsArgs,
     MintPrintingTokensViaTokenArgs
   >;

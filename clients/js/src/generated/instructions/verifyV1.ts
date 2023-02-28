@@ -44,29 +44,29 @@ export type VerifyV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type VerifyV1InstructionArgs = {
+export type VerifyV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getVerifyV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<VerifyV1InstructionArgs, VerifyV1InstructionData> {
+): Serializer<VerifyV1InstructionDataArgs, VerifyV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    VerifyV1InstructionArgs,
+    VerifyV1InstructionDataArgs,
     VerifyV1InstructionData,
     VerifyV1InstructionData
   >(
     s.struct<VerifyV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['verifyV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['verifyV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'VerifyV1InstructionArgs'
+      { description: 'VerifyV1InstructionData' }
     ),
     (value) =>
       ({
@@ -74,13 +74,13 @@ export function getVerifyV1InstructionDataSerializer(
         discriminator: 52,
         verifyV1Discriminator: 0,
       } as VerifyV1InstructionData)
-  ) as Serializer<VerifyV1InstructionArgs, VerifyV1InstructionData>;
+  ) as Serializer<VerifyV1InstructionDataArgs, VerifyV1InstructionData>;
 }
 
 // Instruction.
 export function verifyV1(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
-  input: VerifyV1InstructionAccounts & VerifyV1InstructionArgs
+  input: VerifyV1InstructionAccounts & VerifyV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

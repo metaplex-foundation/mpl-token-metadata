@@ -25,12 +25,15 @@ import {
 import { findMetadataPda } from '../accounts';
 import {
   Collection,
+  CollectionArgs,
   CollectionDetails,
   CollectionDetailsArgs,
   Creator,
+  CreatorArgs,
   PrintSupply,
   PrintSupplyArgs,
   TokenStandard,
+  TokenStandardArgs,
   Uses,
   UsesArgs,
   getCollectionDetailsSerializer,
@@ -83,16 +86,16 @@ export type CreateV1InstructionData = {
   printSupply: Option<PrintSupply>;
 };
 
-export type CreateV1InstructionArgs = {
+export type CreateV1InstructionDataArgs = {
   name: string;
   symbol?: string;
   uri: string;
   sellerFeeBasisPoints: Amount<'%', 2>;
-  creators: Option<Array<Creator>>;
+  creators: Option<Array<CreatorArgs>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
-  tokenStandard: TokenStandard;
-  collection?: Option<Collection>;
+  tokenStandard: TokenStandardArgs;
+  collection?: Option<CollectionArgs>;
   uses?: Option<UsesArgs>;
   collectionDetails?: Option<CollectionDetailsArgs>;
   ruleSet?: Option<PublicKey>;
@@ -102,22 +105,22 @@ export type CreateV1InstructionArgs = {
 
 export function getCreateV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<CreateV1InstructionArgs, CreateV1InstructionData> {
+): Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    CreateV1InstructionArgs,
+    CreateV1InstructionDataArgs,
     CreateV1InstructionData,
     CreateV1InstructionData
   >(
     s.struct<CreateV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['createV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['createV1Discriminator', s.u8()],
         ['name', s.string()],
         ['symbol', s.string()],
         ['uri', s.string()],
-        ['sellerFeeBasisPoints', mapAmountSerializer(s.u16, '%', 2)],
-        ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+        ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
+        ['creators', s.option(s.array(getCreatorSerializer(context)))],
         ['primarySaleHappened', s.bool()],
         ['isMutable', s.bool()],
         ['tokenStandard', getTokenStandardSerializer(context)],
@@ -127,11 +130,11 @@ export function getCreateV1InstructionDataSerializer(
           'collectionDetails',
           s.option(getCollectionDetailsSerializer(context)),
         ],
-        ['ruleSet', s.option(s.publicKey)],
-        ['decimals', s.option(s.u8)],
+        ['ruleSet', s.option(s.publicKey())],
+        ['decimals', s.option(s.u8())],
         ['printSupply', s.option(getPrintSupplySerializer(context))],
       ],
-      'CreateV1InstructionArgs'
+      { description: 'CreateV1InstructionData' }
     ),
     (value) =>
       ({
@@ -148,7 +151,7 @@ export function getCreateV1InstructionDataSerializer(
         decimals: value.decimals ?? none(),
         printSupply: value.printSupply ?? none(),
       } as CreateV1InstructionData)
-  ) as Serializer<CreateV1InstructionArgs, CreateV1InstructionData>;
+  ) as Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
 }
 
 // Instruction.
@@ -157,7 +160,7 @@ export function createV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: CreateV1InstructionAccounts & CreateV1InstructionArgs
+  input: CreateV1InstructionAccounts & CreateV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

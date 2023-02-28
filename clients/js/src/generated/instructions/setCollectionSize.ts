@@ -40,33 +40,33 @@ export type SetCollectionSizeInstructionData = {
   setCollectionSizeArgs: SetCollectionSizeArgs;
 };
 
-export type SetCollectionSizeInstructionArgs = {
+export type SetCollectionSizeInstructionDataArgs = {
   setCollectionSizeArgs: SetCollectionSizeArgsArgs;
 };
 
 export function getSetCollectionSizeInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  SetCollectionSizeInstructionArgs,
+  SetCollectionSizeInstructionDataArgs,
   SetCollectionSizeInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    SetCollectionSizeInstructionArgs,
+    SetCollectionSizeInstructionDataArgs,
     SetCollectionSizeInstructionData,
     SetCollectionSizeInstructionData
   >(
     s.struct<SetCollectionSizeInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer(context)],
       ],
-      'SetCollectionSizeInstructionArgs'
+      { description: 'SetCollectionSizeInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 34 } as SetCollectionSizeInstructionData)
   ) as Serializer<
-    SetCollectionSizeInstructionArgs,
+    SetCollectionSizeInstructionDataArgs,
     SetCollectionSizeInstructionData
   >;
 }
@@ -74,7 +74,8 @@ export function getSetCollectionSizeInstructionDataSerializer(
 // Instruction.
 export function setCollectionSize(
   context: Pick<Context, 'serializer' | 'programs'>,
-  input: SetCollectionSizeInstructionAccounts & SetCollectionSizeInstructionArgs
+  input: SetCollectionSizeInstructionAccounts &
+    SetCollectionSizeInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -19,6 +19,6 @@ export function getPayloadSerializer(
   const s = context.serializer;
   return s.struct<Payload>(
     [['map', s.map(s.string(), getPayloadTypeSerializer(context))]],
-    'Payload'
+    { description: 'Payload' }
   ) as Serializer<PayloadArgs, Payload>;
 }

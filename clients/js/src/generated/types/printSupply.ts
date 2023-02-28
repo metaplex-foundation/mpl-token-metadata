@@ -29,18 +29,17 @@ export function getPrintSupplySerializer(
   const s = context.serializer;
   return s.dataEnum<PrintSupply>(
     [
-      ['Zero', s.unit],
+      ['Zero', s.unit()],
       [
         'Limited',
         s.struct<GetDataEnumKindContent<PrintSupply, 'Limited'>>(
-          [['fields', s.tuple([s.u64])]],
-          'Limited'
+          [['fields', s.tuple([s.u64()])]],
+          { description: 'Limited' }
         ),
       ],
-      ['Unlimited', s.unit],
+      ['Unlimited', s.unit()],
     ],
-    undefined,
-    'PrintSupply'
+    { description: 'PrintSupply' }
   ) as Serializer<PrintSupplyArgs, PrintSupply>;
 }
 

@@ -44,12 +44,11 @@ export function getBurnArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ],
-          'V1'
+          { description: 'V1' }
         ),
       ],
     ],
-    undefined,
-    'BurnArgs'
+    { description: 'BurnArgs' }
   ) as Serializer<BurnArgsArgs, BurnArgs>;
 }
 

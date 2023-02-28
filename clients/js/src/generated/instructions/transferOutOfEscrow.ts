@@ -54,31 +54,33 @@ export type TransferOutOfEscrowInstructionData = {
   amount: bigint;
 };
 
-export type TransferOutOfEscrowInstructionArgs = { amount: number | bigint };
+export type TransferOutOfEscrowInstructionDataArgs = {
+  amount: number | bigint;
+};
 
 export function getTransferOutOfEscrowInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  TransferOutOfEscrowInstructionArgs,
+  TransferOutOfEscrowInstructionDataArgs,
   TransferOutOfEscrowInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    TransferOutOfEscrowInstructionArgs,
+    TransferOutOfEscrowInstructionDataArgs,
     TransferOutOfEscrowInstructionData,
     TransferOutOfEscrowInstructionData
   >(
     s.struct<TransferOutOfEscrowInstructionData>(
       [
-        ['discriminator', s.u8],
-        ['amount', s.u64],
+        ['discriminator', s.u8()],
+        ['amount', s.u64()],
       ],
-      'TransferOutOfEscrowInstructionArgs'
+      { description: 'TransferOutOfEscrowInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 40 } as TransferOutOfEscrowInstructionData)
   ) as Serializer<
-    TransferOutOfEscrowInstructionArgs,
+    TransferOutOfEscrowInstructionDataArgs,
     TransferOutOfEscrowInstructionData
   >;
 }
@@ -87,7 +89,7 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
 export function transferOutOfEscrow(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
   input: TransferOutOfEscrowInstructionAccounts &
-    TransferOutOfEscrowInstructionArgs
+    TransferOutOfEscrowInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

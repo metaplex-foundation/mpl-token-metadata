@@ -20,9 +20,8 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-  utf8,
 } from '@metaplex-foundation/umi-core';
-import { Key, getKeySerializer } from '../types';
+import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type MasterEdition = Account<MasterEditionAccountData>;
 
@@ -32,10 +31,42 @@ export type MasterEditionAccountData = {
   maxSupply: Option<bigint>;
 };
 
-export type MasterEditionAccountArgs = {
+export type MasterEditionAccountDataArgs = {
   supply: number | bigint;
   maxSupply: Option<number | bigint>;
 };
+
+export function getMasterEditionAccountDataSerializer(
+  context: Pick<Context, 'serializer'>
+): Serializer<MasterEditionAccountDataArgs, MasterEditionAccountData> {
+  const s = context.serializer;
+  return mapSerializer<
+    MasterEditionAccountDataArgs,
+    MasterEditionAccountData,
+    MasterEditionAccountData
+  >(
+    s.struct<MasterEditionAccountData>(
+      [
+        ['key', getKeySerializer(context)],
+        ['supply', s.u64()],
+        ['maxSupply', s.option(s.u64())],
+      ],
+      { description: 'MasterEdition' }
+    ),
+    (value) =>
+      ({ ...value, key: Key.MasterEditionV2 } as MasterEditionAccountData)
+  ) as Serializer<MasterEditionAccountDataArgs, MasterEditionAccountData>;
+}
+
+export function deserializeMasterEdition(
+  context: Pick<Context, 'serializer'>,
+  rawAccount: RpcAccount
+): MasterEdition {
+  return deserializeAccount(
+    rawAccount,
+    getMasterEditionAccountDataSerializer(context)
+  );
+}
 
 export async function fetchMasterEdition(
   context: Pick<Context, 'rpc' | 'serializer'>,
@@ -90,50 +121,18 @@ export function getMasterEditionGpaBuilder(
   const programId = context.programs.get('mplTokenMetadata').publicKey;
   return gpaBuilder(context, programId)
     .registerFields<{
-      key: Key;
+      key: KeyArgs;
       supply: number | bigint;
       maxSupply: Option<number | bigint>;
     }>([
       ['key', getKeySerializer(context)],
-      ['supply', s.u64],
-      ['maxSupply', s.option(s.u64)],
+      ['supply', s.u64()],
+      ['maxSupply', s.option(s.u64())],
     ])
     .deserializeUsing<MasterEdition>((account) =>
       deserializeMasterEdition(context, account)
     )
     .whereField('key', Key.MasterEditionV2);
-}
-
-export function deserializeMasterEdition(
-  context: Pick<Context, 'serializer'>,
-  rawAccount: RpcAccount
-): MasterEdition {
-  return deserializeAccount(
-    rawAccount,
-    getMasterEditionAccountDataSerializer(context)
-  );
-}
-
-export function getMasterEditionAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<MasterEditionAccountArgs, MasterEditionAccountData> {
-  const s = context.serializer;
-  return mapSerializer<
-    MasterEditionAccountArgs,
-    MasterEditionAccountData,
-    MasterEditionAccountData
-  >(
-    s.struct<MasterEditionAccountData>(
-      [
-        ['key', getKeySerializer(context)],
-        ['supply', s.u64],
-        ['maxSupply', s.option(s.u64)],
-      ],
-      'MasterEdition'
-    ),
-    (value) =>
-      ({ ...value, key: Key.MasterEditionV2 } as MasterEditionAccountData)
-  ) as Serializer<MasterEditionAccountArgs, MasterEditionAccountData>;
 }
 
 export function getMasterEditionSize(
@@ -153,9 +152,9 @@ export function findMasterEditionPda(
   const programId: PublicKey =
     context.programs.get('mplTokenMetadata').publicKey;
   return context.eddsa.findPda(programId, [
-    utf8.serialize('metadata'),
+    s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
-    s.publicKey.serialize(seeds.mint),
-    utf8.serialize('edition'),
+    s.publicKey().serialize(seeds.mint),
+    s.string({ size: 'variable' }).serialize('edition'),
   ]);
 }

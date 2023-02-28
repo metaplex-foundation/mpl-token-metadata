@@ -13,9 +13,13 @@ export enum MigrationType {
   ProgrammableV1,
 }
 
+export type MigrationTypeArgs = MigrationType;
+
 export function getMigrationTypeSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MigrationType> {
+): Serializer<MigrationTypeArgs, MigrationType> {
   const s = context.serializer;
-  return s.enum<MigrationType>(MigrationType, 'MigrationType');
+  return s.enum<MigrationType>(MigrationType, {
+    description: 'MigrationType',
+  }) as Serializer<MigrationTypeArgs, MigrationType>;
 }

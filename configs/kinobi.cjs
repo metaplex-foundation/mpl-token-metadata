@@ -5,9 +5,9 @@ const {
   RenderJavaScriptVisitor,
   SetAccountDiscriminatorFromFieldVisitor,
   SetInstructionAccountDefaultValuesVisitor,
-  SetLeafWrappersVisitor,
+  SetNumberWrappersVisitor,
   SetStructDefaultValuesVisitor,
-  TypeLeafNode,
+  TypePublicKeyNode,
   TypeDefinedLinkNode,
   UnwrapStructVisitor,
   UnwrapDefinedTypesVisitor,
@@ -33,7 +33,7 @@ const metadataSeeds = [
     kind: "variable",
     name: "mint",
     description: "The address of the mint account",
-    type: new TypeLeafNode("publicKey"),
+    type: new TypePublicKeyNode(),
   },
 ];
 kinobi.update(
@@ -53,7 +53,7 @@ kinobi.update(
           kind: "variable",
           name: "token",
           description: "The address of the token account (ata or not)",
-          type: new TypeLeafNode("publicKey"),
+          type: new TypePublicKeyNode(),
         },
       ],
     },
@@ -70,13 +70,13 @@ kinobi.update(
           kind: "variable",
           name: "updateAuthority",
           description: "The address of the metadata's update authority",
-          type: new TypeLeafNode("publicKey"),
+          type: new TypePublicKeyNode(),
         },
         {
           kind: "variable",
           name: "delegate",
           description: "The address of delegate authority",
-          type: new TypeLeafNode("publicKey"),
+          type: new TypePublicKeyNode(),
         },
       ],
     },
@@ -88,7 +88,7 @@ kinobi.update(
           kind: "variable",
           name: "collectionAuthority",
           description: "The address of the collection authority",
-          type: new TypeLeafNode("publicKey"),
+          type: new TypePublicKeyNode(),
         },
       ],
     },
@@ -100,7 +100,7 @@ kinobi.update(
           kind: "variable",
           name: "useAuthority",
           description: "The address of the use authority",
-          type: new TypeLeafNode("publicKey"),
+          type: new TypePublicKeyNode(),
         },
       ],
     },
@@ -186,7 +186,7 @@ kinobi.update(
 
 // Wrap leaves.
 kinobi.update(
-  new SetLeafWrappersVisitor({
+  new SetNumberWrappersVisitor({
     "AssetData.sellerFeeBasisPoints": {
       kind: "Amount",
       identifier: "%",

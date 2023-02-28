@@ -62,29 +62,29 @@ export type LockV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type LockV1InstructionArgs = {
+export type LockV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getLockV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<LockV1InstructionArgs, LockV1InstructionData> {
+): Serializer<LockV1InstructionDataArgs, LockV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    LockV1InstructionArgs,
+    LockV1InstructionDataArgs,
     LockV1InstructionData,
     LockV1InstructionData
   >(
     s.struct<LockV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['lockV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['lockV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'LockV1InstructionArgs'
+      { description: 'LockV1InstructionData' }
     ),
     (value) =>
       ({
@@ -92,7 +92,7 @@ export function getLockV1InstructionDataSerializer(
         discriminator: 46,
         lockV1Discriminator: 0,
       } as LockV1InstructionData)
-  ) as Serializer<LockV1InstructionArgs, LockV1InstructionData>;
+  ) as Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
 }
 
 // Instruction.
@@ -101,7 +101,7 @@ export function lockV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: LockV1InstructionAccounts & LockV1InstructionArgs
+  input: LockV1InstructionAccounts & LockV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

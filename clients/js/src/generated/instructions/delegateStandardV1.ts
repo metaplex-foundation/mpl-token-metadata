@@ -58,27 +58,27 @@ export type DelegateStandardV1InstructionData = {
   amount: bigint;
 };
 
-export type DelegateStandardV1InstructionArgs = { amount: number | bigint };
+export type DelegateStandardV1InstructionDataArgs = { amount: number | bigint };
 
 export function getDelegateStandardV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateStandardV1InstructionArgs,
+  DelegateStandardV1InstructionDataArgs,
   DelegateStandardV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateStandardV1InstructionArgs,
+    DelegateStandardV1InstructionDataArgs,
     DelegateStandardV1InstructionData,
     DelegateStandardV1InstructionData
   >(
     s.struct<DelegateStandardV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateStandardV1Discriminator', s.u8],
-        ['amount', s.u64],
+        ['discriminator', s.u8()],
+        ['delegateStandardV1Discriminator', s.u8()],
+        ['amount', s.u64()],
       ],
-      'DelegateStandardV1InstructionArgs'
+      { description: 'DelegateStandardV1InstructionData' }
     ),
     (value) =>
       ({
@@ -87,7 +87,7 @@ export function getDelegateStandardV1InstructionDataSerializer(
         delegateStandardV1Discriminator: 6,
       } as DelegateStandardV1InstructionData)
   ) as Serializer<
-    DelegateStandardV1InstructionArgs,
+    DelegateStandardV1InstructionDataArgs,
     DelegateStandardV1InstructionData
   >;
 }
@@ -99,7 +99,7 @@ export function delegateStandardV1(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: DelegateStandardV1InstructionAccounts &
-    DelegateStandardV1InstructionArgs
+    DelegateStandardV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

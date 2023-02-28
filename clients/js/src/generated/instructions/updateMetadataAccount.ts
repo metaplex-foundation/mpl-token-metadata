@@ -17,7 +17,7 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
 } from '@metaplex-foundation/umi-core';
-import { Creator, getCreatorSerializer } from '../types';
+import { Creator, CreatorArgs, getCreatorSerializer } from '../types';
 
 // Accounts.
 export type UpdateMetadataAccountInstructionAccounts = {
@@ -41,13 +41,13 @@ export type UpdateMetadataAccountInstructionData = {
   primarySaleHappened: Option<boolean>;
 };
 
-export type UpdateMetadataAccountInstructionArgs = {
+export type UpdateMetadataAccountInstructionDataArgs = {
   data: Option<{
     name: string;
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
+    creators: Option<Array<CreatorArgs>>;
   }>;
   newUpdateAuthority: Option<PublicKey>;
   primarySaleHappened: Option<boolean>;
@@ -56,18 +56,18 @@ export type UpdateMetadataAccountInstructionArgs = {
 export function getUpdateMetadataAccountInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  UpdateMetadataAccountInstructionArgs,
+  UpdateMetadataAccountInstructionDataArgs,
   UpdateMetadataAccountInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    UpdateMetadataAccountInstructionArgs,
+    UpdateMetadataAccountInstructionDataArgs,
     UpdateMetadataAccountInstructionData,
     UpdateMetadataAccountInstructionData
   >(
     s.struct<UpdateMetadataAccountInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         [
           'data',
           s.option(
@@ -76,22 +76,22 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
                 ['name', s.string()],
                 ['symbol', s.string()],
                 ['uri', s.string()],
-                ['sellerFeeBasisPoints', s.u16],
-                ['creators', s.option(s.vec(getCreatorSerializer(context)))],
+                ['sellerFeeBasisPoints', s.u16()],
+                ['creators', s.option(s.array(getCreatorSerializer(context)))],
               ],
-              'Data'
+              { description: 'Data' }
             )
           ),
         ],
-        ['newUpdateAuthority', s.option(s.publicKey)],
+        ['newUpdateAuthority', s.option(s.publicKey())],
         ['primarySaleHappened', s.option(s.bool())],
       ],
-      'UpdateMetadataAccountInstructionArgs'
+      { description: 'UpdateMetadataAccountInstructionData' }
     ),
     (value) =>
       ({ ...value, discriminator: 1 } as UpdateMetadataAccountInstructionData)
   ) as Serializer<
-    UpdateMetadataAccountInstructionArgs,
+    UpdateMetadataAccountInstructionDataArgs,
     UpdateMetadataAccountInstructionData
   >;
 }
@@ -100,7 +100,7 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
 export function updateMetadataAccount(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: UpdateMetadataAccountInstructionAccounts &
-    UpdateMetadataAccountInstructionArgs
+    UpdateMetadataAccountInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

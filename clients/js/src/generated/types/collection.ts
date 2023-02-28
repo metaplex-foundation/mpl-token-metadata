@@ -10,15 +10,17 @@ import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi-core';
 
 export type Collection = { verified: boolean; key: PublicKey };
 
+export type CollectionArgs = Collection;
+
 export function getCollectionSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<Collection> {
+): Serializer<CollectionArgs, Collection> {
   const s = context.serializer;
   return s.struct<Collection>(
     [
       ['verified', s.bool()],
-      ['key', s.publicKey],
+      ['key', s.publicKey()],
     ],
-    'Collection'
-  );
+    { description: 'Collection' }
+  ) as Serializer<CollectionArgs, Collection>;
 }

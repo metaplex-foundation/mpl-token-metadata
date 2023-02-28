@@ -23,7 +23,11 @@ import {
   findMetadataPda,
   findTokenRecordPda,
 } from '../accounts';
-import { MigrationType, getMigrationTypeSerializer } from '../types';
+import {
+  MigrationType,
+  MigrationTypeArgs,
+  getMigrationTypeSerializer,
+} from '../types';
 
 // Accounts.
 export type MigrateV1InstructionAccounts = {
@@ -67,28 +71,28 @@ export type MigrateV1InstructionData = {
   ruleSet: Option<PublicKey>;
 };
 
-export type MigrateV1InstructionArgs = {
-  migrationType: MigrationType;
+export type MigrateV1InstructionDataArgs = {
+  migrationType: MigrationTypeArgs;
   ruleSet: Option<PublicKey>;
 };
 
 export function getMigrateV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<MigrateV1InstructionArgs, MigrateV1InstructionData> {
+): Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    MigrateV1InstructionArgs,
+    MigrateV1InstructionDataArgs,
     MigrateV1InstructionData,
     MigrateV1InstructionData
   >(
     s.struct<MigrateV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['migrateV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['migrateV1Discriminator', s.u8()],
         ['migrationType', getMigrationTypeSerializer(context)],
-        ['ruleSet', s.option(s.publicKey)],
+        ['ruleSet', s.option(s.publicKey())],
       ],
-      'MigrateV1InstructionArgs'
+      { description: 'MigrateV1InstructionData' }
     ),
     (value) =>
       ({
@@ -96,7 +100,7 @@ export function getMigrateV1InstructionDataSerializer(
         discriminator: 48,
         migrateV1Discriminator: 0,
       } as MigrateV1InstructionData)
-  ) as Serializer<MigrateV1InstructionArgs, MigrateV1InstructionData>;
+  ) as Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData>;
 }
 
 // Instruction.
@@ -105,7 +109,7 @@ export function migrateV1(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: MigrateV1InstructionAccounts & MigrateV1InstructionArgs
+  input: MigrateV1InstructionAccounts & MigrateV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

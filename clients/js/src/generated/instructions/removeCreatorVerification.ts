@@ -30,23 +30,23 @@ export type RemoveCreatorVerificationInstructionData = {
   discriminator: number;
 };
 
-export type RemoveCreatorVerificationInstructionArgs = {};
+export type RemoveCreatorVerificationInstructionDataArgs = {};
 
 export function getRemoveCreatorVerificationInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  RemoveCreatorVerificationInstructionArgs,
+  RemoveCreatorVerificationInstructionDataArgs,
   RemoveCreatorVerificationInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    RemoveCreatorVerificationInstructionArgs,
+    RemoveCreatorVerificationInstructionDataArgs,
     RemoveCreatorVerificationInstructionData,
     RemoveCreatorVerificationInstructionData
   >(
     s.struct<RemoveCreatorVerificationInstructionData>(
-      [['discriminator', s.u8]],
-      'RemoveCreatorVerificationInstructionArgs'
+      [['discriminator', s.u8()]],
+      { description: 'RemoveCreatorVerificationInstructionData' }
     ),
     (value) =>
       ({
@@ -54,7 +54,7 @@ export function getRemoveCreatorVerificationInstructionDataSerializer(
         discriminator: 28,
       } as RemoveCreatorVerificationInstructionData)
   ) as Serializer<
-    RemoveCreatorVerificationInstructionArgs,
+    RemoveCreatorVerificationInstructionDataArgs,
     RemoveCreatorVerificationInstructionData
   >;
 }

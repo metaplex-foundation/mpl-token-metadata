@@ -42,28 +42,28 @@ export type BubblegumSetCollectionSizeInstructionData = {
   setCollectionSizeArgs: SetCollectionSizeArgs;
 };
 
-export type BubblegumSetCollectionSizeInstructionArgs = {
+export type BubblegumSetCollectionSizeInstructionDataArgs = {
   setCollectionSizeArgs: SetCollectionSizeArgsArgs;
 };
 
 export function getBubblegumSetCollectionSizeInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  BubblegumSetCollectionSizeInstructionArgs,
+  BubblegumSetCollectionSizeInstructionDataArgs,
   BubblegumSetCollectionSizeInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    BubblegumSetCollectionSizeInstructionArgs,
+    BubblegumSetCollectionSizeInstructionDataArgs,
     BubblegumSetCollectionSizeInstructionData,
     BubblegumSetCollectionSizeInstructionData
   >(
     s.struct<BubblegumSetCollectionSizeInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer(context)],
       ],
-      'BubblegumSetCollectionSizeInstructionArgs'
+      { description: 'BubblegumSetCollectionSizeInstructionData' }
     ),
     (value) =>
       ({
@@ -71,7 +71,7 @@ export function getBubblegumSetCollectionSizeInstructionDataSerializer(
         discriminator: 36,
       } as BubblegumSetCollectionSizeInstructionData)
   ) as Serializer<
-    BubblegumSetCollectionSizeInstructionArgs,
+    BubblegumSetCollectionSizeInstructionDataArgs,
     BubblegumSetCollectionSizeInstructionData
   >;
 }
@@ -80,7 +80,7 @@ export function getBubblegumSetCollectionSizeInstructionDataSerializer(
 export function bubblegumSetCollectionSize(
   context: Pick<Context, 'serializer' | 'programs'>,
   input: BubblegumSetCollectionSizeInstructionAccounts &
-    BubblegumSetCollectionSizeInstructionArgs
+    BubblegumSetCollectionSizeInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

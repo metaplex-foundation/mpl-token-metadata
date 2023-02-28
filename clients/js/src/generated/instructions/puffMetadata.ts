@@ -26,23 +26,22 @@ export type PuffMetadataInstructionAccounts = {
 // Arguments.
 export type PuffMetadataInstructionData = { discriminator: number };
 
-export type PuffMetadataInstructionArgs = {};
+export type PuffMetadataInstructionDataArgs = {};
 
 export function getPuffMetadataInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<PuffMetadataInstructionArgs, PuffMetadataInstructionData> {
+): Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    PuffMetadataInstructionArgs,
+    PuffMetadataInstructionDataArgs,
     PuffMetadataInstructionData,
     PuffMetadataInstructionData
   >(
-    s.struct<PuffMetadataInstructionData>(
-      [['discriminator', s.u8]],
-      'PuffMetadataInstructionArgs'
-    ),
+    s.struct<PuffMetadataInstructionData>([['discriminator', s.u8()]], {
+      description: 'PuffMetadataInstructionData',
+    }),
     (value) => ({ ...value, discriminator: 14 } as PuffMetadataInstructionData)
-  ) as Serializer<PuffMetadataInstructionArgs, PuffMetadataInstructionData>;
+  ) as Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData>;
 }
 
 // Instruction.

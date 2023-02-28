@@ -18,38 +18,39 @@ export type EscrowAuthority =
   | { __kind: 'TokenOwner' }
   | { __kind: 'Creator'; fields: [PublicKey] };
 
+export type EscrowAuthorityArgs = EscrowAuthority;
+
 export function getEscrowAuthoritySerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<EscrowAuthority> {
+): Serializer<EscrowAuthorityArgs, EscrowAuthority> {
   const s = context.serializer;
   return s.dataEnum<EscrowAuthority>(
     [
-      ['TokenOwner', s.unit],
+      ['TokenOwner', s.unit()],
       [
         'Creator',
         s.struct<GetDataEnumKindContent<EscrowAuthority, 'Creator'>>(
-          [['fields', s.tuple([s.publicKey])]],
-          'Creator'
+          [['fields', s.tuple([s.publicKey()])]],
+          { description: 'Creator' }
         ),
       ],
     ],
-    undefined,
-    'EscrowAuthority'
-  );
+    { description: 'EscrowAuthority' }
+  ) as Serializer<EscrowAuthorityArgs, EscrowAuthority>;
 }
 
 // Data Enum Helpers.
 export function escrowAuthority(
   kind: 'TokenOwner'
-): GetDataEnumKind<EscrowAuthority, 'TokenOwner'>;
+): GetDataEnumKind<EscrowAuthorityArgs, 'TokenOwner'>;
 export function escrowAuthority(
   kind: 'Creator',
-  data: GetDataEnumKindContent<EscrowAuthority, 'Creator'>['fields']
-): GetDataEnumKind<EscrowAuthority, 'Creator'>;
-export function escrowAuthority<K extends EscrowAuthority['__kind']>(
+  data: GetDataEnumKindContent<EscrowAuthorityArgs, 'Creator'>['fields']
+): GetDataEnumKind<EscrowAuthorityArgs, 'Creator'>;
+export function escrowAuthority<K extends EscrowAuthorityArgs['__kind']>(
   kind: K,
   data?: any
-): Extract<EscrowAuthority, { __kind: K }> {
+): Extract<EscrowAuthorityArgs, { __kind: K }> {
   return Array.isArray(data)
     ? { __kind: kind, fields: data }
     : { __kind: kind, ...(data ?? {}) };

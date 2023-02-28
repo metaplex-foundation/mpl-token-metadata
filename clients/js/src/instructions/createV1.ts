@@ -20,14 +20,14 @@ import {
   createV1 as baseCreateV1,
   CreateV1InstructionAccounts,
   CreateV1InstructionData,
-  CreateV1InstructionArgs,
+  CreateV1InstructionDataArgs,
   getCreateV1InstructionDataSerializer,
 } from '../generated/instructions/createV1';
 
 export {
   CreateV1InstructionAccounts,
   CreateV1InstructionData,
-  CreateV1InstructionArgs,
+  CreateV1InstructionDataArgs,
   getCreateV1InstructionDataSerializer,
 };
 

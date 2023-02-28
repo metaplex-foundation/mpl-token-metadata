@@ -36,28 +36,27 @@ export type ThawDelegatedAccountInstructionAccounts = {
 // Arguments.
 export type ThawDelegatedAccountInstructionData = { discriminator: number };
 
-export type ThawDelegatedAccountInstructionArgs = {};
+export type ThawDelegatedAccountInstructionDataArgs = {};
 
 export function getThawDelegatedAccountInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  ThawDelegatedAccountInstructionArgs,
+  ThawDelegatedAccountInstructionDataArgs,
   ThawDelegatedAccountInstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    ThawDelegatedAccountInstructionArgs,
+    ThawDelegatedAccountInstructionDataArgs,
     ThawDelegatedAccountInstructionData,
     ThawDelegatedAccountInstructionData
   >(
-    s.struct<ThawDelegatedAccountInstructionData>(
-      [['discriminator', s.u8]],
-      'ThawDelegatedAccountInstructionArgs'
-    ),
+    s.struct<ThawDelegatedAccountInstructionData>([['discriminator', s.u8()]], {
+      description: 'ThawDelegatedAccountInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 27 } as ThawDelegatedAccountInstructionData)
   ) as Serializer<
-    ThawDelegatedAccountInstructionArgs,
+    ThawDelegatedAccountInstructionDataArgs,
     ThawDelegatedAccountInstructionData
   >;
 }

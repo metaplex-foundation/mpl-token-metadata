@@ -54,29 +54,29 @@ export type BurnV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type BurnV1InstructionArgs = {
+export type BurnV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getBurnV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<BurnV1InstructionArgs, BurnV1InstructionData> {
+): Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    BurnV1InstructionArgs,
+    BurnV1InstructionDataArgs,
     BurnV1InstructionData,
     BurnV1InstructionData
   >(
     s.struct<BurnV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['burnV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['burnV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'BurnV1InstructionArgs'
+      { description: 'BurnV1InstructionData' }
     ),
     (value) =>
       ({
@@ -84,13 +84,13 @@ export function getBurnV1InstructionDataSerializer(
         discriminator: 41,
         burnV1Discriminator: 0,
       } as BurnV1InstructionData)
-  ) as Serializer<BurnV1InstructionArgs, BurnV1InstructionData>;
+  ) as Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData>;
 }
 
 // Instruction.
 export function burnV1(
   context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
-  input: BurnV1InstructionAccounts & BurnV1InstructionArgs
+  input: BurnV1InstructionAccounts & BurnV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

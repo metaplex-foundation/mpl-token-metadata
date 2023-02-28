@@ -68,26 +68,26 @@ export type TransferInstructionData = {
   transferArgs: TransferArgs;
 };
 
-export type TransferInstructionArgs = { transferArgs: TransferArgsArgs };
+export type TransferInstructionDataArgs = { transferArgs: TransferArgsArgs };
 
 export function getTransferInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TransferInstructionArgs, TransferInstructionData> {
+): Serializer<TransferInstructionDataArgs, TransferInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    TransferInstructionArgs,
+    TransferInstructionDataArgs,
     TransferInstructionData,
     TransferInstructionData
   >(
     s.struct<TransferInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['transferArgs', getTransferArgsSerializer(context)],
       ],
-      'TransferInstructionArgs'
+      { description: 'TransferInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 49 } as TransferInstructionData)
-  ) as Serializer<TransferInstructionArgs, TransferInstructionData>;
+  ) as Serializer<TransferInstructionDataArgs, TransferInstructionData>;
 }
 
 // Instruction.
@@ -96,7 +96,7 @@ export function transfer(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: TransferInstructionAccounts & TransferInstructionArgs
+  input: TransferInstructionAccounts & TransferInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

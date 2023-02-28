@@ -56,26 +56,26 @@ export type UnlockInstructionData = {
   unlockArgs: UnlockArgs;
 };
 
-export type UnlockInstructionArgs = { unlockArgs: UnlockArgsArgs };
+export type UnlockInstructionDataArgs = { unlockArgs: UnlockArgsArgs };
 
 export function getUnlockInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UnlockInstructionArgs, UnlockInstructionData> {
+): Serializer<UnlockInstructionDataArgs, UnlockInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    UnlockInstructionArgs,
+    UnlockInstructionDataArgs,
     UnlockInstructionData,
     UnlockInstructionData
   >(
     s.struct<UnlockInstructionData>(
       [
-        ['discriminator', s.u8],
+        ['discriminator', s.u8()],
         ['unlockArgs', getUnlockArgsSerializer(context)],
       ],
-      'UnlockInstructionArgs'
+      { description: 'UnlockInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 47 } as UnlockInstructionData)
-  ) as Serializer<UnlockInstructionArgs, UnlockInstructionData>;
+  ) as Serializer<UnlockInstructionDataArgs, UnlockInstructionData>;
 }
 
 // Instruction.
@@ -84,7 +84,7 @@ export function unlock(
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UnlockInstructionAccounts & UnlockInstructionArgs
+  input: UnlockInstructionAccounts & UnlockInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

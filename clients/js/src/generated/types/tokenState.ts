@@ -14,9 +14,13 @@ export enum TokenState {
   Listed,
 }
 
+export type TokenStateArgs = TokenState;
+
 export function getTokenStateSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<TokenState> {
+): Serializer<TokenStateArgs, TokenState> {
   const s = context.serializer;
-  return s.enum<TokenState>(TokenState, 'TokenState');
+  return s.enum<TokenState>(TokenState, {
+    description: 'TokenState',
+  }) as Serializer<TokenStateArgs, TokenState>;
 }

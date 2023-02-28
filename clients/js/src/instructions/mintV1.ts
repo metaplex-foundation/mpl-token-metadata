@@ -10,14 +10,14 @@ import {
   getMintV1InstructionDataSerializer,
   mintV1 as baseMintV1,
   MintV1InstructionAccounts,
-  MintV1InstructionArgs,
   MintV1InstructionData,
+  MintV1InstructionDataArgs,
 } from '../generated/instructions/mintV1';
 
 export {
   MintV1InstructionAccounts,
   MintV1InstructionData,
-  MintV1InstructionArgs,
+  MintV1InstructionDataArgs,
   getMintV1InstructionDataSerializer,
 };
 

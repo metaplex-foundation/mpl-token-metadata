@@ -34,18 +34,17 @@ export function getCollectionDetailsToggleSerializer(
   const s = context.serializer;
   return s.dataEnum<CollectionDetailsToggle>(
     [
-      ['None', s.unit],
-      ['Clear', s.unit],
+      ['None', s.unit()],
+      ['Clear', s.unit()],
       [
         'Set',
         s.struct<GetDataEnumKindContent<CollectionDetailsToggle, 'Set'>>(
           [['fields', s.tuple([getCollectionDetailsSerializer(context)])]],
-          'Set'
+          { description: 'Set' }
         ),
       ],
     ],
-    undefined,
-    'CollectionDetailsToggle'
+    { description: 'CollectionDetailsToggle' }
   ) as Serializer<CollectionDetailsToggleArgs, CollectionDetailsToggle>;
 }
 

@@ -64,32 +64,32 @@ export type DelegateCollectionV1InstructionData = {
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateCollectionV1InstructionArgs = {
+export type DelegateCollectionV1InstructionDataArgs = {
   authorizationData: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateCollectionV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateCollectionV1InstructionArgs,
+  DelegateCollectionV1InstructionDataArgs,
   DelegateCollectionV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateCollectionV1InstructionArgs,
+    DelegateCollectionV1InstructionDataArgs,
     DelegateCollectionV1InstructionData,
     DelegateCollectionV1InstructionData
   >(
     s.struct<DelegateCollectionV1InstructionData>(
       [
-        ['discriminator', s.u8],
-        ['delegateCollectionV1Discriminator', s.u8],
+        ['discriminator', s.u8()],
+        ['delegateCollectionV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      'DelegateCollectionV1InstructionArgs'
+      { description: 'DelegateCollectionV1InstructionData' }
     ),
     (value) =>
       ({
@@ -98,7 +98,7 @@ export function getDelegateCollectionV1InstructionDataSerializer(
         delegateCollectionV1Discriminator: 0,
       } as DelegateCollectionV1InstructionData)
   ) as Serializer<
-    DelegateCollectionV1InstructionArgs,
+    DelegateCollectionV1InstructionDataArgs,
     DelegateCollectionV1InstructionData
   >;
 }
@@ -110,7 +110,7 @@ export function delegateCollectionV1(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: DelegateCollectionV1InstructionAccounts &
-    DelegateCollectionV1InstructionArgs
+    DelegateCollectionV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];

@@ -44,24 +44,29 @@ export type BurnEditionNftInstructionAccounts = {
 // Arguments.
 export type BurnEditionNftInstructionData = { discriminator: number };
 
-export type BurnEditionNftInstructionArgs = {};
+export type BurnEditionNftInstructionDataArgs = {};
 
 export function getBurnEditionNftInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<BurnEditionNftInstructionArgs, BurnEditionNftInstructionData> {
+): Serializer<
+  BurnEditionNftInstructionDataArgs,
+  BurnEditionNftInstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    BurnEditionNftInstructionArgs,
+    BurnEditionNftInstructionDataArgs,
     BurnEditionNftInstructionData,
     BurnEditionNftInstructionData
   >(
-    s.struct<BurnEditionNftInstructionData>(
-      [['discriminator', s.u8]],
-      'BurnEditionNftInstructionArgs'
-    ),
+    s.struct<BurnEditionNftInstructionData>([['discriminator', s.u8()]], {
+      description: 'BurnEditionNftInstructionData',
+    }),
     (value) =>
       ({ ...value, discriminator: 37 } as BurnEditionNftInstructionData)
-  ) as Serializer<BurnEditionNftInstructionArgs, BurnEditionNftInstructionData>;
+  ) as Serializer<
+    BurnEditionNftInstructionDataArgs,
+    BurnEditionNftInstructionData
+  >;
 }
 
 // Instruction.
