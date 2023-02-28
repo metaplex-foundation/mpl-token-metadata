@@ -2639,6 +2639,48 @@ nameToErrorMap.set(
   CannotUpdateAssetWithDelegateError
 );
 
+/** InvalidAssociatedTokenAccountProgram: 'Invalid Associated Token Account Program' */
+export class InvalidAssociatedTokenAccountProgramError extends ProgramError {
+  readonly name: string = 'InvalidAssociatedTokenAccountProgram';
+
+  readonly code: number = 0xae; // 174
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid Associated Token Account Program', program, cause);
+  }
+}
+codeToErrorMap.set(0xae, InvalidAssociatedTokenAccountProgramError);
+nameToErrorMap.set(
+  'InvalidAssociatedTokenAccountProgram',
+  InvalidAssociatedTokenAccountProgramError
+);
+
+/** InvalidInstructionsSysvar: 'Invalid InstructionsSysvar' */
+export class InvalidInstructionsSysvarError extends ProgramError {
+  readonly name: string = 'InvalidInstructionsSysvar';
+
+  readonly code: number = 0xaf; // 175
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid InstructionsSysvar', program, cause);
+  }
+}
+codeToErrorMap.set(0xaf, InvalidInstructionsSysvarError);
+nameToErrorMap.set('InvalidInstructionsSysvar', InvalidInstructionsSysvarError);
+
+/** InvalidUpdateArgs: 'Authority cannot apply all update args' */
+export class InvalidUpdateArgsError extends ProgramError {
+  readonly name: string = 'InvalidUpdateArgs';
+
+  readonly code: number = 0xb0; // 176
+
+  constructor(program: Program, cause?: Error) {
+    super('Authority cannot apply all update args', program, cause);
+  }
+}
+codeToErrorMap.set(0xb0, InvalidUpdateArgsError);
+nameToErrorMap.set('InvalidUpdateArgs', InvalidUpdateArgsError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

@@ -49,6 +49,10 @@ export type DelegateArgs =
       amount: bigint;
       lockedAddress: PublicKey;
       authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'ProgrammableConfigV1';
+      authorizationData: Option<AuthorizationData>;
     };
 
 export type DelegateArgsArgs =
@@ -79,6 +83,10 @@ export type DelegateArgsArgs =
       __kind: 'LockedTransferV1';
       amount: number | bigint;
       lockedAddress: PublicKey;
+      authorizationData: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'ProgrammableConfigV1';
       authorizationData: Option<AuthorizationDataArgs>;
     };
 
@@ -185,6 +193,18 @@ export function getDelegateArgsSerializer(
           'LockedTransferV1'
         ),
       ],
+      [
+        'ProgrammableConfigV1',
+        s.struct<GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigV1'>>(
+          [
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ],
+          'ProgrammableConfigV1'
+        ),
+      ],
     ],
     undefined,
     'DelegateArgs'
@@ -224,6 +244,10 @@ export function delegateArgs(
   kind: 'LockedTransferV1',
   data: GetDataEnumKindContent<DelegateArgsArgs, 'LockedTransferV1'>
 ): GetDataEnumKind<DelegateArgsArgs, 'LockedTransferV1'>;
+export function delegateArgs(
+  kind: 'ProgrammableConfigV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'ProgrammableConfigV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'ProgrammableConfigV1'>;
 export function delegateArgs<K extends DelegateArgsArgs['__kind']>(
   kind: K,
   data?: any

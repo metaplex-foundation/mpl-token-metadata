@@ -13,6 +13,7 @@ export enum MetadataDelegateRole {
   Collection,
   Use,
   Update,
+  ProgrammableConfig,
 }
 
 export function getMetadataDelegateRoleSerializer(

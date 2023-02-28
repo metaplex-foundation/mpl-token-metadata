@@ -18,29 +18,30 @@ import {
   publicKey,
 } from '@metaplex-foundation/umi-core';
 import { findMetadataPda } from '../accounts';
-import { UnlockArgs, UnlockArgsArgs, getUnlockArgsSerializer } from '../types';
 
 // Accounts.
-export type UnlockInstructionAccounts = {
-  /** Delegate or freeze authority */
-  authority?: Signer;
-  /** Token owner account */
-  tokenOwner?: PublicKey;
-  /** Token account */
-  token: PublicKey;
-  /** Mint account */
-  mint: PublicKey;
+export type RevokeProgrammableConfigV1InstructionAccounts = {
+  /** Delegate record account */
+  delegateRecord?: PublicKey;
+  /** Owner of the delegated account */
+  delegate: PublicKey;
   /** Metadata account */
   metadata?: PublicKey;
-  /** Edition account */
-  edition?: PublicKey;
+  /** Master Edition account */
+  masterEdition?: PublicKey;
   /** Token record account */
   tokenRecord?: PublicKey;
+  /** Mint of metadata */
+  mint: PublicKey;
+  /** Token account of mint */
+  token?: PublicKey;
+  /** Update authority or token owner */
+  authority?: Signer;
   /** Payer */
   payer?: Signer;
-  /** System program */
+  /** System Program */
   systemProgram?: PublicKey;
-  /** System program */
+  /** Instructions sysvar account */
   sysvarInstructions?: PublicKey;
   /** SPL Token Program */
   splTokenProgram?: PublicKey;
@@ -51,40 +52,51 @@ export type UnlockInstructionAccounts = {
 };
 
 // Arguments.
-export type UnlockInstructionData = {
+export type RevokeProgrammableConfigV1InstructionData = {
   discriminator: number;
-  unlockArgs: UnlockArgs;
+  revokeProgrammableConfigV1Discriminator: number;
 };
 
-export type UnlockInstructionArgs = { unlockArgs: UnlockArgsArgs };
+export type RevokeProgrammableConfigV1InstructionArgs = {};
 
-export function getUnlockInstructionDataSerializer(
+export function getRevokeProgrammableConfigV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UnlockInstructionArgs, UnlockInstructionData> {
+): Serializer<
+  RevokeProgrammableConfigV1InstructionArgs,
+  RevokeProgrammableConfigV1InstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    UnlockInstructionArgs,
-    UnlockInstructionData,
-    UnlockInstructionData
+    RevokeProgrammableConfigV1InstructionArgs,
+    RevokeProgrammableConfigV1InstructionData,
+    RevokeProgrammableConfigV1InstructionData
   >(
-    s.struct<UnlockInstructionData>(
+    s.struct<RevokeProgrammableConfigV1InstructionData>(
       [
         ['discriminator', s.u8],
-        ['unlockArgs', getUnlockArgsSerializer(context)],
+        ['revokeProgrammableConfigV1Discriminator', s.u8],
       ],
-      'UnlockInstructionArgs'
+      'RevokeProgrammableConfigV1InstructionArgs'
     ),
-    (value) => ({ ...value, discriminator: 47 } as UnlockInstructionData)
-  ) as Serializer<UnlockInstructionArgs, UnlockInstructionData>;
+    (value) =>
+      ({
+        ...value,
+        discriminator: 45,
+        revokeProgrammableConfigV1Discriminator: 8,
+      } as RevokeProgrammableConfigV1InstructionData)
+  ) as Serializer<
+    RevokeProgrammableConfigV1InstructionArgs,
+    RevokeProgrammableConfigV1InstructionData
+  >;
 }
 
 // Instruction.
-export function unlock(
+export function revokeProgrammableConfigV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UnlockInstructionAccounts & UnlockInstructionArgs
+  input: RevokeProgrammableConfigV1InstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -94,21 +106,25 @@ export function unlock(
     context.programs.get('mplTokenMetadata').publicKey;
 
   // Resolved accounts.
-  const authorityAccount = input.authority ?? context.identity;
-  const tokenOwnerAccount = input.tokenOwner ?? {
+  const delegateRecordAccount = input.delegateRecord ?? {
     ...programId,
     isWritable: false,
   };
-  const tokenAccount = input.token;
+  const delegateAccount = input.delegate;
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const editionAccount = input.edition ?? { ...programId, isWritable: false };
+  const masterEditionAccount = input.masterEdition ?? {
+    ...programId,
+    isWritable: false,
+  };
   const tokenRecordAccount = input.tokenRecord ?? {
     ...programId,
     isWritable: false,
   };
+  const tokenAccount = input.token ?? { ...programId, isWritable: false };
+  const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.get('splSystem').publicKey,
@@ -130,33 +146,18 @@ export function unlock(
     isWritable: false,
   };
 
-  // Authority.
-  signers.push(authorityAccount);
+  // Delegate Record.
   keys.push({
-    pubkey: authorityAccount.publicKey,
-    isSigner: true,
-    isWritable: isWritable(authorityAccount, false),
+    pubkey: delegateRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(delegateRecordAccount, true),
   });
 
-  // Token Owner.
+  // Delegate.
   keys.push({
-    pubkey: tokenOwnerAccount,
+    pubkey: delegateAccount,
     isSigner: false,
-    isWritable: isWritable(tokenOwnerAccount, false),
-  });
-
-  // Token.
-  keys.push({
-    pubkey: tokenAccount,
-    isSigner: false,
-    isWritable: isWritable(tokenAccount, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: mintAccount,
-    isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(delegateAccount, false),
   });
 
   // Metadata.
@@ -166,11 +167,11 @@ export function unlock(
     isWritable: isWritable(metadataAccount, true),
   });
 
-  // Edition.
+  // Master Edition.
   keys.push({
-    pubkey: editionAccount,
+    pubkey: masterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(editionAccount, false),
+    isWritable: isWritable(masterEditionAccount, false),
   });
 
   // Token Record.
@@ -178,6 +179,28 @@ export function unlock(
     pubkey: tokenRecordAccount,
     isSigner: false,
     isWritable: isWritable(tokenRecordAccount, true),
+  });
+
+  // Mint.
+  keys.push({
+    pubkey: mintAccount,
+    isSigner: false,
+    isWritable: isWritable(mintAccount, false),
+  });
+
+  // Token.
+  keys.push({
+    pubkey: tokenAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenAccount, true),
+  });
+
+  // Authority.
+  signers.push(authorityAccount);
+  keys.push({
+    pubkey: authorityAccount.publicKey,
+    isSigner: true,
+    isWritable: isWritable(authorityAccount, false),
   });
 
   // Payer.
@@ -224,7 +247,9 @@ export function unlock(
   });
 
   // Data.
-  const data = getUnlockInstructionDataSerializer(context).serialize(input);
+  const data = getRevokeProgrammableConfigV1InstructionDataSerializer(
+    context
+  ).serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

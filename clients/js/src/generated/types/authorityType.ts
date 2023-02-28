@@ -11,8 +11,9 @@ import { Context, Serializer } from '@metaplex-foundation/umi-core';
 export enum AuthorityType {
   None,
   Metadata,
-  Delegate,
   Holder,
+  MetadataDelegate,
+  TokenDelegate,
 }
 
 export function getAuthorityTypeSerializer(

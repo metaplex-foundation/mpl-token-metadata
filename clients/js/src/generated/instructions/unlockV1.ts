@@ -27,7 +27,7 @@ import {
 
 // Accounts.
 export type UnlockV1InstructionAccounts = {
-  /** Delegate account */
+  /** Delegate or freeze authority */
   authority?: Signer;
   /** Token owner account */
   tokenOwner?: PublicKey;
