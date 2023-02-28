@@ -22,7 +22,6 @@ import {
 import {
   Key,
   KeyArgs,
-  MetadataDelegateRole,
   MetadataDelegateRoleArgs,
   getKeySerializer,
   getMetadataDelegateRoleSerializer,
