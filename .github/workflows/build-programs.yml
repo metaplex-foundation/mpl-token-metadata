@@ -55,7 +55,7 @@ jobs:
           PROGRAMS: ${{ vars.PROGRAMS }}
         run: |
           for program in $(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g'); do
-            (cd ./programs/$program; cargo +stable build-bpf)
+            (cd ./programs/$program; cargo build-bpf)
           done
 
       - name: Upload program builds
