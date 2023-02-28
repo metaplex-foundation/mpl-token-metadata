@@ -5,8 +5,6 @@
 # Programs.
 
 program_common: &program_common
-  - ".github/actions/install-rust/**"
-  - ".github/actions/install-solana/**"
   - ".github/workflows/build-programs.yml"
   - ".github/workflows/test-programs.yml"
   - ".github/workflows/main.yml"
@@ -18,10 +16,6 @@ programs: &programs
 # Clients.
 
 client_common: &client_common
-  - ".github/actions/install-js-client/**"
-  - ".github/actions/install-node/**"
-  - ".github/actions/install-solana/**"
-  - ".github/actions/start-validator/**"
   - ".github/workflows/test-js.yml"
   - ".github/workflows/main.yml"
   - "configs/shank.cjs"

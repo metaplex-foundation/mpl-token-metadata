@@ -29,9 +29,6 @@ jobs:
   build_programs:
     name: Build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        program: ${{ fromJson(vars.PROGRAMS) }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
@@ -39,33 +36,27 @@ jobs:
           submodules: recursive
 
       - name: Install Rust
-        uses: ./.github/actions/install-rust
+        uses: metaplex-foundation/actions/install-rust@v1
         with:
-          version: ${{ inputs.rust }}
+          toolchain: ${{ inputs.rust }}
 
       - name: Install Solana
-        uses: ./.github/actions/install-solana
+        uses: metaplex-foundation/actions/install-solana@v1
         with:
           version: ${{ inputs.solana }}
           cache: ${{ env.CACHE }}
 
       - name: Cache program dependencies
         if: env.CACHE == 'true'
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./programs/${{ matrix.program }}/target/
-          key: ${{ runner.os }}-program-${{ matrix.program }}-${{ hashFiles(format('./programs/{0}/Cargo.lock', matrix.program)) }}
-          restore-keys: |
-            ${{ runner.os }}-program-${{ matrix.program }}
+        uses: metaplex-foundation/actions/cache-programs@v1
 
-      - name: Build program
-        working-directory: ./programs/${{ matrix.program }}
-        run: cargo build-bpf
+      - name: Build programs
+        env:
+          PROGRAMS: ${{ vars.PROGRAMS }}
+        run: |
+          for program in $(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g'); do
+            (cd ./programs/$program; cargo build-bpf)
+          done
 
       - name: Upload program builds
         uses: actions/upload-artifact@v3

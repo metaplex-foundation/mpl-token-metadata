@@ -27,16 +27,18 @@ jobs:
           submodules: recursive
 
       - name: Start validator
-        uses: ./.github/actions/start-validator
+        uses: metaplex-foundation/actions/start-validator@v1
         with:
           node: ${{ matrix.node }}
           solana: ${{ inputs.solana }}
           cache: ${{ env.CACHE }}
 
       - name: Install dependencies
-        uses: ./.github/actions/install-js-client
+        uses: metaplex-foundation/actions/install-node-dependencies@v1
         with:
+          folder: ./clients/js
           cache: ${{ env.CACHE }}
+          key: clients-js
 
       - name: Build
         working-directory: ./clients/js
@@ -54,15 +56,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Node.js
-        uses: ./.github/actions/install-node
+        uses: metaplex-foundation/actions/install-node-with-pnpm@v1
         with:
           version: ${{ inputs.node }}
           cache: ${{ env.CACHE }}
 
       - name: Install dependencies
-        uses: ./.github/actions/install-js-client
+        uses: metaplex-foundation/actions/install-node-dependencies@v1
         with:
+          folder: ./clients/js
           cache: ${{ env.CACHE }}
+          key: clients-js
 
       - name: Format
         working-directory: ./clients/js
