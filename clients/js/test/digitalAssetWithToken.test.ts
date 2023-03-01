@@ -1,14 +1,14 @@
 import {
+  createToken,
+  findAssociatedTokenPda,
+} from '@metaplex-foundation/mpl-essentials';
+import {
   base58PublicKey,
   generateSigner,
   publicKey,
   some,
   transactionBuilder,
-} from '@metaplex-foundation/umi-test';
-import {
-  createToken,
-  findAssociatedTokenPda,
-} from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   DigitalAssetWithToken,

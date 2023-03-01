@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi-core';
+import { Context, Serializer } from '@metaplex-foundation/umi';
 import { PayloadType, PayloadTypeArgs, getPayloadTypeSerializer } from '.';
 
 export type Payload = { map: Map<string, PayloadType> };

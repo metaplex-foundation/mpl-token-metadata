@@ -11,7 +11,7 @@ import {
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import {
   CollectionDetails,
   CollectionDetailsArgs,

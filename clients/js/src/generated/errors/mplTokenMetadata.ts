@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Program, ProgramError } from '@metaplex-foundation/umi-core';
+import { Program, ProgramError } from '@metaplex-foundation/umi';
 
 type ProgramErrorConstructor = new (
   program: Program,

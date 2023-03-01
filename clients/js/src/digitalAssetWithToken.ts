@@ -7,7 +7,7 @@ import {
   RpcGetAccountsOptions,
   chunk,
   zipMap,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import {
   deserializeToken,
   fetchTokensByOwner,

@@ -1,3 +1,4 @@
+import { fetchMint, Mint } from '@metaplex-foundation/mpl-essentials';
 import {
   generateSigner,
   none,
@@ -5,8 +6,7 @@ import {
   publicKey,
   some,
   transactionBuilder,
-} from '@metaplex-foundation/umi-test';
-import { fetchMint, Mint } from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   createV1,

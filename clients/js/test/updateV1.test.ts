@@ -1,7 +1,7 @@
-import { some, transactionBuilder } from '@metaplex-foundation/umi-test';
+import { some, transactionBuilder } from '@metaplex-foundation/umi';
 import test from 'ava';
 import { fetchMetadata, findMetadataPda, Metadata, updateV1 } from '../src';
-import { createUmi, createDigitalAsset } from './_setup';
+import { createDigitalAsset, createUmi } from './_setup';
 
 test('it can update a NonFungible', async (t) => {
   // Given an existing NFT.

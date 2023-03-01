@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi-core';
+import { Context, Serializer } from '@metaplex-foundation/umi';
 import { UseMethod, UseMethodArgs, getUseMethodSerializer } from '.';
 
 export type Uses = { useMethod: UseMethod; remaining: bigint; total: bigint };

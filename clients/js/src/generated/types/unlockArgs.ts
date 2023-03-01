@@ -12,7 +12,7 @@ import {
   GetDataEnumKindContent,
   Option,
   Serializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import {
   AuthorizationData,
   AuthorizationDataArgs,

@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi-core';
+import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi';
 
 export type Reservation = {
   address: PublicKey;

@@ -1,4 +1,4 @@
-import { publicKey, WrappedInstruction } from '@metaplex-foundation/umi-core';
+import { publicKey, WrappedInstruction } from '@metaplex-foundation/umi';
 import { TokenStandard } from './generated';
 import {
   createV1,

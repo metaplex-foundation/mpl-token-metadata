@@ -1,4 +1,4 @@
-import { UmiPlugin } from '@metaplex-foundation/umi-core';
+import { UmiPlugin } from '@metaplex-foundation/umi';
 import { mplEssentials } from '@metaplex-foundation/mpl-essentials';
 import { getMplTokenMetadataProgram } from './generated';
 

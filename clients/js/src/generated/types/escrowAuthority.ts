@@ -12,7 +12,7 @@ import {
   GetDataEnumKindContent,
   PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 
 export type EscrowAuthority =
   | { __kind: 'TokenOwner' }

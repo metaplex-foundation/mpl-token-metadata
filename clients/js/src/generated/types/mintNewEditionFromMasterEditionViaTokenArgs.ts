@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi-core';
+import { Context, Serializer } from '@metaplex-foundation/umi';
 
 export type MintNewEditionFromMasterEditionViaTokenArgs = { edition: bigint };
 

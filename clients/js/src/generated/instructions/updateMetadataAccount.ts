@@ -16,7 +16,7 @@ import {
   WrappedInstruction,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { Creator, CreatorArgs, getCreatorSerializer } from '../types';
 
 // Accounts.

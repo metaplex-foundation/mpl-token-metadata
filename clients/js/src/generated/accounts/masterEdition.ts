@@ -20,7 +20,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type MasterEdition = Account<MasterEditionAccountData>;

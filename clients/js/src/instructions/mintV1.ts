@@ -2,7 +2,7 @@ import {
   PublicKey,
   publicKey,
   WrappedInstruction,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import { isFungible } from '../digitalAsset';
 import { findMasterEditionPda, TokenStandard } from '../generated';

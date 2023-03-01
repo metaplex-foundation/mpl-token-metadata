@@ -1,13 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import {
-  createUmi as baseCreateUmi,
   generateSigner,
   percentAmount,
   PublicKey,
   Signer,
   transactionBuilder,
   Umi,
-} from '@metaplex-foundation/umi-test';
+} from '@metaplex-foundation/umi';
+import { createUmi as baseCreateUmi } from '@metaplex-foundation/umi-bundle-tests';
 import { createV1, mintV1, mplDigitalAsset, TokenStandard } from '../src';
 
 export const createUmi = async () =>

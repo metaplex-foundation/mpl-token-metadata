@@ -11,7 +11,7 @@ import {
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 
 export type PrintSupply =
   | { __kind: 'Zero' }

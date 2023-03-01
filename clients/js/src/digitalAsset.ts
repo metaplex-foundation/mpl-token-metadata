@@ -6,7 +6,7 @@ import {
   RpcAccount,
   RpcGetAccountsOptions,
   unwrapSome,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { deserializeMint, Mint } from '@metaplex-foundation/mpl-essentials';
 import {
   deserializeEdition,

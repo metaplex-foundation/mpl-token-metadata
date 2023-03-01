@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Option, Serializer } from '@metaplex-foundation/umi-core';
+import { Context, Option, Serializer } from '@metaplex-foundation/umi';
 
 export type CreateMasterEditionArgs = { maxSupply: Option<bigint> };
 

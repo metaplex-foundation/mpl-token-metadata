@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Program, publicKey } from '@metaplex-foundation/umi-core';
+import { Program, publicKey } from '@metaplex-foundation/umi';
 import {
   getMplTokenMetadataErrorFromCode,
   getMplTokenMetadataErrorFromName,

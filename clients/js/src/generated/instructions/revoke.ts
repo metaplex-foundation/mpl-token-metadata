@@ -16,7 +16,7 @@ import {
   checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
 import { RevokeArgs, RevokeArgsArgs, getRevokeArgsSerializer } from '../types';
 

@@ -13,7 +13,7 @@ import {
   Option,
   PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 
 export type ProgrammableConfig = { __kind: 'V1'; ruleSet: Option<PublicKey> };
 

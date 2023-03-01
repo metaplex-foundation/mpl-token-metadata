@@ -5,7 +5,7 @@ import {
   publicKey,
   some,
   WrappedInstruction,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import { isFungible } from '../digitalAsset';
 import {
   CollectionDetails,

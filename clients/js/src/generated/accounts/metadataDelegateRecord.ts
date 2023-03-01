@@ -18,7 +18,7 @@ import {
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
-} from '@metaplex-foundation/umi-core';
+} from '@metaplex-foundation/umi';
 import {
   Key,
   KeyArgs,
