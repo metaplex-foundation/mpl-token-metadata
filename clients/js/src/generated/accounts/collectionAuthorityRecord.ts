@@ -145,12 +145,6 @@ export function getCollectionAuthorityRecordGpaBuilder(
     .whereField('key', Key.CollectionAuthorityRecord);
 }
 
-export function getCollectionAuthorityRecordSize(
-  context: Pick<Context, 'serializer'>
-): number | null {
-  return getCollectionAuthorityRecordAccountDataSerializer(context).fixedSize;
-}
-
 export function findCollectionAuthorityRecordPda(
   context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
   seeds: {

@@ -164,10 +164,8 @@ export function getTokenRecordGpaBuilder(
     .whereField('key', Key.TokenRecord);
 }
 
-export function getTokenRecordSize(
-  context: Pick<Context, 'serializer'>
-): number | null {
-  return getTokenRecordAccountDataSerializer(context).fixedSize;
+export function getTokenRecordSize(): number {
+  return 45;
 }
 
 export function findTokenRecordPda(

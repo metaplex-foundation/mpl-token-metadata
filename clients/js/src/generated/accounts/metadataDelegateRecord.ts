@@ -147,7 +147,7 @@ export function getMetadataDelegateRecordGpaBuilder(
     );
 }
 
-export function getMetadataDelegateRecordSize(_context = {}): number {
+export function getMetadataDelegateRecordSize(): number {
   return 98;
 }
 

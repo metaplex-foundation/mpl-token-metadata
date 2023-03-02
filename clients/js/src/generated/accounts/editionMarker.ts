@@ -120,6 +120,6 @@ export function getEditionMarkerGpaBuilder(
     .whereField('key', Key.EditionMarker);
 }
 
-export function getEditionMarkerSize(_context = {}): number {
+export function getEditionMarkerSize(): number {
   return 32;
 }
