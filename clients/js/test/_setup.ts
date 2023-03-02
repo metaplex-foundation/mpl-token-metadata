@@ -8,10 +8,10 @@ import {
   Umi,
 } from '@metaplex-foundation/umi';
 import { createUmi as baseCreateUmi } from '@metaplex-foundation/umi-bundle-tests';
-import { createV1, mintV1, mplDigitalAsset, TokenStandard } from '../src';
+import { createV1, mintV1, mplTokenMetadata, TokenStandard } from '../src';
 
 export const createUmi = async () =>
-  (await baseCreateUmi()).use(mplDigitalAsset());
+  (await baseCreateUmi()).use(mplTokenMetadata());
 
 export const createDigitalAsset = async (
   umi: Umi,
