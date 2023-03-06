@@ -99,7 +99,7 @@ export function create(
   };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
+  const updateAuthorityAccount = input.updateAuthority ?? authorityAccount;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',

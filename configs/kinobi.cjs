@@ -116,6 +116,21 @@ kinobi.update(
   })
 );
 
+// Set default values for instruction accounts.
+kinobi.update(
+  new SetInstructionAccountDefaultValuesVisitor([
+    { account: "updateAuthority", kind: "identity", ignoreIfOptional: true },
+    { account: "metadata", kind: "pda", ignoreIfOptional: true },
+    { account: "tokenRecord", kind: "pda", ignoreIfOptional: true },
+    {
+      account: /^edition|masterEdition$/,
+      kind: "pda",
+      pdaAccount: "masterEdition",
+      ignoreIfOptional: true,
+    },
+  ])
+);
+
 // Update Instructions.
 kinobi.update(
   new UpdateInstructionsVisitor({
@@ -131,7 +146,10 @@ kinobi.update(
       },
       accounts: {
         mint: { isOptionalSigner: true },
-        updateAuthority: { isOptionalSigner: true },
+        updateAuthority: {
+          isOptionalSigner: true,
+          defaultsTo: { kind: "account", name: "authority" },
+        },
       },
     },
     Mint: {
@@ -173,21 +191,6 @@ kinobi.update(
     TokenRecord: key("TokenRecord"),
     MetadataDelegate: key("MetadataDelegate"),
   })
-);
-
-// Set default values for instruction accounts.
-kinobi.update(
-  new SetInstructionAccountDefaultValuesVisitor([
-    { account: "updateAuthority", kind: "identity", ignoreIfOptional: true },
-    { account: "metadata", kind: "pda", ignoreIfOptional: true },
-    { account: "tokenRecord", kind: "pda", ignoreIfOptional: true },
-    {
-      account: /^edition|masterEdition$/,
-      kind: "pda",
-      pdaAccount: "masterEdition",
-      ignoreIfOptional: true,
-    },
-  ])
 );
 
 // Wrap leaves.
