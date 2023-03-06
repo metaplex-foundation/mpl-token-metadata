@@ -9,7 +9,6 @@
 import {
   AccountMeta,
   Context,
-  Option,
   PublicKey,
   Serializer,
   Signer,
@@ -19,44 +18,47 @@ import {
   publicKey,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
-import {
-  AuthorizationData,
-  AuthorizationDataArgs,
-  getAuthorizationDataSerializer,
-} from '../types';
 
 // Accounts.
 export type BurnV1InstructionAccounts = {
+  /** Asset owner or Utility delegate */
+  authority?: Signer;
+  /** Metadata of the Collection */
+  collectionMetadata?: PublicKey;
   /** Metadata (pda of ['metadata', program id, mint id]) */
   metadata?: PublicKey;
-  /** Asset owner */
-  owner: Signer;
+  /** Edition of the asset */
+  edition?: PublicKey;
   /** Mint of token asset */
   mint: PublicKey;
   /** Token account to close */
-  tokenAccount: PublicKey;
-  /** MasterEdition of the asset */
-  masterEditionAccount: PublicKey;
+  token: PublicKey;
+  /** Master edition account */
+  masterEdition?: PublicKey;
+  /** Master edition mint of the asset */
+  masterEditionMint?: PublicKey;
+  /** Master edition token account */
+  masterEditionToken?: PublicKey;
+  /** Edition marker account */
+  editionMarker?: PublicKey;
+  /** Token record account */
+  tokenRecord?: PublicKey;
+  /** System program */
+  systemProgram?: PublicKey;
+  /** Instructions sysvar account */
+  sysvarInstructions?: PublicKey;
   /** SPL Token Program */
   splTokenProgram?: PublicKey;
-  /** Metadata of the Collection */
-  collectionMetadata?: PublicKey;
-  /** Token Authorization Rules account */
-  authorizationRules?: PublicKey;
-  /** Token Authorization Rules Program */
-  authorizationRulesProgram?: PublicKey;
 };
 
 // Arguments.
 export type BurnV1InstructionData = {
   discriminator: number;
   burnV1Discriminator: number;
-  authorizationData: Option<AuthorizationData>;
+  amount: bigint;
 };
 
-export type BurnV1InstructionDataArgs = {
-  authorizationData: Option<AuthorizationDataArgs>;
-};
+export type BurnV1InstructionDataArgs = { amount: number | bigint };
 
 export function getBurnV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
@@ -71,10 +73,7 @@ export function getBurnV1InstructionDataSerializer(
       [
         ['discriminator', s.u8()],
         ['burnV1Discriminator', s.u8()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['amount', s.u64()],
       ],
       { description: 'BurnV1InstructionData' }
     ),
@@ -89,7 +88,7 @@ export function getBurnV1InstructionDataSerializer(
 
 // Instruction.
 export function burnV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
   input: BurnV1InstructionAccounts & BurnV1InstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -102,13 +101,47 @@ export function burnV1(
   );
 
   // Resolved accounts.
+  const authorityAccount = input.authority ?? context.identity;
+  const collectionMetadataAccount = input.collectionMetadata ?? {
+    ...programId,
+    isWritable: false,
+  };
   const mintAccount = input.mint;
   const metadataAccount =
     input.metadata ??
     findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const ownerAccount = input.owner;
-  const tokenAccountAccount = input.tokenAccount;
-  const masterEditionAccountAccount = input.masterEditionAccount;
+  const editionAccount = input.edition ?? { ...programId, isWritable: false };
+  const tokenAccount = input.token;
+  const masterEditionAccount = input.masterEdition ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const masterEditionMintAccount = input.masterEditionMint ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const masterEditionTokenAccount = input.masterEditionToken ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const editionMarkerAccount = input.editionMarker ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const tokenRecordAccount = input.tokenRecord ?? {
+    ...programId,
+    isWritable: false,
+  };
+  const systemProgramAccount = input.systemProgram ?? {
+    ...context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    ),
+    isWritable: false,
+  };
+  const sysvarInstructionsAccount =
+    input.sysvarInstructions ??
+    publicKey('Sysvar1nstructions1111111111111111111111111');
   const splTokenProgramAccount = input.splTokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
@@ -116,60 +149,13 @@ export function burnV1(
     ),
     isWritable: false,
   };
-  const collectionMetadataAccount = input.collectionMetadata ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const authorizationRulesAccount = input.authorizationRules ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
-    ...programId,
-    isWritable: false,
-  };
 
-  // Metadata.
+  // Authority.
+  signers.push(authorityAccount);
   keys.push({
-    pubkey: metadataAccount,
-    isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
-  });
-
-  // Owner.
-  signers.push(ownerAccount);
-  keys.push({
-    pubkey: ownerAccount.publicKey,
+    pubkey: authorityAccount.publicKey,
     isSigner: true,
-    isWritable: isWritable(ownerAccount, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: mintAccount,
-    isSigner: false,
-    isWritable: isWritable(mintAccount, true),
-  });
-
-  // Token Account.
-  keys.push({
-    pubkey: tokenAccountAccount,
-    isSigner: false,
-    isWritable: isWritable(tokenAccountAccount, true),
-  });
-
-  // Master Edition Account.
-  keys.push({
-    pubkey: masterEditionAccountAccount,
-    isSigner: false,
-    isWritable: isWritable(masterEditionAccountAccount, true),
-  });
-
-  // Spl Token Program.
-  keys.push({
-    pubkey: splTokenProgramAccount,
-    isSigner: false,
-    isWritable: isWritable(splTokenProgramAccount, false),
+    isWritable: isWritable(authorityAccount, true),
   });
 
   // Collection Metadata.
@@ -179,18 +165,88 @@ export function burnV1(
     isWritable: isWritable(collectionMetadataAccount, true),
   });
 
-  // Authorization Rules.
+  // Metadata.
   keys.push({
-    pubkey: authorizationRulesAccount,
+    pubkey: metadataAccount,
     isSigner: false,
-    isWritable: isWritable(authorizationRulesAccount, false),
+    isWritable: isWritable(metadataAccount, true),
   });
 
-  // Authorization Rules Program.
+  // Edition.
   keys.push({
-    pubkey: authorizationRulesProgramAccount,
+    pubkey: editionAccount,
     isSigner: false,
-    isWritable: isWritable(authorizationRulesProgramAccount, false),
+    isWritable: isWritable(editionAccount, true),
+  });
+
+  // Mint.
+  keys.push({
+    pubkey: mintAccount,
+    isSigner: false,
+    isWritable: isWritable(mintAccount, true),
+  });
+
+  // Token.
+  keys.push({
+    pubkey: tokenAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenAccount, true),
+  });
+
+  // Master Edition.
+  keys.push({
+    pubkey: masterEditionAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionAccount, true),
+  });
+
+  // Master Edition Mint.
+  keys.push({
+    pubkey: masterEditionMintAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionMintAccount, false),
+  });
+
+  // Master Edition Token.
+  keys.push({
+    pubkey: masterEditionTokenAccount,
+    isSigner: false,
+    isWritable: isWritable(masterEditionTokenAccount, false),
+  });
+
+  // Edition Marker.
+  keys.push({
+    pubkey: editionMarkerAccount,
+    isSigner: false,
+    isWritable: isWritable(editionMarkerAccount, true),
+  });
+
+  // Token Record.
+  keys.push({
+    pubkey: tokenRecordAccount,
+    isSigner: false,
+    isWritable: isWritable(tokenRecordAccount, true),
+  });
+
+  // System Program.
+  keys.push({
+    pubkey: systemProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(systemProgramAccount, false),
+  });
+
+  // Sysvar Instructions.
+  keys.push({
+    pubkey: sysvarInstructionsAccount,
+    isSigner: false,
+    isWritable: isWritable(sysvarInstructionsAccount, false),
+  });
+
+  // Spl Token Program.
+  keys.push({
+    pubkey: splTokenProgramAccount,
+    isSigner: false,
+    isWritable: isWritable(splTokenProgramAccount, false),
   });
 
   // Data.

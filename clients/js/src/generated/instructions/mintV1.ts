@@ -203,7 +203,7 @@ export function mintV1(
   keys.push({
     pubkey: masterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, false),
+    isWritable: isWritable(masterEditionAccount, true),
   });
 
   // Token Record.

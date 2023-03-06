@@ -2639,17 +2639,108 @@ nameToErrorMap.set(
   CannotUpdateAssetWithDelegateError
 );
 
+/** InvalidAmount: 'Invalid token amount for this operation or token standard' */
+export class InvalidAmountError extends ProgramError {
+  readonly name: string = 'InvalidAmount';
+
+  readonly code: number = 0xae; // 174
+
+  constructor(program: Program, cause?: Error) {
+    super(
+      'Invalid token amount for this operation or token standard',
+      program,
+      cause
+    );
+  }
+}
+codeToErrorMap.set(0xae, InvalidAmountError);
+nameToErrorMap.set('InvalidAmount', InvalidAmountError);
+
+/** MissingMasterEditionMintAccount: 'Missing master edition mint account' */
+export class MissingMasterEditionMintAccountError extends ProgramError {
+  readonly name: string = 'MissingMasterEditionMintAccount';
+
+  readonly code: number = 0xaf; // 175
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing master edition mint account', program, cause);
+  }
+}
+codeToErrorMap.set(0xaf, MissingMasterEditionMintAccountError);
+nameToErrorMap.set(
+  'MissingMasterEditionMintAccount',
+  MissingMasterEditionMintAccountError
+);
+
+/** MissingMasterEditionTokenAccount: 'Missing master edition token account' */
+export class MissingMasterEditionTokenAccountError extends ProgramError {
+  readonly name: string = 'MissingMasterEditionTokenAccount';
+
+  readonly code: number = 0xb0; // 176
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing master edition token account', program, cause);
+  }
+}
+codeToErrorMap.set(0xb0, MissingMasterEditionTokenAccountError);
+nameToErrorMap.set(
+  'MissingMasterEditionTokenAccount',
+  MissingMasterEditionTokenAccountError
+);
+
+/** MissingEditionMarkerAccount: 'Missing edition marker account' */
+export class MissingEditionMarkerAccountError extends ProgramError {
+  readonly name: string = 'MissingEditionMarkerAccount';
+
+  readonly code: number = 0xb1; // 177
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing edition marker account', program, cause);
+  }
+}
+codeToErrorMap.set(0xb1, MissingEditionMarkerAccountError);
+nameToErrorMap.set(
+  'MissingEditionMarkerAccount',
+  MissingEditionMarkerAccountError
+);
+
+/** CannotBurnWithDelegate: 'Cannot burn while persistent delegate is set' */
+export class CannotBurnWithDelegateError extends ProgramError {
+  readonly name: string = 'CannotBurnWithDelegate';
+
+  readonly code: number = 0xb2; // 178
+
+  constructor(program: Program, cause?: Error) {
+    super('Cannot burn while persistent delegate is set', program, cause);
+  }
+}
+codeToErrorMap.set(0xb2, CannotBurnWithDelegateError);
+nameToErrorMap.set('CannotBurnWithDelegate', CannotBurnWithDelegateError);
+
+/** MissingEdition: 'Missing edition account' */
+export class MissingEditionError extends ProgramError {
+  readonly name: string = 'MissingEdition';
+
+  readonly code: number = 0xb3; // 179
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing edition account', program, cause);
+  }
+}
+codeToErrorMap.set(0xb3, MissingEditionError);
+nameToErrorMap.set('MissingEdition', MissingEditionError);
+
 /** InvalidAssociatedTokenAccountProgram: 'Invalid Associated Token Account Program' */
 export class InvalidAssociatedTokenAccountProgramError extends ProgramError {
   readonly name: string = 'InvalidAssociatedTokenAccountProgram';
 
-  readonly code: number = 0xae; // 174
+  readonly code: number = 0xb4; // 180
 
   constructor(program: Program, cause?: Error) {
     super('Invalid Associated Token Account Program', program, cause);
   }
 }
-codeToErrorMap.set(0xae, InvalidAssociatedTokenAccountProgramError);
+codeToErrorMap.set(0xb4, InvalidAssociatedTokenAccountProgramError);
 nameToErrorMap.set(
   'InvalidAssociatedTokenAccountProgram',
   InvalidAssociatedTokenAccountProgramError
@@ -2659,27 +2750,53 @@ nameToErrorMap.set(
 export class InvalidInstructionsSysvarError extends ProgramError {
   readonly name: string = 'InvalidInstructionsSysvar';
 
-  readonly code: number = 0xaf; // 175
+  readonly code: number = 0xb5; // 181
 
   constructor(program: Program, cause?: Error) {
     super('Invalid InstructionsSysvar', program, cause);
   }
 }
-codeToErrorMap.set(0xaf, InvalidInstructionsSysvarError);
+codeToErrorMap.set(0xb5, InvalidInstructionsSysvarError);
 nameToErrorMap.set('InvalidInstructionsSysvar', InvalidInstructionsSysvarError);
+
+/** InvalidParentAccounts: 'Invalid or Unneeded parent accounts' */
+export class InvalidParentAccountsError extends ProgramError {
+  readonly name: string = 'InvalidParentAccounts';
+
+  readonly code: number = 0xb6; // 182
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid or Unneeded parent accounts', program, cause);
+  }
+}
+codeToErrorMap.set(0xb6, InvalidParentAccountsError);
+nameToErrorMap.set('InvalidParentAccounts', InvalidParentAccountsError);
 
 /** InvalidUpdateArgs: 'Authority cannot apply all update args' */
 export class InvalidUpdateArgsError extends ProgramError {
   readonly name: string = 'InvalidUpdateArgs';
 
-  readonly code: number = 0xb0; // 176
+  readonly code: number = 0xb7; // 183
 
   constructor(program: Program, cause?: Error) {
     super('Authority cannot apply all update args', program, cause);
   }
 }
-codeToErrorMap.set(0xb0, InvalidUpdateArgsError);
+codeToErrorMap.set(0xb7, InvalidUpdateArgsError);
 nameToErrorMap.set('InvalidUpdateArgs', InvalidUpdateArgsError);
+
+/** InsufficientTokenBalance: 'Token account does not have enough tokens' */
+export class InsufficientTokenBalanceError extends ProgramError {
+  readonly name: string = 'InsufficientTokenBalance';
+
+  readonly code: number = 0xb8; // 184
+
+  constructor(program: Program, cause?: Error) {
+    super('Token account does not have enough tokens', program, cause);
+  }
+}
+codeToErrorMap.set(0xb8, InsufficientTokenBalanceError);
+nameToErrorMap.set('InsufficientTokenBalance', InsufficientTokenBalanceError);
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

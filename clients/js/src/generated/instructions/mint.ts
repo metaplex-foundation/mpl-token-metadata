@@ -178,7 +178,7 @@ export function mint(
   keys.push({
     pubkey: masterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, false),
+    isWritable: isWritable(masterEditionAccount, true),
   });
 
   // Token Record.
