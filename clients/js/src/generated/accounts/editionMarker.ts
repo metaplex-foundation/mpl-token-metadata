@@ -108,12 +108,15 @@ export function getEditionMarkerGpaBuilder(
   context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
 ) {
   const s = context.serializer;
-  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return gpaBuilder(context, programId)
-    .registerFields<{ key: KeyArgs; ledger: Array<number> }>([
-      ['key', getKeySerializer(context)],
-      ['ledger', s.array(s.u8(), { size: 31 })],
-    ])
+    .registerFields<{ key: KeyArgs; ledger: Array<number> }>({
+      key: [0, getKeySerializer(context)],
+      ledger: [1, s.array(s.u8(), { size: 31 })],
+    })
     .deserializeUsing<EditionMarker>((account) =>
       deserializeEditionMarker(context, account)
     )

@@ -128,17 +128,20 @@ export function getCollectionAuthorityRecordGpaBuilder(
   context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
 ) {
   const s = context.serializer;
-  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return gpaBuilder(context, programId)
     .registerFields<{
       key: KeyArgs;
       bump: number;
       updateAuthority: Option<PublicKey>;
-    }>([
-      ['key', getKeySerializer(context)],
-      ['bump', s.u8()],
-      ['updateAuthority', s.option(s.publicKey())],
-    ])
+    }>({
+      key: [0, getKeySerializer(context)],
+      bump: [1, s.u8()],
+      updateAuthority: [2, s.option(s.publicKey())],
+    })
     .deserializeUsing<CollectionAuthorityRecord>((account) =>
       deserializeCollectionAuthorityRecord(context, account)
     )
@@ -155,8 +158,10 @@ export function findCollectionAuthorityRecordPda(
   }
 ): Pda {
   const s = context.serializer;
-  const programId: PublicKey =
-    context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,

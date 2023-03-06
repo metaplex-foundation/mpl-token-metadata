@@ -127,7 +127,10 @@ export function getMetadataDelegateRecordGpaBuilder(
   context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
 ) {
   const s = context.serializer;
-  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return gpaBuilder(context, programId)
     .registerFields<{
       key: KeyArgs;
@@ -135,13 +138,13 @@ export function getMetadataDelegateRecordGpaBuilder(
       mint: PublicKey;
       delegate: PublicKey;
       updateAuthority: PublicKey;
-    }>([
-      ['key', getKeySerializer(context)],
-      ['bump', s.u8()],
-      ['mint', s.publicKey()],
-      ['delegate', s.publicKey()],
-      ['updateAuthority', s.publicKey()],
-    ])
+    }>({
+      key: [0, getKeySerializer(context)],
+      bump: [1, s.u8()],
+      mint: [2, s.publicKey()],
+      delegate: [34, s.publicKey()],
+      updateAuthority: [66, s.publicKey()],
+    })
     .deserializeUsing<MetadataDelegateRecord>((account) =>
       deserializeMetadataDelegateRecord(context, account)
     );
@@ -165,8 +168,10 @@ export function findMetadataDelegateRecordPda(
   }
 ): Pda {
   const s = context.serializer;
-  const programId: PublicKey =
-    context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,

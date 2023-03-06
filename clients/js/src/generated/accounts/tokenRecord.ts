@@ -139,7 +139,10 @@ export function getTokenRecordGpaBuilder(
   context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
 ) {
   const s = context.serializer;
-  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return gpaBuilder(context, programId)
     .registerFields<{
       key: KeyArgs;
@@ -149,15 +152,15 @@ export function getTokenRecordGpaBuilder(
       delegate: Option<PublicKey>;
       delegateRole: Option<TokenDelegateRoleArgs>;
       lockedTransfer: Option<PublicKey>;
-    }>([
-      ['key', getKeySerializer(context)],
-      ['bump', s.u8()],
-      ['state', getTokenStateSerializer(context)],
-      ['ruleSetRevision', s.option(s.u64())],
-      ['delegate', s.option(s.publicKey())],
-      ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
-      ['lockedTransfer', s.option(s.publicKey())],
-    ])
+    }>({
+      key: [0, getKeySerializer(context)],
+      bump: [1, s.u8()],
+      state: [2, getTokenStateSerializer(context)],
+      ruleSetRevision: [3, s.option(s.u64())],
+      delegate: [null, s.option(s.publicKey())],
+      delegateRole: [null, s.option(getTokenDelegateRoleSerializer(context))],
+      lockedTransfer: [null, s.option(s.publicKey())],
+    })
     .deserializeUsing<TokenRecord>((account) =>
       deserializeTokenRecord(context, account)
     )
@@ -178,8 +181,10 @@ export function findTokenRecordPda(
   }
 ): Pda {
   const s = context.serializer;
-  const programId: PublicKey =
-    context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,

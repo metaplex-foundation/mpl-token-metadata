@@ -98,8 +98,10 @@ export function deprecatedMintPrintingTokensViaToken(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId: PublicKey =
-    context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved accounts.
   const destinationAccount = input.destination;
@@ -111,7 +113,10 @@ export function deprecatedMintPrintingTokensViaToken(
   const metadataAccount = input.metadata;
   const masterEditionAccount = input.masterEdition;
   const tokenProgramAccount = input.tokenProgram ?? {
-    ...context.programs.get('splToken').publicKey,
+    ...context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    ),
     isWritable: false,
   };
   const rentAccount =

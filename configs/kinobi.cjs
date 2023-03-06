@@ -9,13 +9,14 @@ const {
   SetStructDefaultValuesVisitor,
   TypePublicKeyNode,
   TypeDefinedLinkNode,
-  UnwrapStructVisitor,
+  FlattenStructVisitor,
   UnwrapDefinedTypesVisitor,
   UpdateAccountsVisitor,
   UpdateInstructionsVisitor,
   vScalar,
   vNone,
   vEnum,
+  AutoSetAccountGpaFieldsVisitor,
 } = require("@metaplex-foundation/kinobi");
 
 // Paths.
@@ -220,10 +221,10 @@ kinobi.update(
       data: vNone(),
       primarySaleHappened: vNone(),
       isMutable: vNone(),
-      collection: vEnum("CollectionToggle", "None"),
-      collectionDetails: vEnum("CollectionDetailsToggle", "None"),
-      uses: vEnum("UsesToggle", "None"),
-      ruleSet: vEnum("RuleSetToggle", "None"),
+      collection: vEnum("CollectionToggle", "None", "empty"),
+      collectionDetails: vEnum("CollectionDetailsToggle", "None", "empty"),
+      uses: vEnum("UsesToggle", "None", "empty"),
+      ruleSet: vEnum("RuleSetToggle", "None", "empty"),
       authorizationData: vNone(),
     },
     "mintArgs.V1": {
@@ -235,7 +236,7 @@ kinobi.update(
 // Unwrap types and structs.
 kinobi.update(new UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(
-  new UnwrapStructVisitor({
+  new FlattenStructVisitor({
     Metadata: ["data"],
     CreateMetadataAccountInstructionArgs: ["data"],
     "CreateArgs.V1": ["assetData"],
@@ -268,6 +269,9 @@ kinobi.update(
     mintV1: { internal: true },
   })
 );
+
+// Reset the gpaFields.
+kinobi.update(new AutoSetAccountGpaFieldsVisitor({ override: true }));
 
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js", "src", "generated");

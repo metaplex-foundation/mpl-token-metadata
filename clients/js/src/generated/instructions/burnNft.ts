@@ -67,8 +67,10 @@ export function burnNft(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId: PublicKey =
-    context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved accounts.
   const mintAccount = input.mint;
@@ -79,7 +81,10 @@ export function burnNft(
   const tokenAccountAccount = input.tokenAccount;
   const masterEditionAccountAccount = input.masterEditionAccount;
   const splTokenProgramAccount = input.splTokenProgram ?? {
-    ...context.programs.get('splToken').publicKey,
+    ...context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    ),
     isWritable: false,
   };
   const collectionMetadataAccount = input.collectionMetadata;

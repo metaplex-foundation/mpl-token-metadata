@@ -113,17 +113,20 @@ export function getEditionGpaBuilder(
   context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
 ) {
   const s = context.serializer;
-  const programId = context.programs.get('mplTokenMetadata').publicKey;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
   return gpaBuilder(context, programId)
     .registerFields<{
       key: KeyArgs;
       parent: PublicKey;
       edition: number | bigint;
-    }>([
-      ['key', getKeySerializer(context)],
-      ['parent', s.publicKey()],
-      ['edition', s.u64()],
-    ])
+    }>({
+      key: [0, getKeySerializer(context)],
+      parent: [1, s.publicKey()],
+      edition: [33, s.u64()],
+    })
     .deserializeUsing<Edition>((account) =>
       deserializeEdition(context, account)
     )
