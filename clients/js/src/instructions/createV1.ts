@@ -60,12 +60,11 @@ export const createV1 = (
     ? none<PrintSupply>()
     : some(printSupply('Zero'));
   const defaultDecimals = isFungible(tokenStandard) ? some(0) : none<number>();
+  const defaultCreator = publicKey(
+    input.updateAuthority ?? input.authority ?? context.identity.publicKey
+  );
   const defaultCreators: Option<Creator[]> = some([
-    {
-      address: publicKey(input.updateAuthority ?? context.identity.publicKey),
-      share: 100,
-      verified: true,
-    },
+    { address: defaultCreator, share: 100, verified: true },
   ]);
 
   const ix = baseCreateV1(context, {
