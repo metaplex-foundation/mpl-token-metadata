@@ -34,7 +34,7 @@ export type CreateInstructionAccounts = {
   /** Payer */
   payer?: Signer;
   /** Update authority for the metadata account */
-  updateAuthority?: PublicKey;
+  updateAuthority?: PublicKey | Signer;
   /** System program */
   systemProgram?: PublicKey;
   /** Instructions sysvar account */
@@ -99,8 +99,7 @@ export function create(
   };
   const authorityAccount = input.authority ?? context.identity;
   const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount =
-    input.updateAuthority ?? context.identity.publicKey;
+  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
@@ -160,9 +159,12 @@ export function create(
   });
 
   // Update Authority.
+  if (isSigner(updateAuthorityAccount)) {
+    signers.push(updateAuthorityAccount);
+  }
   keys.push({
-    pubkey: updateAuthorityAccount,
-    isSigner: false,
+    pubkey: publicKey(updateAuthorityAccount),
+    isSigner: isSigner(updateAuthorityAccount),
     isWritable: isWritable(updateAuthorityAccount, false),
   });
 

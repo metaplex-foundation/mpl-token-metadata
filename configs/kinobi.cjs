@@ -131,6 +131,7 @@ kinobi.update(
       },
       accounts: {
         mint: { isOptionalSigner: true },
+        updateAuthority: { isOptionalSigner: true },
       },
     },
     Mint: {
