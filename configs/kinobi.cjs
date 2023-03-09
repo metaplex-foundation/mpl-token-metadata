@@ -69,7 +69,9 @@ kinobi.update(
           kind: "variable",
           name: "delegateRole",
           description: "The role of the metadata delegate",
-          type: new TypeDefinedLinkNode("metadataDelegateRole"),
+          type: new TypeDefinedLinkNode("metadataDelegateRoleSeed", {
+            dependency: "hooked",
+          }),
         },
         {
           kind: "variable",

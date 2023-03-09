@@ -20,12 +20,10 @@ import {
   gpaBuilder,
 } from '@metaplex-foundation/umi';
 import {
-  Key,
-  KeyArgs,
-  MetadataDelegateRoleArgs,
-  getKeySerializer,
-  getMetadataDelegateRoleSerializer,
-} from '../types';
+  MetadataDelegateRoleSeedArgs,
+  getMetadataDelegateRoleSeedSerializer,
+} from '../../hooked';
+import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type MetadataDelegateRecord = Account<MetadataDelegateRecordAccountData>;
 
@@ -160,7 +158,7 @@ export function findMetadataDelegateRecordPda(
     /** The address of the mint account */
     mint: PublicKey;
     /** The role of the metadata delegate */
-    delegateRole: MetadataDelegateRoleArgs;
+    delegateRole: MetadataDelegateRoleSeedArgs;
     /** The address of the metadata's update authority */
     updateAuthority: PublicKey;
     /** The address of delegate authority */
@@ -176,7 +174,9 @@ export function findMetadataDelegateRecordPda(
     s.string({ size: 'variable' }).serialize('metadata'),
     programId.bytes,
     s.publicKey().serialize(seeds.mint),
-    getMetadataDelegateRoleSerializer(context).serialize(seeds.delegateRole),
+    getMetadataDelegateRoleSeedSerializer(context).serialize(
+      seeds.delegateRole
+    ),
     s.publicKey().serialize(seeds.updateAuthority),
     s.publicKey().serialize(seeds.delegate),
   ]);
