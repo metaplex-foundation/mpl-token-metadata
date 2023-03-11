@@ -49,4 +49,4 @@ export * from './useArgs';
 export * from './useMethod';
 export * from './uses';
 export * from './usesToggle';
-export * from './verifyArgs';
+export * from './verificationArgs';

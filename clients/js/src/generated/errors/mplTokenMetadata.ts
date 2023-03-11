@@ -1634,18 +1634,14 @@ export class SizedCollectionError extends ProgramError {
 codeToErrorMap.set(0x66, SizedCollectionError);
 nameToErrorMap.set('SizedCollection', SizedCollectionError);
 
-/** MissingCollectionMetadata: 'Can't burn a verified member of a collection w/o providing collection metadata account' */
+/** MissingCollectionMetadata: 'Missing collection metadata account' */
 export class MissingCollectionMetadataError extends ProgramError {
   readonly name: string = 'MissingCollectionMetadata';
 
   readonly code: number = 0x67; // 103
 
   constructor(program: Program, cause?: Error) {
-    super(
-      "Can't burn a verified member of a collection w/o providing collection metadata account",
-      program,
-      cause
-    );
+    super('Missing collection metadata account', program, cause);
   }
 }
 codeToErrorMap.set(0x67, MissingCollectionMetadataError);
@@ -2797,6 +2793,35 @@ export class InsufficientTokenBalanceError extends ProgramError {
 }
 codeToErrorMap.set(0xb8, InsufficientTokenBalanceError);
 nameToErrorMap.set('InsufficientTokenBalance', InsufficientTokenBalanceError);
+
+/** MissingCollectionMint: 'Missing collection mint account' */
+export class MissingCollectionMintError extends ProgramError {
+  readonly name: string = 'MissingCollectionMint';
+
+  readonly code: number = 0xb9; // 185
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing collection mint account', program, cause);
+  }
+}
+codeToErrorMap.set(0xb9, MissingCollectionMintError);
+nameToErrorMap.set('MissingCollectionMint', MissingCollectionMintError);
+
+/** MissingCollectionMasterEdition: 'Missing collection master edition account' */
+export class MissingCollectionMasterEditionError extends ProgramError {
+  readonly name: string = 'MissingCollectionMasterEdition';
+
+  readonly code: number = 0xba; // 186
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing collection master edition account', program, cause);
+  }
+}
+codeToErrorMap.set(0xba, MissingCollectionMasterEditionError);
+nameToErrorMap.set(
+  'MissingCollectionMasterEdition',
+  MissingCollectionMasterEditionError
+);
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

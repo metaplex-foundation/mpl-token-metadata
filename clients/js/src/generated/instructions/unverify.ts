@@ -24,8 +24,8 @@ import {
 } from '../types';
 
 // Accounts.
-export type VerifyInstructionAccounts = {
-  /** Creator to verify, collection update authority or delegate */
+export type UnverifyInstructionAccounts = {
+  /** Creator to verify, collection (or metadata if parent burned) update authority or delegate */
   authority?: Signer;
   /** Delegate record PDA */
   delegateRecord?: PublicKey;
@@ -35,8 +35,6 @@ export type VerifyInstructionAccounts = {
   collectionMint?: PublicKey;
   /** Metadata Account of the Collection */
   collectionMetadata?: PublicKey;
-  /** Master Edition Account of the Collection Token */
-  collectionMasterEdition?: PublicKey;
   /** System program */
   systemProgram?: PublicKey;
   /** Instructions sysvar account */
@@ -44,39 +42,39 @@ export type VerifyInstructionAccounts = {
 };
 
 // Arguments.
-export type VerifyInstructionData = {
+export type UnverifyInstructionData = {
   discriminator: number;
   verificationArgs: VerificationArgs;
 };
 
-export type VerifyInstructionDataArgs = {
+export type UnverifyInstructionDataArgs = {
   verificationArgs: VerificationArgsArgs;
 };
 
-export function getVerifyInstructionDataSerializer(
+export function getUnverifyInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<VerifyInstructionDataArgs, VerifyInstructionData> {
+): Serializer<UnverifyInstructionDataArgs, UnverifyInstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    VerifyInstructionDataArgs,
-    VerifyInstructionData,
-    VerifyInstructionData
+    UnverifyInstructionDataArgs,
+    UnverifyInstructionData,
+    UnverifyInstructionData
   >(
-    s.struct<VerifyInstructionData>(
+    s.struct<UnverifyInstructionData>(
       [
         ['discriminator', s.u8()],
         ['verificationArgs', getVerificationArgsSerializer(context)],
       ],
-      { description: 'VerifyInstructionData' }
+      { description: 'UnverifyInstructionData' }
     ),
-    (value) => ({ ...value, discriminator: 52 } as VerifyInstructionData)
-  ) as Serializer<VerifyInstructionDataArgs, VerifyInstructionData>;
+    (value) => ({ ...value, discriminator: 53 } as UnverifyInstructionData)
+  ) as Serializer<UnverifyInstructionDataArgs, UnverifyInstructionData>;
 }
 
 // Instruction.
-export function verify(
+export function unverify(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
-  input: VerifyInstructionAccounts & VerifyInstructionDataArgs
+  input: UnverifyInstructionAccounts & UnverifyInstructionDataArgs
 ): WrappedInstruction {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -99,10 +97,6 @@ export function verify(
     isWritable: false,
   };
   const collectionMetadataAccount = input.collectionMetadata ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const collectionMasterEditionAccount = input.collectionMasterEdition ?? {
     ...programId,
     isWritable: false,
   };
@@ -153,13 +147,6 @@ export function verify(
     isWritable: isWritable(collectionMetadataAccount, true),
   });
 
-  // Collection Master Edition.
-  keys.push({
-    pubkey: collectionMasterEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(collectionMasterEditionAccount, false),
-  });
-
   // System Program.
   keys.push({
     pubkey: systemProgramAccount,
@@ -175,7 +162,7 @@ export function verify(
   });
 
   // Data.
-  const data = getVerifyInstructionDataSerializer(context).serialize(input);
+  const data = getUnverifyInstructionDataSerializer(context).serialize(input);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;
