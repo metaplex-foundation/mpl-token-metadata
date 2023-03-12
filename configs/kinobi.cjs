@@ -264,7 +264,8 @@ kinobi.update(
     unlock: "unlockArgs",
     update: "updateArgs",
     use: "useArgs",
-    verify: "verifyArgs",
+    verify: "verificationArgs",
+    unverify: "verificationArgs",
   })
 );
 
