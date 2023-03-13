@@ -270,10 +270,29 @@ kinobi.update(
 );
 
 // Update versioned instructions.
+const collectionMintDefaults = {
+  collectionMint: { isOptional: false, defaultsTo: { kind: "none" } },
+  collectionMetadata: {
+    defaultsTo: {
+      kind: "pda",
+      pdaAccount: "metadata",
+      seeds: { mint: { kind: "account", name: "collectionMint" } },
+    },
+  },
+  collectionMasterEdition: {
+    defaultsTo: {
+      kind: "pda",
+      pdaAccount: "masterEdition",
+      seeds: { mint: { kind: "account", name: "collectionMint" } },
+    },
+  },
+};
 kinobi.update(
   new UpdateInstructionsVisitor({
     createV1: { internal: true },
     mintV1: { internal: true },
+    verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
+    unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
 );
 

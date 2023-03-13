@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@metaplex-foundation/umi';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 
 // Accounts.
 export type VerifyCollectionV1InstructionAccounts = {
@@ -27,7 +28,7 @@ export type VerifyCollectionV1InstructionAccounts = {
   /** Metadata account */
   metadata: PublicKey;
   /** Mint of the Collection */
-  collectionMint?: PublicKey;
+  collectionMint: PublicKey;
   /** Metadata Account of the Collection */
   collectionMetadata?: PublicKey;
   /** Master Edition Account of the Collection Token */
@@ -79,7 +80,7 @@ export function getVerifyCollectionV1InstructionDataSerializer(
 
 // Instruction.
 export function verifyCollectionV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
   input: VerifyCollectionV1InstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -98,18 +99,13 @@ export function verifyCollectionV1(
     isWritable: false,
   };
   const metadataAccount = input.metadata;
-  const collectionMintAccount = input.collectionMint ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const collectionMetadataAccount = input.collectionMetadata ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const collectionMasterEditionAccount = input.collectionMasterEdition ?? {
-    ...programId,
-    isWritable: false,
-  };
+  const collectionMintAccount = input.collectionMint;
+  const collectionMetadataAccount =
+    input.collectionMetadata ??
+    findMetadataPda(context, { mint: publicKey(collectionMintAccount) });
+  const collectionMasterEditionAccount =
+    input.collectionMasterEdition ??
+    findMasterEditionPda(context, { mint: publicKey(collectionMintAccount) });
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',

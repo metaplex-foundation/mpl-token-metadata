@@ -17,6 +17,7 @@ import {
   mapSerializer,
   publicKey,
 } from '@metaplex-foundation/umi';
+import { findMetadataPda } from '../accounts';
 
 // Accounts.
 export type UnverifyCollectionV1InstructionAccounts = {
@@ -27,7 +28,7 @@ export type UnverifyCollectionV1InstructionAccounts = {
   /** Metadata account */
   metadata: PublicKey;
   /** Mint of the Collection */
-  collectionMint?: PublicKey;
+  collectionMint: PublicKey;
   /** Metadata Account of the Collection */
   collectionMetadata?: PublicKey;
   /** System program */
@@ -77,7 +78,7 @@ export function getUnverifyCollectionV1InstructionDataSerializer(
 
 // Instruction.
 export function unverifyCollectionV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
+  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
   input: UnverifyCollectionV1InstructionAccounts
 ): WrappedInstruction {
   const signers: Signer[] = [];
@@ -96,14 +97,10 @@ export function unverifyCollectionV1(
     isWritable: false,
   };
   const metadataAccount = input.metadata;
-  const collectionMintAccount = input.collectionMint ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const collectionMetadataAccount = input.collectionMetadata ?? {
-    ...programId,
-    isWritable: false,
-  };
+  const collectionMintAccount = input.collectionMint;
+  const collectionMetadataAccount =
+    input.collectionMetadata ??
+    findMetadataPda(context, { mint: publicKey(collectionMintAccount) });
   const systemProgramAccount = input.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
