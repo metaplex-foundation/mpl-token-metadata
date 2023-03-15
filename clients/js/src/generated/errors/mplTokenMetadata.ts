@@ -2823,6 +2823,19 @@ nameToErrorMap.set(
   MissingCollectionMasterEditionError
 );
 
+/** InvalidTokenRecord: 'Invalid token record account' */
+export class InvalidTokenRecordError extends ProgramError {
+  readonly name: string = 'InvalidTokenRecord';
+
+  readonly code: number = 0xbb; // 187
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid token record account', program, cause);
+  }
+}
+codeToErrorMap.set(0xbb, InvalidTokenRecordError);
+nameToErrorMap.set('InvalidTokenRecord', InvalidTokenRecordError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
