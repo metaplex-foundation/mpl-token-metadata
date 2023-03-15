@@ -1,9 +1,9 @@
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   PublicKey,
   publicKey,
-  WrappedInstruction,
+  TransactionBuilder,
 } from '@metaplex-foundation/umi';
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import { isFungible } from '../digitalAsset';
 import { findMasterEditionPda, TokenStandard } from '../generated';
 import {
@@ -34,7 +34,7 @@ export type MintV1InstructionInput = Omit<
 export const mintV1 = (
   context: Parameters<typeof baseMintV1>[0],
   input: MintV1InstructionInput
-): WrappedInstruction => {
+): TransactionBuilder => {
   const defaultMasterEdition = isFungible(input.tokenStandard)
     ? undefined
     : findMasterEditionPda(context, { mint: publicKey(input.mint) });

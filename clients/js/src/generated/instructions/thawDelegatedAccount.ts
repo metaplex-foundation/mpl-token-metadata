@@ -12,10 +12,11 @@ import {
   PublicKey,
   Serializer,
   Signer,
-  WrappedInstruction,
+  TransactionBuilder,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
+  transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMasterEditionPda } from '../accounts';
 
@@ -65,7 +66,7 @@ export function getThawDelegatedAccountInstructionDataSerializer(
 export function thawDelegatedAccount(
   context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
   input: ThawDelegatedAccountInstructionAccounts
-): WrappedInstruction {
+): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
@@ -134,9 +135,7 @@ export function thawDelegatedAccount(
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;
 
-  return {
-    instruction: { keys, programId, data },
-    signers,
-    bytesCreatedOnChain,
-  };
+  return transactionBuilder([
+    { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
+  ]);
 }

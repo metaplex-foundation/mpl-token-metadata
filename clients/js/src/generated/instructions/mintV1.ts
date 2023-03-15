@@ -13,11 +13,12 @@ import {
   PublicKey,
   Serializer,
   Signer,
-  WrappedInstruction,
+  TransactionBuilder,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
   none,
   publicKey,
+  transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
 import {
@@ -111,7 +112,7 @@ export function mintV1(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: MintV1InstructionAccounts & MintV1InstructionDataArgs
-): WrappedInstruction {
+): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
@@ -291,9 +292,7 @@ export function mintV1(
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 468;
 
-  return {
-    instruction: { keys, programId, data },
-    signers,
-    bytesCreatedOnChain,
-  };
+  return transactionBuilder([
+    { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
+  ]);
 }

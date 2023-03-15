@@ -21,15 +21,15 @@ import { createDigitalAsset, createUmi } from './_setup';
 
 test('it can fetch a DigitalAsset by mint', async (t) => {
   // Given an existing NFT.
-  const mx = await createUmi();
-  const mint = await createDigitalAsset(mx);
+  const umi = await createUmi();
+  const mint = await createDigitalAsset(umi);
 
   // When we fetch a digital asset using its mint address.
-  const digitalAsset = await fetchDigitalAsset(mx, mint.publicKey);
+  const digitalAsset = await fetchDigitalAsset(umi, mint.publicKey);
 
   // Then we get the expected digital asset.
-  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
-  const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const edition = findMasterEditionPda(umi, { mint: mint.publicKey });
   t.like(digitalAsset, <DigitalAsset>{
     publicKey: publicKey(mint.publicKey),
     mint: { publicKey: publicKey(mint.publicKey) },
@@ -47,15 +47,15 @@ test('it can fetch a DigitalAsset by mint', async (t) => {
 
 test('it can fetch a DigitalAsset by metadata', async (t) => {
   // Given an existing NFT.
-  const mx = await createUmi();
-  const mint = await createDigitalAsset(mx);
+  const umi = await createUmi();
+  const mint = await createDigitalAsset(umi);
 
   // When we fetch a digital asset using its metadata address.
-  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
-  const digitalAsset = await fetchDigitalAssetByMetadata(mx, metadata);
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const digitalAsset = await fetchDigitalAssetByMetadata(umi, metadata);
 
   // Then we get the expected digital asset.
-  const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
+  const edition = findMasterEditionPda(umi, { mint: mint.publicKey });
   t.like(digitalAsset, <DigitalAsset>{
     publicKey: publicKey(mint.publicKey),
     mint: { publicKey: publicKey(mint.publicKey) },
@@ -73,12 +73,12 @@ test('it can fetch a DigitalAsset by metadata', async (t) => {
 
 test('it can fetch all DigitalAssets by mint list', async (t) => {
   // Given two existing NFTs.
-  const mx = await createUmi();
-  const mintA = await createDigitalAsset(mx);
-  const mintB = await createDigitalAsset(mx);
+  const umi = await createUmi();
+  const mintA = await createDigitalAsset(umi);
+  const mintB = await createDigitalAsset(umi);
 
   // When we fetch both of them using their mint addresses.
-  const digitalAssets = await fetchAllDigitalAsset(mx, [
+  const digitalAssets = await fetchAllDigitalAsset(umi, [
     mintA.publicKey,
     mintB.publicKey,
   ]);
@@ -92,17 +92,17 @@ test('it can fetch all DigitalAssets by mint list', async (t) => {
 
 test('it can fetch all DigitalAssets by creators', async (t) => {
   // Given two creators A and B.
-  const mx = await createUmi();
-  const creatorA = generateSigner(mx).publicKey;
-  const creatorB = generateSigner(mx).publicKey;
+  const umi = await createUmi();
+  const creatorA = generateSigner(umi).publicKey;
+  const creatorB = generateSigner(umi).publicKey;
 
   // And three NFTs such that 2 are created by A and 1 is created by B.
-  const mintA1 = await createDigitalAssetWithFirstCreator(mx, creatorA);
-  const mintA2 = await createDigitalAssetWithFirstCreator(mx, creatorA);
-  const mintB1 = await createDigitalAssetWithFirstCreator(mx, creatorB);
+  const mintA1 = await createDigitalAssetWithFirstCreator(umi, creatorA);
+  const mintA2 = await createDigitalAssetWithFirstCreator(umi, creatorA);
+  const mintB1 = await createDigitalAssetWithFirstCreator(umi, creatorB);
 
   // When we fetch all digital assets such that their first creator is A.
-  const digitalAssets = await fetchAllDigitalAssetByCreator(mx, creatorA);
+  const digitalAssets = await fetchAllDigitalAssetByCreator(umi, creatorA);
 
   // Then we get the two NFTs created by A.
   t.is(digitalAssets.length, 2);
@@ -116,18 +116,18 @@ test('it can fetch all DigitalAssets by creators', async (t) => {
 
 test('it can fetch all DigitalAssets by creators in different positions', async (t) => {
   // Given two creators A and B.
-  const mx = await createUmi();
-  const creatorA = generateSigner(mx).publicKey;
-  const creatorB = generateSigner(mx).publicKey;
+  const umi = await createUmi();
+  const creatorA = generateSigner(umi).publicKey;
+  const creatorB = generateSigner(umi).publicKey;
 
   // And three NFTs such that 2 are co-created by A and 1 is co-created by B.
   // Creators A and B are assigned as the second creator for each of their NFTs.
-  const mintA1 = await createDigitalAssetWithSecondCreator(mx, creatorA);
-  const mintA2 = await createDigitalAssetWithSecondCreator(mx, creatorA);
-  const mintB1 = await createDigitalAssetWithSecondCreator(mx, creatorB);
+  const mintA1 = await createDigitalAssetWithSecondCreator(umi, creatorA);
+  const mintA2 = await createDigitalAssetWithSecondCreator(umi, creatorA);
+  const mintB1 = await createDigitalAssetWithSecondCreator(umi, creatorB);
 
   // When we fetch all digital assets such that their second creator is A.
-  const digitalAssets = await fetchAllDigitalAssetByCreator(mx, creatorA, {
+  const digitalAssets = await fetchAllDigitalAssetByCreator(umi, creatorA, {
     position: 2,
   });
 
@@ -143,27 +143,27 @@ test('it can fetch all DigitalAssets by creators in different positions', async 
 
 test('it can fetch all DigitalAssets by update authority', async (t) => {
   // Given two update authorities A and B.
-  const mx = await createUmi();
-  const updateAuthorityA = generateSigner(mx);
-  const updateAuthorityB = generateSigner(mx);
+  const umi = await createUmi();
+  const updateAuthorityA = generateSigner(umi);
+  const updateAuthorityB = generateSigner(umi);
 
   // And three NFTs such that 2 are maintained by A and 1 is maintained by B.
-  const mintA1 = await createDigitalAsset(mx, {
+  const mintA1 = await createDigitalAsset(umi, {
     authority: updateAuthorityA,
     updateAuthority: updateAuthorityA.publicKey,
   });
-  const mintA2 = await createDigitalAsset(mx, {
+  const mintA2 = await createDigitalAsset(umi, {
     authority: updateAuthorityA,
     updateAuthority: updateAuthorityA.publicKey,
   });
-  const mintB1 = await createDigitalAsset(mx, {
+  const mintB1 = await createDigitalAsset(umi, {
     authority: updateAuthorityB,
     updateAuthority: updateAuthorityB.publicKey,
   });
 
   // When we fetch all digital assets such that their update authority is A.
   const digitalAssets = await fetchAllDigitalAssetByUpdateAuthority(
-    mx,
+    umi,
     updateAuthorityA.publicKey
   );
 

@@ -12,10 +12,11 @@ import {
   PublicKey,
   Serializer,
   Signer,
-  WrappedInstruction,
+  TransactionBuilder,
   checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
+  transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
   MintPrintingTokensViaTokenArgs,
@@ -89,7 +90,7 @@ export function deprecatedMintPrintingTokens(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: DeprecatedMintPrintingTokensInstructionAccounts &
     DeprecatedMintPrintingTokensInstructionDataArgs
-): WrappedInstruction {
+): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
@@ -174,9 +175,7 @@ export function deprecatedMintPrintingTokens(
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;
 
-  return {
-    instruction: { keys, programId, data },
-    signers,
-    bytesCreatedOnChain,
-  };
+  return transactionBuilder([
+    { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
+  ]);
 }

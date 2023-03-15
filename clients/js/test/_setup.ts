@@ -18,17 +18,13 @@ export const createDigitalAsset = async (
   input: Partial<Parameters<typeof createV1>[1]> = {}
 ): Promise<Signer> => {
   const mint = generateSigner(umi);
-  await transactionBuilder(umi)
-    .add(
-      createV1(umi, {
-        mint,
-        name: 'My NFT',
-        uri: 'https://example.com',
-        sellerFeeBasisPoints: percentAmount(2.5),
-        ...input,
-      })
-    )
-    .sendAndConfirm();
+  await createV1(umi, {
+    mint,
+    name: 'My NFT',
+    uri: 'https://example.com',
+    sellerFeeBasisPoints: percentAmount(2.5),
+    ...input,
+  }).sendAndConfirm(umi);
   return mint;
 };
 
@@ -41,7 +37,7 @@ export const createDigitalAssetWithToken = async (
   } = {}
 ): Promise<Signer> => {
   const mint = generateSigner(umi);
-  await transactionBuilder(umi)
+  await transactionBuilder()
     .add(
       createV1(umi, {
         mint,
@@ -60,6 +56,6 @@ export const createDigitalAssetWithToken = async (
         tokenStandard: input.tokenStandard ?? TokenStandard.NonFungible,
       })
     )
-    .sendAndConfirm();
+    .sendAndConfirm(umi);
   return mint;
 };

@@ -4,7 +4,8 @@ import {
   Option,
   publicKey,
   some,
-  WrappedInstruction,
+  TransactionBuilder,
+  transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { isFungible } from '../digitalAsset';
 import {
@@ -47,7 +48,7 @@ export type CreateV1InstructionInput = Omit<
 export const createV1 = (
   context: Parameters<typeof baseCreateV1>[0],
   input: CreateV1InstructionInput
-): WrappedInstruction => {
+): TransactionBuilder => {
   const tokenStandard = input.tokenStandard ?? TokenStandard.NonFungible;
   const defaultCollectionDetails =
     input.isCollection ?? false
@@ -75,7 +76,7 @@ export const createV1 = (
     decimals: input.decimals ?? defaultDecimals,
     printSupply: input.printSupply ?? defaultPrintSupply,
     creators: input.creators ?? defaultCreators,
-  });
+  }).items[0];
 
   if (isFungible(tokenStandard)) {
     ix.bytesCreatedOnChain =
@@ -84,5 +85,5 @@ export const createV1 = (
       2 * ACCOUNT_HEADER_SIZE; // 2 account headers.
   }
 
-  return ix;
+  return transactionBuilder([ix]);
 };

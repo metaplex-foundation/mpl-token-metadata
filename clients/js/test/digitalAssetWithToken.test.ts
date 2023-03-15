@@ -26,22 +26,22 @@ import { createDigitalAssetWithToken, createUmi } from './_setup';
 
 test('it can fetch a DigitalAssetWithToken from its mint and token accounts', async (t) => {
   // Given an existing NFT.
-  const mx = await createUmi();
-  const owner = generateSigner(mx).publicKey;
-  const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
+  const umi = await createUmi();
+  const owner = generateSigner(umi).publicKey;
+  const mint = await createDigitalAssetWithToken(umi, { tokenOwner: owner });
 
   // When we fetch a DigitalAssetWithToken using its mint address
   // and either its token address or its owner address.
   const digitalAsset = await fetchDigitalAssetWithAssociatedToken(
-    mx,
+    umi,
     mint.publicKey,
     owner
   );
 
   // Then we get the expected digital asset.
-  const ata = findAssociatedTokenPda(mx, { mint: mint.publicKey, owner });
-  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
-  const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
+  const ata = findAssociatedTokenPda(umi, { mint: mint.publicKey, owner });
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const edition = findMasterEditionPda(umi, { mint: mint.publicKey });
   t.like(digitalAsset, <DigitalAssetWithToken>{
     publicKey: publicKey(mint.publicKey),
     mint: { publicKey: publicKey(mint.publicKey) },
@@ -63,20 +63,20 @@ test('it can fetch a DigitalAssetWithToken from its mint and token accounts', as
 
 test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
   // Given an existing NFT.
-  const mx = await createUmi();
-  const owner = generateSigner(mx).publicKey;
-  const mint = await createDigitalAssetWithToken(mx, { tokenOwner: owner });
+  const umi = await createUmi();
+  const owner = generateSigner(umi).publicKey;
+  const mint = await createDigitalAssetWithToken(umi, { tokenOwner: owner });
 
   // When we fetch a DigitalAssetWithToken using only its mint address.
   const digitalAsset = await fetchDigitalAssetWithTokenByMint(
-    mx,
+    umi,
     mint.publicKey
   );
 
   // Then we get the expected digital asset.
-  const ata = findAssociatedTokenPda(mx, { mint: mint.publicKey, owner });
-  const metadata = findMetadataPda(mx, { mint: mint.publicKey });
-  const edition = findMasterEditionPda(mx, { mint: mint.publicKey });
+  const ata = findAssociatedTokenPda(umi, { mint: mint.publicKey, owner });
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const edition = findMasterEditionPda(umi, { mint: mint.publicKey });
   t.like(digitalAsset, <DigitalAssetWithToken>{
     publicKey: publicKey(mint.publicKey),
     mint: { publicKey: publicKey(mint.publicKey) },
@@ -98,17 +98,17 @@ test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
   // Given two owner A and B.
-  const mx = await createUmi();
-  const ownerA = generateSigner(mx).publicKey;
-  const ownerB = generateSigner(mx).publicKey;
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi).publicKey;
+  const ownerB = generateSigner(umi).publicKey;
 
   // And three NFTs such that two are owned by A and one is owned by B.
-  const mintA1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
-  const mintA2 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
-  const mintB1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+  const mintA1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintA2 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerB });
 
   // When we fetch all digital assets owned by A.
-  const digitalAssets = await fetchAllDigitalAssetWithTokenByOwner(mx, ownerA);
+  const digitalAssets = await fetchAllDigitalAssetWithTokenByOwner(umi, ownerA);
 
   // Then we get the two digital assets owned by A.
   t.is(digitalAssets.length, 2);
@@ -122,47 +122,47 @@ test('it can fetch all DigitalAssetWithToken by owner', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
   // Given two owner A and B.
-  const mx = await createUmi();
-  const ownerA = generateSigner(mx).publicKey;
-  const ownerB = generateSigner(mx).publicKey;
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi).publicKey;
+  const ownerB = generateSigner(umi).publicKey;
 
   // And one SFT owned by A over multiple token accounts.
   // One via an associated token account an one via a regular token account.
-  const mintA1 = await createDigitalAssetWithToken(mx, {
+  const mintA1 = await createDigitalAssetWithToken(umi, {
     tokenStandard: TokenStandard.FungibleAsset,
     tokenOwner: ownerA,
     amount: 42,
   });
-  const associatedToken = findAssociatedTokenPda(mx, {
+  const associatedToken = findAssociatedTokenPda(umi, {
     mint: mintA1.publicKey,
     owner: ownerA,
   });
-  const regularToken = generateSigner(mx);
-  await transactionBuilder(mx)
+  const regularToken = generateSigner(umi);
+  await transactionBuilder()
     .add(
-      createToken(mx, {
+      createToken(umi, {
         mint: mintA1.publicKey,
         owner: ownerA,
         token: regularToken,
       })
     )
     .add(
-      mintV1(mx, {
+      mintV1(umi, {
         mint: mintA1.publicKey,
         token: regularToken.publicKey,
         tokenStandard: TokenStandard.FungibleAsset,
         amount: 15,
       })
     )
-    .sendAndConfirm();
+    .sendAndConfirm(umi);
 
   // And two other NFTs, one owned by A and one owned by B.
-  const mintA2 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
-  const mintB1 = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+  const mintA2 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerB });
 
   // When we fetch all digital assets from the SFT owned by A.
   const digitalAssets = await fetchAllDigitalAssetWithTokenByOwnerAndMint(
-    mx,
+    umi,
     ownerA,
     mintA1.publicKey
   );
@@ -182,41 +182,37 @@ test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
 
 test('it can fetch all DigitalAssetWithToken by mint', async (t) => {
   // Given two owner A and B.
-  const mx = await createUmi();
-  const ownerA = generateSigner(mx).publicKey;
-  const ownerB = generateSigner(mx).publicKey;
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi).publicKey;
+  const ownerB = generateSigner(umi).publicKey;
 
   // And an SFT that belongs to both owner A and B.
-  const mintU = await createDigitalAssetWithToken(mx, {
+  const mintU = await createDigitalAssetWithToken(umi, {
     tokenOwner: ownerA,
     tokenStandard: TokenStandard.FungibleAsset,
   });
-  const tokenAU = findAssociatedTokenPda(mx, {
+  const tokenAU = findAssociatedTokenPda(umi, {
     mint: mintU.publicKey,
     owner: ownerA,
   });
-  const tokenBU = findAssociatedTokenPda(mx, {
+  const tokenBU = findAssociatedTokenPda(umi, {
     mint: mintU.publicKey,
     owner: ownerB,
   });
-  await transactionBuilder(mx)
-    .add(
-      mintV1(mx, {
-        mint: mintU.publicKey,
-        tokenOwner: ownerB,
-        amount: 2,
-        tokenStandard: TokenStandard.FungibleAsset,
-      })
-    )
-    .sendAndConfirm();
+  await mintV1(umi, {
+    mint: mintU.publicKey,
+    tokenOwner: ownerB,
+    amount: 2,
+    tokenStandard: TokenStandard.FungibleAsset,
+  }).sendAndConfirm(umi);
 
   // And two other NFTs, one owned by A and one owned by B.
-  const mintV = await createDigitalAssetWithToken(mx, { tokenOwner: ownerA });
-  const mintW = await createDigitalAssetWithToken(mx, { tokenOwner: ownerB });
+  const mintV = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintW = await createDigitalAssetWithToken(umi, { tokenOwner: ownerB });
 
   // When we fetch all DigitalAssetWithToken associated with the SFT.
   const digitalAssets = await fetchAllDigitalAssetWithTokenByMint(
-    mx,
+    umi,
     mintU.publicKey
   );
 

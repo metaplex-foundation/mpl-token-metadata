@@ -1,4 +1,8 @@
-import { publicKey, WrappedInstruction } from '@metaplex-foundation/umi';
+import {
+  publicKey,
+  transactionBuilder,
+  TransactionBuilder,
+} from '@metaplex-foundation/umi';
 import { TokenStandard } from './generated';
 import {
   createV1,
@@ -10,15 +14,15 @@ import {
 export const createAndMint = (
   context: Parameters<typeof createV1>[0],
   input: CreateV1InstructionInput & Omit<MintV1InstructionInput, 'mint'>
-): WrappedInstruction[] => [
-  createV1(context, input),
-  mintV1(context, { ...input, mint: publicKey(input.mint) }),
-];
+): TransactionBuilder =>
+  transactionBuilder()
+    .add(createV1(context, input))
+    .add(mintV1(context, { ...input, mint: publicKey(input.mint) }));
 
 export const createNft = (
   context: Parameters<typeof createAndMint>[0],
   input: Omit<Parameters<typeof createAndMint>[1], 'amount' | 'tokenStandard'>
-): WrappedInstruction[] =>
+): TransactionBuilder =>
   createAndMint(context, {
     ...input,
     tokenStandard: TokenStandard.NonFungible,
@@ -28,7 +32,7 @@ export const createNft = (
 export const createProgrammableNft = (
   context: Parameters<typeof createAndMint>[0],
   input: Omit<Parameters<typeof createAndMint>[1], 'amount' | 'tokenStandard'>
-): WrappedInstruction[] =>
+): TransactionBuilder =>
   createAndMint(context, {
     ...input,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
@@ -38,7 +42,7 @@ export const createProgrammableNft = (
 export const createFungible = (
   context: Parameters<typeof createV1>[0],
   input: Omit<Parameters<typeof createV1>[1], 'tokenStandard'>
-): WrappedInstruction =>
+): TransactionBuilder =>
   createV1(context, {
     ...input,
     tokenStandard: TokenStandard.Fungible,
@@ -47,7 +51,7 @@ export const createFungible = (
 export const createFungibleAsset = (
   context: Parameters<typeof createV1>[0],
   input: Omit<Parameters<typeof createV1>[1], 'tokenStandard'>
-): WrappedInstruction =>
+): TransactionBuilder =>
   createV1(context, {
     ...input,
     tokenStandard: TokenStandard.FungibleAsset,

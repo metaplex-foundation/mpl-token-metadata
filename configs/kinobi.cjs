@@ -147,9 +147,9 @@ kinobi.update(
           128 * 3, // 3 account headers.
       },
       accounts: {
-        mint: { isOptionalSigner: true },
+        mint: { isSigner: "either" },
         updateAuthority: {
-          isOptionalSigner: true,
+          isSigner: "either",
           defaultsTo: { kind: "account", name: "authority" },
         },
       },
@@ -271,7 +271,7 @@ kinobi.update(
 
 // Update versioned instructions.
 const collectionMintDefaults = {
-  collectionMint: { isOptional: false, defaultsTo: { kind: "none" } },
+  collectionMint: { isOptional: false, defaultsTo: null },
   collectionMetadata: {
     defaultsTo: {
       kind: "pda",
