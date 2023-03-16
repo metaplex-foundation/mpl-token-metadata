@@ -4,8 +4,12 @@ import {
   publicKey,
   TransactionBuilder,
 } from '@metaplex-foundation/umi';
-import { isFungible } from '../digitalAsset';
-import { findMasterEditionPda, TokenStandard } from '../generated';
+import { isFungible, isProgrammable } from '../digitalAsset';
+import {
+  findMasterEditionPda,
+  findTokenRecordPda,
+  TokenStandard,
+} from '../generated';
 import {
   getMintV1InstructionDataSerializer,
   mintV1 as baseMintV1,
@@ -38,19 +42,27 @@ export const mintV1 = (
   const defaultMasterEdition = isFungible(input.tokenStandard)
     ? undefined
     : findMasterEditionPda(context, { mint: publicKey(input.mint) });
+  const masterEdition = input.masterEdition ?? defaultMasterEdition;
   const defaultTokenOwner = input.token
     ? undefined
     : context.identity.publicKey;
+  const tokenOwner = input.tokenOwner ?? defaultTokenOwner;
+  const token =
+    input.token ??
+    findAssociatedTokenPda(context, {
+      mint: publicKey(input.mint),
+      owner: publicKey(input.tokenOwner ?? (defaultTokenOwner as PublicKey)),
+    });
+  const defaultTokenRecord = isProgrammable(input.tokenStandard)
+    ? findTokenRecordPda(context, { mint: publicKey(input.mint), token })
+    : undefined;
+  const tokenRecord = input.tokenRecord ?? defaultTokenRecord;
 
   return baseMintV1(context, {
-    masterEdition: input.masterEdition ?? defaultMasterEdition,
     ...input,
-    tokenOwner: input.tokenOwner ?? defaultTokenOwner,
-    token:
-      input.token ??
-      findAssociatedTokenPda(context, {
-        mint: publicKey(input.mint),
-        owner: publicKey(input.tokenOwner ?? (defaultTokenOwner as PublicKey)),
-      }),
+    masterEdition,
+    tokenOwner,
+    token,
+    tokenRecord,
   });
 };
