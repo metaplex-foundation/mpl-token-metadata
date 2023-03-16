@@ -9,7 +9,7 @@ import {
 import { clusterApiUrl } from "@solana/web3.js";
 import type { AppProps } from "next/app";
 import { useMemo } from "react";
-import { MetaplexProvider } from "./MetaplexProvider";
+import { UmiProvider } from "./UmiProvider";
 
 import "@/styles/globals.css";
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -28,11 +28,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <WalletProvider wallets={wallets} autoConnect>
-      <MetaplexProvider endpoint={endpoint}>
+      <UmiProvider endpoint={endpoint}>
         <WalletModalProvider>
           <Component {...pageProps} />
         </WalletModalProvider>
-      </MetaplexProvider>
+      </UmiProvider>
     </WalletProvider>
   );
 }

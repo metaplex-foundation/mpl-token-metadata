@@ -1,12 +1,12 @@
-import { createUmi } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import { nftStorageUploader } from "@metaplex-foundation/umi-uploader-nft-storage";
-import { mplDigitalAsset } from "@lorisleiva/mpl-token-metadata";
+import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { ReactNode } from "react";
-import { MetaplexContext } from "./useMetaplex";
+import { UmiContext } from "./useUmi";
 
-export const MetaplexProvider = ({
+export const UmiProvider = ({
   endpoint,
   children,
 }: {
@@ -14,14 +14,10 @@ export const MetaplexProvider = ({
   children: ReactNode;
 }) => {
   const wallet = useWallet();
-  const metaplex = createUmi(endpoint)
+  const umi = createUmi(endpoint)
     .use(walletAdapterIdentity(wallet))
     .use(nftStorageUploader())
-    .use(mplDigitalAsset());
+    .use(mplTokenMetadata());
 
-  return (
-    <MetaplexContext.Provider value={{ metaplex }}>
-      {children}
-    </MetaplexContext.Provider>
-  );
+  return <UmiContext.Provider value={{ umi }}>{children}</UmiContext.Provider>;
 };

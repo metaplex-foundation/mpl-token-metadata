@@ -5,15 +5,14 @@ import {
   Umi,
   percentAmount,
   PublicKey,
-  transactionBuilder,
 } from "@metaplex-foundation/umi";
-import { createNft } from "@lorisleiva/mpl-token-metadata";
+import { createNft } from "@metaplex-foundation/mpl-token-metadata";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { FormEvent, useState } from "react";
-import { useMetaplex } from "./useMetaplex";
+import { useUmi } from "./useUmi";
 
 import styles from "@/styles/Home.module.css";
 const inter = Inter({ subsets: ["latin"] });
@@ -24,7 +23,7 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
+async function uploadAndCreateNft(umi: Umi, name: string, file: File) {
   // Ensure input is valid.
   if (!name) {
     throw new Error("Please enter a name for your NFT.");
@@ -35,19 +34,22 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
 
   // Upload image and JSON data.
   const imageFile = await createGenericFileFromBrowserFile(file);
-  const [imageUri] = await metaplex.uploader.upload([imageFile]);
-  const uri = await metaplex.uploader.uploadJson({
+  const [imageUri] = await umi.uploader.upload([imageFile]);
+  const uri = await umi.uploader.uploadJson({
     name,
-    description: "A test NFT created using the Metaplex JS SDK.",
+    description: "A test NFT created via Umi.",
     image: imageUri,
   });
 
   // Create and mint NFT.
-  const mint = generateSigner(metaplex);
+  const mint = generateSigner(umi);
   const sellerFeeBasisPoints = percentAmount(5.5, 2);
-  await transactionBuilder(metaplex)
-    .add(createNft(metaplex, { mint, name, uri, sellerFeeBasisPoints }))
-    .sendAndConfirm();
+  await createNft(umi, {
+    mint,
+    name,
+    uri,
+    sellerFeeBasisPoints,
+  }).sendAndConfirm(umi);
 
   // Return the mint address.
   return mint.publicKey;
@@ -55,7 +57,7 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
 
 export default function Home() {
   const wallet = useWallet();
-  const metaplex = useMetaplex();
+  const umi = useUmi();
   const [loading, setLoading] = useState(false);
   const [mintCreated, setMintCreated] = useState<PublicKey | null>(null);
 
@@ -67,7 +69,7 @@ export default function Home() {
     const data = Object.fromEntries(formData) as { name: string; image: File };
 
     try {
-      const mint = await uploadAndCreateNft(metaplex, data.name, data.image);
+      const mint = await uploadAndCreateNft(umi, data.name, data.image);
       setMintCreated(mint);
     } finally {
       setLoading(false);

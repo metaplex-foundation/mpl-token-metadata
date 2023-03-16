@@ -12,17 +12,16 @@ import {
   SolAmount,
   transactionBuilder,
 } from "@metaplex-foundation/umi";
-import { createNft } from "@lorisleiva/mpl-token-metadata";
+import { createNft } from "@metaplex-foundation/mpl-token-metadata";
 import { Inter } from "@next/font/google";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { FormEvent, useState } from "react";
-import { useMetaplex } from "./useMetaplex";
+import { useUmi } from "./useUmi";
 
 import styles from "@/styles/Home.module.css";
 import { createDerivedSigner } from "@metaplex-foundation/umi-signer-derived";
-import { bundlrUploader } from "@metaplex-foundation/umi-uploader-bundlr";
 import {
   transferAllSol,
   transferSol,
@@ -35,7 +34,7 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
+async function uploadAndCreateNft(umi: Umi, name: string, file: File) {
   // Ensure input is valid.
   if (!name) {
     throw new Error("Please enter a name for your NFT.");
@@ -49,7 +48,7 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
   const mockUri = "x".repeat(200);
   const mockMetadataFile = createGenericFileFromJson({
     name,
-    description: "A test NFT created using the Metaplex JS SDK.",
+    description: "A test NFT created via Umi.",
     image: mockUri,
   });
 
@@ -63,44 +62,36 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
     "add a nonce to the message to prevent replay attacks.\n\n" +
     `[Nonce: ${generateRandomString()}]`;
   const derivedSigner = await createDerivedSigner(
-    metaplex,
-    metaplex.payer,
+    umi,
+    umi.payer,
     derivedMessage
   );
 
   // Compute amount to fund the derived signer.
-  const uploadAmount = (await metaplex.uploader.getUploadPrice([
+  const uploadAmount = (await umi.uploader.getUploadPrice([
     imageFile,
     mockMetadataFile,
   ])) as SolAmount;
-  const transactionAmount = await transactionBuilder(metaplex)
-    .add(
-      createNft(metaplex, {
-        mint: generateSigner(metaplex),
-        name,
-        uri: mockUri,
-        sellerFeeBasisPoints: percentAmount(5.5),
-      })
-    )
-    .getRentCreatedOnChain();
+  const transactionAmount = await createNft(umi, {
+    mint: generateSigner(umi),
+    name,
+    uri: mockUri,
+    sellerFeeBasisPoints: percentAmount(5.5),
+  }).getRentCreatedOnChain(umi);
 
   // Fund and use the derived signer.
-  await transactionBuilder(metaplex)
-    .add(
-      transferSol(metaplex, {
-        source: derivedSigner.originalSigner,
-        destination: derivedSigner.publicKey,
-        amount: addAmounts(uploadAmount, transactionAmount),
-      })
-    )
-    .sendAndConfirm();
-  metaplex.use(signerPayer(derivedSigner));
+  await transferSol(umi, {
+    source: derivedSigner.originalSigner,
+    destination: derivedSigner.publicKey,
+    amount: addAmounts(uploadAmount, transactionAmount),
+  }).sendAndConfirm(umi);
+  umi.use(signerPayer(derivedSigner));
 
   // Upload image and JSON data.
-  const [imageUri] = await metaplex.uploader.upload([imageFile]);
-  const uri = await metaplex.uploader.uploadJson({
+  const [imageUri] = await umi.uploader.upload([imageFile]);
+  const uri = await umi.uploader.uploadJson({
     name,
-    description: "A test NFT created using the Metaplex JS SDK.",
+    description: "A test NFT created using the umi JS SDK.",
     image: imageUri,
   });
 
@@ -108,20 +99,20 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
   // Note that, the original signer will need to sign this transaction as well
   // in order to be a verified creator of the NFT. If that was not a requirement,
   // we could save an extra wallet approval.
-  const mint = generateSigner(metaplex);
+  const mint = generateSigner(umi);
   const sellerFeeBasisPoints = percentAmount(5.5, 2);
-  await transactionBuilder(metaplex)
-    .add(createNft(metaplex, { mint, name, uri, sellerFeeBasisPoints }))
+  await transactionBuilder()
+    .add(createNft(umi, { mint, name, uri, sellerFeeBasisPoints }))
     .add(
-      transferAllSol(metaplex, {
+      transferAllSol(umi, {
         source: derivedSigner,
         destination: derivedSigner.originalSigner.publicKey,
       })
     )
-    .sendAndConfirm();
+    .sendAndConfirm(umi);
 
   // Revert to the original signer.
-  metaplex.use(signerPayer(derivedSigner.originalSigner));
+  umi.use(signerPayer(derivedSigner.originalSigner));
 
   // Return the mint address.
   return mint.publicKey;
@@ -129,7 +120,7 @@ async function uploadAndCreateNft(metaplex: Umi, name: string, file: File) {
 
 export default function Home() {
   const wallet = useWallet();
-  const metaplex = useMetaplex();
+  const umi = useUmi();
   const [loading, setLoading] = useState(false);
   const [mintCreated, setMintCreated] = useState<PublicKey | null>(null);
 
@@ -141,7 +132,7 @@ export default function Home() {
     const data = Object.fromEntries(formData) as { name: string; image: File };
 
     try {
-      const mint = await uploadAndCreateNft(metaplex, data.name, data.image);
+      const mint = await uploadAndCreateNft(umi, data.name, data.image);
       setMintCreated(mint);
     } finally {
       setLoading(false);
