@@ -6,16 +6,26 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Program, publicKey } from '@metaplex-foundation/umi';
+import {
+  ClusterFilter,
+  Context,
+  Program,
+  PublicKey,
+  publicKey,
+} from '@metaplex-foundation/umi';
 import {
   getMplTokenMetadataErrorFromCode,
   getMplTokenMetadataErrorFromName,
 } from '../errors';
 
-export function getMplTokenMetadataProgram(): Program {
+export const MPL_TOKEN_METADATA_PROGRAM_ID = publicKey(
+  'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+);
+
+export function createMplTokenMetadataProgram(): Program {
   return {
     name: 'mplTokenMetadata',
-    publicKey: publicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'),
+    publicKey: MPL_TOKEN_METADATA_PROGRAM_ID,
     getErrorFromCode(code: number, cause?: Error) {
       return getMplTokenMetadataErrorFromCode(code, this, cause);
     },
@@ -26,4 +36,22 @@ export function getMplTokenMetadataProgram(): Program {
       return true;
     },
   };
+}
+
+export function getMplTokenMetadataProgram<T extends Program = Program>(
+  context: Pick<Context, 'programs'>,
+  clusterFilter?: ClusterFilter
+): T {
+  return context.programs.get<T>('mplTokenMetadata', clusterFilter);
+}
+
+export function getMplTokenMetadataProgramId(
+  context: Pick<Context, 'programs'>,
+  clusterFilter?: ClusterFilter
+): PublicKey {
+  return context.programs.getPublicKey(
+    'mplTokenMetadata',
+    MPL_TOKEN_METADATA_PROGRAM_ID,
+    clusterFilter
+  );
 }

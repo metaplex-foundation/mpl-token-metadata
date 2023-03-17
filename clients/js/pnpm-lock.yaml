@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@ava/typescript': ^3.0.1
-  '@metaplex-foundation/mpl-essentials': ^0.5.0
+  '@metaplex-foundation/mpl-essentials': ^0.5.1
   '@metaplex-foundation/umi': ^0.6.0
   '@metaplex-foundation/umi-bundle-tests': ^0.6.0
   '@solana/web3.js': ^1.73.0
@@ -23,7 +23,7 @@ specifiers:
   vercel: ^28.16.8
 
 dependencies:
-  '@metaplex-foundation/mpl-essentials': 0.5.0_6ygy4nximzcawmzkd5ogkuv4l4
+  '@metaplex-foundation/mpl-essentials': 0.5.1_6ygy4nximzcawmzkd5ogkuv4l4
 
 devDependencies:
   '@ava/typescript': 3.0.1
@@ -1601,8 +1601,8 @@ packages:
       - supports-color
     dev: true
 
-  /@metaplex-foundation/mpl-essentials/0.5.0_6ygy4nximzcawmzkd5ogkuv4l4:
-    resolution: {integrity: sha512-2VCC5VBeukBR4O/qAHQNra7G2FnVuerdI5dZqt1O63hR5ahwOFRsUtrQkdspDk4sD/cqkRWXv+X0wwLHWjd5rQ==}
+  /@metaplex-foundation/mpl-essentials/0.5.1_6ygy4nximzcawmzkd5ogkuv4l4:
+    resolution: {integrity: sha512-e7P/BqG4nRoZSbjKmf+F0fIU2ae13jDWzuF+9QvmikqTaWHyanljLM7WWNe4EjeaHl9bFJ91fwki6PGQMVeLyw==}
     peerDependencies:
       '@metaplex-foundation/umi': ^0.6.0
     dependencies:
