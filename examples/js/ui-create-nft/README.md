@@ -13,7 +13,7 @@ cd ui-create-nft
 npm install @metaplex-foundation/umi \
   @metaplex-foundation/umi-signer-wallet-adapters \
   @metaplex-foundation/umi-uploader-nft-storage \
-  @lorisleiva/mpl-digital-asset \
+  @metaplex-foundation/mpl-token-metadata@alpha \
   @solana/web3.js \
   @solana/wallet-adapter-base \
   @solana/wallet-adapter-react \
