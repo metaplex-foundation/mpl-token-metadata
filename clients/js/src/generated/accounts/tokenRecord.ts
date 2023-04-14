@@ -168,7 +168,7 @@ export function getTokenRecordGpaBuilder(
 }
 
 export function getTokenRecordSize(): number {
-  return 45;
+  return 80;
 }
 
 export function findTokenRecordPda(

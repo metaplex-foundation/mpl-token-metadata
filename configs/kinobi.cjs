@@ -49,7 +49,7 @@ kinobi.update(
       seeds: [...metadataSeeds, { kind: "literal", value: "edition" }],
     },
     tokenRecord: {
-      size: 45,
+      size: 80,
       seeds: [
         ...metadataSeeds,
         { kind: "literal", value: "token_record" },
