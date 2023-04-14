@@ -2794,14 +2794,14 @@ export class InsufficientTokenBalanceError extends ProgramError {
 codeToErrorMap.set(0xb8, InsufficientTokenBalanceError);
 nameToErrorMap.set('InsufficientTokenBalance', InsufficientTokenBalanceError);
 
-/** MissingCollectionMint: 'Missing collection mint account' */
+/** MissingCollectionMint: 'Missing collection account' */
 export class MissingCollectionMintError extends ProgramError {
   readonly name: string = 'MissingCollectionMint';
 
   readonly code: number = 0xb9; // 185
 
   constructor(program: Program, cause?: Error) {
-    super('Missing collection mint account', program, cause);
+    super('Missing collection account', program, cause);
   }
 }
 codeToErrorMap.set(0xb9, MissingCollectionMintError);
@@ -2835,6 +2835,23 @@ export class InvalidTokenRecordError extends ProgramError {
 }
 codeToErrorMap.set(0xbb, InvalidTokenRecordError);
 nameToErrorMap.set('InvalidTokenRecord', InvalidTokenRecordError);
+
+/** InvalidCloseAuthority: 'The close authority needs to be revoked by the Utility Delegate' */
+export class InvalidCloseAuthorityError extends ProgramError {
+  readonly name: string = 'InvalidCloseAuthority';
+
+  readonly code: number = 0xbc; // 188
+
+  constructor(program: Program, cause?: Error) {
+    super(
+      'The close authority needs to be revoked by the Utility Delegate',
+      program,
+      cause
+    );
+  }
+}
+codeToErrorMap.set(0xbc, InvalidCloseAuthorityError);
+nameToErrorMap.set('InvalidCloseAuthority', InvalidCloseAuthorityError);
 
 /**
  * Attempts to resolve a custom program error from the provided error code.
