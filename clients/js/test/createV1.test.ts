@@ -1,13 +1,22 @@
-import { fetchMint, Mint } from '@metaplex-foundation/mpl-essentials';
+import {
+  createMint,
+  createMintWithAssociatedToken,
+  fetchMint,
+  Mint,
+} from '@metaplex-foundation/mpl-essentials';
 import {
   generateSigner,
   none,
   percentAmount,
   publicKey,
+  sol,
   some,
+  subtractAmounts,
 } from '@metaplex-foundation/umi';
+import { generateSignerWithSol } from '@metaplex-foundation/umi-bundle-tests';
 import test from 'ava';
 import {
+  collectionDetails,
   createV1,
   fetchMasterEdition,
   fetchMetadata,
@@ -223,4 +232,120 @@ test('it can create a new FungibleAsset', async (t) => {
     collectionDetails: none(),
     programmableConfig: none(),
   });
+});
+
+test('it can create a collection NonFungible', async (t) => {
+  // Given a new mint Signer.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+
+  // When we create a new NonFungible at this address.
+  await createV1(umi, {
+    mint,
+    name: 'My Collection NFT',
+    uri: 'https://example.com/my-collection-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+    isCollection: true,
+  }).sendAndConfirm(umi);
+
+  // Then a Metadata account was created with the collection details set.
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const metadataAccount = await fetchMetadata(umi, metadata);
+  t.like(metadataAccount, <Metadata>{
+    publicKey: publicKey(metadata),
+    collectionDetails: some(collectionDetails('V1', { size: 0n })),
+  });
+});
+
+test('it can create a NonFungible from an existing mint', async (t) => {
+  // Given an existing mint account.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+  await createMint(umi, { mint }).sendAndConfirm(umi);
+
+  // When we create a new NonFungible at this address.
+  await createV1(umi, {
+    mint: mint.publicKey,
+    name: 'My NFT',
+    uri: 'https://example.com/my-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+  }).sendAndConfirm(umi);
+
+  // Then an associated Metadata account was created.
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const metadataAccount = await fetchMetadata(umi, metadata);
+  t.like(metadataAccount, <Metadata>{
+    publicKey: publicKey(metadata),
+    mint: publicKey(mint),
+  });
+});
+
+test('it can create a ProgrammableNonFungible from an existing mint', async (t) => {
+  // Given an existing mint account.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+  await createMint(umi, { mint }).sendAndConfirm(umi);
+
+  // When we create a new ProgrammableNonFungible at this address.
+  await createV1(umi, {
+    mint: mint.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    name: 'My NFT',
+    uri: 'https://example.com/my-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+  }).sendAndConfirm(umi);
+
+  // Then an associated Metadata account was created.
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const metadataAccount = await fetchMetadata(umi, metadata);
+  t.like(metadataAccount, <Metadata>{
+    publicKey: publicKey(metadata),
+    mint: publicKey(mint),
+    tokenStandard: some(TokenStandard.ProgrammableNonFungible),
+  });
+});
+
+test('it cannot create a programmableNonFungible from an existing mint with supply greater than zero', async (t) => {
+  // Given an existing mint account with a supply greater than zero.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+  await createMintWithAssociatedToken(umi, {
+    mint,
+    owner: umi.identity.publicKey,
+    amount: 1n,
+  }).sendAndConfirm(umi);
+
+  // When we try to create a new ProgrammableNonFungible at this address.
+  const promise = createV1(umi, {
+    mint: mint.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    name: 'My NFT',
+    uri: 'https://example.com/my-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+  }).sendAndConfirm(umi);
+
+  // Then we expect a program error.
+  await t.throwsAsync(promise, { name: 'MintSupplyMustBeZero' });
+});
+
+test('an explicit payer can be used for storage fees', async (t) => {
+  // Given a new mint Signer and an explicit payer.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+  const payer = await generateSignerWithSol(umi, sol(10));
+
+  // When we create a new NonFungible using the explicit payer.
+  const builder = createV1(umi, {
+    mint,
+    name: 'My NFT',
+    uri: 'https://example.com/my-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+    payer,
+  });
+  await builder.sendAndConfirm(umi);
+
+  // Then the payer has paid the storage fees.
+  const storageFees = await builder.getRentCreatedOnChain(umi);
+  const payerBalance = await umi.rpc.getBalance(payer.publicKey);
+  t.deepEqual(payerBalance, subtractAmounts(sol(10), storageFees));
 });
