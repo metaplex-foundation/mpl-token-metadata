@@ -2,13 +2,6 @@ name: Test JS client
 
 on:
   workflow_call:
-    inputs:
-      solana:
-        default: ${{ vars.SOLANA_VERSION }}
-        type: string
-      node:
-        default: ${{ vars.NODE_VERSION }}
-        type: string
 
 env:
   CACHE: true
@@ -26,11 +19,14 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
       - name: Start validator
         uses: metaplex-foundation/actions/start-validator@v1
         with:
           node: ${{ matrix.node }}
-          solana: ${{ inputs.solana }}
+          solana: ${{ env.SOLANA_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Install dependencies
@@ -55,10 +51,13 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v3
 
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
       - name: Install Node.js
         uses: metaplex-foundation/actions/install-node-with-pnpm@v1
         with:
-          version: ${{ inputs.node }}
+          version: ${{ env.NODE_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Install dependencies

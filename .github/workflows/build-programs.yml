@@ -4,10 +4,8 @@ on:
   workflow_call:
     inputs:
       rust:
-        default: ${{ vars.RUST_VERSION }}
         type: string
       solana:
-        default: ${{ vars.SOLANA_VERSION }}
         type: string
   workflow_dispatch:
     inputs:
@@ -35,15 +33,18 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
         with:
-          toolchain: ${{ inputs.rust }}
+          toolchain: ${{ inputs.rust || env.RUST_VERSION }}
 
       - name: Install Solana
         uses: metaplex-foundation/actions/install-solana@v1
         with:
-          version: ${{ inputs.solana }}
+          version: ${{ inputs.solana || env.SOLANA_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Cache program dependencies
@@ -52,7 +53,7 @@ jobs:
 
       - name: Build programs
         env:
-          PROGRAMS: ${{ vars.PROGRAMS }}
+          PROGRAMS: ${{ env.PROGRAMS }}
         run: |
           for program in $(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g'); do
             (cd ./programs/$program; cargo build-bpf)
