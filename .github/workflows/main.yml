@@ -20,6 +20,9 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v3
 
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
       - name: Detect changes
         uses: dorny/paths-filter@v2
         id: changes
@@ -48,10 +51,13 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
       - name: Install Node.js
         uses: metaplex-foundation/actions/install-node-with-pnpm@v1
         with:
-          version: ${{ vars.NODE_VERSION }}
+          version: ${{ env.NODE_VERSION }}
           cache: ${{ env.CACHE }}
           dependencies: true
 
