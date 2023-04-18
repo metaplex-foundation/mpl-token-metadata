@@ -144,7 +144,8 @@ export async function fetchAllMetadataByOwner(
   }
 ): Promise<Metadata[]> {
   const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
-  return fetchAllMetadata(context, mints, options);
+  const publicKeys = mints.map((mint) => findMetadataPda(context, { mint }));
+  return fetchAllMetadata(context, publicKeys, options);
 }
 
 export function deserializeDigitalAsset(

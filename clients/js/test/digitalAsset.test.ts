@@ -10,14 +10,20 @@ import {
   DigitalAsset,
   fetchAllDigitalAsset,
   fetchAllDigitalAssetByCreator,
+  fetchAllDigitalAssetByOwner,
   fetchAllDigitalAssetByUpdateAuthority,
+  fetchAllMetadataByOwner,
   fetchDigitalAsset,
   fetchDigitalAssetByMetadata,
   findMasterEditionPda,
   findMetadataPda,
   TokenStandard,
 } from '../src';
-import { createDigitalAsset, createUmi } from './_setup';
+import {
+  createDigitalAsset,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
 test('it can fetch a DigitalAsset by mint', async (t) => {
   // Given an existing NFT.
@@ -174,6 +180,54 @@ test('it can fetch all DigitalAssets by update authority', async (t) => {
   t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
 
   // And we don't get the NFT maintained by B.
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
+test('it can fetch all DigitalAssets by owner', async (t) => {
+  // Given two owners A and B.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi).publicKey;
+  const ownerB = generateSigner(umi).publicKey;
+
+  // And three NFTs such that 2 are owned by A and 1 is owned by B.
+  const mintA1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintA2 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerB });
+
+  // When we fetch all digital assets owned by A.
+  const digitalAssets = await fetchAllDigitalAssetByOwner(umi, ownerA);
+
+  // Then we get the two NFTs owned by A.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint));
+  t.true(mints.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
+
+  // And we don't get the NFT owned by B.
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
+test('it can fetch all Metadata accounts by owner', async (t) => {
+  // Given two owners A and B.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi).publicKey;
+  const ownerB = generateSigner(umi).publicKey;
+
+  // And three NFTs such that 2 are owned by A and 1 is owned by B.
+  const mintA1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintA2 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerA });
+  const mintB1 = await createDigitalAssetWithToken(umi, { tokenOwner: ownerB });
+
+  // When we fetch all Metadata accounts owned by A.
+  const metadatas = await fetchAllMetadataByOwner(umi, ownerA);
+
+  // Then we get the two Metadata accounts owned by A.
+  t.is(metadatas.length, 2);
+  const mints = metadatas.map((da) => base58PublicKey(da.mint));
+  t.true(mints.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
+
+  // And we don't get the Metadata account owned by B.
   t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
 });
 
