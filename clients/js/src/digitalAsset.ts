@@ -1,4 +1,11 @@
 import {
+  deserializeMint,
+  fetchAllMintPublicKeyByOwner,
+  FetchTokenAmountFilter,
+  FetchTokenStrategy,
+  Mint,
+} from '@metaplex-foundation/mpl-essentials';
+import {
   assertAccountExists,
   chunk,
   Context,
@@ -7,7 +14,7 @@ import {
   RpcGetAccountsOptions,
   unwrapSome,
 } from '@metaplex-foundation/umi';
-import { deserializeMint, Mint } from '@metaplex-foundation/mpl-essentials';
+import { TokenMetadataError } from './errors';
 import {
   deserializeEdition,
   deserializeMasterEdition,
@@ -16,14 +23,13 @@ import {
   fetchMetadata,
   findMasterEditionPda,
   findMetadataPda,
-  getMetadataGpaBuilder,
   getKeySerializer,
+  getMetadataGpaBuilder,
+  Key,
   MasterEdition,
   Metadata,
-  Key,
   TokenStandard,
 } from './generated';
-import { TokenMetadataError } from './errors';
 
 const CREATORS_OFFSET = 326;
 const MAX_CREATOR_SIZE = 34;
@@ -77,16 +83,22 @@ export async function fetchAllDigitalAsset(
   ]);
 
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);
-  return chunk(accounts, 3).map(
+  return chunk(accounts, 3).flatMap(
     ([mintAccount, metadataAccount, editionAccount]) => {
-      assertAccountExists(mintAccount, 'Mint');
-      assertAccountExists(metadataAccount, 'Metadata');
-      return deserializeDigitalAsset(
-        context,
-        mintAccount,
-        metadataAccount,
-        editionAccount.exists ? editionAccount : undefined
-      );
+      try {
+        assertAccountExists(mintAccount, 'Mint');
+        assertAccountExists(metadataAccount, 'Metadata');
+        return [
+          deserializeDigitalAsset(
+            context,
+            mintAccount,
+            metadataAccount,
+            editionAccount.exists ? editionAccount : undefined
+          ),
+        ];
+      } catch (e) {
+        return [];
+      }
     }
   );
 }
@@ -114,6 +126,39 @@ export async function fetchAllDigitalAssetByUpdateAuthority(
     .sliceField('mint')
     .getDataAsPublicKeys();
   return fetchAllDigitalAsset(context, mints, options);
+}
+
+export async function fetchAllDigitalAssetByOwner(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  options?: RpcGetAccountsOptions & {
+    tokenStrategy?: FetchTokenStrategy;
+    tokenAmountFilter?: FetchTokenAmountFilter;
+  }
+): Promise<DigitalAsset[]> {
+  const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
+  return fetchAllDigitalAsset(context, mints, options);
+}
+
+export async function fetchAllMetadataByOwner(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  options?: RpcGetAccountsOptions & {
+    tokenStrategy?: FetchTokenStrategy;
+    tokenAmountFilter?: FetchTokenAmountFilter;
+  }
+): Promise<Metadata[]> {
+  const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
+  const publicKeys = mints.map((mint) => findMetadataPda(context, { mint }));
+  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  return maybeAccounts.flatMap((maybeAccount) => {
+    try {
+      assertAccountExists(maybeAccount, 'Metadata');
+      return [deserializeMetadata(context, maybeAccount)];
+    } catch (e) {
+      return [];
+    }
+  });
 }
 
 export function deserializeDigitalAsset(
