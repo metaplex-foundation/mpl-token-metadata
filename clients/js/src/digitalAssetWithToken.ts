@@ -128,21 +128,24 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
       if (!mintAccount.exists || !metadataAccount.exists) {
         return [];
       }
-
-      return [
-        {
-          ...deserializeDigitalAsset(
-            context,
-            mintAccount,
-            metadataAccount,
-            editionAccount.exists ? editionAccount : undefined
-          ),
-          token,
-          tokenRecord: tokenRecordAccount.exists
-            ? deserializeTokenRecord(context, tokenRecordAccount)
-            : undefined,
-        },
-      ];
+      try {
+        return [
+          {
+            ...deserializeDigitalAsset(
+              context,
+              mintAccount,
+              metadataAccount,
+              editionAccount.exists ? editionAccount : undefined
+            ),
+            token,
+            tokenRecord: tokenRecordAccount.exists
+              ? deserializeTokenRecord(context, tokenRecordAccount)
+              : undefined,
+          },
+        ];
+      } catch (e) {
+        return [];
+      }
     }
   ).flat();
 }

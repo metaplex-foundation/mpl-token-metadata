@@ -83,16 +83,22 @@ export async function fetchAllDigitalAsset(
   ]);
 
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);
-  return chunk(accounts, 3).map(
+  return chunk(accounts, 3).flatMap(
     ([mintAccount, metadataAccount, editionAccount]) => {
-      assertAccountExists(mintAccount, 'Mint');
-      assertAccountExists(metadataAccount, 'Metadata');
-      return deserializeDigitalAsset(
-        context,
-        mintAccount,
-        metadataAccount,
-        editionAccount.exists ? editionAccount : undefined
-      );
+      try {
+        assertAccountExists(mintAccount, 'Mint');
+        assertAccountExists(metadataAccount, 'Metadata');
+        return [
+          deserializeDigitalAsset(
+            context,
+            mintAccount,
+            metadataAccount,
+            editionAccount.exists ? editionAccount : undefined
+          ),
+        ];
+      } catch (e) {
+        return [];
+      }
     }
   );
 }
@@ -146,8 +152,8 @@ export async function fetchAllMetadataByOwner(
   const publicKeys = mints.map((mint) => findMetadataPda(context, { mint }));
   const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
   return maybeAccounts.flatMap((maybeAccount) => {
-    if (!maybeAccount.exists) return [];
     try {
+      assertAccountExists(maybeAccount, 'Metadata');
       return [deserializeMetadata(context, maybeAccount)];
     } catch (e) {
       return [];
