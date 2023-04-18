@@ -7,7 +7,13 @@ import {
   RpcGetAccountsOptions,
   unwrapSome,
 } from '@metaplex-foundation/umi';
-import { deserializeMint, Mint } from '@metaplex-foundation/mpl-essentials';
+import {
+  deserializeMint,
+  fetchAllMintPublicKeyByOwner,
+  FetchTokenAmountFilter,
+  FetchTokenStrategy,
+  Mint,
+} from '@metaplex-foundation/mpl-essentials';
 import {
   deserializeEdition,
   deserializeMasterEdition,
@@ -22,6 +28,7 @@ import {
   Metadata,
   Key,
   TokenStandard,
+  fetchAllMetadata,
 } from './generated';
 import { TokenMetadataError } from './errors';
 
@@ -114,6 +121,30 @@ export async function fetchAllDigitalAssetByUpdateAuthority(
     .sliceField('mint')
     .getDataAsPublicKeys();
   return fetchAllDigitalAsset(context, mints, options);
+}
+
+export async function fetchAllDigitalAssetByOwner(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  options?: RpcGetAccountsOptions & {
+    tokenStrategy?: FetchTokenStrategy;
+    tokenAmountFilter?: FetchTokenAmountFilter;
+  }
+): Promise<DigitalAsset[]> {
+  const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
+  return fetchAllDigitalAsset(context, mints, options);
+}
+
+export async function fetchAllMetadataByOwner(
+  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  owner: PublicKey,
+  options?: RpcGetAccountsOptions & {
+    tokenStrategy?: FetchTokenStrategy;
+    tokenAmountFilter?: FetchTokenAmountFilter;
+  }
+): Promise<Metadata[]> {
+  const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
+  return fetchAllMetadata(context, mints, options);
 }
 
 export function deserializeDigitalAsset(

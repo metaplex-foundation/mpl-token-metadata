@@ -10,7 +10,9 @@ import {
 } from '@metaplex-foundation/umi';
 import {
   deserializeToken,
-  fetchTokensByOwner,
+  fetchAllTokenByOwner,
+  FetchTokenAmountFilter,
+  FetchTokenStrategy,
   findAssociatedTokenPda,
   findLargestTokensByMint,
   Token,
@@ -99,11 +101,14 @@ export async function fetchDigitalAssetWithTokenByMint(
 export async function fetchAllDigitalAssetWithTokenByOwner(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
   owner: PublicKey,
-  options?: RpcBaseOptions & { mint?: PublicKey }
+  options?: RpcBaseOptions & {
+    mint?: PublicKey;
+    tokenStrategy?: FetchTokenStrategy;
+    tokenAmountFilter?: FetchTokenAmountFilter;
+  }
 ): Promise<DigitalAssetWithToken[]> {
-  const tokens = await fetchTokensByOwner(context, owner, options);
-  const nonEmptyTokens = tokens.filter((token) => token.amount > 0);
-  const accountsToFetch = nonEmptyTokens.flatMap((token) => [
+  const tokens = await fetchAllTokenByOwner(context, owner, options);
+  const accountsToFetch = tokens.flatMap((token) => [
     token.mint,
     findMetadataPda(context, { mint: token.mint }),
     findMasterEditionPda(context, { mint: token.mint }),
@@ -112,7 +117,7 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);
 
   return zipMap(
-    nonEmptyTokens,
+    tokens,
     chunk(accounts, 4),
     (token, otherAccounts): DigitalAssetWithToken[] => {
       if (!otherAccounts || otherAccounts.length !== 4) {
