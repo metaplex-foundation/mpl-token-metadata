@@ -28,12 +28,12 @@
     "@metaplex-foundation/umi": "0.6 - 0.7"
   },
   "dependencies": {
-    "@metaplex-foundation/mpl-essentials": "^0.5.4"
+    "@metaplex-foundation/mpl-essentials": "^0.5.5"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
-    "@metaplex-foundation/umi": "^0.7.0",
-    "@metaplex-foundation/umi-bundle-tests": "^0.7.0",
+    "@metaplex-foundation/umi": "^0.7.2",
+    "@metaplex-foundation/umi-bundle-tests": "^0.7.2",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",
