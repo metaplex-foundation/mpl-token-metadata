@@ -16,6 +16,7 @@ programs: &programs
 # Clients.
 
 client_common: &client_common
+  - *programs
   - ".github/workflows/test-js.yml"
   - ".github/workflows/main.yml"
   - "configs/shank.cjs"
