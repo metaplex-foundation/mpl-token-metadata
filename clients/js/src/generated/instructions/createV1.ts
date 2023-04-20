@@ -23,6 +23,14 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  resolveCollectionDetails,
+  resolveCreateV1Bytes,
+  resolveCreators,
+  resolveDecimals,
+  resolveMasterEdition,
+  resolvePrintSupply,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import {
   Collection,
@@ -155,8 +163,20 @@ export function getCreateV1InstructionDataSerializer(
   ) as Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
 }
 
+// Extra Args.
+export type CreateV1InstructionExtraArgs = { isCollection: boolean };
+
 // Args.
-export type CreateV1InstructionArgs = CreateV1InstructionDataArgs;
+type PickPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type CreateV1InstructionArgs = PickPartial<
+  CreateV1InstructionDataArgs & CreateV1InstructionExtraArgs,
+  | 'tokenStandard'
+  | 'isCollection'
+  | 'collectionDetails'
+  | 'decimals'
+  | 'printSupply'
+  | 'creators'
+>;
 
 // Instruction.
 export function createV1(
@@ -184,7 +204,11 @@ export function createV1(
   resolvedAccounts.metadata =
     resolvedAccounts.metadata ??
     findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.masterEdition = resolvedAccounts.masterEdition ?? programId;
+  resolvedArgs.tokenStandard =
+    resolvedArgs.tokenStandard ?? TokenStandard.NonFungible;
+  resolvedAccounts.masterEdition =
+    resolvedAccounts.masterEdition ??
+    resolveMasterEdition(context, resolvedAccounts, resolvedArgs, programId);
   resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
   resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
   resolvedAccounts.updateAuthority =
@@ -206,6 +230,24 @@ export function createV1(
     ),
     isWritable: false,
   };
+  resolvedArgs.isCollection = resolvedArgs.isCollection ?? false;
+  resolvedArgs.collectionDetails =
+    resolvedArgs.collectionDetails ??
+    resolveCollectionDetails(
+      context,
+      resolvedAccounts,
+      resolvedArgs,
+      programId
+    );
+  resolvedArgs.decimals =
+    resolvedArgs.decimals ??
+    resolveDecimals(context, resolvedAccounts, resolvedArgs, programId);
+  resolvedArgs.printSupply =
+    resolvedArgs.printSupply ??
+    resolvePrintSupply(context, resolvedAccounts, resolvedArgs, programId);
+  resolvedArgs.creators =
+    resolvedArgs.creators ??
+    resolveCreators(context, resolvedAccounts, resolvedArgs, programId);
 
   // Metadata.
   keys.push({
@@ -283,7 +325,12 @@ export function createV1(
     getCreateV1InstructionDataSerializer(context).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
-  const bytesCreatedOnChain = 1427;
+  const bytesCreatedOnChain = resolveCreateV1Bytes(
+    context,
+    resolvedAccounts,
+    resolvedArgs,
+    programId
+  );
 
   return transactionBuilder([
     { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },

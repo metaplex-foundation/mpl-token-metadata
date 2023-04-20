@@ -17,6 +17,9 @@ const {
   vNone,
   vEnum,
   AutoSetAccountGpaFieldsVisitor,
+  TypeStructNode,
+  TypeStructFieldNode,
+  TypeBoolNode,
 } = require("@metaplex-foundation/kinobi");
 
 // Paths.
@@ -289,7 +292,65 @@ const collectionMintDefaults = {
 };
 kinobi.update(
   new UpdateInstructionsVisitor({
-    createV1: { internal: true },
+    createV1: {
+      bytesCreatedOnChain: {
+        kind: "resolver",
+        name: "resolveCreateV1Bytes",
+        dependency: "hooked",
+      },
+      accounts: {
+        masterEdition: {
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveMasterEdition",
+            dependency: "hooked",
+            resolvedIsSigner: false,
+            resolvedIsOptional: false,
+            dependsOn: [
+              { kind: "account", name: "mint" },
+              { kind: "arg", name: "tokenStandard" },
+            ],
+          },
+        },
+      },
+      extraArgs: new TypeStructNode("CreateExtraArgs", [
+        new TypeStructFieldNode(
+          { name: "isCollection", docs: [], defaultsTo: null },
+          new TypeBoolNode()
+        ),
+      ]),
+      argDefaults: {
+        tokenStandard: {
+          kind: "value",
+          value: vEnum("TokenStandard", "NonFungible"),
+        },
+        isCollection: { kind: "value", value: vScalar(false) },
+        collectionDetails: {
+          kind: "resolver",
+          name: "resolveCollectionDetails",
+          dependsOn: [{ kind: "arg", name: "isCollection" }],
+          dependency: "hooked",
+        },
+        decimals: {
+          kind: "resolver",
+          name: "resolveDecimals",
+          dependsOn: [{ kind: "arg", name: "tokenStandard" }],
+          dependency: "hooked",
+        },
+        printSupply: {
+          kind: "resolver",
+          name: "resolvePrintSupply",
+          dependsOn: [{ kind: "arg", name: "tokenStandard" }],
+          dependency: "hooked",
+        },
+        creators: {
+          kind: "resolver",
+          name: "resolveCreators",
+          dependsOn: [{ kind: "account", name: "authority" }],
+          dependency: "hooked",
+        },
+      },
+    },
     mintV1: { internal: true },
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
