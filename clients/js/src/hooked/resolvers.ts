@@ -10,7 +10,7 @@ import {
   some,
 } from '@metaplex-foundation/umi';
 import { getMintSize } from '@metaplex-foundation/mpl-essentials';
-import { isNonFungible } from '../digitalAsset';
+import { isNonFungible, isProgrammable } from '../digitalAsset';
 import {
   CollectionDetailsArgs,
   CreatorArgs,
@@ -18,6 +18,7 @@ import {
   TokenStandard,
   collectionDetails,
   findMasterEditionPda,
+  findTokenRecordPda,
   getMasterEditionSize,
   getMetadataSize,
   printSupply,
@@ -78,3 +79,23 @@ export const resolveCreateV1Bytes = (
   }
   return base;
 };
+
+export const resolveMintTokenOwner = (
+  context: Pick<Context, 'identity'>,
+  accounts: { token: PublicKey | undefined },
+  args: any,
+  programId: PublicKey
+): PublicKey | Pda => (accounts.token ? programId : context.identity.publicKey);
+
+export const resolveTokenRecord = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { mint: PublicKey | Signer; token: PublicKey },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey | Pda =>
+  isProgrammable(args.tokenStandard)
+    ? findTokenRecordPda(context, {
+        mint: publicKey(accounts.mint),
+        token: accounts.token,
+      })
+    : programId;

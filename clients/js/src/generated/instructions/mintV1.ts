@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -20,17 +21,23 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  resolveMasterEdition,
+  resolveMintTokenOwner,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
 // Accounts.
 export type MintV1InstructionAccounts = {
   /** Token or Associated Token account */
-  token: PublicKey;
+  token?: PublicKey;
   /** Owner of the token account */
   tokenOwner?: PublicKey;
   /** Metadata account (pda of ['metadata', program id, mint id]) */
@@ -105,8 +112,12 @@ export function getMintV1InstructionDataSerializer(
   ) as Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;
 }
 
+// Extra Args.
+export type MintV1InstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type MintV1InstructionArgs = MintV1InstructionDataArgs;
+export type MintV1InstructionArgs = MintV1InstructionDataArgs &
+  MintV1InstructionExtraArgs;
 
 // Instruction.
 export function mintV1(
@@ -131,12 +142,24 @@ export function mintV1(
   // Resolved inputs.
   const resolvedAccounts: any = { ...input };
   const resolvedArgs: any = { ...input };
-  resolvedAccounts.tokenOwner = resolvedAccounts.tokenOwner ?? programId;
+  resolvedAccounts.tokenOwner =
+    resolvedAccounts.tokenOwner ??
+    resolveMintTokenOwner(context, resolvedAccounts, resolvedArgs, programId);
+  resolvedAccounts.token =
+    resolvedAccounts.token ??
+    findAssociatedTokenPda(context, {
+      mint: publicKey(resolvedAccounts.mint),
+      owner: publicKey(resolvedAccounts.tokenOwner),
+    });
   resolvedAccounts.metadata =
     resolvedAccounts.metadata ??
     findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.masterEdition = resolvedAccounts.masterEdition ?? programId;
-  resolvedAccounts.tokenRecord = resolvedAccounts.tokenRecord ?? programId;
+  resolvedAccounts.masterEdition =
+    resolvedAccounts.masterEdition ??
+    resolveMasterEdition(context, resolvedAccounts, resolvedArgs, programId);
+  resolvedAccounts.tokenRecord =
+    resolvedAccounts.tokenRecord ??
+    resolveTokenRecord(context, resolvedAccounts, resolvedArgs, programId);
   resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
   resolvedAccounts.delegateRecord =
     resolvedAccounts.delegateRecord ?? programId;

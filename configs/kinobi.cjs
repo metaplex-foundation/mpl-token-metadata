@@ -351,7 +351,64 @@ kinobi.update(
         },
       },
     },
-    mintV1: { internal: true },
+    mintV1: {
+      accounts: {
+        masterEdition: {
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveMasterEdition",
+            dependency: "hooked",
+            resolvedIsSigner: false,
+            resolvedIsOptional: false,
+            dependsOn: [
+              { kind: "account", name: "mint" },
+              { kind: "arg", name: "tokenStandard" },
+            ],
+          },
+        },
+        tokenOwner: {
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveMintTokenOwner",
+            dependency: "hooked",
+            resolvedIsSigner: false,
+            resolvedIsOptional: false,
+            dependsOn: [],
+          },
+        },
+        token: {
+          defaultsTo: {
+            kind: "pda",
+            pdaAccount: "associatedToken",
+            dependency: "mplEssentials",
+            seeds: {
+              mint: { kind: "account", name: "mint" },
+              owner: { kind: "account", name: "tokenOwner" },
+            },
+          },
+        },
+        tokenRecord: {
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveTokenRecord",
+            dependency: "hooked",
+            resolvedIsSigner: false,
+            resolvedIsOptional: false,
+            dependsOn: [
+              { kind: "account", name: "mint" },
+              { kind: "account", name: "token" },
+              { kind: "arg", name: "tokenStandard" },
+            ],
+          },
+        },
+      },
+      extraArgs: new TypeStructNode("CreateExtraArgs", [
+        new TypeStructFieldNode(
+          { name: "tokenStandard", docs: [], defaultsTo: null },
+          new TypeDefinedLinkNode("tokenStandard")
+        ),
+      ]),
+    },
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
