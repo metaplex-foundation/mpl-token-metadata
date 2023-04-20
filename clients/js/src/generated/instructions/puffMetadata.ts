@@ -24,7 +24,7 @@ export type PuffMetadataInstructionAccounts = {
   metadata: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type PuffMetadataInstructionData = { discriminator: number };
 
 export type PuffMetadataInstructionDataArgs = {};
@@ -54,19 +54,22 @@ export function puffMetadata(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Data.

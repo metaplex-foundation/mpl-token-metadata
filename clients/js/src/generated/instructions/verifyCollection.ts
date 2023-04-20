@@ -34,7 +34,7 @@ export type VerifyCollectionInstructionAccounts = {
   collectionMasterEditionAccount: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type VerifyCollectionInstructionData = { discriminator: number };
 
 export type VerifyCollectionInstructionDataArgs = {};
@@ -71,62 +71,63 @@ export function verifyCollection(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const collectionAuthorityAccount = input.collectionAuthority;
-  const payerAccount = input.payer ?? context.payer;
-  const collectionMintAccount = input.collectionMint;
-  const collectionAccount = input.collection;
-  const collectionMasterEditionAccountAccount =
-    input.collectionMasterEditionAccount;
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Collection Authority.
-  signers.push(collectionAuthorityAccount);
+  signers.push(resolvedAccounts.collectionAuthority);
   keys.push({
-    pubkey: collectionAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.collectionAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(collectionAuthorityAccount, true),
+    isWritable: isWritable(resolvedAccounts.collectionAuthority, true),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // Collection Mint.
   keys.push({
-    pubkey: collectionMintAccount,
+    pubkey: resolvedAccounts.collectionMint,
     isSigner: false,
-    isWritable: isWritable(collectionMintAccount, false),
+    isWritable: isWritable(resolvedAccounts.collectionMint, false),
   });
 
   // Collection.
   keys.push({
-    pubkey: collectionAccount,
+    pubkey: resolvedAccounts.collection,
     isSigner: false,
-    isWritable: isWritable(collectionAccount, false),
+    isWritable: isWritable(resolvedAccounts.collection, false),
   });
 
   // Collection Master Edition Account.
   keys.push({
-    pubkey: collectionMasterEditionAccountAccount,
+    pubkey: resolvedAccounts.collectionMasterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(collectionMasterEditionAccountAccount, false),
+    isWritable: isWritable(
+      resolvedAccounts.collectionMasterEditionAccount,
+      false
+    ),
   });
 
   // Data.

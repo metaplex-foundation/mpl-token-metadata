@@ -67,7 +67,7 @@ export type CreateV1InstructionAccounts = {
   splTokenProgram?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type CreateV1InstructionData = {
   discriminator: number;
   createV1Discriminator: number;
@@ -155,46 +155,51 @@ export function getCreateV1InstructionDataSerializer(
   ) as Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
 }
 
+// Args.
+export type CreateV1InstructionArgs = CreateV1InstructionDataArgs;
+
 // Instruction.
 export function createV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: CreateV1InstructionAccounts & CreateV1InstructionDataArgs
+  input: CreateV1InstructionAccounts & CreateV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
-
-  // Resolved accounts.
-  const mintAccount = input.mint;
-  const metadataAccount =
-    input.metadata ??
-    findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount = input.masterEdition ?? {
-    ...programId,
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
     isWritable: false,
   };
-  const authorityAccount = input.authority ?? context.identity;
-  const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount = input.updateAuthority ?? authorityAccount;
-  const systemProgramAccount = input.systemProgram ?? {
+
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.metadata =
+    resolvedAccounts.metadata ??
+    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
+  resolvedAccounts.masterEdition = resolvedAccounts.masterEdition ?? programId;
+  resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
+  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
+  resolvedAccounts.updateAuthority =
+    resolvedAccounts.updateAuthority ?? resolvedAccounts.authority;
+  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
       '11111111111111111111111111111111'
     ),
     isWritable: false,
   };
-  const sysvarInstructionsAccount =
-    input.sysvarInstructions ??
+  resolvedAccounts.sysvarInstructions =
+    resolvedAccounts.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
-  const splTokenProgramAccount = input.splTokenProgram ?? {
+  resolvedAccounts.splTokenProgram = resolvedAccounts.splTokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
@@ -204,77 +209,78 @@ export function createV1(
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Master Edition.
   keys.push({
-    pubkey: masterEditionAccount,
+    pubkey: resolvedAccounts.masterEdition,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, true),
+    isWritable: isWritable(resolvedAccounts.masterEdition, true),
   });
 
   // Mint.
-  if (isSigner(mintAccount)) {
-    signers.push(mintAccount);
+  if (isSigner(resolvedAccounts.mint)) {
+    signers.push(resolvedAccounts.mint);
   }
   keys.push({
-    pubkey: publicKey(mintAccount),
-    isSigner: isSigner(mintAccount),
-    isWritable: isWritable(mintAccount, true),
+    pubkey: publicKey(resolvedAccounts.mint),
+    isSigner: isSigner(resolvedAccounts.mint),
+    isWritable: isWritable(resolvedAccounts.mint, true),
   });
 
   // Authority.
-  signers.push(authorityAccount);
+  signers.push(resolvedAccounts.authority);
   keys.push({
-    pubkey: authorityAccount.publicKey,
+    pubkey: resolvedAccounts.authority.publicKey,
     isSigner: true,
-    isWritable: isWritable(authorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.authority, false),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // Update Authority.
-  if (isSigner(updateAuthorityAccount)) {
-    signers.push(updateAuthorityAccount);
+  if (isSigner(resolvedAccounts.updateAuthority)) {
+    signers.push(resolvedAccounts.updateAuthority);
   }
   keys.push({
-    pubkey: publicKey(updateAuthorityAccount),
-    isSigner: isSigner(updateAuthorityAccount),
-    isWritable: isWritable(updateAuthorityAccount, false),
+    pubkey: publicKey(resolvedAccounts.updateAuthority),
+    isSigner: isSigner(resolvedAccounts.updateAuthority),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
   });
 
   // System Program.
   keys.push({
-    pubkey: systemProgramAccount,
+    pubkey: resolvedAccounts.systemProgram,
     isSigner: false,
-    isWritable: isWritable(systemProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
 
   // Sysvar Instructions.
   keys.push({
-    pubkey: sysvarInstructionsAccount,
+    pubkey: resolvedAccounts.sysvarInstructions,
     isSigner: false,
-    isWritable: isWritable(sysvarInstructionsAccount, false),
+    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
   });
 
   // Spl Token Program.
   keys.push({
-    pubkey: splTokenProgramAccount,
+    pubkey: resolvedAccounts.splTokenProgram,
     isSigner: false,
-    isWritable: isWritable(splTokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
   });
 
   // Data.
-  const data = getCreateV1InstructionDataSerializer(context).serialize(input);
+  const data =
+    getCreateV1InstructionDataSerializer(context).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 1427;

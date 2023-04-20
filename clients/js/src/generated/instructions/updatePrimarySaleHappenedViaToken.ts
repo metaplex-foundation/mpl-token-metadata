@@ -28,7 +28,7 @@ export type UpdatePrimarySaleHappenedViaTokenInstructionAccounts = {
   token: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type UpdatePrimarySaleHappenedViaTokenInstructionData = {
   discriminator: number;
 };
@@ -71,36 +71,37 @@ export function updatePrimarySaleHappenedViaToken(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const ownerAccount = input.owner;
-  const tokenAccount = input.token;
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Owner.
-  signers.push(ownerAccount);
+  signers.push(resolvedAccounts.owner);
   keys.push({
-    pubkey: ownerAccount.publicKey,
+    pubkey: resolvedAccounts.owner.publicKey,
     isSigner: true,
-    isWritable: isWritable(ownerAccount, false),
+    isWritable: isWritable(resolvedAccounts.owner, false),
   });
 
   // Token.
   keys.push({
-    pubkey: tokenAccount,
+    pubkey: resolvedAccounts.token,
     isSigner: false,
-    isWritable: isWritable(tokenAccount, false),
+    isWritable: isWritable(resolvedAccounts.token, false),
   });
 
   // Data.

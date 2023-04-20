@@ -47,7 +47,7 @@ export type CreateMetadataAccountV3InstructionAccounts = {
   rent?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type CreateMetadataAccountV3InstructionData = {
   discriminator: number;
   data: DataV2;
@@ -96,6 +96,10 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
   >;
 }
 
+// Args.
+export type CreateMetadataAccountV3InstructionArgs =
+  CreateMetadataAccountV3InstructionDataArgs;
+
 // Instruction.
 export function createMetadataAccountV3(
   context: Pick<
@@ -103,92 +107,94 @@ export function createMetadataAccountV3(
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
   input: CreateMetadataAccountV3InstructionAccounts &
-    CreateMetadataAccountV3InstructionDataArgs
+    CreateMetadataAccountV3InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const mintAccount = input.mint;
-  const metadataAccount =
-    input.metadata ??
-    findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const mintAuthorityAccount = input.mintAuthority;
-  const payerAccount = input.payer ?? context.payer;
-  const updateAuthorityAccount =
-    input.updateAuthority ?? context.identity.publicKey;
-  const systemProgramAccount = input.systemProgram ?? {
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.metadata =
+    resolvedAccounts.metadata ??
+    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
+  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
+  resolvedAccounts.updateAuthority =
+    resolvedAccounts.updateAuthority ?? context.identity.publicKey;
+  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
       '11111111111111111111111111111111'
     ),
     isWritable: false,
   };
-  const rentAccount = input.rent;
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Mint.
   keys.push({
-    pubkey: mintAccount,
+    pubkey: resolvedAccounts.mint,
     isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
   // Mint Authority.
-  signers.push(mintAuthorityAccount);
+  signers.push(resolvedAccounts.mintAuthority);
   keys.push({
-    pubkey: mintAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.mintAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(mintAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.mintAuthority, false),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // Update Authority.
   keys.push({
-    pubkey: updateAuthorityAccount,
+    pubkey: resolvedAccounts.updateAuthority,
     isSigner: false,
-    isWritable: isWritable(updateAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
   });
 
   // System Program.
   keys.push({
-    pubkey: systemProgramAccount,
+    pubkey: resolvedAccounts.systemProgram,
     isSigner: false,
-    isWritable: isWritable(systemProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
 
   // Rent (optional).
-  if (rentAccount) {
+  if (resolvedAccounts.rent) {
     keys.push({
-      pubkey: rentAccount,
+      pubkey: resolvedAccounts.rent,
       isSigner: false,
-      isWritable: isWritable(rentAccount, false),
+      isWritable: isWritable(resolvedAccounts.rent, false),
     });
   }
 
   // Data.
   const data =
     getCreateMetadataAccountV3InstructionDataSerializer(context).serialize(
-      input
+      resolvedArgs
     );
 
   // Bytes Created On Chain.

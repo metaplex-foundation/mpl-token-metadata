@@ -28,7 +28,7 @@ export type UpdateMetadataAccountInstructionAccounts = {
   updateAuthority?: Signer;
 };
 
-// Arguments.
+// Data.
 export type UpdateMetadataAccountInstructionData = {
   discriminator: number;
   data: Option<{
@@ -97,43 +97,54 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
   >;
 }
 
+// Args.
+export type UpdateMetadataAccountInstructionArgs =
+  UpdateMetadataAccountInstructionDataArgs;
+
 // Instruction.
 export function updateMetadataAccount(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: UpdateMetadataAccountInstructionAccounts &
-    UpdateMetadataAccountInstructionDataArgs
+    UpdateMetadataAccountInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.updateAuthority =
+    resolvedAccounts.updateAuthority ?? context.identity;
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Update Authority.
-  signers.push(updateAuthorityAccount);
+  signers.push(resolvedAccounts.updateAuthority);
   keys.push({
-    pubkey: updateAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.updateAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(updateAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
   });
 
   // Data.
   const data =
-    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(input);
+    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -34,7 +34,7 @@ export type UnverifyCollectionInstructionAccounts = {
   collectionAuthorityRecord?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type UnverifyCollectionInstructionData = { discriminator: number };
 
 export type UnverifyCollectionInstructionDataArgs = {};
@@ -71,62 +71,62 @@ export function unverifyCollection(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const collectionAuthorityAccount = input.collectionAuthority;
-  const collectionMintAccount = input.collectionMint;
-  const collectionAccount = input.collection;
-  const collectionMasterEditionAccountAccount =
-    input.collectionMasterEditionAccount;
-  const collectionAuthorityRecordAccount = input.collectionAuthorityRecord;
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Collection Authority.
-  signers.push(collectionAuthorityAccount);
+  signers.push(resolvedAccounts.collectionAuthority);
   keys.push({
-    pubkey: collectionAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.collectionAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(collectionAuthorityAccount, true),
+    isWritable: isWritable(resolvedAccounts.collectionAuthority, true),
   });
 
   // Collection Mint.
   keys.push({
-    pubkey: collectionMintAccount,
+    pubkey: resolvedAccounts.collectionMint,
     isSigner: false,
-    isWritable: isWritable(collectionMintAccount, false),
+    isWritable: isWritable(resolvedAccounts.collectionMint, false),
   });
 
   // Collection.
   keys.push({
-    pubkey: collectionAccount,
+    pubkey: resolvedAccounts.collection,
     isSigner: false,
-    isWritable: isWritable(collectionAccount, false),
+    isWritable: isWritable(resolvedAccounts.collection, false),
   });
 
   // Collection Master Edition Account.
   keys.push({
-    pubkey: collectionMasterEditionAccountAccount,
+    pubkey: resolvedAccounts.collectionMasterEditionAccount,
     isSigner: false,
-    isWritable: isWritable(collectionMasterEditionAccountAccount, false),
+    isWritable: isWritable(
+      resolvedAccounts.collectionMasterEditionAccount,
+      false
+    ),
   });
 
   // Collection Authority Record (optional).
-  if (collectionAuthorityRecordAccount) {
+  if (resolvedAccounts.collectionAuthorityRecord) {
     keys.push({
-      pubkey: collectionAuthorityRecordAccount,
+      pubkey: resolvedAccounts.collectionAuthorityRecord,
       isSigner: false,
-      isWritable: isWritable(collectionAuthorityRecordAccount, false),
+      isWritable: isWritable(resolvedAccounts.collectionAuthorityRecord, false),
     });
   }
 

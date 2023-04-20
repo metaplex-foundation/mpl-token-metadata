@@ -42,7 +42,7 @@ export type DeprecatedMintPrintingTokensInstructionAccounts = {
   rent?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type DeprecatedMintPrintingTokensInstructionData = {
   discriminator: number;
   mintPrintingTokensViaTokenArgs: MintPrintingTokensViaTokenArgs;
@@ -85,91 +85,98 @@ export function getDeprecatedMintPrintingTokensInstructionDataSerializer(
   >;
 }
 
+// Args.
+export type DeprecatedMintPrintingTokensInstructionArgs =
+  DeprecatedMintPrintingTokensInstructionDataArgs;
+
 // Instruction.
 export function deprecatedMintPrintingTokens(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: DeprecatedMintPrintingTokensInstructionAccounts &
-    DeprecatedMintPrintingTokensInstructionDataArgs
+    DeprecatedMintPrintingTokensInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const destinationAccount = input.destination;
-  const printingMintAccount = input.printingMint;
-  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
-  const metadataAccount = input.metadata;
-  const masterEditionAccount = input.masterEdition;
-  const tokenProgramAccount = input.tokenProgram ?? {
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.updateAuthority =
+    resolvedAccounts.updateAuthority ?? context.identity;
+  resolvedAccounts.tokenProgram = resolvedAccounts.tokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     ),
     isWritable: false,
   };
-  const rentAccount =
-    input.rent ?? publicKey('SysvarRent111111111111111111111111111111111');
+  resolvedAccounts.rent =
+    resolvedAccounts.rent ??
+    publicKey('SysvarRent111111111111111111111111111111111');
 
   // Destination.
   keys.push({
-    pubkey: destinationAccount,
+    pubkey: resolvedAccounts.destination,
     isSigner: false,
-    isWritable: isWritable(destinationAccount, true),
+    isWritable: isWritable(resolvedAccounts.destination, true),
   });
 
   // Printing Mint.
   keys.push({
-    pubkey: printingMintAccount,
+    pubkey: resolvedAccounts.printingMint,
     isSigner: false,
-    isWritable: isWritable(printingMintAccount, true),
+    isWritable: isWritable(resolvedAccounts.printingMint, true),
   });
 
   // Update Authority.
-  signers.push(updateAuthorityAccount);
+  signers.push(resolvedAccounts.updateAuthority);
   keys.push({
-    pubkey: updateAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.updateAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(updateAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
   });
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, false),
+    isWritable: isWritable(resolvedAccounts.metadata, false),
   });
 
   // Master Edition.
   keys.push({
-    pubkey: masterEditionAccount,
+    pubkey: resolvedAccounts.masterEdition,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, false),
+    isWritable: isWritable(resolvedAccounts.masterEdition, false),
   });
 
   // Token Program.
   keys.push({
-    pubkey: tokenProgramAccount,
+    pubkey: resolvedAccounts.tokenProgram,
     isSigner: false,
-    isWritable: isWritable(tokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenProgram, false),
   });
 
   // Rent.
   keys.push({
-    pubkey: rentAccount,
+    pubkey: resolvedAccounts.rent,
     isSigner: false,
-    isWritable: isWritable(rentAccount, false),
+    isWritable: isWritable(resolvedAccounts.rent, false),
   });
 
   // Data.
   const data =
     getDeprecatedMintPrintingTokensInstructionDataSerializer(context).serialize(
-      input
+      resolvedArgs
     );
 
   // Bytes Created On Chain.

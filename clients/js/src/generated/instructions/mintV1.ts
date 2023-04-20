@@ -61,7 +61,7 @@ export type MintV1InstructionAccounts = {
   authorizationRules?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type MintV1InstructionData = {
   discriminator: number;
   mintV1Discriminator: number;
@@ -105,189 +105,181 @@ export function getMintV1InstructionDataSerializer(
   ) as Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;
 }
 
+// Args.
+export type MintV1InstructionArgs = MintV1InstructionDataArgs;
+
 // Instruction.
 export function mintV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: MintV1InstructionAccounts & MintV1InstructionDataArgs
+  input: MintV1InstructionAccounts & MintV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const tokenAccount = input.token;
-  const tokenOwnerAccount = input.tokenOwner ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const mintAccount = input.mint;
-  const metadataAccount =
-    input.metadata ??
-    findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const masterEditionAccount = input.masterEdition ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const tokenRecordAccount = input.tokenRecord ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const authorityAccount = input.authority ?? context.identity;
-  const delegateRecordAccount = input.delegateRecord ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const payerAccount = input.payer ?? context.payer;
-  const systemProgramAccount = input.systemProgram ?? {
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.tokenOwner = resolvedAccounts.tokenOwner ?? programId;
+  resolvedAccounts.metadata =
+    resolvedAccounts.metadata ??
+    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
+  resolvedAccounts.masterEdition = resolvedAccounts.masterEdition ?? programId;
+  resolvedAccounts.tokenRecord = resolvedAccounts.tokenRecord ?? programId;
+  resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
+  resolvedAccounts.delegateRecord =
+    resolvedAccounts.delegateRecord ?? programId;
+  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
+  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
       '11111111111111111111111111111111'
     ),
     isWritable: false,
   };
-  const sysvarInstructionsAccount =
-    input.sysvarInstructions ??
+  resolvedAccounts.sysvarInstructions =
+    resolvedAccounts.sysvarInstructions ??
     publicKey('Sysvar1nstructions1111111111111111111111111');
-  const splTokenProgramAccount = input.splTokenProgram ?? {
+  resolvedAccounts.splTokenProgram = resolvedAccounts.splTokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     ),
     isWritable: false,
   };
-  const splAtaProgramAccount = input.splAtaProgram ?? {
+  resolvedAccounts.splAtaProgram = resolvedAccounts.splAtaProgram ?? {
     ...context.programs.getPublicKey(
       'splAssociatedToken',
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
     ),
     isWritable: false,
   };
-  const authorizationRulesProgramAccount = input.authorizationRulesProgram ?? {
-    ...programId,
-    isWritable: false,
-  };
-  const authorizationRulesAccount = input.authorizationRules ?? {
-    ...programId,
-    isWritable: false,
-  };
+  resolvedAccounts.authorizationRulesProgram =
+    resolvedAccounts.authorizationRulesProgram ?? programId;
+  resolvedAccounts.authorizationRules =
+    resolvedAccounts.authorizationRules ?? programId;
 
   // Token.
   keys.push({
-    pubkey: tokenAccount,
+    pubkey: resolvedAccounts.token,
     isSigner: false,
-    isWritable: isWritable(tokenAccount, true),
+    isWritable: isWritable(resolvedAccounts.token, true),
   });
 
   // Token Owner.
   keys.push({
-    pubkey: tokenOwnerAccount,
+    pubkey: resolvedAccounts.tokenOwner,
     isSigner: false,
-    isWritable: isWritable(tokenOwnerAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenOwner, false),
   });
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, false),
+    isWritable: isWritable(resolvedAccounts.metadata, false),
   });
 
   // Master Edition.
   keys.push({
-    pubkey: masterEditionAccount,
+    pubkey: resolvedAccounts.masterEdition,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, true),
+    isWritable: isWritable(resolvedAccounts.masterEdition, true),
   });
 
   // Token Record.
   keys.push({
-    pubkey: tokenRecordAccount,
+    pubkey: resolvedAccounts.tokenRecord,
     isSigner: false,
-    isWritable: isWritable(tokenRecordAccount, true),
+    isWritable: isWritable(resolvedAccounts.tokenRecord, true),
   });
 
   // Mint.
   keys.push({
-    pubkey: mintAccount,
+    pubkey: resolvedAccounts.mint,
     isSigner: false,
-    isWritable: isWritable(mintAccount, true),
+    isWritable: isWritable(resolvedAccounts.mint, true),
   });
 
   // Authority.
-  signers.push(authorityAccount);
+  signers.push(resolvedAccounts.authority);
   keys.push({
-    pubkey: authorityAccount.publicKey,
+    pubkey: resolvedAccounts.authority.publicKey,
     isSigner: true,
-    isWritable: isWritable(authorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.authority, false),
   });
 
   // Delegate Record.
   keys.push({
-    pubkey: delegateRecordAccount,
+    pubkey: resolvedAccounts.delegateRecord,
     isSigner: false,
-    isWritable: isWritable(delegateRecordAccount, false),
+    isWritable: isWritable(resolvedAccounts.delegateRecord, false),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // System Program.
   keys.push({
-    pubkey: systemProgramAccount,
+    pubkey: resolvedAccounts.systemProgram,
     isSigner: false,
-    isWritable: isWritable(systemProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
 
   // Sysvar Instructions.
   keys.push({
-    pubkey: sysvarInstructionsAccount,
+    pubkey: resolvedAccounts.sysvarInstructions,
     isSigner: false,
-    isWritable: isWritable(sysvarInstructionsAccount, false),
+    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
   });
 
   // Spl Token Program.
   keys.push({
-    pubkey: splTokenProgramAccount,
+    pubkey: resolvedAccounts.splTokenProgram,
     isSigner: false,
-    isWritable: isWritable(splTokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
   });
 
   // Spl Ata Program.
   keys.push({
-    pubkey: splAtaProgramAccount,
+    pubkey: resolvedAccounts.splAtaProgram,
     isSigner: false,
-    isWritable: isWritable(splAtaProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.splAtaProgram, false),
   });
 
   // Authorization Rules Program.
   keys.push({
-    pubkey: authorizationRulesProgramAccount,
+    pubkey: resolvedAccounts.authorizationRulesProgram,
     isSigner: false,
-    isWritable: isWritable(authorizationRulesProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.authorizationRulesProgram, false),
   });
 
   // Authorization Rules.
   keys.push({
-    pubkey: authorizationRulesAccount,
+    pubkey: resolvedAccounts.authorizationRules,
     isSigner: false,
-    isWritable: isWritable(authorizationRulesAccount, false),
+    isWritable: isWritable(resolvedAccounts.authorizationRules, false),
   });
 
   // Data.
-  const data = getMintV1InstructionDataSerializer(context).serialize(input);
+  const data =
+    getMintV1InstructionDataSerializer(context).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 468;

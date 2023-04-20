@@ -61,7 +61,7 @@ export type MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts = {
   rent?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type MintNewEditionFromMasterEditionViaVaultProxyInstructionData = {
   discriminator: number;
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgs;
@@ -107,173 +107,168 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
   >;
 }
 
+// Args.
+export type MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs =
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs;
+
 // Instruction.
 export function mintNewEditionFromMasterEditionViaVaultProxy(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
   input: MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts &
-    MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs
+    MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const newMetadataAccount = input.newMetadata;
-  const newEditionAccount = input.newEdition;
-  const masterEditionAccount = input.masterEdition;
-  const newMintAccount = input.newMint;
-  const editionMarkPdaAccount = input.editionMarkPda;
-  const newMintAuthorityAccount = input.newMintAuthority;
-  const payerAccount = input.payer ?? context.payer;
-  const vaultAuthorityAccount = input.vaultAuthority;
-  const safetyDepositStoreAccount = input.safetyDepositStore;
-  const safetyDepositBoxAccount = input.safetyDepositBox;
-  const vaultAccount = input.vault;
-  const newMetadataUpdateAuthorityAccount = input.newMetadataUpdateAuthority;
-  const metadataAccount = input.metadata;
-  const tokenProgramAccount = input.tokenProgram ?? {
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  const resolvedArgs: any = { ...input };
+  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
+  resolvedAccounts.tokenProgram = resolvedAccounts.tokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     ),
     isWritable: false,
   };
-  const tokenVaultProgramAccount = input.tokenVaultProgram;
-  const systemProgramAccount = input.systemProgram ?? {
+  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
     ...context.programs.getPublicKey(
       'splSystem',
       '11111111111111111111111111111111'
     ),
     isWritable: false,
   };
-  const rentAccount = input.rent;
 
   // New Metadata.
   keys.push({
-    pubkey: newMetadataAccount,
+    pubkey: resolvedAccounts.newMetadata,
     isSigner: false,
-    isWritable: isWritable(newMetadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.newMetadata, true),
   });
 
   // New Edition.
   keys.push({
-    pubkey: newEditionAccount,
+    pubkey: resolvedAccounts.newEdition,
     isSigner: false,
-    isWritable: isWritable(newEditionAccount, true),
+    isWritable: isWritable(resolvedAccounts.newEdition, true),
   });
 
   // Master Edition.
   keys.push({
-    pubkey: masterEditionAccount,
+    pubkey: resolvedAccounts.masterEdition,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, true),
+    isWritable: isWritable(resolvedAccounts.masterEdition, true),
   });
 
   // New Mint.
   keys.push({
-    pubkey: newMintAccount,
+    pubkey: resolvedAccounts.newMint,
     isSigner: false,
-    isWritable: isWritable(newMintAccount, true),
+    isWritable: isWritable(resolvedAccounts.newMint, true),
   });
 
   // Edition Mark Pda.
   keys.push({
-    pubkey: editionMarkPdaAccount,
+    pubkey: resolvedAccounts.editionMarkPda,
     isSigner: false,
-    isWritable: isWritable(editionMarkPdaAccount, true),
+    isWritable: isWritable(resolvedAccounts.editionMarkPda, true),
   });
 
   // New Mint Authority.
-  signers.push(newMintAuthorityAccount);
+  signers.push(resolvedAccounts.newMintAuthority);
   keys.push({
-    pubkey: newMintAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.newMintAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(newMintAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.newMintAuthority, false),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // Vault Authority.
-  signers.push(vaultAuthorityAccount);
+  signers.push(resolvedAccounts.vaultAuthority);
   keys.push({
-    pubkey: vaultAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.vaultAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(vaultAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.vaultAuthority, false),
   });
 
   // Safety Deposit Store.
   keys.push({
-    pubkey: safetyDepositStoreAccount,
+    pubkey: resolvedAccounts.safetyDepositStore,
     isSigner: false,
-    isWritable: isWritable(safetyDepositStoreAccount, false),
+    isWritable: isWritable(resolvedAccounts.safetyDepositStore, false),
   });
 
   // Safety Deposit Box.
   keys.push({
-    pubkey: safetyDepositBoxAccount,
+    pubkey: resolvedAccounts.safetyDepositBox,
     isSigner: false,
-    isWritable: isWritable(safetyDepositBoxAccount, false),
+    isWritable: isWritable(resolvedAccounts.safetyDepositBox, false),
   });
 
   // Vault.
   keys.push({
-    pubkey: vaultAccount,
+    pubkey: resolvedAccounts.vault,
     isSigner: false,
-    isWritable: isWritable(vaultAccount, false),
+    isWritable: isWritable(resolvedAccounts.vault, false),
   });
 
   // New Metadata Update Authority.
   keys.push({
-    pubkey: newMetadataUpdateAuthorityAccount,
+    pubkey: resolvedAccounts.newMetadataUpdateAuthority,
     isSigner: false,
-    isWritable: isWritable(newMetadataUpdateAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.newMetadataUpdateAuthority, false),
   });
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, false),
+    isWritable: isWritable(resolvedAccounts.metadata, false),
   });
 
   // Token Program.
   keys.push({
-    pubkey: tokenProgramAccount,
+    pubkey: resolvedAccounts.tokenProgram,
     isSigner: false,
-    isWritable: isWritable(tokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenProgram, false),
   });
 
   // Token Vault Program.
   keys.push({
-    pubkey: tokenVaultProgramAccount,
+    pubkey: resolvedAccounts.tokenVaultProgram,
     isSigner: false,
-    isWritable: isWritable(tokenVaultProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenVaultProgram, false),
   });
 
   // System Program.
   keys.push({
-    pubkey: systemProgramAccount,
+    pubkey: resolvedAccounts.systemProgram,
     isSigner: false,
-    isWritable: isWritable(systemProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
 
   // Rent (optional).
-  if (rentAccount) {
+  if (resolvedAccounts.rent) {
     keys.push({
-      pubkey: rentAccount,
+      pubkey: resolvedAccounts.rent,
       isSigner: false,
-      isWritable: isWritable(rentAccount, false),
+      isWritable: isWritable(resolvedAccounts.rent, false),
     });
   }
 
@@ -281,7 +276,7 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
   const data =
     getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(
       context
-    ).serialize(input);
+    ).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -34,7 +34,7 @@ export type ThawDelegatedAccountInstructionAccounts = {
   tokenProgram?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type ThawDelegatedAccountInstructionData = { discriminator: number };
 
 export type ThawDelegatedAccountInstructionDataArgs = {};
@@ -71,19 +71,20 @@ export function thawDelegatedAccount(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const delegateAccount = input.delegate;
-  const tokenAccountAccount = input.tokenAccount;
-  const mintAccount = input.mint;
-  const editionAccount =
-    input.edition ??
-    findMasterEditionPda(context, { mint: publicKey(mintAccount) });
-  const tokenProgramAccount = input.tokenProgram ?? {
+  // Resolved inputs.
+  const resolvedAccounts: any = { ...input };
+  resolvedAccounts.edition =
+    resolvedAccounts.edition ??
+    findMasterEditionPda(context, { mint: publicKey(resolvedAccounts.mint) });
+  resolvedAccounts.tokenProgram = resolvedAccounts.tokenProgram ?? {
     ...context.programs.getPublicKey(
       'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
@@ -92,39 +93,39 @@ export function thawDelegatedAccount(
   };
 
   // Delegate.
-  signers.push(delegateAccount);
+  signers.push(resolvedAccounts.delegate);
   keys.push({
-    pubkey: delegateAccount.publicKey,
+    pubkey: resolvedAccounts.delegate.publicKey,
     isSigner: true,
-    isWritable: isWritable(delegateAccount, true),
+    isWritable: isWritable(resolvedAccounts.delegate, true),
   });
 
   // Token Account.
   keys.push({
-    pubkey: tokenAccountAccount,
+    pubkey: resolvedAccounts.tokenAccount,
     isSigner: false,
-    isWritable: isWritable(tokenAccountAccount, true),
+    isWritable: isWritable(resolvedAccounts.tokenAccount, true),
   });
 
   // Edition.
   keys.push({
-    pubkey: editionAccount,
+    pubkey: resolvedAccounts.edition,
     isSigner: false,
-    isWritable: isWritable(editionAccount, false),
+    isWritable: isWritable(resolvedAccounts.edition, false),
   });
 
   // Mint.
   keys.push({
-    pubkey: mintAccount,
+    pubkey: resolvedAccounts.mint,
     isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
   // Token Program.
   keys.push({
-    pubkey: tokenProgramAccount,
+    pubkey: resolvedAccounts.tokenProgram,
     isSigner: false,
-    isWritable: isWritable(tokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenProgram, false),
   });
 
   // Data.
