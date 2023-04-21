@@ -13,11 +13,11 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type UnverifyCreatorV1InstructionAccounts = {
@@ -94,24 +94,45 @@ export function unverifyCreatorV1(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
-  resolvedAccounts.delegateRecord =
-    resolvedAccounts.delegateRecord ?? programId;
-  resolvedAccounts.collectionMint =
-    resolvedAccounts.collectionMint ?? programId;
-  resolvedAccounts.collectionMetadata =
-    resolvedAccounts.collectionMetadata ?? programId;
-  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
-    ...context.programs.getPublicKey(
-      'splSystem',
-      '11111111111111111111111111111111'
-    ),
-    isWritable: false,
-  };
-  resolvedAccounts.sysvarInstructions =
-    resolvedAccounts.sysvarInstructions ??
-    publicKey('Sysvar1nstructions1111111111111111111111111');
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'authority',
+    input.authority ?? context.identity
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'delegateRecord',
+    input.delegateRecord ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'collectionMint',
+    input.collectionMint ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'collectionMetadata',
+    input.collectionMetadata ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'systemProgram',
+    input.systemProgram ?? {
+      ...context.programs.getPublicKey(
+        'splSystem',
+        '11111111111111111111111111111111'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'sysvarInstructions',
+    input.sysvarInstructions ??
+      publicKey('Sysvar1nstructions1111111111111111111111111')
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Authority.
   signers.push(resolvedAccounts.authority);

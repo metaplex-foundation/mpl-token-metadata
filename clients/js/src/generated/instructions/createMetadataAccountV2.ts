@@ -13,12 +13,12 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 import { DataV2, DataV2Args, getDataV2Serializer } from '../types';
 
 // Accounts.
@@ -108,21 +108,32 @@ export function createMetadataAccountV2(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  const resolvedArgs: any = { ...input };
-  resolvedAccounts.metadata =
-    resolvedAccounts.metadata ??
-    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
-  resolvedAccounts.updateAuthority =
-    resolvedAccounts.updateAuthority ?? context.identity.publicKey;
-  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
-    ...context.programs.getPublicKey(
-      'splSystem',
-      '11111111111111111111111111111111'
-    ),
-    isWritable: false,
-  };
+  const resolvingAccounts = {};
+  const resolvingArgs = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
+  addObjectProperty(
+    resolvingAccounts,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'systemProgram',
+    input.systemProgram ?? {
+      ...context.programs.getPublicKey(
+        'splSystem',
+        '11111111111111111111111111111111'
+      ),
+      isWritable: false,
+    }
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Metadata.
   keys.push({

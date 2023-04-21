@@ -13,10 +13,10 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { isWritable } from '../shared';
 
 // Accounts.
 export type ConvertMasterEditionV1ToV2InstructionAccounts = {
@@ -80,7 +80,8 @@ export function convertMasterEditionV1ToV2(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
+  const resolvingAccounts = {};
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Master Edition.
   keys.push({

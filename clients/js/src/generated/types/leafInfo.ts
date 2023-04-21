@@ -18,7 +18,7 @@ export function getLeafInfoSerializer(
   const s = context.serializer;
   return s.struct<LeafInfo>(
     [
-      ['leaf', s.bytes()],
+      ['leaf', s.bytes({ size: 32 })],
       ['proof', s.array(s.array(s.u8(), { size: 32 }))],
     ],
     { description: 'LeafInfo' }

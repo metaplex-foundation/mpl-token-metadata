@@ -82,7 +82,7 @@ export const resolveCreateV1Bytes = (
 
 export const resolveMintTokenOwner = (
   context: Pick<Context, 'identity'>,
-  accounts: { token: PublicKey | undefined },
+  accounts: { token?: PublicKey },
   args: any,
   programId: PublicKey
 ): PublicKey | Pda => (accounts.token ? programId : context.identity.publicKey);

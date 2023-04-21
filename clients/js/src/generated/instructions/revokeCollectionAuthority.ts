@@ -13,12 +13,12 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type RevokeCollectionAuthorityInstructionAccounts = {
@@ -86,10 +86,13 @@ export function revokeCollectionAuthority(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  resolvedAccounts.metadata =
-    resolvedAccounts.metadata ??
-    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Collection Authority Record.
   keys.push({

@@ -15,7 +15,6 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   none,
   publicKey,
@@ -27,6 +26,7 @@ import {
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -140,58 +140,117 @@ export function mintV1(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  const resolvedArgs: any = { ...input };
-  resolvedAccounts.tokenOwner =
-    resolvedAccounts.tokenOwner ??
-    resolveMintTokenOwner(context, resolvedAccounts, resolvedArgs, programId);
-  resolvedAccounts.token =
-    resolvedAccounts.token ??
-    findAssociatedTokenPda(context, {
-      mint: publicKey(resolvedAccounts.mint),
-      owner: publicKey(resolvedAccounts.tokenOwner),
-    });
-  resolvedAccounts.metadata =
-    resolvedAccounts.metadata ??
-    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.masterEdition =
-    resolvedAccounts.masterEdition ??
-    resolveMasterEdition(context, resolvedAccounts, resolvedArgs, programId);
-  resolvedAccounts.tokenRecord =
-    resolvedAccounts.tokenRecord ??
-    resolveTokenRecord(context, resolvedAccounts, resolvedArgs, programId);
-  resolvedAccounts.authority = resolvedAccounts.authority ?? context.identity;
-  resolvedAccounts.delegateRecord =
-    resolvedAccounts.delegateRecord ?? programId;
-  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
-  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
-    ...context.programs.getPublicKey(
-      'splSystem',
-      '11111111111111111111111111111111'
-    ),
-    isWritable: false,
-  };
-  resolvedAccounts.sysvarInstructions =
-    resolvedAccounts.sysvarInstructions ??
-    publicKey('Sysvar1nstructions1111111111111111111111111');
-  resolvedAccounts.splTokenProgram = resolvedAccounts.splTokenProgram ?? {
-    ...context.programs.getPublicKey(
-      'splToken',
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-    ),
-    isWritable: false,
-  };
-  resolvedAccounts.splAtaProgram = resolvedAccounts.splAtaProgram ?? {
-    ...context.programs.getPublicKey(
-      'splAssociatedToken',
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-    ),
-    isWritable: false,
-  };
-  resolvedAccounts.authorizationRulesProgram =
-    resolvedAccounts.authorizationRulesProgram ?? programId;
-  resolvedAccounts.authorizationRules =
-    resolvedAccounts.authorizationRules ?? programId;
+  const resolvingAccounts = {};
+  const resolvingArgs = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'tokenOwner',
+    input.tokenOwner ??
+      resolveMintTokenOwner(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(resolvingAccounts.tokenOwner),
+      })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'masterEdition',
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'tokenRecord',
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authority',
+    input.authority ?? context.identity
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'delegateRecord',
+    input.delegateRecord ?? programId
+  );
+  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
+  addObjectProperty(
+    resolvingAccounts,
+    'systemProgram',
+    input.systemProgram ?? {
+      ...context.programs.getPublicKey(
+        'splSystem',
+        '11111111111111111111111111111111'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'sysvarInstructions',
+    input.sysvarInstructions ??
+      publicKey('Sysvar1nstructions1111111111111111111111111')
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'splTokenProgram',
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'splAtaProgram',
+    input.splAtaProgram ?? {
+      ...context.programs.getPublicKey(
+        'splAssociatedToken',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRules',
+    input.authorizationRules ?? programId
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Token.
   keys.push({

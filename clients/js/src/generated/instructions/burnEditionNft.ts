@@ -13,10 +13,10 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type BurnEditionNftInstructionAccounts = {
@@ -88,14 +88,19 @@ export function burnEditionNft(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  resolvedAccounts.splTokenProgram = resolvedAccounts.splTokenProgram ?? {
-    ...context.programs.getPublicKey(
-      'splToken',
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-    ),
-    isWritable: false,
-  };
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'splTokenProgram',
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Metadata.
   keys.push({

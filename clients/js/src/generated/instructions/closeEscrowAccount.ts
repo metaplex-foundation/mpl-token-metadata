@@ -13,12 +13,12 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type CloseEscrowAccountInstructionAccounts = {
@@ -86,24 +86,37 @@ export function closeEscrowAccount(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  resolvedAccounts.metadata =
-    resolvedAccounts.metadata ??
-    findMetadataPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.edition =
-    resolvedAccounts.edition ??
-    findMasterEditionPda(context, { mint: publicKey(resolvedAccounts.mint) });
-  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
-  resolvedAccounts.systemProgram = resolvedAccounts.systemProgram ?? {
-    ...context.programs.getPublicKey(
-      'splSystem',
-      '11111111111111111111111111111111'
-    ),
-    isWritable: false,
-  };
-  resolvedAccounts.sysvarInstructions =
-    resolvedAccounts.sysvarInstructions ??
-    publicKey('Sysvar1nstructions1111111111111111111111111');
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'edition',
+    input.edition ??
+      findMasterEditionPda(context, { mint: publicKey(input.mint) })
+  );
+  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
+  addObjectProperty(
+    resolvingAccounts,
+    'systemProgram',
+    input.systemProgram ?? {
+      ...context.programs.getPublicKey(
+        'splSystem',
+        '11111111111111111111111111111111'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'sysvarInstructions',
+    input.sysvarInstructions ??
+      publicKey('Sysvar1nstructions1111111111111111111111111')
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Escrow.
   keys.push({

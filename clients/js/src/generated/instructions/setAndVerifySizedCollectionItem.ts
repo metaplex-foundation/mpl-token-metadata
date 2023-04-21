@@ -13,10 +13,10 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type SetAndVerifySizedCollectionItemInstructionAccounts = {
@@ -90,10 +90,14 @@ export function setAndVerifySizedCollectionItem(
   };
 
   // Resolved inputs.
-  const resolvedAccounts: any = { ...input };
-  resolvedAccounts.payer = resolvedAccounts.payer ?? context.payer;
-  resolvedAccounts.updateAuthority =
-    resolvedAccounts.updateAuthority ?? context.identity.publicKey;
+  const resolvingAccounts = {};
+  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
+  addObjectProperty(
+    resolvingAccounts,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Metadata.
   keys.push({
