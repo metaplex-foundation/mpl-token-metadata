@@ -73,7 +73,7 @@ kinobi.update(
           name: "delegateRole",
           description: "The role of the metadata delegate",
           type: new TypeDefinedLinkNode("metadataDelegateRoleSeed", {
-            dependency: "hooked",
+            importFrom: "hooked",
           }),
         },
         {
@@ -168,10 +168,10 @@ kinobi.update(
       },
     },
     updateMetadataAccount: {
-      args: { updateAuthority: "newUpdateAuthority" },
+      args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
     updateMetadataAccountV2: {
-      args: { updateAuthority: "newUpdateAuthority" },
+      args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
     // Deprecated instructions.
     "mplTokenMetadata.deprecatedCreateReservationList": { delete: true },
@@ -296,14 +296,14 @@ kinobi.update(
       bytesCreatedOnChain: {
         kind: "resolver",
         name: "resolveCreateV1Bytes",
-        dependency: "hooked",
+        importFrom: "hooked",
       },
       accounts: {
         masterEdition: {
           defaultsTo: {
             kind: "resolver",
             name: "resolveMasterEdition",
-            dependency: "hooked",
+            importFrom: "hooked",
             resolvedIsSigner: false,
             resolvedIsOptional: false,
             dependsOn: [
@@ -313,41 +313,44 @@ kinobi.update(
           },
         },
       },
-      extraArgs: new TypeStructNode("CreateExtraArgs", [
-        new TypeStructFieldNode(
-          { name: "isCollection", docs: [], defaultsTo: null },
-          new TypeBoolNode()
-        ),
-      ]),
-      argDefaults: {
-        tokenStandard: {
-          kind: "value",
-          value: vEnum("TokenStandard", "NonFungible"),
+      args: {
+        isCollection: {
+          type: new TypeBoolNode(),
+          defaultsTo: { kind: "value", value: vScalar(false) },
         },
-        isCollection: { kind: "value", value: vScalar(false) },
+        tokenStandard: {
+          defaultsTo: {
+            kind: "value",
+            value: vEnum("TokenStandard", "NonFungible"),
+          },
+        },
         collectionDetails: {
-          kind: "resolver",
-          name: "resolveCollectionDetails",
-          dependsOn: [{ kind: "arg", name: "isCollection" }],
-          dependency: "hooked",
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveCollectionDetails",
+            dependsOn: [{ kind: "arg", name: "isCollection" }],
+          },
         },
         decimals: {
-          kind: "resolver",
-          name: "resolveDecimals",
-          dependsOn: [{ kind: "arg", name: "tokenStandard" }],
-          dependency: "hooked",
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveDecimals",
+            dependsOn: [{ kind: "arg", name: "tokenStandard" }],
+          },
         },
         printSupply: {
-          kind: "resolver",
-          name: "resolvePrintSupply",
-          dependsOn: [{ kind: "arg", name: "tokenStandard" }],
-          dependency: "hooked",
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolvePrintSupply",
+            dependsOn: [{ kind: "arg", name: "tokenStandard" }],
+          },
         },
         creators: {
-          kind: "resolver",
-          name: "resolveCreators",
-          dependsOn: [{ kind: "account", name: "authority" }],
-          dependency: "hooked",
+          defaultsTo: {
+            kind: "resolver",
+            name: "resolveCreators",
+            dependsOn: [{ kind: "account", name: "authority" }],
+          },
         },
       },
     },
@@ -357,7 +360,7 @@ kinobi.update(
           defaultsTo: {
             kind: "resolver",
             name: "resolveMasterEdition",
-            dependency: "hooked",
+            importFrom: "hooked",
             resolvedIsSigner: false,
             resolvedIsOptional: false,
             dependsOn: [
@@ -370,7 +373,7 @@ kinobi.update(
           defaultsTo: {
             kind: "resolver",
             name: "resolveMintTokenOwner",
-            dependency: "hooked",
+            importFrom: "hooked",
             resolvedIsSigner: false,
             resolvedIsOptional: false,
             dependsOn: [],
@@ -380,7 +383,7 @@ kinobi.update(
           defaultsTo: {
             kind: "pda",
             pdaAccount: "associatedToken",
-            dependency: "mplEssentials",
+            importFrom: "mplEssentials",
             seeds: {
               mint: { kind: "account", name: "mint" },
               owner: { kind: "account", name: "tokenOwner" },
@@ -391,7 +394,7 @@ kinobi.update(
           defaultsTo: {
             kind: "resolver",
             name: "resolveTokenRecord",
-            dependency: "hooked",
+            importFrom: "hooked",
             resolvedIsSigner: false,
             resolvedIsOptional: false,
             dependsOn: [
@@ -402,12 +405,9 @@ kinobi.update(
           },
         },
       },
-      extraArgs: new TypeStructNode("CreateExtraArgs", [
-        new TypeStructFieldNode(
-          { name: "tokenStandard", docs: [], defaultsTo: null },
-          new TypeDefinedLinkNode("tokenStandard")
-        ),
-      ]),
+      args: {
+        tokenStandard: { type: new TypeDefinedLinkNode("tokenStandard") },
+      },
     },
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
