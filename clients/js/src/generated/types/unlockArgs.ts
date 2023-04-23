@@ -37,15 +37,12 @@ export function getUnlockArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<UnlockArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<UnlockArgs, 'V1'>>([
           [
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            'authorizationData',
+            s.option(getAuthorizationDataSerializer(context)),
           ],
-          { description: 'V1' }
-        ),
+        ]),
       ],
     ],
     { description: 'UnlockArgs' }

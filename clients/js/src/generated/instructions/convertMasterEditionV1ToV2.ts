@@ -13,10 +13,10 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { isWritable } from '../shared';
 
 // Accounts.
 export type ConvertMasterEditionV1ToV2InstructionAccounts = {
@@ -28,7 +28,7 @@ export type ConvertMasterEditionV1ToV2InstructionAccounts = {
   printingMint: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type ConvertMasterEditionV1ToV2InstructionData = {
   discriminator: number;
 };
@@ -71,35 +71,37 @@ export function convertMasterEditionV1ToV2(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const masterEditionAccount = input.masterEdition;
-  const oneTimeAuthAccount = input.oneTimeAuth;
-  const printingMintAccount = input.printingMint;
+  // Resolved inputs.
+  const resolvingAccounts = {};
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Master Edition.
   keys.push({
-    pubkey: masterEditionAccount,
+    pubkey: resolvedAccounts.masterEdition,
     isSigner: false,
-    isWritable: isWritable(masterEditionAccount, true),
+    isWritable: isWritable(resolvedAccounts.masterEdition, true),
   });
 
   // One Time Auth.
   keys.push({
-    pubkey: oneTimeAuthAccount,
+    pubkey: resolvedAccounts.oneTimeAuth,
     isSigner: false,
-    isWritable: isWritable(oneTimeAuthAccount, true),
+    isWritable: isWritable(resolvedAccounts.oneTimeAuth, true),
   });
 
   // Printing Mint.
   keys.push({
-    pubkey: printingMintAccount,
+    pubkey: resolvedAccounts.printingMint,
     isSigner: false,
-    isWritable: isWritable(printingMintAccount, true),
+    isWritable: isWritable(resolvedAccounts.printingMint, true),
   });
 
   // Data.

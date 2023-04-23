@@ -118,7 +118,7 @@ export function getMetadataAccountDataSerializer(
           s.option(getProgrammableConfigSerializer(context)),
         ],
       ],
-      { description: 'Metadata' }
+      { description: 'MetadataAccountData' }
     ),
     (value) => ({ ...value, key: Key.MetadataV1 } as MetadataAccountData)
   ) as Serializer<MetadataAccountDataArgs, MetadataAccountData>;

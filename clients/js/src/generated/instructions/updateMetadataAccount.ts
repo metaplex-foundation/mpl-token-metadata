@@ -14,10 +14,10 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { addObjectProperty, isWritable } from '../shared';
 import { Creator, CreatorArgs, getCreatorSerializer } from '../types';
 
 // Accounts.
@@ -28,7 +28,7 @@ export type UpdateMetadataAccountInstructionAccounts = {
   updateAuthority?: Signer;
 };
 
-// Arguments.
+// Data.
 export type UpdateMetadataAccountInstructionData = {
   discriminator: number;
   data: Option<{
@@ -72,16 +72,13 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
         [
           'data',
           s.option(
-            s.struct<any>(
-              [
-                ['name', s.string()],
-                ['symbol', s.string()],
-                ['uri', s.string()],
-                ['sellerFeeBasisPoints', s.u16()],
-                ['creators', s.option(s.array(getCreatorSerializer(context)))],
-              ],
-              { description: 'Data' }
-            )
+            s.struct<any>([
+              ['name', s.string()],
+              ['symbol', s.string()],
+              ['uri', s.string()],
+              ['sellerFeeBasisPoints', s.u16()],
+              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+            ])
           ),
         ],
         ['newUpdateAuthority', s.option(s.publicKey())],
@@ -97,43 +94,59 @@ export function getUpdateMetadataAccountInstructionDataSerializer(
   >;
 }
 
+// Args.
+export type UpdateMetadataAccountInstructionArgs =
+  UpdateMetadataAccountInstructionDataArgs;
+
 // Instruction.
 export function updateMetadataAccount(
   context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
   input: UpdateMetadataAccountInstructionAccounts &
-    UpdateMetadataAccountInstructionDataArgs
+    UpdateMetadataAccountInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const metadataAccount = input.metadata;
-  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
+  // Resolved inputs.
+  const resolvingAccounts = {};
+  const resolvingArgs = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Update Authority.
-  signers.push(updateAuthorityAccount);
+  signers.push(resolvedAccounts.updateAuthority);
   keys.push({
-    pubkey: updateAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.updateAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(updateAuthorityAccount, false),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
   });
 
   // Data.
   const data =
-    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(input);
+    getUpdateMetadataAccountInstructionDataSerializer(context).serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

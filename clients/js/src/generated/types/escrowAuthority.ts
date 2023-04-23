@@ -29,10 +29,9 @@ export function getEscrowAuthoritySerializer(
       ['TokenOwner', s.unit()],
       [
         'Creator',
-        s.struct<GetDataEnumKindContent<EscrowAuthority, 'Creator'>>(
-          [['fields', s.tuple([s.publicKey()])]],
-          { description: 'Creator' }
-        ),
+        s.struct<GetDataEnumKindContent<EscrowAuthority, 'Creator'>>([
+          ['fields', s.tuple([s.publicKey()])],
+        ]),
       ],
     ],
     { description: 'EscrowAuthority' }

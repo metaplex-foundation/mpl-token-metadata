@@ -13,11 +13,11 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type TransferOutOfEscrowInstructionAccounts = {
@@ -49,7 +49,7 @@ export type TransferOutOfEscrowInstructionAccounts = {
   authority?: Signer;
 };
 
-// Arguments.
+// Data.
 export type TransferOutOfEscrowInstructionData = {
   discriminator: number;
   amount: bigint;
@@ -86,154 +86,174 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
   >;
 }
 
+// Args.
+export type TransferOutOfEscrowInstructionArgs =
+  TransferOutOfEscrowInstructionDataArgs;
+
 // Instruction.
 export function transferOutOfEscrow(
   context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
   input: TransferOutOfEscrowInstructionAccounts &
-    TransferOutOfEscrowInstructionDataArgs
+    TransferOutOfEscrowInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const escrowAccount = input.escrow;
-  const metadataAccount = input.metadata;
-  const payerAccount = input.payer ?? context.payer;
-  const attributeMintAccount = input.attributeMint;
-  const attributeSrcAccount = input.attributeSrc;
-  const attributeDstAccount = input.attributeDst;
-  const escrowMintAccount = input.escrowMint;
-  const escrowAccountAccount = input.escrowAccount;
-  const systemProgramAccount = input.systemProgram ?? {
-    ...context.programs.getPublicKey(
-      'splSystem',
-      '11111111111111111111111111111111'
-    ),
-    isWritable: false,
-  };
-  const ataProgramAccount = input.ataProgram ?? {
-    ...context.programs.getPublicKey(
-      'splAssociatedToken',
-      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-    ),
-    isWritable: false,
-  };
-  const tokenProgramAccount = input.tokenProgram ?? {
-    ...context.programs.getPublicKey(
-      'splToken',
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-    ),
-    isWritable: false,
-  };
-  const sysvarInstructionsAccount =
+  // Resolved inputs.
+  const resolvingAccounts = {};
+  const resolvingArgs = {};
+  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
+  addObjectProperty(
+    resolvingAccounts,
+    'systemProgram',
+    input.systemProgram ?? {
+      ...context.programs.getPublicKey(
+        'splSystem',
+        '11111111111111111111111111111111'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'ataProgram',
+    input.ataProgram ?? {
+      ...context.programs.getPublicKey(
+        'splAssociatedToken',
+        'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'tokenProgram',
+    input.tokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'sysvarInstructions',
     input.sysvarInstructions ??
-    publicKey('Sysvar1nstructions1111111111111111111111111');
-  const authorityAccount = input.authority;
+      publicKey('Sysvar1nstructions1111111111111111111111111')
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Escrow.
   keys.push({
-    pubkey: escrowAccount,
+    pubkey: resolvedAccounts.escrow,
     isSigner: false,
-    isWritable: isWritable(escrowAccount, false),
+    isWritable: isWritable(resolvedAccounts.escrow, false),
   });
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Payer.
-  signers.push(payerAccount);
+  signers.push(resolvedAccounts.payer);
   keys.push({
-    pubkey: payerAccount.publicKey,
+    pubkey: resolvedAccounts.payer.publicKey,
     isSigner: true,
-    isWritable: isWritable(payerAccount, true),
+    isWritable: isWritable(resolvedAccounts.payer, true),
   });
 
   // Attribute Mint.
   keys.push({
-    pubkey: attributeMintAccount,
+    pubkey: resolvedAccounts.attributeMint,
     isSigner: false,
-    isWritable: isWritable(attributeMintAccount, false),
+    isWritable: isWritable(resolvedAccounts.attributeMint, false),
   });
 
   // Attribute Src.
   keys.push({
-    pubkey: attributeSrcAccount,
+    pubkey: resolvedAccounts.attributeSrc,
     isSigner: false,
-    isWritable: isWritable(attributeSrcAccount, true),
+    isWritable: isWritable(resolvedAccounts.attributeSrc, true),
   });
 
   // Attribute Dst.
   keys.push({
-    pubkey: attributeDstAccount,
+    pubkey: resolvedAccounts.attributeDst,
     isSigner: false,
-    isWritable: isWritable(attributeDstAccount, true),
+    isWritable: isWritable(resolvedAccounts.attributeDst, true),
   });
 
   // Escrow Mint.
   keys.push({
-    pubkey: escrowMintAccount,
+    pubkey: resolvedAccounts.escrowMint,
     isSigner: false,
-    isWritable: isWritable(escrowMintAccount, false),
+    isWritable: isWritable(resolvedAccounts.escrowMint, false),
   });
 
   // Escrow Account.
   keys.push({
-    pubkey: escrowAccountAccount,
+    pubkey: resolvedAccounts.escrowAccount,
     isSigner: false,
-    isWritable: isWritable(escrowAccountAccount, false),
+    isWritable: isWritable(resolvedAccounts.escrowAccount, false),
   });
 
   // System Program.
   keys.push({
-    pubkey: systemProgramAccount,
+    pubkey: resolvedAccounts.systemProgram,
     isSigner: false,
-    isWritable: isWritable(systemProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.systemProgram, false),
   });
 
   // Ata Program.
   keys.push({
-    pubkey: ataProgramAccount,
+    pubkey: resolvedAccounts.ataProgram,
     isSigner: false,
-    isWritable: isWritable(ataProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.ataProgram, false),
   });
 
   // Token Program.
   keys.push({
-    pubkey: tokenProgramAccount,
+    pubkey: resolvedAccounts.tokenProgram,
     isSigner: false,
-    isWritable: isWritable(tokenProgramAccount, false),
+    isWritable: isWritable(resolvedAccounts.tokenProgram, false),
   });
 
   // Sysvar Instructions.
   keys.push({
-    pubkey: sysvarInstructionsAccount,
+    pubkey: resolvedAccounts.sysvarInstructions,
     isSigner: false,
-    isWritable: isWritable(sysvarInstructionsAccount, false),
+    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
   });
 
   // Authority (optional).
-  if (authorityAccount) {
-    signers.push(authorityAccount);
+  if (resolvedAccounts.authority) {
+    signers.push(resolvedAccounts.authority);
     keys.push({
-      pubkey: authorityAccount.publicKey,
+      pubkey: resolvedAccounts.authority.publicKey,
       isSigner: true,
-      isWritable: isWritable(authorityAccount, false),
+      isWritable: isWritable(resolvedAccounts.authority, false),
     });
   }
 
   // Data.
   const data =
-    getTransferOutOfEscrowInstructionDataSerializer(context).serialize(input);
+    getTransferOutOfEscrowInstructionDataSerializer(context).serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

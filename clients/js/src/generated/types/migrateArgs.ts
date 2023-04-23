@@ -40,13 +40,10 @@ export function getMigrateArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>(
-          [
-            ['migrationType', getMigrationTypeSerializer(context)],
-            ['ruleSet', s.option(s.publicKey())],
-          ],
-          { description: 'V1' }
-        ),
+        s.struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>([
+          ['migrationType', getMigrationTypeSerializer(context)],
+          ['ruleSet', s.option(s.publicKey())],
+        ]),
       ],
     ],
     { description: 'MigrateArgs' }

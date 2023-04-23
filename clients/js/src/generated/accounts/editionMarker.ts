@@ -41,7 +41,7 @@ export function getEditionMarkerAccountDataSerializer(
         ['key', getKeySerializer(context)],
         ['ledger', s.array(s.u8(), { size: 31 })],
       ],
-      { description: 'EditionMarker' }
+      { description: 'EditionMarkerAccountData' }
     ),
     (value) =>
       ({ ...value, key: Key.EditionMarker } as EditionMarkerAccountData)

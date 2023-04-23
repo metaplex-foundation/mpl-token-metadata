@@ -37,15 +37,12 @@ export function getLockArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<LockArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<LockArgs, 'V1'>>([
           [
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            'authorizationData',
+            s.option(getAuthorizationDataSerializer(context)),
           ],
-          { description: 'V1' }
-        ),
+        ]),
       ],
     ],
     { description: 'LockArgs' }

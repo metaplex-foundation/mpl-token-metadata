@@ -13,12 +13,12 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type SetTokenStandardInstructionAccounts = {
@@ -32,7 +32,7 @@ export type SetTokenStandardInstructionAccounts = {
   edition?: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type SetTokenStandardInstructionData = { discriminator: number };
 
 export type SetTokenStandardInstructionDataArgs = {};
@@ -69,47 +69,56 @@ export function setTokenStandard(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const mintAccount = input.mint;
-  const metadataAccount =
-    input.metadata ??
-    findMetadataPda(context, { mint: publicKey(mintAccount) });
-  const updateAuthorityAccount = input.updateAuthority ?? context.identity;
-  const editionAccount = input.edition;
+  // Resolved inputs.
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
   // Update Authority.
-  signers.push(updateAuthorityAccount);
+  signers.push(resolvedAccounts.updateAuthority);
   keys.push({
-    pubkey: updateAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.updateAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(updateAuthorityAccount, true),
+    isWritable: isWritable(resolvedAccounts.updateAuthority, true),
   });
 
   // Mint.
   keys.push({
-    pubkey: mintAccount,
+    pubkey: resolvedAccounts.mint,
     isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
   // Edition (optional).
-  if (editionAccount) {
+  if (resolvedAccounts.edition) {
     keys.push({
-      pubkey: editionAccount,
+      pubkey: resolvedAccounts.edition,
       isSigner: false,
-      isWritable: isWritable(editionAccount, false),
+      isWritable: isWritable(resolvedAccounts.edition, false),
     });
   }
 

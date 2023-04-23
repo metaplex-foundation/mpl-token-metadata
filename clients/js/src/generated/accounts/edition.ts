@@ -49,7 +49,7 @@ export function getEditionAccountDataSerializer(
         ['parent', s.publicKey()],
         ['edition', s.u64()],
       ],
-      { description: 'Edition' }
+      { description: 'EditionAccountData' }
     ),
     (value) => ({ ...value, key: Key.EditionV1 } as EditionAccountData)
   ) as Serializer<EditionAccountDataArgs, EditionAccountData>;

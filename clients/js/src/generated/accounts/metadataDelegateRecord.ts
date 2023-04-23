@@ -58,7 +58,7 @@ export function getMetadataDelegateRecordAccountDataSerializer(
       ['delegate', s.publicKey()],
       ['updateAuthority', s.publicKey()],
     ],
-    { description: 'MetadataDelegateRecord' }
+    { description: 'MetadataDelegateRecordAccountData' }
   ) as Serializer<
     MetadataDelegateRecordAccountDataArgs,
     MetadataDelegateRecordAccountData
@@ -161,7 +161,7 @@ export function findMetadataDelegateRecordPda(
     delegateRole: MetadataDelegateRoleSeedArgs;
     /** The address of the metadata's update authority */
     updateAuthority: PublicKey;
-    /** The address of delegate authority */
+    /** The address of the delegate authority */
     delegate: PublicKey;
   }
 ): Pda {
