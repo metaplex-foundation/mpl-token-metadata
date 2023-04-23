@@ -58,7 +58,7 @@ kinobi.update(
         k.variableSeed(
           "delegate",
           k.publicKeyTypeNode(),
-          "The address of the delegate"
+          "The address of the delegate authority"
         ),
       ],
     },
@@ -126,7 +126,7 @@ kinobi.update(
           679 + // Metadata account.
           282 + // Master edition account.
           128 * 3, // 3 account headers.
-        { includeHeader: false }
+        false
       ),
       accounts: {
         mint: { isSigner: "either" },
@@ -141,7 +141,7 @@ kinobi.update(
         165 + // Token account.
           47 + // Token Record account.
           128 * 2, // 2 account headers.
-        { includeHeader: false }
+        false
       ),
     },
     updateMetadataAccount: {
@@ -269,10 +269,11 @@ kinobi.update(
       bytesCreatedOnChain: k.bytesFromResolver("resolveCreateV1Bytes"),
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveMasterEdition",
+            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")],
+            { resolvedIsOptional: false }
+          ),
         },
       },
       args: {
@@ -284,37 +285,48 @@ kinobi.update(
           defaultsTo: k.valueDefault(k.vEnum("TokenStandard", "NonFungible")),
         },
         collectionDetails: {
-          defaultsTo: k.resolverDefault("resolveCollectionDetails", [
-            k.dependsOnArg("isCollection"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveCollectionDetails",
+            [k.dependsOnArg("isCollection")],
+            { resolvedIsOptional: false }
+          ),
         },
         decimals: {
-          defaultsTo: k.resolverDefault("resolveDecimals", [
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveDecimals",
+            [k.dependsOnArg("tokenStandard")],
+            { resolvedIsOptional: false }
+          ),
         },
         printSupply: {
-          defaultsTo: k.resolverDefault("resolvePrintSupply", [
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolvePrintSupply",
+            [k.dependsOnArg("tokenStandard")],
+            { resolvedIsOptional: false }
+          ),
         },
         creators: {
-          defaultsTo: k.resolverDefault("resolveCreators", [
-            k.dependsOnAccount("authority"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveCreators",
+            [k.dependsOnAccount("authority")],
+            { resolvedIsOptional: false }
+          ),
         },
       },
     },
     mintV1: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveMasterEdition",
+            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")],
+            { resolvedIsOptional: false }
+          ),
         },
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveMintTokenOwner", []),
+          defaultsTo: k.resolverDefault("resolveMintTokenOwner", [], {
+            resolvedIsOptional: false,
+          }),
         },
         token: {
           defaultsTo: k.pdaDefault("associatedToken", {
@@ -326,11 +338,15 @@ kinobi.update(
           }),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.resolverDefault(
+            "resolveTokenRecord",
+            [
+              k.dependsOnAccount("mint"),
+              k.dependsOnAccount("token"),
+              k.dependsOnArg("tokenStandard"),
+            ],
+            { resolvedIsOptional: false }
+          ),
         },
       },
       args: {
