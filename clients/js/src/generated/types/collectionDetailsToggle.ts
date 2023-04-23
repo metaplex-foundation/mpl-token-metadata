@@ -38,10 +38,9 @@ export function getCollectionDetailsToggleSerializer(
       ['Clear', s.unit()],
       [
         'Set',
-        s.struct<GetDataEnumKindContent<CollectionDetailsToggle, 'Set'>>(
-          [['fields', s.tuple([getCollectionDetailsSerializer(context)])]],
-          { description: 'Set' }
-        ),
+        s.struct<GetDataEnumKindContent<CollectionDetailsToggle, 'Set'>>([
+          ['fields', s.tuple([getCollectionDetailsSerializer(context)])],
+        ]),
       ],
     ],
     { description: 'CollectionDetailsToggle' }

@@ -31,10 +31,9 @@ export function getRuleSetToggleSerializer(
       ['Clear', s.unit()],
       [
         'Set',
-        s.struct<GetDataEnumKindContent<RuleSetToggle, 'Set'>>(
-          [['fields', s.tuple([s.publicKey()])]],
-          { description: 'Set' }
-        ),
+        s.struct<GetDataEnumKindContent<RuleSetToggle, 'Set'>>([
+          ['fields', s.tuple([s.publicKey()])],
+        ]),
       ],
     ],
     { description: 'RuleSetToggle' }

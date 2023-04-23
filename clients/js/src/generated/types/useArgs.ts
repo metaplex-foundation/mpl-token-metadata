@@ -37,15 +37,12 @@ export function getUseArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<UseArgs, 'V1'>>(
+        s.struct<GetDataEnumKindContent<UseArgs, 'V1'>>([
           [
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            'authorizationData',
+            s.option(getAuthorizationDataSerializer(context)),
           ],
-          { description: 'V1' }
-        ),
+        ]),
       ],
     ],
     { description: 'UseArgs' }

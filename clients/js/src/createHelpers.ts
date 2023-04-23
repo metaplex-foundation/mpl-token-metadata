@@ -3,17 +3,12 @@ import {
   transactionBuilder,
   TransactionBuilder,
 } from '@metaplex-foundation/umi';
-import { TokenStandard } from './generated';
-import {
-  createV1,
-  CreateV1InstructionInput,
-  mintV1,
-  MintV1InstructionInput,
-} from './instructions';
+import { TokenStandard, createV1, mintV1 } from './generated';
 
 export const createAndMint = (
   context: Parameters<typeof createV1>[0],
-  input: CreateV1InstructionInput & Omit<MintV1InstructionInput, 'mint'>
+  input: Parameters<typeof createV1>[1] &
+    Omit<Parameters<typeof mintV1>[1], 'mint'>
 ): TransactionBuilder =>
   transactionBuilder()
     .add(createV1(context, input))

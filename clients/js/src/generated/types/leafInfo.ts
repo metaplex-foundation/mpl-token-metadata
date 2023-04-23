@@ -8,7 +8,7 @@
 
 import { Context, Serializer } from '@metaplex-foundation/umi';
 
-export type LeafInfo = { leaf: Uint8Array; proof: Array<Array<number>> };
+export type LeafInfo = { leaf: Uint8Array; proof: Array<Uint8Array> };
 
 export type LeafInfoArgs = LeafInfo;
 
@@ -18,8 +18,8 @@ export function getLeafInfoSerializer(
   const s = context.serializer;
   return s.struct<LeafInfo>(
     [
-      ['leaf', s.bytes()],
-      ['proof', s.array(s.array(s.u8(), { size: 32 }))],
+      ['leaf', s.bytes({ size: 32 })],
+      ['proof', s.array(s.bytes({ size: 32 }))],
     ],
     { description: 'LeafInfo' }
   ) as Serializer<LeafInfoArgs, LeafInfo>;

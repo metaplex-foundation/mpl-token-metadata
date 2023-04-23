@@ -55,7 +55,7 @@ export function getCollectionAuthorityRecordAccountDataSerializer(
         ['bump', s.u8()],
         ['updateAuthority', s.option(s.publicKey())],
       ],
-      { description: 'CollectionAuthorityRecord' }
+      { description: 'CollectionAuthorityRecordAccountData' }
     ),
     (value) =>
       ({

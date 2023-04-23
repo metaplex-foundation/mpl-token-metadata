@@ -13,12 +13,12 @@ import {
   Serializer,
   Signer,
   TransactionBuilder,
-  checkForIsWritableOverride as isWritable,
   mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
+import { addObjectProperty, isWritable } from '../shared';
 
 // Accounts.
 export type RevokeCollectionAuthorityInstructionAccounts = {
@@ -34,7 +34,7 @@ export type RevokeCollectionAuthorityInstructionAccounts = {
   mint: PublicKey;
 };
 
-// Arguments.
+// Data.
 export type RevokeCollectionAuthorityInstructionData = {
   discriminator: number;
 };
@@ -77,54 +77,57 @@ export function revokeCollectionAuthority(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
-    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-  );
+  const programId = {
+    ...context.programs.getPublicKey(
+      'mplTokenMetadata',
+      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+    ),
+    isWritable: false,
+  };
 
-  // Resolved accounts.
-  const collectionAuthorityRecordAccount = input.collectionAuthorityRecord;
-  const delegateAuthorityAccount = input.delegateAuthority;
-  const revokeAuthorityAccount = input.revokeAuthority;
-  const mintAccount = input.mint;
-  const metadataAccount =
-    input.metadata ??
-    findMetadataPda(context, { mint: publicKey(mintAccount) });
+  // Resolved inputs.
+  const resolvingAccounts = {};
+  addObjectProperty(
+    resolvingAccounts,
+    'metadata',
+    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+  );
+  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
   // Collection Authority Record.
   keys.push({
-    pubkey: collectionAuthorityRecordAccount,
+    pubkey: resolvedAccounts.collectionAuthorityRecord,
     isSigner: false,
-    isWritable: isWritable(collectionAuthorityRecordAccount, true),
+    isWritable: isWritable(resolvedAccounts.collectionAuthorityRecord, true),
   });
 
   // Delegate Authority.
   keys.push({
-    pubkey: delegateAuthorityAccount,
+    pubkey: resolvedAccounts.delegateAuthority,
     isSigner: false,
-    isWritable: isWritable(delegateAuthorityAccount, true),
+    isWritable: isWritable(resolvedAccounts.delegateAuthority, true),
   });
 
   // Revoke Authority.
-  signers.push(revokeAuthorityAccount);
+  signers.push(resolvedAccounts.revokeAuthority);
   keys.push({
-    pubkey: revokeAuthorityAccount.publicKey,
+    pubkey: resolvedAccounts.revokeAuthority.publicKey,
     isSigner: true,
-    isWritable: isWritable(revokeAuthorityAccount, true),
+    isWritable: isWritable(resolvedAccounts.revokeAuthority, true),
   });
 
   // Metadata.
   keys.push({
-    pubkey: metadataAccount,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(metadataAccount, false),
+    isWritable: isWritable(resolvedAccounts.metadata, false),
   });
 
   // Mint.
   keys.push({
-    pubkey: mintAccount,
+    pubkey: resolvedAccounts.mint,
     isSigner: false,
-    isWritable: isWritable(mintAccount, false),
+    isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
   // Data.

@@ -59,7 +59,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
         ['authority', getEscrowAuthoritySerializer(context)],
         ['bump', s.u8()],
       ],
-      { description: 'TokenOwnedEscrow' }
+      { description: 'TokenOwnedEscrowAccountData' }
     ),
     (value) =>
       ({ ...value, key: Key.TokenOwnedEscrow } as TokenOwnedEscrowAccountData)
