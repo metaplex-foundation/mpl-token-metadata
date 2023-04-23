@@ -34,10 +34,9 @@ export function getUsesToggleSerializer(
       ['Clear', s.unit()],
       [
         'Set',
-        s.struct<GetDataEnumKindContent<UsesToggle, 'Set'>>(
-          [['fields', s.tuple([getUsesSerializer(context)])]],
-          { description: 'Set' }
-        ),
+        s.struct<GetDataEnumKindContent<UsesToggle, 'Set'>>([
+          ['fields', s.tuple([getUsesSerializer(context)])],
+        ]),
       ],
     ],
     { description: 'UsesToggle' }

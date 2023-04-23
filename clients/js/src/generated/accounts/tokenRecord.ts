@@ -73,7 +73,7 @@ export function getTokenRecordAccountDataSerializer(
         ['delegateRole', s.option(getTokenDelegateRoleSerializer(context))],
         ['lockedTransfer', s.option(s.publicKey())],
       ],
-      { description: 'TokenRecord' }
+      { description: 'TokenRecordAccountData' }
     ),
     (value) => ({ ...value, key: Key.TokenRecord } as TokenRecordAccountData)
   ) as Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData>;

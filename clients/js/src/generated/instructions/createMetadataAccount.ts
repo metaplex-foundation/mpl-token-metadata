@@ -81,16 +81,13 @@ export function getCreateMetadataAccountInstructionDataSerializer(
         ['discriminator', s.u8()],
         [
           'data',
-          s.struct<any>(
-            [
-              ['name', s.string()],
-              ['symbol', s.string()],
-              ['uri', s.string()],
-              ['sellerFeeBasisPoints', s.u16()],
-              ['creators', s.option(s.array(getCreatorSerializer(context)))],
-            ],
-            { description: 'Data' }
-          ),
+          s.struct<any>([
+            ['name', s.string()],
+            ['symbol', s.string()],
+            ['uri', s.string()],
+            ['sellerFeeBasisPoints', s.u16()],
+            ['creators', s.option(s.array(getCreatorSerializer(context)))],
+          ]),
         ],
         ['isMutable', s.bool()],
       ],

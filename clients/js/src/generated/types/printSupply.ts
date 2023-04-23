@@ -32,10 +32,9 @@ export function getPrintSupplySerializer(
       ['Zero', s.unit()],
       [
         'Limited',
-        s.struct<GetDataEnumKindContent<PrintSupply, 'Limited'>>(
-          [['fields', s.tuple([s.u64()])]],
-          { description: 'Limited' }
-        ),
+        s.struct<GetDataEnumKindContent<PrintSupply, 'Limited'>>([
+          ['fields', s.tuple([s.u64()])],
+        ]),
       ],
       ['Unlimited', s.unit()],
     ],

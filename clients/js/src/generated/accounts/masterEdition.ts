@@ -51,7 +51,7 @@ export function getMasterEditionAccountDataSerializer(
         ['supply', s.u64()],
         ['maxSupply', s.option(s.u64())],
       ],
-      { description: 'MasterEdition' }
+      { description: 'MasterEditionAccountData' }
     ),
     (value) =>
       ({ ...value, key: Key.MasterEditionV2 } as MasterEditionAccountData)

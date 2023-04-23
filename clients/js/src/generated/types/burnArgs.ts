@@ -25,10 +25,7 @@ export function getBurnArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>(
-          [['amount', s.u64()]],
-          { description: 'V1' }
-        ),
+        s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([['amount', s.u64()]]),
       ],
     ],
     { description: 'BurnArgs' }

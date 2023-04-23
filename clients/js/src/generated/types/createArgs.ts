@@ -88,28 +88,25 @@ export function getCreateArgsSerializer(
           GetDataEnumKindContent<CreateArgs, 'V1'>,
           GetDataEnumKindContent<CreateArgs, 'V1'>
         >(
-          s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>(
+          s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>([
+            ['name', s.string()],
+            ['symbol', s.string()],
+            ['uri', s.string()],
+            ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
+            ['creators', s.option(s.array(getCreatorSerializer(context)))],
+            ['primarySaleHappened', s.bool()],
+            ['isMutable', s.bool()],
+            ['tokenStandard', getTokenStandardSerializer(context)],
+            ['collection', s.option(getCollectionSerializer(context))],
+            ['uses', s.option(getUsesSerializer(context))],
             [
-              ['name', s.string()],
-              ['symbol', s.string()],
-              ['uri', s.string()],
-              ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
-              ['creators', s.option(s.array(getCreatorSerializer(context)))],
-              ['primarySaleHappened', s.bool()],
-              ['isMutable', s.bool()],
-              ['tokenStandard', getTokenStandardSerializer(context)],
-              ['collection', s.option(getCollectionSerializer(context))],
-              ['uses', s.option(getUsesSerializer(context))],
-              [
-                'collectionDetails',
-                s.option(getCollectionDetailsSerializer(context)),
-              ],
-              ['ruleSet', s.option(s.publicKey())],
-              ['decimals', s.option(s.u8())],
-              ['printSupply', s.option(getPrintSupplySerializer(context))],
+              'collectionDetails',
+              s.option(getCollectionDetailsSerializer(context)),
             ],
-            { description: 'V1' }
-          ),
+            ['ruleSet', s.option(s.publicKey())],
+            ['decimals', s.option(s.u8())],
+            ['printSupply', s.option(getPrintSupplySerializer(context))],
+          ]),
           (value) =>
             ({
               ...value,

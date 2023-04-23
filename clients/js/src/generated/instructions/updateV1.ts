@@ -128,16 +128,13 @@ export function getUpdateV1InstructionDataSerializer(
         [
           'data',
           s.option(
-            s.struct<any>(
-              [
-                ['name', s.string()],
-                ['symbol', s.string()],
-                ['uri', s.string()],
-                ['sellerFeeBasisPoints', s.u16()],
-                ['creators', s.option(s.array(getCreatorSerializer(context)))],
-              ],
-              { description: 'Data' }
-            )
+            s.struct<any>([
+              ['name', s.string()],
+              ['symbol', s.string()],
+              ['uri', s.string()],
+              ['sellerFeeBasisPoints', s.u16()],
+              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+            ])
           ),
         ],
         ['primarySaleHappened', s.option(s.bool())],

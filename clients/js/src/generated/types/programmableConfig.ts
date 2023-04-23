@@ -27,10 +27,9 @@ export function getProgrammableConfigSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>(
-          [['ruleSet', s.option(s.publicKey())]],
-          { description: 'V1' }
-        ),
+        s.struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>([
+          ['ruleSet', s.option(s.publicKey())],
+        ]),
       ],
     ],
     { description: 'ProgrammableConfig' }

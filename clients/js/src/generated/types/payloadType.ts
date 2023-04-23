@@ -42,31 +42,27 @@ export function getPayloadTypeSerializer(
     [
       [
         'Pubkey',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Pubkey'>>(
-          [['fields', s.tuple([s.publicKey()])]],
-          { description: 'Pubkey' }
-        ),
+        s.struct<GetDataEnumKindContent<PayloadType, 'Pubkey'>>([
+          ['fields', s.tuple([s.publicKey()])],
+        ]),
       ],
       [
         'Seeds',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Seeds'>>(
-          [['fields', s.tuple([getSeedsVecSerializer(context)])]],
-          { description: 'Seeds' }
-        ),
+        s.struct<GetDataEnumKindContent<PayloadType, 'Seeds'>>([
+          ['fields', s.tuple([getSeedsVecSerializer(context)])],
+        ]),
       ],
       [
         'MerkleProof',
-        s.struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>(
-          [['fields', s.tuple([getLeafInfoSerializer(context)])]],
-          { description: 'MerkleProof' }
-        ),
+        s.struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>([
+          ['fields', s.tuple([getLeafInfoSerializer(context)])],
+        ]),
       ],
       [
         'Number',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Number'>>(
-          [['fields', s.tuple([s.u64()])]],
-          { description: 'Number' }
-        ),
+        s.struct<GetDataEnumKindContent<PayloadType, 'Number'>>([
+          ['fields', s.tuple([s.u64()])],
+        ]),
       ],
     ],
     { description: 'PayloadType' }
