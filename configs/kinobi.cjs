@@ -12,11 +12,7 @@ const kinobi = k.createFromIdls([path.join(idlDir, "mpl_token_metadata.json")]);
 const metadataSeeds = [
   k.literalSeed("metadata"),
   k.programSeed(),
-  k.variableSeed(
-    "mint",
-    k.publicKeyTypeNode(),
-    "The address of the mint account"
-  ),
+  k.publicKeySeed("mint", "The address of the mint account"),
 ];
 kinobi.update(
   new k.UpdateAccountsVisitor({
@@ -34,9 +30,8 @@ kinobi.update(
       seeds: [
         ...metadataSeeds,
         k.literalSeed("token_record"),
-        k.variableSeed(
+        k.publicKeySeed(
           "token",
-          k.publicKeyTypeNode(),
           "The address of the token account (ata or not)"
         ),
       ],
@@ -50,25 +45,19 @@ kinobi.update(
           k.linkTypeNode("metadataDelegateRoleSeed", { importFrom: "hooked" }),
           "The role of the metadata delegate"
         ),
-        k.variableSeed(
+        k.publicKeySeed(
           "updateAuthority",
-          k.publicKeyTypeNode(),
           "The address of the metadata's update authority"
         ),
-        k.variableSeed(
-          "delegate",
-          k.publicKeyTypeNode(),
-          "The address of the delegate authority"
-        ),
+        k.publicKeySeed("delegate", "The address of the delegate authority"),
       ],
     },
     collectionAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
         k.literalSeed("collection_authority"),
-        k.variableSeed(
+        k.publicKeySeed(
           "collectionAuthority",
-          k.publicKeyTypeNode(),
           "The address of the collection authority"
         ),
       ],
@@ -77,11 +66,7 @@ kinobi.update(
       seeds: [
         ...metadataSeeds,
         k.literalSeed("user"),
-        k.variableSeed(
-          "useAuthority",
-          k.publicKeyTypeNode(),
-          "The address of the use authority"
-        ),
+        k.publicKeySeed("useAuthority", "The address of the use authority"),
       ],
     },
     // Deprecated nodes.
@@ -269,11 +254,10 @@ kinobi.update(
       bytesCreatedOnChain: k.bytesFromResolver("resolveCreateV1Bytes"),
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault(
-            "resolveMasterEdition",
-            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
       },
       args: {
@@ -285,43 +269,34 @@ kinobi.update(
           defaultsTo: k.valueDefault(k.vEnum("TokenStandard", "NonFungible")),
         },
         collectionDetails: {
-          defaultsTo: k.resolverDefault(
-            "resolveCollectionDetails",
-            [k.dependsOnArg("isCollection")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveCollectionDetails", [
+            k.dependsOnArg("isCollection"),
+          ]),
         },
         decimals: {
-          defaultsTo: k.resolverDefault(
-            "resolveDecimals",
-            [k.dependsOnArg("tokenStandard")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveDecimals", [
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         printSupply: {
-          defaultsTo: k.resolverDefault(
-            "resolvePrintSupply",
-            [k.dependsOnArg("tokenStandard")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolvePrintSupply", [
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         creators: {
-          defaultsTo: k.resolverDefault(
-            "resolveCreators",
-            [k.dependsOnAccount("authority")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveCreators", [
+            k.dependsOnAccount("authority"),
+          ]),
         },
       },
     },
     mintV1: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault(
-            "resolveMasterEdition",
-            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         tokenOwner: {
           defaultsTo: k.resolverDefault("resolveMintTokenOwner", [], {
@@ -338,15 +313,11 @@ kinobi.update(
           }),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault(
-            "resolveTokenRecord",
-            [
-              k.dependsOnAccount("mint"),
-              k.dependsOnAccount("token"),
-              k.dependsOnArg("tokenStandard"),
-            ],
-            { resolvedIsOptional: false }
-          ),
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
       },
       args: {
