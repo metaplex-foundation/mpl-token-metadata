@@ -1,47 +1,25 @@
 const path = require("path");
-const {
-  Kinobi,
-  CreateSubInstructionsFromEnumArgsVisitor,
-  RenderJavaScriptVisitor,
-  SetAccountDiscriminatorFromFieldVisitor,
-  SetInstructionAccountDefaultValuesVisitor,
-  SetNumberWrappersVisitor,
-  SetStructDefaultValuesVisitor,
-  TypePublicKeyNode,
-  TypeDefinedLinkNode,
-  FlattenStructVisitor,
-  UnwrapDefinedTypesVisitor,
-  UpdateAccountsVisitor,
-  UpdateInstructionsVisitor,
-  vScalar,
-  vNone,
-  vEnum,
-  AutoSetAccountGpaFieldsVisitor,
-  TypeStructNode,
-  TypeStructFieldNode,
-  TypeBoolNode,
-} = require("@metaplex-foundation/kinobi");
+const k = require("@metaplex-foundation/kinobi");
 
 // Paths.
 const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 
 // Instanciate Kinobi.
-const kinobi = new Kinobi([path.join(idlDir, "mpl_token_metadata.json")]);
+const kinobi = k.createFromIdls([path.join(idlDir, "mpl_token_metadata.json")]);
 
 // Update Accounts.
 const metadataSeeds = [
-  { kind: "literal", value: "metadata" },
-  { kind: "programId" },
-  {
-    kind: "variable",
-    name: "mint",
-    description: "The address of the mint account",
-    type: new TypePublicKeyNode(),
-  },
+  k.literalSeed("metadata"),
+  k.programSeed(),
+  k.variableSeed(
+    "mint",
+    k.publicKeyTypeNode(),
+    "The address of the mint account"
+  ),
 ];
 kinobi.update(
-  new UpdateAccountsVisitor({
+  new k.UpdateAccountsVisitor({
     metadata: {
       size: 679,
       seeds: metadataSeeds,
@@ -49,69 +27,61 @@ kinobi.update(
     masterEditionV2: {
       size: 282,
       name: "masterEdition",
-      seeds: [...metadataSeeds, { kind: "literal", value: "edition" }],
+      seeds: [...metadataSeeds, k.literalSeed("edition")],
     },
     tokenRecord: {
       size: 80,
       seeds: [
         ...metadataSeeds,
-        { kind: "literal", value: "token_record" },
-        {
-          kind: "variable",
-          name: "token",
-          description: "The address of the token account (ata or not)",
-          type: new TypePublicKeyNode(),
-        },
+        k.literalSeed("token_record"),
+        k.variableSeed(
+          "token",
+          k.publicKeyTypeNode(),
+          "The address of the token account (ata or not)"
+        ),
       ],
     },
     metadataDelegateRecord: {
       size: 98,
       seeds: [
         ...metadataSeeds,
-        {
-          kind: "variable",
-          name: "delegateRole",
-          description: "The role of the metadata delegate",
-          type: new TypeDefinedLinkNode("metadataDelegateRoleSeed", {
-            importFrom: "hooked",
-          }),
-        },
-        {
-          kind: "variable",
-          name: "updateAuthority",
-          description: "The address of the metadata's update authority",
-          type: new TypePublicKeyNode(),
-        },
-        {
-          kind: "variable",
-          name: "delegate",
-          description: "The address of delegate authority",
-          type: new TypePublicKeyNode(),
-        },
+        k.variableSeed(
+          "delegateRole",
+          k.linkTypeNode("metadataDelegateRoleSeed", { importFrom: "hooked" }),
+          "The role of the metadata delegate"
+        ),
+        k.variableSeed(
+          "updateAuthority",
+          k.publicKeyTypeNode(),
+          "The address of the metadata's update authority"
+        ),
+        k.variableSeed(
+          "delegate",
+          k.publicKeyTypeNode(),
+          "The address of the delegate"
+        ),
       ],
     },
     collectionAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        { kind: "literal", value: "collection_authority" },
-        {
-          kind: "variable",
-          name: "collectionAuthority",
-          description: "The address of the collection authority",
-          type: new TypePublicKeyNode(),
-        },
+        k.literalSeed("collection_authority"),
+        k.variableSeed(
+          "collectionAuthority",
+          k.publicKeyTypeNode(),
+          "The address of the collection authority"
+        ),
       ],
     },
     useAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        { kind: "literal", value: "user" },
-        {
-          kind: "variable",
-          name: "useAuthority",
-          description: "The address of the use authority",
-          type: new TypePublicKeyNode(),
-        },
+        k.literalSeed("user"),
+        k.variableSeed(
+          "useAuthority",
+          k.publicKeyTypeNode(),
+          "The address of the use authority"
+        ),
       ],
     },
     // Deprecated nodes.
@@ -123,49 +93,56 @@ kinobi.update(
 
 // Set default values for instruction accounts.
 kinobi.update(
-  new SetInstructionAccountDefaultValuesVisitor([
-    { account: "updateAuthority", kind: "identity", ignoreIfOptional: true },
-    { account: "metadata", kind: "pda", ignoreIfOptional: true },
-    { account: "tokenRecord", kind: "pda", ignoreIfOptional: true },
+  new k.SetInstructionAccountDefaultValuesVisitor([
+    {
+      account: "updateAuthority",
+      ignoreIfOptional: true,
+      ...k.identityDefault(),
+    },
+    {
+      account: "metadata",
+      ignoreIfOptional: true,
+      ...k.pdaDefault("metadata"),
+    },
+    {
+      account: "tokenRecord",
+      ignoreIfOptional: true,
+      ...k.pdaDefault("tokenRecord"),
+    },
     {
       account: /^edition|masterEdition$/,
-      kind: "pda",
-      pdaAccount: "masterEdition",
       ignoreIfOptional: true,
+      ...k.pdaDefault("masterEdition"),
     },
   ])
 );
 
 // Update Instructions.
 kinobi.update(
-  new UpdateInstructionsVisitor({
+  new k.UpdateInstructionsVisitor({
     Create: {
-      bytesCreatedOnChain: {
-        kind: "number",
-        includeHeader: false,
-        value:
-          82 + // Mint account.
+      bytesCreatedOnChain: k.bytesFromNumber(
+        82 + // Mint account.
           679 + // Metadata account.
           282 + // Master edition account.
           128 * 3, // 3 account headers.
-      },
+        { includeHeader: false }
+      ),
       accounts: {
         mint: { isSigner: "either" },
         updateAuthority: {
           isSigner: "either",
-          defaultsTo: { kind: "account", name: "authority" },
+          defaultsTo: k.accountDefault("authority"),
         },
       },
     },
     Mint: {
-      bytesCreatedOnChain: {
-        kind: "number",
-        includeHeader: false,
-        value:
-          165 + // Token account.
+      bytesCreatedOnChain: k.bytesFromNumber(
+        165 + // Token account.
           47 + // Token Record account.
           128 * 2, // 2 account headers.
-      },
+        { includeHeader: false }
+      ),
     },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
@@ -182,10 +159,10 @@ kinobi.update(
 // Set account discriminators.
 const key = (name) => ({
   field: "key",
-  value: vEnum("Key", name),
+  value: k.vEnum("Key", name),
 });
 kinobi.update(
-  new SetAccountDiscriminatorFromFieldVisitor({
+  new k.SetAccountDiscriminatorFromFieldVisitor({
     Edition: key("EditionV1"),
     Metadata: key("MetadataV1"),
     MasterEdition: key("MasterEditionV2"),
@@ -200,7 +177,7 @@ kinobi.update(
 
 // Wrap leaves.
 kinobi.update(
-  new SetNumberWrappersVisitor({
+  new k.SetNumberWrappersVisitor({
     "AssetData.sellerFeeBasisPoints": {
       kind: "Amount",
       identifier: "%",
@@ -211,41 +188,41 @@ kinobi.update(
 
 // Set struct default values.
 kinobi.update(
-  new SetStructDefaultValuesVisitor({
+  new k.SetStructDefaultValuesVisitor({
     assetData: {
-      symbol: vScalar(""),
-      isMutable: vScalar(true),
-      primarySaleHappened: vScalar(false),
-      collection: vNone(),
-      uses: vNone(),
-      collectionDetails: vNone(),
-      ruleSet: vNone(),
+      symbol: k.vScalar(""),
+      isMutable: k.vScalar(true),
+      primarySaleHappened: k.vScalar(false),
+      collection: k.vNone(),
+      uses: k.vNone(),
+      collectionDetails: k.vNone(),
+      ruleSet: k.vNone(),
     },
     "createArgs.V1": {
-      decimals: vNone(),
-      printSupply: vNone(),
+      decimals: k.vNone(),
+      printSupply: k.vNone(),
     },
     "updateArgs.V1": {
-      newUpdateAuthority: vNone(),
-      data: vNone(),
-      primarySaleHappened: vNone(),
-      isMutable: vNone(),
-      collection: vEnum("CollectionToggle", "None", "empty"),
-      collectionDetails: vEnum("CollectionDetailsToggle", "None", "empty"),
-      uses: vEnum("UsesToggle", "None", "empty"),
-      ruleSet: vEnum("RuleSetToggle", "None", "empty"),
-      authorizationData: vNone(),
+      newUpdateAuthority: k.vNone(),
+      data: k.vNone(),
+      primarySaleHappened: k.vNone(),
+      isMutable: k.vNone(),
+      collection: k.vEnum("CollectionToggle", "None", "empty"),
+      collectionDetails: k.vEnum("CollectionDetailsToggle", "None", "empty"),
+      uses: k.vEnum("UsesToggle", "None", "empty"),
+      ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
+      authorizationData: k.vNone(),
     },
     "mintArgs.V1": {
-      authorizationData: vNone(),
+      authorizationData: k.vNone(),
     },
   })
 );
 
 // Unwrap types and structs.
-kinobi.update(new UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
+kinobi.update(new k.UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(
-  new FlattenStructVisitor({
+  new k.FlattenStructVisitor({
     Metadata: ["data"],
     CreateMetadataAccountInstructionArgs: ["data"],
     "CreateArgs.V1": ["assetData"],
@@ -254,7 +231,7 @@ kinobi.update(
 
 // Create versioned instructions.
 kinobi.update(
-  new CreateSubInstructionsFromEnumArgsVisitor({
+  new k.CreateSubInstructionsFromEnumArgsVisitor({
     burn: "burnArgs",
     create: "createArgs",
     delegate: "delegateArgs",
@@ -276,137 +253,88 @@ kinobi.update(
 const collectionMintDefaults = {
   collectionMint: { isOptional: false, defaultsTo: null },
   collectionMetadata: {
-    defaultsTo: {
-      kind: "pda",
-      pdaAccount: "metadata",
-      seeds: { mint: { kind: "account", name: "collectionMint" } },
-    },
+    defaultsTo: k.pdaDefault("metadata", {
+      seeds: { mint: k.accountDefault("collectionMint") },
+    }),
   },
   collectionMasterEdition: {
-    defaultsTo: {
-      kind: "pda",
-      pdaAccount: "masterEdition",
-      seeds: { mint: { kind: "account", name: "collectionMint" } },
-    },
+    defaultsTo: k.pdaDefault("masterEdition", {
+      seeds: { mint: k.accountDefault("collectionMint") },
+    }),
   },
 };
 kinobi.update(
-  new UpdateInstructionsVisitor({
+  new k.UpdateInstructionsVisitor({
     createV1: {
-      bytesCreatedOnChain: {
-        kind: "resolver",
-        name: "resolveCreateV1Bytes",
-        importFrom: "hooked",
-      },
+      bytesCreatedOnChain: k.bytesFromResolver("resolveCreateV1Bytes"),
       accounts: {
         masterEdition: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveMasterEdition",
-            importFrom: "hooked",
-            resolvedIsSigner: false,
-            resolvedIsOptional: false,
-            dependsOn: [
-              { kind: "account", name: "mint" },
-              { kind: "arg", name: "tokenStandard" },
-            ],
-          },
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
       },
       args: {
         isCollection: {
-          type: new TypeBoolNode(),
-          defaultsTo: { kind: "value", value: vScalar(false) },
+          type: k.boolTypeNode(),
+          defaultsTo: k.valueDefault(k.vScalar(false)),
         },
         tokenStandard: {
-          defaultsTo: {
-            kind: "value",
-            value: vEnum("TokenStandard", "NonFungible"),
-          },
+          defaultsTo: k.valueDefault(k.vEnum("TokenStandard", "NonFungible")),
         },
         collectionDetails: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveCollectionDetails",
-            dependsOn: [{ kind: "arg", name: "isCollection" }],
-          },
+          defaultsTo: k.resolverDefault("resolveCollectionDetails", [
+            k.dependsOnArg("isCollection"),
+          ]),
         },
         decimals: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveDecimals",
-            dependsOn: [{ kind: "arg", name: "tokenStandard" }],
-          },
+          defaultsTo: k.resolverDefault("resolveDecimals", [
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         printSupply: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolvePrintSupply",
-            dependsOn: [{ kind: "arg", name: "tokenStandard" }],
-          },
+          defaultsTo: k.resolverDefault("resolvePrintSupply", [
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         creators: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveCreators",
-            dependsOn: [{ kind: "account", name: "authority" }],
-          },
+          defaultsTo: k.resolverDefault("resolveCreators", [
+            k.dependsOnAccount("authority"),
+          ]),
         },
       },
     },
     mintV1: {
       accounts: {
         masterEdition: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveMasterEdition",
-            importFrom: "hooked",
-            resolvedIsSigner: false,
-            resolvedIsOptional: false,
-            dependsOn: [
-              { kind: "account", name: "mint" },
-              { kind: "arg", name: "tokenStandard" },
-            ],
-          },
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         tokenOwner: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveMintTokenOwner",
-            importFrom: "hooked",
-            resolvedIsSigner: false,
-            resolvedIsOptional: false,
-            dependsOn: [],
-          },
+          defaultsTo: k.resolverDefault("resolveMintTokenOwner", []),
         },
         token: {
-          defaultsTo: {
-            kind: "pda",
-            pdaAccount: "associatedToken",
+          defaultsTo: k.pdaDefault("associatedToken", {
             importFrom: "mplEssentials",
             seeds: {
-              mint: { kind: "account", name: "mint" },
-              owner: { kind: "account", name: "tokenOwner" },
+              mint: k.accountDefault("mint"),
+              owner: k.accountDefault("tokenOwner"),
             },
-          },
+          }),
         },
         tokenRecord: {
-          defaultsTo: {
-            kind: "resolver",
-            name: "resolveTokenRecord",
-            importFrom: "hooked",
-            resolvedIsSigner: false,
-            resolvedIsOptional: false,
-            dependsOn: [
-              { kind: "account", name: "mint" },
-              { kind: "account", name: "token" },
-              { kind: "arg", name: "tokenStandard" },
-            ],
-          },
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
       },
       args: {
-        tokenStandard: { type: new TypeDefinedLinkNode("tokenStandard") },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
@@ -414,10 +342,7 @@ kinobi.update(
   })
 );
 
-// Reset the gpaFields.
-kinobi.update(new AutoSetAccountGpaFieldsVisitor({ override: true }));
-
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
-kinobi.accept(new RenderJavaScriptVisitor(jsDir, { prettier }));
+kinobi.accept(new k.RenderJavaScriptVisitor(jsDir, { prettier }));
