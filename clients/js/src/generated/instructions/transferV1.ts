@@ -20,7 +20,11 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveTokenRecord } from '../../hooked';
+import {
+  resolveDestinationTokenRecord,
+  resolveMasterEditionForProgrammables,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
@@ -173,7 +177,17 @@ export function transferV1(
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
+  addObjectProperty(
+    resolvingAccounts,
+    'edition',
+    input.edition ??
+      resolveMasterEditionForProgrammables(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
@@ -188,7 +202,13 @@ export function transferV1(
   addObjectProperty(
     resolvingAccounts,
     'destinationTokenRecord',
-    input.destinationTokenRecord ?? programId
+    input.destinationTokenRecord ??
+      resolveDestinationTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,

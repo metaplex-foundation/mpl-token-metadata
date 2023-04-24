@@ -42,6 +42,16 @@ export const resolveMasterEdition = (
     ? findMasterEditionPda(context, { mint: publicKey(accounts.mint) })
     : programId;
 
+export const resolveMasterEditionForProgrammables = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { mint: PublicKey | Signer },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey | Pda =>
+  isNonFungible(args.tokenStandard) && isProgrammable(args.tokenStandard)
+    ? findMasterEditionPda(context, { mint: publicKey(accounts.mint) })
+    : programId;
+
 export const resolveDecimals = (
   context: any,
   accounts: any,
@@ -97,5 +107,18 @@ export const resolveTokenRecord = (
     ? findTokenRecordPda(context, {
         mint: publicKey(accounts.mint),
         token: accounts.token,
+      })
+    : programId;
+
+export const resolveDestinationTokenRecord = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { mint: PublicKey | Signer; destinationToken: PublicKey },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey | Pda =>
+  isProgrammable(args.tokenStandard)
+    ? findTokenRecordPda(context, {
+        mint: publicKey(accounts.mint),
+        token: accounts.destinationToken,
       })
     : programId;

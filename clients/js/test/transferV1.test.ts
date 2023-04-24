@@ -1,15 +1,16 @@
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import { PublicKey, generateSigner, publicKey } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   DigitalAssetWithToken,
   TokenStandard,
+  TokenState,
   fetchDigitalAssetWithAssociatedToken,
   transferV1,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
-test('it can transfer a NonFungible to another wallet', async (t) => {
+test('it can transfer a NonFungible', async (t) => {
   // Given a NonFungible that belongs to owner A.
   const umi = await createUmi();
   const ownerA = generateSigner(umi);
@@ -41,6 +42,46 @@ test('it can transfer a NonFungible to another wallet', async (t) => {
       }) as PublicKey,
       owner: ownerB,
       amount: 1n,
+    },
+  });
+});
+
+test('it can transfer a ProgrammableNonFungible', async (t) => {
+  // Given a ProgrammableNonFungible that belongs to owner A.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi);
+  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+    tokenOwner: ownerA.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+  });
+
+  // When we transfer the asset to owner B.
+  const ownerB = generateSigner(umi).publicKey;
+  await transferV1(umi, {
+    mint,
+    authority: ownerA,
+    tokenOwner: ownerA.publicKey,
+    destinationOwner: ownerB,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+  }).sendAndConfirm(umi);
+
+  // Then the asset is now owned by owner B.
+  const da = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerB);
+  t.like(da, <DigitalAssetWithToken>{
+    mint: {
+      publicKey: publicKey(mint),
+      supply: 1n,
+    },
+    token: {
+      publicKey: findAssociatedTokenPda(umi, {
+        mint,
+        owner: ownerB,
+      }) as PublicKey,
+      owner: ownerB,
+      amount: 1n,
+    },
+    tokenRecord: {
+      state: TokenState.Unlocked,
     },
   });
 });

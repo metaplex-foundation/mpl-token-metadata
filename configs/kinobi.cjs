@@ -333,6 +333,12 @@ kinobi.update(
         tokenOwner: {
           defaultsTo: k.identityDefault(),
         },
+        edition: {
+          defaultsTo: k.resolverDefault(
+            "resolveMasterEditionForProgrammables",
+            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")]
+          ),
+        },
         ownerTokenRecord: {
           name: "tokenRecord",
           defaultsTo: k.resolverDefault("resolveTokenRecord", [
@@ -344,6 +350,13 @@ kinobi.update(
         destination: {
           name: "destinationToken",
           defaultsTo: ataPdaDefault("mint", "destinationOwner"),
+        },
+        destinationTokenRecord: {
+          defaultsTo: k.resolverDefault("resolveDestinationTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("destinationToken"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
       },
       args: {
