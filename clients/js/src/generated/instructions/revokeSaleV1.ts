@@ -175,7 +175,6 @@ export function revokeSaleV1(
       )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Delegate Record.
   keys.push({

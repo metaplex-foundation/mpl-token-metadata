@@ -181,7 +181,6 @@ export function revokeProgrammableConfigV1(
       )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Delegate Record.
   keys.push({

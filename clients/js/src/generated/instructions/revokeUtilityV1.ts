@@ -181,7 +181,6 @@ export function revokeUtilityV1(
       )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Delegate Record.
   keys.push({
