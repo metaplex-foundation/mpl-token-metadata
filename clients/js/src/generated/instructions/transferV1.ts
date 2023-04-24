@@ -37,7 +37,7 @@ export type TransferV1InstructionAccounts = {
   /** Token account owner */
   tokenOwner?: PublicKey;
   /** Destination token account */
-  destinationToken: PublicKey;
+  destinationToken?: PublicKey;
   /** Destination token account owner */
   destinationOwner: PublicKey;
   /** Mint of token asset */
@@ -157,6 +157,15 @@ export function transferV1(
       findAssociatedTokenPda(context, {
         mint: publicKey(input.mint),
         owner: publicKey(resolvingAccounts.tokenOwner),
+      })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'destinationToken',
+    input.destinationToken ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(input.destinationOwner),
       })
   );
   addObjectProperty(

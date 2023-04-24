@@ -343,6 +343,7 @@ kinobi.update(
         },
         destination: {
           name: "destinationToken",
+          defaultsTo: ataPdaDefault("mint", "destinationOwner"),
         },
       },
       args: {
