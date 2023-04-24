@@ -12,6 +12,8 @@ import {
   GetDataEnumKindContent,
   Option,
   Serializer,
+  mapSerializer,
+  none,
 } from '@metaplex-foundation/umi';
 import {
   AuthorizationData,
@@ -26,7 +28,7 @@ export type LockArgs = {
 
 export type LockArgsArgs = {
   __kind: 'V1';
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getLockArgsSerializer(
@@ -37,12 +39,23 @@ export function getLockArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<LockArgs, 'V1'>>([
-          [
-            'authorizationData',
-            s.option(getAuthorizationDataSerializer(context)),
-          ],
-        ]),
+        mapSerializer<
+          GetDataEnumKindContent<LockArgsArgs, 'V1'>,
+          GetDataEnumKindContent<LockArgs, 'V1'>,
+          GetDataEnumKindContent<LockArgs, 'V1'>
+        >(
+          s.struct<GetDataEnumKindContent<LockArgs, 'V1'>>([
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) =>
+            ({
+              ...value,
+              authorizationData: value.authorizationData ?? none(),
+            } as GetDataEnumKindContent<LockArgs, 'V1'>)
+        ),
       ],
     ],
     { description: 'LockArgs' }

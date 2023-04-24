@@ -214,6 +214,22 @@ kinobi.update(
   })
 );
 
+// Set more struct default values dynamically.
+kinobi.update(
+  new k.TransformNodesVisitor([
+    {
+      selector: { kind: "structFieldTypeNode", name: "authorizationData" },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vNone() },
+        });
+      },
+    },
+  ])
+);
+
 // Unwrap types and structs.
 kinobi.update(new k.UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
 kinobi.update(

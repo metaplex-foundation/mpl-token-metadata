@@ -15,6 +15,7 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -67,7 +68,7 @@ export type DelegateProgrammableConfigV1InstructionData = {
 };
 
 export type DelegateProgrammableConfigV1InstructionDataArgs = {
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateProgrammableConfigV1InstructionDataSerializer(
@@ -98,6 +99,7 @@ export function getDelegateProgrammableConfigV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateProgrammableConfigV1Discriminator: 8,
+        authorizationData: value.authorizationData ?? none(),
       } as DelegateProgrammableConfigV1InstructionData)
   ) as Serializer<
     DelegateProgrammableConfigV1InstructionDataArgs,

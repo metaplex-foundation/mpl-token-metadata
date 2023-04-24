@@ -15,6 +15,7 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -69,7 +70,7 @@ export type DelegateSaleV1InstructionData = {
 
 export type DelegateSaleV1InstructionDataArgs = {
   amount: number | bigint;
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateSaleV1InstructionDataSerializer(
@@ -101,6 +102,7 @@ export function getDelegateSaleV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateSaleV1Discriminator: 1,
+        authorizationData: value.authorizationData ?? none(),
       } as DelegateSaleV1InstructionData)
   ) as Serializer<
     DelegateSaleV1InstructionDataArgs,

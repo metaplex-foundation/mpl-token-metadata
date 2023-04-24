@@ -15,6 +15,7 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -65,7 +66,7 @@ export type LockV1InstructionData = {
 };
 
 export type LockV1InstructionDataArgs = {
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getLockV1InstructionDataSerializer(
@@ -93,6 +94,7 @@ export function getLockV1InstructionDataSerializer(
         ...value,
         discriminator: 46,
         lockV1Discriminator: 0,
+        authorizationData: value.authorizationData ?? none(),
       } as LockV1InstructionData)
   ) as Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
 }
