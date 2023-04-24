@@ -122,3 +122,19 @@ export const resolveDestinationTokenRecord = (
         token: accounts.destinationToken,
       })
     : programId;
+
+export const resolveAuthorizationRulesProgram = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { authorizationRules?: PublicKey },
+  args: any,
+  programId: PublicKey
+): PublicKey & { isWritable?: false } =>
+  accounts.authorizationRules
+    ? {
+        ...context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        ),
+        isWritable: false,
+      }
+    : programId;

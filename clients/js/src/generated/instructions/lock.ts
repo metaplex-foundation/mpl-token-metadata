@@ -17,6 +17,7 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import { LockArgs, LockArgsArgs, getLockArgsSerializer } from '../types';
@@ -148,13 +149,19 @@ export function lock(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    'authorizationRules',
+    input.authorizationRules ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRules',
-    input.authorizationRules ?? programId
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

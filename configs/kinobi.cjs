@@ -99,6 +99,12 @@ kinobi.update(
       ignoreIfOptional: true,
       ...k.pdaDefault("masterEdition"),
     },
+    {
+      account: "authorizationRulesProgram",
+      ...k.resolverDefault("resolveAuthorizationRulesProgram", [
+        k.dependsOnAccount("authorizationRules"),
+      ]),
+    },
   ])
 );
 

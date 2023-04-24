@@ -17,6 +17,7 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 
@@ -107,6 +108,7 @@ export function revokeSaleV1(
 
   // Resolved inputs.
   const resolvingAccounts = {};
+  const resolvingArgs = {};
   addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
@@ -158,15 +160,22 @@ export function revokeSaleV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
   );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Delegate Record.
   keys.push({
