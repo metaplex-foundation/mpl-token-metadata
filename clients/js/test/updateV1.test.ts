@@ -10,28 +10,28 @@ import {
 import { createDigitalAsset, createUmi } from './_setup';
 
 test('it can update a NonFungible', async (t) => {
-  // Given an existing NFT.
+  // Given an existing NonFungible.
   const umi = await createUmi();
-  const mint = await createDigitalAsset(umi, { name: 'NFT #1' });
+  const mint = await createDigitalAsset(umi, { name: 'NonFungible #1' });
   const initialMetadata = findMetadataPda(umi, { mint: mint.publicKey });
   const initialMetadataAccount = await fetchMetadata(umi, initialMetadata);
 
-  // When we update the name of the NFT.
+  // When we update the name of the NonFungible.
   await updateV1(umi, {
     mint: mint.publicKey,
-    data: some({ ...initialMetadataAccount, name: 'NFT #2' }),
+    data: some({ ...initialMetadataAccount, name: 'NonFungible #2' }),
   }).sendAndConfirm(umi);
 
   // Then the account data was updated.
   const updatedMetadataAccount = await fetchMetadata(umi, initialMetadata);
-  t.like(updatedMetadataAccount, <Metadata>{ name: 'NFT #2' });
+  t.like(updatedMetadataAccount, <Metadata>{ name: 'NonFungible #2' });
 });
 
 test('it can update a ProgrammableNonFungible', async (t) => {
-  // Given an existing PNFT.
+  // Given an existing ProgrammableNonFungible.
   const umi = await createUmi();
   const mint = await createDigitalAsset(umi, {
-    name: 'NFT #1',
+    name: 'ProgrammableNonFungible #1',
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
   const initialMetadata = findMetadataPda(umi, { mint: mint.publicKey });
@@ -40,10 +40,57 @@ test('it can update a ProgrammableNonFungible', async (t) => {
   // When we update the name of the PNFT.
   await updateV1(umi, {
     mint: mint.publicKey,
-    data: some({ ...initialMetadataAccount, name: 'NFT #2' }),
+    data: some({
+      ...initialMetadataAccount,
+      name: 'ProgrammableNonFungible #2',
+    }),
   }).sendAndConfirm(umi);
 
   // Then the account data was updated.
   const updatedMetadataAccount = await fetchMetadata(umi, initialMetadata);
-  t.like(updatedMetadataAccount, <Metadata>{ name: 'NFT #2' });
+  t.like(updatedMetadataAccount, <Metadata>{
+    name: 'ProgrammableNonFungible #2',
+  });
+});
+
+test('it can update a Fungible', async (t) => {
+  // Given an existing Fungible.
+  const umi = await createUmi();
+  const mint = await createDigitalAsset(umi, {
+    name: 'Fungible #1',
+    tokenStandard: TokenStandard.Fungible,
+  });
+  const initialMetadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const initialMetadataAccount = await fetchMetadata(umi, initialMetadata);
+
+  // When we update the name of the Fungible.
+  await updateV1(umi, {
+    mint: mint.publicKey,
+    data: some({ ...initialMetadataAccount, name: 'Fungible #2' }),
+  }).sendAndConfirm(umi);
+
+  // Then the account data was updated.
+  const updatedMetadataAccount = await fetchMetadata(umi, initialMetadata);
+  t.like(updatedMetadataAccount, <Metadata>{ name: 'Fungible #2' });
+});
+
+test('it can update a FungibleAsset', async (t) => {
+  // Given an existing FungibleAsset.
+  const umi = await createUmi();
+  const mint = await createDigitalAsset(umi, {
+    name: 'FungibleAsset #1',
+    tokenStandard: TokenStandard.FungibleAsset,
+  });
+  const initialMetadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const initialMetadataAccount = await fetchMetadata(umi, initialMetadata);
+
+  // When we update the name of the FungibleAsset.
+  await updateV1(umi, {
+    mint: mint.publicKey,
+    data: some({ ...initialMetadataAccount, name: 'FungibleAsset #2' }),
+  }).sendAndConfirm(umi);
+
+  // Then the account data was updated.
+  const updatedMetadataAccount = await fetchMetadata(umi, initialMetadata);
+  t.like(updatedMetadataAccount, <Metadata>{ name: 'FungibleAsset #2' });
 });
