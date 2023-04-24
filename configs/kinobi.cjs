@@ -202,13 +202,8 @@ kinobi.update(
       collectionDetails: k.vEnum("CollectionDetailsToggle", "None", "empty"),
       uses: k.vEnum("UsesToggle", "None", "empty"),
       ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
-      authorizationData: k.vNone(),
-    },
-    "mintArgs.V1": {
-      authorizationData: k.vNone(),
     },
     "transferArgs.V1": {
-      authorizationData: k.vNone(),
       amount: k.vScalar(1),
     },
   })
