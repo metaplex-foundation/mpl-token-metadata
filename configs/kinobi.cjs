@@ -201,6 +201,10 @@ kinobi.update(
     "mintArgs.V1": {
       authorizationData: k.vNone(),
     },
+    "transferArgs.V1": {
+      authorizationData: k.vNone(),
+      amount: k.vScalar(1),
+    },
   })
 );
 
@@ -235,6 +239,11 @@ kinobi.update(
 );
 
 // Update versioned instructions.
+const ataPdaDefault = (mint = "mint", owner = "owner") =>
+  k.pdaDefault("associatedToken", {
+    importFrom: "mplEssentials",
+    seeds: { mint: k.accountDefault(mint), owner: k.accountDefault(owner) },
+  });
 const collectionMintDefaults = {
   collectionMint: { isOptional: false, defaultsTo: null },
   collectionMetadata: {
@@ -299,18 +308,10 @@ kinobi.update(
           ]),
         },
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveMintTokenOwner", [], {
-            resolvedIsOptional: false,
-          }),
+          defaultsTo: k.resolverDefault("resolveMintTokenOwner", []),
         },
         token: {
-          defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplEssentials",
-            seeds: {
-              mint: k.accountDefault("mint"),
-              owner: k.accountDefault("tokenOwner"),
-            },
-          }),
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
         tokenRecord: {
           defaultsTo: k.resolverDefault("resolveTokenRecord", [
@@ -318,6 +319,30 @@ kinobi.update(
             k.dependsOnAccount("token"),
             k.dependsOnArg("tokenStandard"),
           ]),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    transferV1: {
+      accounts: {
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        tokenOwner: {
+          defaultsTo: k.identityDefault(),
+        },
+        ownerTokenRecord: {
+          name: "tokenRecord",
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        destination: {
+          name: "destinationToken",
         },
       },
       args: {
