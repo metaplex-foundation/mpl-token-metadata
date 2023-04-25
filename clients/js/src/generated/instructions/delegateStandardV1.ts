@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -22,8 +23,8 @@ import {
   resolveMasterEdition,
   resolveTokenRecord,
 } from '../../hooked';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import { TokenStandardArgs } from '../types';
 
 // Accounts.
@@ -105,12 +106,15 @@ export function getDelegateStandardV1InstructionDataSerializer(
 // Extra Args.
 export type DelegateStandardV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
+  tokenOwner: PublicKey;
 };
 
 // Args.
-export type DelegateStandardV1InstructionArgs =
+export type DelegateStandardV1InstructionArgs = PickPartial<
   DelegateStandardV1InstructionDataArgs &
-    DelegateStandardV1InstructionExtraArgs;
+    DelegateStandardV1InstructionExtraArgs,
+  'tokenOwner'
+>;
 
 // Instruction.
 export function delegateStandardV1(
@@ -137,9 +141,27 @@ export function delegateStandardV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: resolvingArgs.tokenOwner,
+      })
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findTokenRecordPda(context, {
+        mint: publicKey(input.mint),
+        token: publicKey(resolvingAccounts.token),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -157,7 +179,6 @@ export function delegateStandardV1(
         programId
       )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
@@ -195,7 +216,13 @@ export function delegateStandardV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
   );
   addObjectProperty(
     resolvingAccounts,

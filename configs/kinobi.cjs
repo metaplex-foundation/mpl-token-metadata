@@ -458,6 +458,11 @@ kinobi.update(
     delegateLockedTransferV1: approveTokenDelegateDefaults,
     delegateProgrammableConfigV1:
       approveMetadataDelegateDefaults("ProgrammableConfig"),
+    delegateSaleV1: approveTokenDelegateDefaults,
+    delegateStakingV1: approveTokenDelegateDefaults,
+    delegateStandardV1: approveTokenDelegateDefaults,
+    delegateTransferV1: approveTokenDelegateDefaults,
+    delegateUpdateV1: approveMetadataDelegateDefaults("Update"),
     delegateUtilityV1: approveTokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
