@@ -434,10 +434,29 @@ kinobi.update(
         },
       },
     },
-    delegateUtilityV1: approveTokenDelegateDefaults,
-    delegateUpdateV1: {
-      accounts: {},
+    delegateCollectionV1: {
+      accounts: {
+        delegateRecord: {
+          defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+            seeds: {
+              mint: k.accountDefault("mint"),
+              delegateRole: k.valueDefault(
+                k.vEnum("MetadataDelegateRole", "Collection")
+              ),
+              updateAuthority: k.argDefault("updateAuthority"),
+              delegate: k.accountDefault("delegate"),
+            },
+          }),
+        },
+      },
+      args: {
+        updateAuthority: {
+          type: k.publicKeyTypeNode(),
+          defaultsTo: k.identityDefault(),
+        },
+      },
     },
+    delegateUtilityV1: approveTokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
