@@ -17,10 +17,19 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
-import { RevokeArgs, RevokeArgsArgs, getRevokeArgsSerializer } from '../types';
+import {
+  RevokeArgs,
+  RevokeArgsArgs,
+  TokenStandardArgs,
+  getRevokeArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type RevokeInstructionAccounts = {
@@ -82,8 +91,12 @@ export function getRevokeInstructionDataSerializer(
   ) as Serializer<RevokeInstructionDataArgs, RevokeInstructionData>;
 }
 
+// Extra Args.
+export type RevokeInstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type RevokeInstructionArgs = RevokeInstructionDataArgs;
+export type RevokeInstructionArgs = RevokeInstructionDataArgs &
+  RevokeInstructionExtraArgs;
 
 // Instruction.
 export function revoke(
@@ -121,14 +134,26 @@ export function revoke(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',

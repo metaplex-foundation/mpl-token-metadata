@@ -17,9 +17,14 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
+import { TokenStandardArgs } from '../types';
 
 // Accounts.
 export type RevokeMigrationV1InstructionAccounts = {
@@ -92,13 +97,22 @@ export function getRevokeMigrationV1InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type RevokeMigrationV1InstructionExtraArgs = {
+  tokenStandard: TokenStandardArgs;
+};
+
+// Args.
+export type RevokeMigrationV1InstructionArgs =
+  RevokeMigrationV1InstructionExtraArgs;
+
 // Instruction.
 export function revokeMigrationV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: RevokeMigrationV1InstructionAccounts
+  input: RevokeMigrationV1InstructionAccounts & RevokeMigrationV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -128,14 +142,26 @@ export function revokeMigrationV1(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',

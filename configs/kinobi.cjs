@@ -224,6 +224,28 @@ kinobi.update(
         },
       },
     },
+    revoke: {
+      accounts: {
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: {
+          type: k.linkTypeNode("tokenStandard"),
+        },
+      },
+    },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
@@ -470,6 +492,22 @@ kinobi.update(
     delegateTransferV1: approveTokenDelegateDefaults,
     delegateUpdateV1: approveMetadataDelegateDefaults("Update"),
     delegateUtilityV1: approveTokenDelegateDefaults,
+    revokeCollectionV1: approveMetadataDelegateDefaults("Collection"),
+    revokeLockedTransferV1: approveTokenDelegateDefaults,
+    revokeProgrammableConfigV1:
+      approveMetadataDelegateDefaults("ProgrammableConfig"),
+    revokeSaleV1: approveTokenDelegateDefaults,
+    revokeStakingV1: approveTokenDelegateDefaults,
+    revokeStandardV1: {
+      ...approveTokenDelegateDefaults,
+      accounts: {
+        ...approveTokenDelegateDefaults.accounts,
+        tokenRecord: { defaultsTo: k.programIdDefault() },
+      },
+    },
+    revokeTransferV1: approveTokenDelegateDefaults,
+    revokeUpdateV1: approveMetadataDelegateDefaults("Update"),
+    revokeUtilityV1: approveTokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
