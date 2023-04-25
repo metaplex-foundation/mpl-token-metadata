@@ -1,6 +1,5 @@
 import { generateSigner, publicKey } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   DigitalAssetWithToken,
   TokenStandard,
@@ -21,7 +20,7 @@ test('it can approve a utility delegate for a NonFungible', async (t) => {
   const utilityDelegate = generateSigner(umi).publicKey;
   await delegateUtilityV1(umi, {
     mint,
-    token: findAssociatedTokenPda(umi, { mint, owner: owner.publicKey }),
+    tokenOwner: owner.publicKey,
     authority: owner,
     delegate: utilityDelegate,
     tokenStandard: TokenStandard.NonFungible,

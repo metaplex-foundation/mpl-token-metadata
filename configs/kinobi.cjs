@@ -404,13 +404,28 @@ kinobi.update(
     },
     delegateUtilityV1: {
       accounts: {
-        token: { isOptional: false, defaultsTo: null },
+        token: {
+          isOptional: false,
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplEssentials",
+            seeds: {
+              mint: k.accountDefault("mint"),
+              owner: k.argDefault("tokenOwner"),
+            },
+          }),
+        },
         delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
         splTokenProgram: {
           defaultsTo: k.programDefault(
             "splToken",
             "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
           ),
+        },
+      },
+      args: {
+        tokenOwner: {
+          type: k.publicKeyTypeNode(),
+          defaultsTo: k.identityDefault(),
         },
       },
     },

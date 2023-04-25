@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -25,7 +26,7 @@ import {
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -48,7 +49,7 @@ export type DelegateUtilityV1InstructionAccounts = {
   /** Mint of metadata */
   mint: PublicKey;
   /** Token account of mint */
-  token: PublicKey;
+  token?: PublicKey;
   /** Update authority or token owner */
   authority?: Signer;
   /** Payer */
@@ -118,11 +119,14 @@ export function getDelegateUtilityV1InstructionDataSerializer(
 // Extra Args.
 export type DelegateUtilityV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
+  tokenOwner: PublicKey;
 };
 
 // Args.
-export type DelegateUtilityV1InstructionArgs =
-  DelegateUtilityV1InstructionDataArgs & DelegateUtilityV1InstructionExtraArgs;
+export type DelegateUtilityV1InstructionArgs = PickPartial<
+  DelegateUtilityV1InstructionDataArgs & DelegateUtilityV1InstructionExtraArgs,
+  'tokenOwner'
+>;
 
 // Instruction.
 export function delegateUtilityV1(
@@ -148,12 +152,26 @@ export function delegateUtilityV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: resolvingArgs.tokenOwner,
+      })
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
     input.delegateRecord ??
       findTokenRecordPda(context, {
         mint: publicKey(input.mint),
-        token: publicKey(input.token),
+        token: publicKey(resolvingAccounts.token),
       })
   );
   addObjectProperty(
