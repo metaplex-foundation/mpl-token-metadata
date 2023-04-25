@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -17,15 +18,25 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveMintTokenOwner,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
-import { MintArgs, MintArgsArgs, getMintArgsSerializer } from '../types';
+import {
+  MintArgs,
+  MintArgsArgs,
+  TokenStandardArgs,
+  getMintArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type MintInstructionAccounts = {
   /** Token or Associated Token account */
-  token: PublicKey;
+  token?: PublicKey;
   /** Owner of the token account */
   tokenOwner?: PublicKey;
   /** Metadata account (pda of ['metadata', program id, mint id]) */
@@ -81,8 +92,12 @@ export function getMintInstructionDataSerializer(
   ) as Serializer<MintInstructionDataArgs, MintInstructionData>;
 }
 
+// Extra Args.
+export type MintInstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type MintInstructionArgs = MintInstructionDataArgs;
+export type MintInstructionArgs = MintInstructionDataArgs &
+  MintInstructionExtraArgs;
 
 // Instruction.
 export function mint(
@@ -110,7 +125,22 @@ export function mint(
   addObjectProperty(
     resolvingAccounts,
     'tokenOwner',
-    input.tokenOwner ?? programId
+    input.tokenOwner ??
+      resolveMintTokenOwner(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(resolvingAccounts.tokenOwner),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -120,12 +150,24 @@ export function mint(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,

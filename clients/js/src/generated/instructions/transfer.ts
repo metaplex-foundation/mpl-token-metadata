@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -17,10 +18,16 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveDestinationTokenRecord,
+  resolveMasterEditionForProgrammables,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
+  TokenStandardArgs,
   TransferArgs,
   TransferArgsArgs,
   getTransferArgsSerializer,
@@ -29,11 +36,11 @@ import {
 // Accounts.
 export type TransferInstructionAccounts = {
   /** Token account */
-  token: PublicKey;
+  token?: PublicKey;
   /** Token account owner */
-  tokenOwner: PublicKey;
+  tokenOwner?: PublicKey;
   /** Destination token account */
-  destination: PublicKey;
+  destinationToken?: PublicKey;
   /** Destination token account owner */
   destinationOwner: PublicKey;
   /** Mint of token asset */
@@ -43,7 +50,7 @@ export type TransferInstructionAccounts = {
   /** Edition of token asset */
   edition?: PublicKey;
   /** Owner token record account */
-  ownerTokenRecord?: PublicKey;
+  tokenRecord?: PublicKey;
   /** Destination token record account */
   destinationTokenRecord?: PublicKey;
   /** Transfer authority (token owner or delegate) */
@@ -92,8 +99,12 @@ export function getTransferInstructionDataSerializer(
   ) as Serializer<TransferInstructionDataArgs, TransferInstructionData>;
 }
 
+// Extra Args.
+export type TransferInstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type TransferInstructionArgs = TransferInstructionDataArgs;
+export type TransferInstructionArgs = TransferInstructionDataArgs &
+  TransferInstructionExtraArgs;
 
 // Instruction.
 export function transfer(
@@ -120,19 +131,64 @@ export function transfer(
   const resolvingArgs = {};
   addObjectProperty(
     resolvingAccounts,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(resolvingAccounts.tokenOwner),
+      })
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'destinationToken',
+    input.destinationToken ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(input.destinationOwner),
+      })
+  );
+  addObjectProperty(
+    resolvingAccounts,
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
   addObjectProperty(
     resolvingAccounts,
-    'ownerTokenRecord',
-    input.ownerTokenRecord ?? programId
+    'edition',
+    input.edition ??
+      resolveMasterEditionForProgrammables(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'tokenRecord',
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
     'destinationTokenRecord',
-    input.destinationTokenRecord ?? programId
+    input.destinationTokenRecord ??
+      resolveDestinationTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
@@ -212,11 +268,11 @@ export function transfer(
     isWritable: isWritable(resolvedAccounts.tokenOwner, false),
   });
 
-  // Destination.
+  // Destination Token.
   keys.push({
-    pubkey: resolvedAccounts.destination,
+    pubkey: resolvedAccounts.destinationToken,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.destination, true),
+    isWritable: isWritable(resolvedAccounts.destinationToken, true),
   });
 
   // Destination Owner.
@@ -247,11 +303,11 @@ export function transfer(
     isWritable: isWritable(resolvedAccounts.edition, false),
   });
 
-  // Owner Token Record.
+  // Token Record.
   keys.push({
-    pubkey: resolvedAccounts.ownerTokenRecord,
+    pubkey: resolvedAccounts.tokenRecord,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.ownerTokenRecord, true),
+    isWritable: isWritable(resolvedAccounts.tokenRecord, true),
   });
 
   // Destination Token Record.
