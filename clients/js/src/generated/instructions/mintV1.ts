@@ -78,7 +78,7 @@ export type MintV1InstructionData = {
 };
 
 export type MintV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -108,6 +108,7 @@ export function getMintV1InstructionDataSerializer(
         ...value,
         discriminator: 43,
         mintV1Discriminator: 0,
+        amount: value.amount ?? 1,
         authorizationData: value.authorizationData ?? none(),
       } as MintV1InstructionData)
   ) as Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;

@@ -74,7 +74,7 @@ export type DelegateTransferV1InstructionData = {
 };
 
 export type DelegateTransferV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -107,6 +107,7 @@ export function getDelegateTransferV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateTransferV1Discriminator: 2,
+        amount: value.amount ?? 1,
         authorizationData: value.authorizationData ?? none(),
       } as DelegateTransferV1InstructionData)
   ) as Serializer<

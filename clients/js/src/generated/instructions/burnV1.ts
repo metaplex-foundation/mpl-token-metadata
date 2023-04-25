@@ -59,7 +59,7 @@ export type BurnV1InstructionData = {
   amount: bigint;
 };
 
-export type BurnV1InstructionDataArgs = { amount: number | bigint };
+export type BurnV1InstructionDataArgs = { amount?: number | bigint };
 
 export function getBurnV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
@@ -83,6 +83,7 @@ export function getBurnV1InstructionDataSerializer(
         ...value,
         discriminator: 41,
         burnV1Discriminator: 0,
+        amount: value.amount ?? 1,
       } as BurnV1InstructionData)
   ) as Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData>;
 }

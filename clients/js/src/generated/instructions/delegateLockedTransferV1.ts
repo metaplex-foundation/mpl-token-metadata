@@ -75,7 +75,7 @@ export type DelegateLockedTransferV1InstructionData = {
 };
 
 export type DelegateLockedTransferV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   lockedAddress: PublicKey;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
@@ -110,6 +110,7 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateLockedTransferV1Discriminator: 7,
+        amount: value.amount ?? 1,
         authorizationData: value.authorizationData ?? none(),
       } as DelegateLockedTransferV1InstructionData)
   ) as Serializer<

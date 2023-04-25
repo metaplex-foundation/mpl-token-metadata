@@ -65,7 +65,9 @@ export type DelegateStandardV1InstructionData = {
   amount: bigint;
 };
 
-export type DelegateStandardV1InstructionDataArgs = { amount: number | bigint };
+export type DelegateStandardV1InstructionDataArgs = {
+  amount?: number | bigint;
+};
 
 export function getDelegateStandardV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
@@ -92,6 +94,7 @@ export function getDelegateStandardV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateStandardV1Discriminator: 6,
+        amount: value.amount ?? 1,
       } as DelegateStandardV1InstructionData)
   ) as Serializer<
     DelegateStandardV1InstructionDataArgs,

@@ -74,7 +74,7 @@ export type DelegateStakingV1InstructionData = {
 };
 
 export type DelegateStakingV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -107,6 +107,7 @@ export function getDelegateStakingV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateStakingV1Discriminator: 5,
+        amount: value.amount ?? 1,
         authorizationData: value.authorizationData ?? none(),
       } as DelegateStakingV1InstructionData)
   ) as Serializer<

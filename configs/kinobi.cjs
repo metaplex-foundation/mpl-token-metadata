@@ -225,9 +225,6 @@ kinobi.update(
       uses: k.vEnum("UsesToggle", "None", "empty"),
       ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
     },
-    "transferArgs.V1": {
-      amount: k.vScalar(1),
-    },
   })
 );
 
@@ -241,6 +238,16 @@ kinobi.update(
         return k.structFieldTypeNode({
           ...node,
           defaultsTo: { strategy: "optional", value: k.vNone() },
+        });
+      },
+    },
+    {
+      selector: { kind: "structFieldTypeNode", name: "amount" },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vScalar(1) },
         });
       },
     },

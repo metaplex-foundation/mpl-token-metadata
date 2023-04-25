@@ -64,29 +64,29 @@ export type DelegateArgsArgs =
     }
   | {
       __kind: 'SaleV1';
-      amount: number | bigint;
+      amount?: number | bigint;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'TransferV1';
-      amount: number | bigint;
+      amount?: number | bigint;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | { __kind: 'UpdateV1'; authorizationData?: Option<AuthorizationDataArgs> }
   | {
       __kind: 'UtilityV1';
-      amount: number | bigint;
+      amount?: number | bigint;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'StakingV1';
-      amount: number | bigint;
+      amount?: number | bigint;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
-  | { __kind: 'StandardV1'; amount: number | bigint }
+  | { __kind: 'StandardV1'; amount?: number | bigint }
   | {
       __kind: 'LockedTransferV1';
-      amount: number | bigint;
+      amount?: number | bigint;
       lockedAddress: PublicKey;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
@@ -138,6 +138,7 @@ export function getDelegateArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<DelegateArgs, 'SaleV1'>)
         ),
@@ -159,6 +160,7 @@ export function getDelegateArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<DelegateArgs, 'TransferV1'>)
         ),
@@ -200,6 +202,7 @@ export function getDelegateArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<DelegateArgs, 'UtilityV1'>)
         ),
@@ -221,15 +224,27 @@ export function getDelegateArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<DelegateArgs, 'StakingV1'>)
         ),
       ],
       [
         'StandardV1',
-        s.struct<GetDataEnumKindContent<DelegateArgs, 'StandardV1'>>([
-          ['amount', s.u64()],
-        ]),
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'StandardV1'>,
+          GetDataEnumKindContent<DelegateArgs, 'StandardV1'>,
+          GetDataEnumKindContent<DelegateArgs, 'StandardV1'>
+        >(
+          s.struct<GetDataEnumKindContent<DelegateArgs, 'StandardV1'>>([
+            ['amount', s.u64()],
+          ]),
+          (value) =>
+            ({ ...value, amount: value.amount ?? 1 } as GetDataEnumKindContent<
+              DelegateArgs,
+              'StandardV1'
+            >)
+        ),
       ],
       [
         'LockedTransferV1',
@@ -249,6 +264,7 @@ export function getDelegateArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<DelegateArgs, 'LockedTransferV1'>)
         ),

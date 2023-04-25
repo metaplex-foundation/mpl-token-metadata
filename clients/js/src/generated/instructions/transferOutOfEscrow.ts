@@ -56,7 +56,7 @@ export type TransferOutOfEscrowInstructionData = {
 };
 
 export type TransferOutOfEscrowInstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
 };
 
 export function getTransferOutOfEscrowInstructionDataSerializer(
@@ -79,7 +79,11 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
       { description: 'TransferOutOfEscrowInstructionData' }
     ),
     (value) =>
-      ({ ...value, discriminator: 40 } as TransferOutOfEscrowInstructionData)
+      ({
+        ...value,
+        discriminator: 40,
+        amount: value.amount ?? 1,
+      } as TransferOutOfEscrowInstructionData)
   ) as Serializer<
     TransferOutOfEscrowInstructionDataArgs,
     TransferOutOfEscrowInstructionData
