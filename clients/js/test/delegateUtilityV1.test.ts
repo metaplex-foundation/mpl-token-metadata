@@ -24,15 +24,15 @@ test('it can approve a utility delegate for a NonFungible', async (t) => {
     authority: owner,
     delegate: utilityDelegate,
     tokenStandard: TokenStandard.NonFungible,
-    amount: 1,
   }).sendAndConfirm(umi);
 
-  // Then the asset is now owned by owner B.
+  // Then
   const da = await fetchDigitalAssetWithAssociatedToken(
     umi,
     mint,
     owner.publicKey
   );
+  console.log(da);
   t.like(da, <DigitalAssetWithToken>{
     mint: {
       publicKey: publicKey(mint),

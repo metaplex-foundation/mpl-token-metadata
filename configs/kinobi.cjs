@@ -290,6 +290,33 @@ const ataPdaDefault = (mint = "mint", owner = "owner") =>
     importFrom: "mplEssentials",
     seeds: { mint: k.accountDefault(mint), owner: k.accountDefault(owner) },
   });
+const approveTokenDelegateDefaults = {
+  accounts: {
+    token: {
+      isOptional: false,
+      defaultsTo: k.pdaDefault("associatedToken", {
+        importFrom: "mplEssentials",
+        seeds: {
+          mint: k.accountDefault("mint"),
+          owner: k.argDefault("tokenOwner"),
+        },
+      }),
+    },
+    delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
+    splTokenProgram: {
+      defaultsTo: k.programDefault(
+        "splToken",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ),
+    },
+  },
+  args: {
+    tokenOwner: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+};
 const collectionMintDefaults = {
   collectionMint: { isOptional: false, defaultsTo: null },
   collectionMetadata: {
@@ -409,33 +436,7 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
-    delegateUtilityV1: {
-      accounts: {
-        token: {
-          isOptional: false,
-          defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplEssentials",
-            seeds: {
-              mint: k.accountDefault("mint"),
-              owner: k.argDefault("tokenOwner"),
-            },
-          }),
-        },
-        delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
-        splTokenProgram: {
-          defaultsTo: k.programDefault(
-            "splToken",
-            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-          ),
-        },
-      },
-      args: {
-        tokenOwner: {
-          type: k.publicKeyTypeNode(),
-          defaultsTo: k.identityDefault(),
-        },
-      },
-    },
+    delegateUtilityV1: approveTokenDelegateDefaults,
     delegateUpdateV1: {
       accounts: {},
     },
