@@ -374,7 +374,7 @@ kinobi.update(
 );
 
 // Update versioned instructions.
-const approveTokenDelegateDefaults = {
+const tokenDelegateDefaults = {
   accounts: {
     token: {
       isOptional: false,
@@ -401,7 +401,7 @@ const approveTokenDelegateDefaults = {
     },
   },
 };
-const approveMetadataDelegateDefaults = (role) => ({
+const metadataDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
       defaultsTo: k.pdaDefault("metadataDelegateRecord", {
@@ -476,38 +476,37 @@ kinobi.update(
         },
       },
     },
-    delegateCollectionV1: approveMetadataDelegateDefaults("Collection"),
-    delegateLockedTransferV1: approveTokenDelegateDefaults,
+    delegateCollectionV1: metadataDelegateDefaults("Collection"),
+    delegateLockedTransferV1: tokenDelegateDefaults,
     delegateProgrammableConfigV1:
-      approveMetadataDelegateDefaults("ProgrammableConfig"),
-    delegateSaleV1: approveTokenDelegateDefaults,
-    delegateStakingV1: approveTokenDelegateDefaults,
+      metadataDelegateDefaults("ProgrammableConfig"),
+    delegateSaleV1: tokenDelegateDefaults,
+    delegateStakingV1: tokenDelegateDefaults,
     delegateStandardV1: {
-      ...approveTokenDelegateDefaults,
+      ...tokenDelegateDefaults,
       accounts: {
-        ...approveTokenDelegateDefaults.accounts,
+        ...tokenDelegateDefaults.accounts,
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    delegateTransferV1: approveTokenDelegateDefaults,
-    delegateUpdateV1: approveMetadataDelegateDefaults("Update"),
-    delegateUtilityV1: approveTokenDelegateDefaults,
-    revokeCollectionV1: approveMetadataDelegateDefaults("Collection"),
-    revokeLockedTransferV1: approveTokenDelegateDefaults,
-    revokeProgrammableConfigV1:
-      approveMetadataDelegateDefaults("ProgrammableConfig"),
-    revokeSaleV1: approveTokenDelegateDefaults,
-    revokeStakingV1: approveTokenDelegateDefaults,
+    delegateTransferV1: tokenDelegateDefaults,
+    delegateUpdateV1: metadataDelegateDefaults("Update"),
+    delegateUtilityV1: tokenDelegateDefaults,
+    revokeCollectionV1: metadataDelegateDefaults("Collection"),
+    revokeLockedTransferV1: tokenDelegateDefaults,
+    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
+    revokeSaleV1: tokenDelegateDefaults,
+    revokeStakingV1: tokenDelegateDefaults,
     revokeStandardV1: {
-      ...approveTokenDelegateDefaults,
+      ...tokenDelegateDefaults,
       accounts: {
-        ...approveTokenDelegateDefaults.accounts,
+        ...tokenDelegateDefaults.accounts,
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    revokeTransferV1: approveTokenDelegateDefaults,
-    revokeUpdateV1: approveMetadataDelegateDefaults("Update"),
-    revokeUtilityV1: approveTokenDelegateDefaults,
+    revokeTransferV1: tokenDelegateDefaults,
+    revokeUpdateV1: metadataDelegateDefaults("Update"),
+    revokeUtilityV1: tokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
