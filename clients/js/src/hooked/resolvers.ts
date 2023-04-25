@@ -99,11 +99,11 @@ export const resolveMintTokenOwner = (
 
 export const resolveTokenRecord = (
   context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
-  accounts: { mint: PublicKey | Signer; token: PublicKey },
+  accounts: { mint: PublicKey | Signer; token?: PublicKey },
   args: { tokenStandard: TokenStandard },
   programId: PublicKey
 ): PublicKey | Pda =>
-  isProgrammable(args.tokenStandard)
+  isProgrammable(args.tokenStandard) && accounts.token
     ? findTokenRecordPda(context, {
         mint: publicKey(accounts.mint),
         token: accounts.token,

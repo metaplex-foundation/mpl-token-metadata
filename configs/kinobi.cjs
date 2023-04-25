@@ -111,7 +111,7 @@ kinobi.update(
 // Update Instructions.
 kinobi.update(
   new k.UpdateInstructionsVisitor({
-    Create: {
+    create: {
       bytesCreatedOnChain: k.bytesFromNumber(
         82 + // Mint account.
           679 + // Metadata account.
@@ -127,13 +127,35 @@ kinobi.update(
         },
       },
     },
-    Mint: {
+    mint: {
       bytesCreatedOnChain: k.bytesFromNumber(
         165 + // Token account.
           47 + // Token Record account.
           128 * 2, // 2 account headers.
         false
       ),
+    },
+    delegate: {
+      accounts: {
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: {
+          type: k.linkTypeNode("tokenStandard"),
+        },
+      },
     },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },

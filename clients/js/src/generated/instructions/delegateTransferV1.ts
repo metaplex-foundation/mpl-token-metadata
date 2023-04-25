@@ -19,12 +19,16 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
@@ -110,9 +114,15 @@ export function getDelegateTransferV1InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type DelegateTransferV1InstructionExtraArgs = {
+  tokenStandard: TokenStandardArgs;
+};
+
 // Args.
 export type DelegateTransferV1InstructionArgs =
-  DelegateTransferV1InstructionDataArgs;
+  DelegateTransferV1InstructionDataArgs &
+    DelegateTransferV1InstructionExtraArgs;
 
 // Instruction.
 export function delegateTransferV1(
@@ -151,7 +161,13 @@ export function delegateTransferV1(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
