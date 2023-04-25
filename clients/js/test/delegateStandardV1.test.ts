@@ -35,6 +35,7 @@ test('it can approve a standard delegate for a NonFungible', async (t) => {
         owner: owner.publicKey,
         amount: 1n,
         delegate: some(standardDelegate),
+        delegatedAmount: 1n,
       },
       tokenRecord: undefined,
     }
@@ -92,6 +93,7 @@ test('it can approve a standard delegate for a Fungible', async (t) => {
         owner: owner.publicKey,
         amount: 1n,
         delegate: some(standardDelegate),
+        delegatedAmount: 1n,
       },
       tokenRecord: undefined,
     }
@@ -126,6 +128,7 @@ test('it can approve a standard delegate for a FungibleAsset', async (t) => {
         owner: owner.publicKey,
         amount: 1n,
         delegate: some(standardDelegate),
+        delegatedAmount: 1n,
       },
       tokenRecord: undefined,
     }

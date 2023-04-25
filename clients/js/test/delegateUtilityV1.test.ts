@@ -34,9 +34,14 @@ test('it can approve a utility delegate for a ProgrammableNonFungible', async (t
     await fetchDigitalAssetWithAssociatedToken(umi, mint, owner.publicKey),
     <DigitalAssetWithToken>{
       mint: { publicKey: publicKey(mint), supply: 1n },
-      token: { owner: owner.publicKey, amount: 1n },
+      token: {
+        owner: owner.publicKey,
+        amount: 1n,
+        delegate: some(publicKey(utilityDelegate)),
+        delegatedAmount: 1n,
+      },
       tokenRecord: {
-        delegate: some(utilityDelegate),
+        delegate: some(publicKey(utilityDelegate)),
         delegateRole: some(TokenDelegateRole.Utility),
         state: TokenState.Unlocked,
       },

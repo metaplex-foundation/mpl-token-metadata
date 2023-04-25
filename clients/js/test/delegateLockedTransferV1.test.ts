@@ -36,9 +36,14 @@ test('it can approve a locked transfer delegate for a ProgrammableNonFungible', 
     await fetchDigitalAssetWithAssociatedToken(umi, mint, owner.publicKey),
     <DigitalAssetWithToken>{
       mint: { publicKey: publicKey(mint), supply: 1n },
-      token: { owner: owner.publicKey, amount: 1n },
+      token: {
+        owner: owner.publicKey,
+        amount: 1n,
+        delegate: some(publicKey(lockedTransferDelegate)),
+        delegatedAmount: 1n,
+      },
       tokenRecord: {
-        delegate: some(lockedTransferDelegate),
+        delegate: some(publicKey(lockedTransferDelegate)),
         delegateRole: some(TokenDelegateRole.LockedTransfer),
         lockedTransfer: some(lockedAddress),
         state: TokenState.Unlocked,

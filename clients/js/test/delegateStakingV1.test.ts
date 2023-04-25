@@ -34,9 +34,14 @@ test('it can approve a staking delegate for a ProgrammableNonFungible', async (t
     await fetchDigitalAssetWithAssociatedToken(umi, mint, owner.publicKey),
     <DigitalAssetWithToken>{
       mint: { publicKey: publicKey(mint), supply: 1n },
-      token: { owner: owner.publicKey, amount: 1n },
+      token: {
+        owner: owner.publicKey,
+        amount: 1n,
+        delegate: some(publicKey(stakingDelegate)),
+        delegatedAmount: 1n,
+      },
       tokenRecord: {
-        delegate: some(stakingDelegate),
+        delegate: some(publicKey(stakingDelegate)),
         delegateRole: some(TokenDelegateRole.Staking),
         state: TokenState.Unlocked,
       },

@@ -35,9 +35,14 @@ test('it can approve a sale delegate for a ProgrammableNonFungible', async (t) =
     await fetchDigitalAssetWithAssociatedToken(umi, mint, owner.publicKey),
     <DigitalAssetWithToken>{
       mint: { publicKey: publicKey(mint), supply: 1n },
-      token: { owner: owner.publicKey, amount: 1n },
+      token: {
+        owner: owner.publicKey,
+        amount: 1n,
+        delegate: some(publicKey(saleDelegate)),
+        delegatedAmount: 1n,
+      },
       tokenRecord: {
-        delegate: some(saleDelegate),
+        delegate: some(publicKey(saleDelegate)),
         delegateRole: some(TokenDelegateRole.Sale),
         state: TokenState.Listed,
       },
