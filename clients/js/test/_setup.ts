@@ -49,6 +49,7 @@ export const createDigitalAssetWithToken = async (
     )
     .add(
       mintV1(umi, {
+        authority: input.authority,
         mint: mint.publicKey,
         token: input.token,
         tokenOwner: input.tokenOwner,

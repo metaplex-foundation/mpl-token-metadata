@@ -379,6 +379,26 @@ const approveTokenDelegateDefaults = {
     },
   },
 };
+const approveMetadataDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.accountDefault("mint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("updateAuthority"),
+          delegate: k.accountDefault("delegate"),
+        },
+      }),
+    },
+  },
+  args: {
+    updateAuthority: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+});
 const collectionMintDefaults = {
   collectionMint: { isOptional: false, defaultsTo: null },
   collectionMetadata: {
@@ -434,28 +454,7 @@ kinobi.update(
         },
       },
     },
-    delegateCollectionV1: {
-      accounts: {
-        delegateRecord: {
-          defaultsTo: k.pdaDefault("metadataDelegateRecord", {
-            seeds: {
-              mint: k.accountDefault("mint"),
-              delegateRole: k.valueDefault(
-                k.vEnum("MetadataDelegateRole", "Collection")
-              ),
-              updateAuthority: k.argDefault("updateAuthority"),
-              delegate: k.accountDefault("delegate"),
-            },
-          }),
-        },
-      },
-      args: {
-        updateAuthority: {
-          type: k.publicKeyTypeNode(),
-          defaultsTo: k.identityDefault(),
-        },
-      },
-    },
+    delegateCollectionV1: approveMetadataDelegateDefaults("Collection"),
     delegateUtilityV1: approveTokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
