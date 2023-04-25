@@ -455,6 +455,7 @@ kinobi.update(
       },
     },
     delegateCollectionV1: approveMetadataDelegateDefaults("Collection"),
+    delegateLockedTransferV1: approveTokenDelegateDefaults,
     delegateUtilityV1: approveTokenDelegateDefaults,
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
