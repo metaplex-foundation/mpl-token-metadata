@@ -20,6 +20,7 @@ import {
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
+  resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
@@ -153,12 +154,18 @@ export function delegateStandardV1(
         programId
       )
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',

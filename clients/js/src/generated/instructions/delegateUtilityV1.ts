@@ -22,8 +22,9 @@ import {
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
+  resolveTokenRecord,
 } from '../../hooked';
-import { findMetadataPda } from '../accounts';
+import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
@@ -47,7 +48,7 @@ export type DelegateUtilityV1InstructionAccounts = {
   /** Mint of metadata */
   mint: PublicKey;
   /** Token account of mint */
-  token?: PublicKey;
+  token: PublicKey;
   /** Update authority or token owner */
   authority?: Signer;
   /** Payer */
@@ -149,7 +150,11 @@ export function delegateUtilityV1(
   addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findTokenRecordPda(context, {
+        mint: publicKey(input.mint),
+        token: publicKey(input.token),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -170,9 +175,14 @@ export function delegateUtilityV1(
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',
@@ -199,7 +209,13 @@ export function delegateUtilityV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
   );
   addObjectProperty(
     resolvingAccounts,

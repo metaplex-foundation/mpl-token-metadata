@@ -402,6 +402,21 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
+    delegateUtilityV1: {
+      accounts: {
+        token: { isOptional: false, defaultsTo: null },
+        delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
+        splTokenProgram: {
+          defaultsTo: k.programDefault(
+            "splToken",
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+          ),
+        },
+      },
+    },
+    delegateUpdateV1: {
+      accounts: {},
+    },
     verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
     unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
   })
