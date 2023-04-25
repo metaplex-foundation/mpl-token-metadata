@@ -460,7 +460,13 @@ kinobi.update(
       approveMetadataDelegateDefaults("ProgrammableConfig"),
     delegateSaleV1: approveTokenDelegateDefaults,
     delegateStakingV1: approveTokenDelegateDefaults,
-    delegateStandardV1: approveTokenDelegateDefaults,
+    delegateStandardV1: {
+      ...approveTokenDelegateDefaults,
+      accounts: {
+        ...approveTokenDelegateDefaults.accounts,
+        tokenRecord: { defaultsTo: k.programIdDefault() },
+      },
+    },
     delegateTransferV1: approveTokenDelegateDefaults,
     delegateUpdateV1: approveMetadataDelegateDefaults("Update"),
     delegateUtilityV1: approveTokenDelegateDefaults,

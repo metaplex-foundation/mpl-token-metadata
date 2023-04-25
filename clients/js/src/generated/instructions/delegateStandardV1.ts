@@ -21,7 +21,6 @@ import {
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
-  resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import { PickPartial, addObjectProperty, isWritable } from '../shared';
@@ -182,13 +181,7 @@ export function delegateStandardV1(
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ??
-      resolveTokenRecord(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
+    input.tokenRecord ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
