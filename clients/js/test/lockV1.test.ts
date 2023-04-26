@@ -1,6 +1,6 @@
+import { TokenState as SplTokenState } from '@metaplex-foundation/mpl-essentials';
 import { generateSigner } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { TokenState as SplTokenState } from '@metaplex-foundation/mpl-essentials';
 import {
   DigitalAssetWithToken,
   TokenStandard,
@@ -71,26 +71,21 @@ test('it can freeze a NonFungible', async (t) => {
 });
 
 test('it can freeze a Fungible', async (t) => {
-  // Given a Fungible with a standard delegate.
+  // Given a Fungible asset with the identity as the freeze authority of the mint.
   const umi = await createUmi();
+  const freezeAuthority = umi.identity;
   const owner = umi.identity.publicKey;
-  const standardDelegate = generateSigner(umi);
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenStandard: TokenStandard.Fungible,
   });
-  await delegateStandardV1(umi, {
-    mint,
-    delegate: standardDelegate.publicKey,
-    tokenStandard: TokenStandard.Fungible,
-  }).sendAndConfirm(umi);
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
   >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
 
-  // When the standard delegate locks the asset.
+  // When the freeze authority locks the asset.
   await lockV1(umi, {
     mint,
-    authority: standardDelegate,
+    authority: freezeAuthority,
     tokenStandard: TokenStandard.Fungible,
   }).sendAndConfirm(umi);
 
@@ -101,26 +96,21 @@ test('it can freeze a Fungible', async (t) => {
 });
 
 test('it can freeze a FungibleAsset', async (t) => {
-  // Given a FungibleAsset with a standard delegate.
+  // Given a FungibleAsset asset with the identity as the freeze authority of the mint.
   const umi = await createUmi();
+  const freezeAuthority = umi.identity;
   const owner = umi.identity.publicKey;
-  const standardDelegate = generateSigner(umi);
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenStandard: TokenStandard.FungibleAsset,
   });
-  await delegateStandardV1(umi, {
-    mint,
-    delegate: standardDelegate.publicKey,
-    tokenStandard: TokenStandard.FungibleAsset,
-  }).sendAndConfirm(umi);
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
   >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
 
-  // When the standard delegate locks the asset.
+  // When the freeze authority locks the asset.
   await lockV1(umi, {
     mint,
-    authority: standardDelegate,
+    authority: freezeAuthority,
     tokenStandard: TokenStandard.FungibleAsset,
   }).sendAndConfirm(umi);
 
