@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -19,12 +20,18 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEditionForProgrammables,
+  resolveTokenProgramForNonProgrammables,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
@@ -35,7 +42,7 @@ export type LockV1InstructionAccounts = {
   /** Token owner account */
   tokenOwner?: PublicKey;
   /** Token account */
-  token: PublicKey;
+  token?: PublicKey;
   /** Mint account */
   mint: PublicKey;
   /** Metadata account */
@@ -99,8 +106,12 @@ export function getLockV1InstructionDataSerializer(
   ) as Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
 }
 
+// Extra Args.
+export type LockV1InstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type LockV1InstructionArgs = LockV1InstructionDataArgs;
+export type LockV1InstructionArgs = LockV1InstructionDataArgs &
+  LockV1InstructionExtraArgs;
 
 // Instruction.
 export function lockV1(
@@ -133,18 +144,43 @@ export function lockV1(
   addObjectProperty(
     resolvingAccounts,
     'tokenOwner',
-    input.tokenOwner ?? programId
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(resolvingAccounts.tokenOwner),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
+  addObjectProperty(
+    resolvingAccounts,
+    'edition',
+    input.edition ??
+      resolveMasterEditionForProgrammables(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
@@ -167,7 +203,13 @@ export function lockV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
+    input.splTokenProgram ??
+      resolveTokenProgramForNonProgrammables(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,

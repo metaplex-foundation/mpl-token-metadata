@@ -124,12 +124,28 @@ export const resolveDestinationTokenRecord = (
     : programId;
 
 export const resolveAuthorizationRulesProgram = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   accounts: { authorizationRules?: PublicKey },
   args: any,
   programId: PublicKey
 ): PublicKey & { isWritable?: false } =>
   accounts.authorizationRules
+    ? {
+        ...context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        ),
+        isWritable: false,
+      }
+    : programId;
+
+export const resolveTokenProgramForNonProgrammables = (
+  context: Pick<Context, 'programs'>,
+  accounts: any,
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey & { isWritable?: false } =>
+  !isProgrammable(args.tokenStandard)
     ? {
         ...context.programs.getPublicKey(
           'mplTokenAuthRules',
