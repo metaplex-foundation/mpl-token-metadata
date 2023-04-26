@@ -278,6 +278,38 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
+    unlock: {
+      accounts: {
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        splTokenProgram: {
+          defaultsTo: k.resolverDefault(
+            "resolveTokenProgramForNonProgrammables",
+            [k.dependsOnArg("tokenStandard")]
+          ),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
