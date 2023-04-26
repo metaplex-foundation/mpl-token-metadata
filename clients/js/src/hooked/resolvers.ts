@@ -148,8 +148,8 @@ export const resolveTokenProgramForNonProgrammables = (
   !isProgrammable(args.tokenStandard)
     ? {
         ...context.programs.getPublicKey(
-          'mplTokenAuthRules',
-          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+          'splToken',
+          'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
         ),
         isWritable: false,
       }
