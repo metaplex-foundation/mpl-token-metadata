@@ -14,49 +14,46 @@ import {
   TokenDelegateRole,
   TokenStandard,
   TokenState,
-  delegateLockedTransferV1,
+  delegateStakingV1,
   fetchDigitalAssetWithAssociatedToken,
-  revokeLockedTransferV1,
+  revokeStakingV1,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
-test('it can revoke a locked transfer delegate for a ProgrammableNonFungible', async (t) => {
-  // Given a ProgrammableNonFungible with an approved locked transfer delegate.
+test('it can revoke a staking delegate for a ProgrammableNonFungible', async (t) => {
+  // Given a ProgrammableNonFungible with an approved staking delegate.
   const umi = await createUmi();
   const owner = generateSigner(umi);
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
-  const lockedAddress = generateSigner(umi).publicKey;
+  const stakingDelegate = generateSigner(umi).publicKey;
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenOwner: owner.publicKey,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
-  await delegateLockedTransferV1(umi, {
+  await delegateStakingV1(umi, {
     mint,
     tokenOwner: owner.publicKey,
     authority: owner,
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-    lockedAddress,
   }).sendAndConfirm(umi);
   t.like(
     await fetchDigitalAssetWithAssociatedToken(umi, mint, owner.publicKey),
     <DigitalAssetWithToken>{
-      token: { delegate: some(publicKey(lockedTransferDelegate)) },
+      token: { delegate: some(publicKey(stakingDelegate)) },
       tokenRecord: {
-        delegate: some(publicKey(lockedTransferDelegate)),
-        delegateRole: some(TokenDelegateRole.LockedTransfer),
-        lockedTransfer: some(lockedAddress),
+        delegate: some(publicKey(stakingDelegate)),
+        delegateRole: some(TokenDelegateRole.Staking),
         state: TokenState.Unlocked,
       },
     }
   );
 
-  // When we revoke the locked transfer delegate.
-  await revokeLockedTransferV1(umi, {
+  // When we revoke the staking delegate.
+  await revokeStakingV1(umi, {
     mint,
     tokenOwner: owner.publicKey,
     authority: owner,
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   }).sendAndConfirm(umi);
 
@@ -68,34 +65,33 @@ test('it can revoke a locked transfer delegate for a ProgrammableNonFungible', a
       tokenRecord: {
         delegate: none(),
         delegateRole: none(),
-        lockedTransfer: none(),
         state: TokenState.Unlocked,
       },
     }
   );
 });
 
-test('it cannot revoke a locked transfer delegate for a NonFungible', async (t) => {
+test('it cannot revoke a staking delegate for a NonFungible', async (t) => {
   // Given a NonFungible with an SPL delegate.
   const umi = await createUmi();
   const owner = generateSigner(umi);
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
+  const stakingDelegate = generateSigner(umi).publicKey;
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenOwner: owner.publicKey,
   });
   await approveTokenDelegate(umi, {
     source: findAssociatedTokenPda(umi, { mint, owner: owner.publicKey }),
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     owner,
     amount: 1,
   }).sendAndConfirm(umi);
 
-  // When we try to revoke the locked transfer delegate.
-  const promise = revokeLockedTransferV1(umi, {
+  // When we try to revoke the staking delegate.
+  const promise = revokeStakingV1(umi, {
     mint,
     tokenOwner: owner.publicKey,
     authority: owner,
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     tokenStandard: TokenStandard.NonFungible,
   }).sendAndConfirm(umi);
 
@@ -103,28 +99,28 @@ test('it cannot revoke a locked transfer delegate for a NonFungible', async (t) 
   await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
 });
 
-test('it cannot revoke a locked transfer delegate for a Fungible', async (t) => {
+test('it cannot revoke a staking delegate for a Fungible', async (t) => {
   // Given a Fungible with an SPL delegate.
   const umi = await createUmi();
   const owner = generateSigner(umi);
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
+  const stakingDelegate = generateSigner(umi).publicKey;
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenOwner: owner.publicKey,
     tokenStandard: TokenStandard.Fungible,
   });
   await approveTokenDelegate(umi, {
     source: findAssociatedTokenPda(umi, { mint, owner: owner.publicKey }),
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     owner,
     amount: 1,
   }).sendAndConfirm(umi);
 
-  // When we try to revoke the locked transfer delegate.
-  const promise = revokeLockedTransferV1(umi, {
+  // When we try to revoke the staking delegate.
+  const promise = revokeStakingV1(umi, {
     mint,
     tokenOwner: owner.publicKey,
     authority: owner,
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     tokenStandard: TokenStandard.Fungible,
   }).sendAndConfirm(umi);
 
@@ -132,28 +128,28 @@ test('it cannot revoke a locked transfer delegate for a Fungible', async (t) => 
   await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
 });
 
-test('it cannot revoke a locked transfer delegate for a FungibleAsset', async (t) => {
+test('it cannot revoke a staking delegate for a FungibleAsset', async (t) => {
   // Given a FungibleAsset with an SPL delegate.
   const umi = await createUmi();
   const owner = generateSigner(umi);
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
+  const stakingDelegate = generateSigner(umi).publicKey;
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenOwner: owner.publicKey,
     tokenStandard: TokenStandard.FungibleAsset,
   });
   await approveTokenDelegate(umi, {
     source: findAssociatedTokenPda(umi, { mint, owner: owner.publicKey }),
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     owner,
     amount: 1,
   }).sendAndConfirm(umi);
 
-  // When we try to revoke the locked transfer delegate.
-  const promise = revokeLockedTransferV1(umi, {
+  // When we try to revoke the staking delegate.
+  const promise = revokeStakingV1(umi, {
     mint,
     tokenOwner: owner.publicKey,
     authority: owner,
-    delegate: lockedTransferDelegate,
+    delegate: stakingDelegate,
     tokenStandard: TokenStandard.FungibleAsset,
   }).sendAndConfirm(umi);
 
