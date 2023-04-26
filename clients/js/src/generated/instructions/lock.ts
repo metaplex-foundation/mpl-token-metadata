@@ -20,7 +20,8 @@ import {
 } from '@metaplex-foundation/umi';
 import {
   resolveAuthorizationRulesProgram,
-  resolveMasterEditionForProgrammables,
+  resolveMasterEdition,
+  resolveOptionalTokenOwner,
   resolveTokenProgramForNonProgrammables,
   resolveTokenRecord,
 } from '../../hooked';
@@ -126,7 +127,13 @@ export function lock(
   addObjectProperty(
     resolvingAccounts,
     'tokenOwner',
-    input.tokenOwner ?? context.identity.publicKey
+    input.tokenOwner ??
+      resolveOptionalTokenOwner(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
@@ -146,7 +153,7 @@ export function lock(
     resolvingAccounts,
     'edition',
     input.edition ??
-      resolveMasterEditionForProgrammables(
+      resolveMasterEdition(
         context,
         { ...input, ...resolvingAccounts },
         { ...input, ...resolvingArgs },

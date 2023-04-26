@@ -90,12 +90,12 @@ export const resolveCreateV1Bytes = (
   return base;
 };
 
-export const resolveMintTokenOwner = (
+export const resolveOptionalTokenOwner = (
   context: Pick<Context, 'identity'>,
   accounts: { token?: PublicKey },
   args: any,
   programId: PublicKey
-): PublicKey | Pda => (accounts.token ? programId : context.identity.publicKey);
+): PublicKey => (accounts.token ? programId : context.identity.publicKey);
 
 export const resolveTokenRecord = (
   context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,

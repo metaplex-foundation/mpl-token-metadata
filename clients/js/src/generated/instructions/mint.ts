@@ -21,7 +21,7 @@ import {
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
-  resolveMintTokenOwner,
+  resolveOptionalTokenOwner,
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
@@ -126,7 +126,7 @@ export function mint(
     resolvingAccounts,
     'tokenOwner',
     input.tokenOwner ??
-      resolveMintTokenOwner(
+      resolveOptionalTokenOwner(
         context,
         { ...input, ...resolvingAccounts },
         { ...input, ...resolvingArgs },

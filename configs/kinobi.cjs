@@ -147,7 +147,7 @@ kinobi.update(
           ]),
         },
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveMintTokenOwner", []),
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
         },
         token: {
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
@@ -248,17 +248,17 @@ kinobi.update(
     },
     lock: {
       accounts: {
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
         token: {
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
-        tokenOwner: {
-          defaultsTo: k.identityDefault(),
-        },
         edition: {
-          defaultsTo: k.resolverDefault(
-            "resolveMasterEditionForProgrammables",
-            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         tokenRecord: {
           defaultsTo: k.resolverDefault("resolveTokenRecord", [
