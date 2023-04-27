@@ -10,16 +10,13 @@ import {
   findMetadataPda,
   verifyCollectionV1,
 } from '../src';
-import { createDigitalAssetWithToken, createUmi } from './_setup';
+import {
+  NON_EDITION_TOKEN_STANDARDS,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
-const tokenStandards: Array<keyof typeof TokenStandard> = [
-  'NonFungible',
-  'ProgrammableNonFungible',
-  'Fungible',
-  'FungibleAsset',
-];
-
-tokenStandards.forEach((tokenStandard) => {
+NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
   test(`it can verify the collection of a ${tokenStandard}`, async (t) => {
     // Given an asset with an unverified collection.
     const umi = await createUmi();
