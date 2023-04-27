@@ -485,17 +485,19 @@ const metadataDelegateDefaults = (role) => ({
     },
   },
 });
-const collectionMintDefaults = {
-  collectionMint: { isOptional: false, defaultsTo: null },
-  collectionMetadata: {
-    defaultsTo: k.pdaDefault("metadata", {
-      seeds: { mint: k.accountDefault("collectionMint") },
-    }),
-  },
-  collectionMasterEdition: {
-    defaultsTo: k.pdaDefault("masterEdition", {
-      seeds: { mint: k.accountDefault("collectionMint") },
-    }),
+const verifyCollectionDefaults = {
+  accounts: {
+    collectionMint: { isOptional: false, defaultsTo: null },
+    collectionMetadata: {
+      defaultsTo: k.pdaDefault("metadata", {
+        seeds: { mint: k.accountDefault("collectionMint") },
+      }),
+    },
+    collectionMasterEdition: {
+      defaultsTo: k.pdaDefault("masterEdition", {
+        seeds: { mint: k.accountDefault("collectionMint") },
+      }),
+    },
   },
 };
 kinobi.update(
@@ -571,8 +573,8 @@ kinobi.update(
     revokeTransferV1: tokenDelegateDefaults,
     revokeUpdateV1: metadataDelegateDefaults("Update"),
     revokeUtilityV1: tokenDelegateDefaults,
-    verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
-    unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
+    verifyCollectionV1: verifyCollectionDefaults,
+    unverifyCollectionV1: verifyCollectionDefaults,
   })
 );
 
