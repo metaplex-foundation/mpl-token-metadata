@@ -10,7 +10,11 @@ import {
   fetchDigitalAssetWithAssociatedToken,
   lockV1,
 } from '../src';
-import { createDigitalAssetWithToken, createUmi } from './_setup';
+import {
+  FUNGIBLE_TOKEN_STANDARDS,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
 test('it can lock a ProgrammableNonFungible', async (t) => {
   // Given a ProgrammableNonFungible with a utility delegate.
@@ -70,52 +74,29 @@ test('it can freeze a NonFungible', async (t) => {
   >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
 });
 
-test('it can freeze a Fungible', async (t) => {
-  // Given a Fungible asset with the identity as the freeze authority of the mint.
-  const umi = await createUmi();
-  const freezeAuthority = umi.identity;
-  const owner = umi.identity.publicKey;
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenStandard: TokenStandard.Fungible,
+FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
+  test(`it can freeze a ${tokenStandard}`, async (t) => {
+    // Given a fungible with the identity as the freeze authority of the mint.
+    const umi = await createUmi();
+    const freezeAuthority = umi.identity;
+    const owner = umi.identity.publicKey;
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      tokenStandard: TokenStandard[tokenStandard],
+    });
+    t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
+      DigitalAssetWithToken
+    >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
+
+    // When the freeze authority locks the asset.
+    await lockV1(umi, {
+      mint,
+      authority: freezeAuthority,
+      tokenStandard: TokenStandard[tokenStandard],
+    }).sendAndConfirm(umi);
+
+    // Then the token state of the token account was successfully updated.
+    t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
+      DigitalAssetWithToken
+    >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
   });
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
-    DigitalAssetWithToken
-  >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
-
-  // When the freeze authority locks the asset.
-  await lockV1(umi, {
-    mint,
-    authority: freezeAuthority,
-    tokenStandard: TokenStandard.Fungible,
-  }).sendAndConfirm(umi);
-
-  // Then the token state of the token account was successfully updated.
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
-    DigitalAssetWithToken
-  >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
-});
-
-test('it can freeze a FungibleAsset', async (t) => {
-  // Given a FungibleAsset asset with the identity as the freeze authority of the mint.
-  const umi = await createUmi();
-  const freezeAuthority = umi.identity;
-  const owner = umi.identity.publicKey;
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenStandard: TokenStandard.FungibleAsset,
-  });
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
-    DigitalAssetWithToken
-  >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
-
-  // When the freeze authority locks the asset.
-  await lockV1(umi, {
-    mint,
-    authority: freezeAuthority,
-    tokenStandard: TokenStandard.FungibleAsset,
-  }).sendAndConfirm(umi);
-
-  // Then the token state of the token account was successfully updated.
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
-    DigitalAssetWithToken
-  >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
 });

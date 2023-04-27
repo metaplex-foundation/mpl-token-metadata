@@ -27,11 +27,15 @@ export const NON_EDITION_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'ProgrammableNonFungible',
 ];
 
-export const NON_PROGRAMMABLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
+export const OG_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'NonFungible',
   'FungibleAsset',
   'Fungible',
-  'NonFungibleEdition',
+];
+
+export const FUNGIBLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
+  'FungibleAsset',
+  'Fungible',
 ];
 
 export const createUmi = async () =>
