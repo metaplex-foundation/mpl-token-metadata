@@ -8,7 +8,11 @@ import {
   delegateStakingV1,
   fetchDigitalAssetWithAssociatedToken,
 } from '../src';
-import { createDigitalAssetWithToken, createUmi } from './_setup';
+import {
+  OG_TOKEN_STANDARDS,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
 test('it can approve a staking delegate for a ProgrammableNonFungible', async (t) => {
   // Given a ProgrammableNonFungible.
@@ -49,71 +53,27 @@ test('it can approve a staking delegate for a ProgrammableNonFungible', async (t
   );
 });
 
-test('it cannot approve a staking delegate for a NonFungible', async (t) => {
-  // Given a NonFungible.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.NonFungible,
+OG_TOKEN_STANDARDS.forEach((tokenStandard) => {
+  test(`it cannot approve a staking delegate for a ${tokenStandard}`, async (t) => {
+    // Given a non-programmable asset.
+    const umi = await createUmi();
+    const owner = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      tokenOwner: owner.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
+
+    // When we try to approve a staking delegate.
+    const stakingDelegate = generateSigner(umi).publicKey;
+    const promise = delegateStakingV1(umi, {
+      mint,
+      tokenOwner: owner.publicKey,
+      authority: owner,
+      delegate: stakingDelegate,
+      tokenStandard: TokenStandard[tokenStandard],
+    }).sendAndConfirm(umi);
+
+    // Then we expect a program error.
+    await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
   });
-
-  // When we try to approve a staking delegate.
-  const stakingDelegate = generateSigner(umi).publicKey;
-  const promise = delegateStakingV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: stakingDelegate,
-    tokenStandard: TokenStandard.NonFungible,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
-});
-
-test('it cannot approve a staking delegate for a Fungible', async (t) => {
-  // Given a Fungible.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.Fungible,
-  });
-
-  // When we try to approve a staking delegate.
-  const stakingDelegate = generateSigner(umi).publicKey;
-  const promise = delegateStakingV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: stakingDelegate,
-    tokenStandard: TokenStandard.Fungible,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
-});
-
-test('it cannot approve a staking delegate for a FungibleAsset', async (t) => {
-  // Given a FungibleAsset.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.FungibleAsset,
-  });
-
-  // When we try to approve a staking delegate.
-  const stakingDelegate = generateSigner(umi).publicKey;
-  const promise = delegateStakingV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: stakingDelegate,
-    tokenStandard: TokenStandard.FungibleAsset,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
 });

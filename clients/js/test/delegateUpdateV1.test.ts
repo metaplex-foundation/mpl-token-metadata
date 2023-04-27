@@ -8,147 +8,46 @@ import {
   fetchMetadataDelegateRecord,
   findMetadataDelegateRecordPda,
 } from '../src';
-import { createDigitalAssetWithToken, createUmi } from './_setup';
+import {
+  NON_EDITION_TOKEN_STANDARDS,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
-test('it can approve a update delegate for a NonFungible', async (t) => {
-  // Given a NonFungible.
-  const umi = await createUmi();
-  const updateAuthority = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    authority: updateAuthority,
-  });
+NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
+  test(`it can approve a update delegate for a ${tokenStandard}`, async (t) => {
+    // Given an asset.
+    const umi = await createUmi();
+    const updateAuthority = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      authority: updateAuthority,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
 
-  // When we approve a update delegate.
-  const updateDelegate = generateSigner(umi).publicKey;
-  await delegateUpdateV1(umi, {
-    mint,
-    updateAuthority: updateAuthority.publicKey,
-    authority: updateAuthority,
-    delegate: updateDelegate,
-    tokenStandard: TokenStandard.NonFungible,
-  }).sendAndConfirm(umi);
-
-  // Then a new metadata delegate record was created.
-  const delegateRecord = await fetchMetadataDelegateRecord(
-    umi,
-    findMetadataDelegateRecordPda(umi, {
+    // When we approve a update delegate.
+    const updateDelegate = generateSigner(umi).publicKey;
+    await delegateUpdateV1(umi, {
       mint,
-      delegateRole: MetadataDelegateRole.Update,
-      delegate: updateDelegate,
       updateAuthority: updateAuthority.publicKey,
-    })
-  );
-  t.like(delegateRecord, <MetadataDelegateRecord>{
-    mint: publicKey(mint),
-    updateAuthority: publicKey(updateAuthority),
-    delegate: publicKey(updateDelegate),
-  });
-});
-
-test('it can approve a update delegate for a ProgrammableNonFungible', async (t) => {
-  // Given a ProgrammableNonFungible.
-  const umi = await createUmi();
-  const updateAuthority = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    authority: updateAuthority,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-  });
-
-  // When we approve a update delegate.
-  const updateDelegate = generateSigner(umi).publicKey;
-  await delegateUpdateV1(umi, {
-    mint,
-    updateAuthority: updateAuthority.publicKey,
-    authority: updateAuthority,
-    delegate: updateDelegate,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-  }).sendAndConfirm(umi);
-
-  // Then a new metadata delegate record was created.
-  const delegateRecord = await fetchMetadataDelegateRecord(
-    umi,
-    findMetadataDelegateRecordPda(umi, {
-      mint,
-      delegateRole: MetadataDelegateRole.Update,
+      authority: updateAuthority,
       delegate: updateDelegate,
-      updateAuthority: updateAuthority.publicKey,
-    })
-  );
-  t.like(delegateRecord, <MetadataDelegateRecord>{
-    mint: publicKey(mint),
-    updateAuthority: publicKey(updateAuthority),
-    delegate: publicKey(updateDelegate),
-  });
-});
+      tokenStandard: TokenStandard[tokenStandard],
+    }).sendAndConfirm(umi);
 
-test('it can approve a update delegate for a Fungible', async (t) => {
-  // Given a Fungible.
-  const umi = await createUmi();
-  const updateAuthority = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    authority: updateAuthority,
-    tokenStandard: TokenStandard.Fungible,
-  });
-
-  // When we approve a update delegate.
-  const updateDelegate = generateSigner(umi).publicKey;
-  await delegateUpdateV1(umi, {
-    mint,
-    updateAuthority: updateAuthority.publicKey,
-    authority: updateAuthority,
-    delegate: updateDelegate,
-    tokenStandard: TokenStandard.Fungible,
-  }).sendAndConfirm(umi);
-
-  // Then a new metadata delegate record was created.
-  const delegateRecord = await fetchMetadataDelegateRecord(
-    umi,
-    findMetadataDelegateRecordPda(umi, {
-      mint,
-      delegateRole: MetadataDelegateRole.Update,
-      delegate: updateDelegate,
-      updateAuthority: updateAuthority.publicKey,
-    })
-  );
-  t.like(delegateRecord, <MetadataDelegateRecord>{
-    mint: publicKey(mint),
-    updateAuthority: publicKey(updateAuthority),
-    delegate: publicKey(updateDelegate),
-  });
-});
-
-test('it can approve a update delegate for a FungibleAsset', async (t) => {
-  // Given a FungibleAsset.
-  const umi = await createUmi();
-  const updateAuthority = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    authority: updateAuthority,
-    tokenStandard: TokenStandard.FungibleAsset,
-  });
-
-  // When we approve a update delegate.
-  const updateDelegate = generateSigner(umi).publicKey;
-  await delegateUpdateV1(umi, {
-    mint,
-    updateAuthority: updateAuthority.publicKey,
-    authority: updateAuthority,
-    delegate: updateDelegate,
-    tokenStandard: TokenStandard.FungibleAsset,
-  }).sendAndConfirm(umi);
-
-  // Then a new metadata delegate record was created.
-  const delegateRecord = await fetchMetadataDelegateRecord(
-    umi,
-    findMetadataDelegateRecordPda(umi, {
-      mint,
-      delegateRole: MetadataDelegateRole.Update,
-      delegate: updateDelegate,
-      updateAuthority: updateAuthority.publicKey,
-    })
-  );
-  t.like(delegateRecord, <MetadataDelegateRecord>{
-    mint: publicKey(mint),
-    updateAuthority: publicKey(updateAuthority),
-    delegate: publicKey(updateDelegate),
+    // Then a new metadata delegate record was created.
+    const delegateRecord = await fetchMetadataDelegateRecord(
+      umi,
+      findMetadataDelegateRecordPda(umi, {
+        mint,
+        delegateRole: MetadataDelegateRole.Update,
+        delegate: updateDelegate,
+        updateAuthority: updateAuthority.publicKey,
+      })
+    );
+    t.like(delegateRecord, <MetadataDelegateRecord>{
+      mint: publicKey(mint),
+      updateAuthority: publicKey(updateAuthority),
+      delegate: publicKey(updateDelegate),
+    });
   });
 });

@@ -8,7 +8,11 @@ import {
   delegateLockedTransferV1,
   fetchDigitalAssetWithAssociatedToken,
 } from '../src';
-import { createDigitalAssetWithToken, createUmi } from './_setup';
+import {
+  OG_TOKEN_STANDARDS,
+  createDigitalAssetWithToken,
+  createUmi,
+} from './_setup';
 
 test('it can approve a locked transfer delegate for a ProgrammableNonFungible', async (t) => {
   // Given a ProgrammableNonFungible.
@@ -52,77 +56,29 @@ test('it can approve a locked transfer delegate for a ProgrammableNonFungible', 
   );
 });
 
-test('it cannot approve a locked transfer delegate for a NonFungible', async (t) => {
-  // Given a NonFungible.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.NonFungible,
+OG_TOKEN_STANDARDS.forEach((tokenStandard) => {
+  test(`it cannot approve a locked transfer delegate for a ${tokenStandard}`, async (t) => {
+    // Given a non-programmable asset.
+    const umi = await createUmi();
+    const owner = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      tokenOwner: owner.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
+
+    // When we try to approve a locked transfer delegate.
+    const lockedTransferDelegate = generateSigner(umi).publicKey;
+    const lockedAddress = generateSigner(umi).publicKey;
+    const promise = delegateLockedTransferV1(umi, {
+      mint,
+      tokenOwner: owner.publicKey,
+      authority: owner,
+      delegate: lockedTransferDelegate,
+      tokenStandard: TokenStandard[tokenStandard],
+      lockedAddress,
+    }).sendAndConfirm(umi);
+
+    // Then we expect a program error.
+    await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
   });
-
-  // When we try to approve a locked transfer delegate.
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
-  const lockedAddress = generateSigner(umi).publicKey;
-  const promise = delegateLockedTransferV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: lockedTransferDelegate,
-    tokenStandard: TokenStandard.NonFungible,
-    lockedAddress,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
-});
-
-test('it cannot approve a locked transfer delegate for a Fungible', async (t) => {
-  // Given a Fungible.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.Fungible,
-  });
-
-  // When we try to approve a locked transfer delegate.
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
-  const lockedAddress = generateSigner(umi).publicKey;
-  const promise = delegateLockedTransferV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: lockedTransferDelegate,
-    tokenStandard: TokenStandard.Fungible,
-    lockedAddress,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
-});
-
-test('it cannot approve a locked transfer delegate for a FungibleAsset', async (t) => {
-  // Given a FungibleAsset.
-  const umi = await createUmi();
-  const owner = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: owner.publicKey,
-    tokenStandard: TokenStandard.FungibleAsset,
-  });
-
-  // When we try to approve a locked transfer delegate.
-  const lockedTransferDelegate = generateSigner(umi).publicKey;
-  const lockedAddress = generateSigner(umi).publicKey;
-  const promise = delegateLockedTransferV1(umi, {
-    mint,
-    tokenOwner: owner.publicKey,
-    authority: owner,
-    delegate: lockedTransferDelegate,
-    tokenStandard: TokenStandard.FungibleAsset,
-    lockedAddress,
-  }).sendAndConfirm(umi);
-
-  // Then we expect a program error.
-  await t.throwsAsync(promise, { name: 'InvalidDelegateRole' });
 });
