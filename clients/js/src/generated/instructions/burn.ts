@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -17,9 +18,15 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
 import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
-import { BurnArgs, BurnArgsArgs, getBurnArgsSerializer } from '../types';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
+import {
+  BurnArgs,
+  BurnArgsArgs,
+  TokenStandardArgs,
+  getBurnArgsSerializer,
+} from '../types';
 
 // Accounts.
 export type BurnInstructionAccounts = {
@@ -34,7 +41,7 @@ export type BurnInstructionAccounts = {
   /** Mint of token asset */
   mint: PublicKey;
   /** Token account to close */
-  token: PublicKey;
+  token?: PublicKey;
   /** Master edition account */
   masterEdition?: PublicKey;
   /** Master edition mint of the asset */
@@ -78,12 +85,24 @@ export function getBurnInstructionDataSerializer(
   ) as Serializer<BurnInstructionDataArgs, BurnInstructionData>;
 }
 
+// Extra Args.
+export type BurnInstructionExtraArgs = {
+  tokenOwner: PublicKey;
+  tokenStandard: TokenStandardArgs;
+};
+
 // Args.
-export type BurnInstructionArgs = BurnInstructionDataArgs;
+export type BurnInstructionArgs = PickPartial<
+  BurnInstructionDataArgs & BurnInstructionExtraArgs,
+  'tokenOwner'
+>;
 
 // Instruction.
 export function burn(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
+  context: Pick<
+    Context,
+    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
+  >,
   input: BurnInstructionAccounts & BurnInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -116,7 +135,31 @@ export function burn(
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
+  addObjectProperty(
+    resolvingAccounts,
+    'edition',
+    input.edition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingArgs,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: resolvingArgs.tokenOwner,
+      })
+  );
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
@@ -140,7 +183,13 @@ export function burn(
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,

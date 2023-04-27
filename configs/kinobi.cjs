@@ -310,6 +310,40 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
+    burn: {
+      accounts: {
+        token: {
+          isOptional: false,
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplEssentials",
+            seeds: {
+              mint: k.accountDefault("mint"),
+              owner: k.argDefault("tokenOwner"),
+            },
+          }),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenOwner: {
+          type: k.publicKeyTypeNode(),
+          defaultsTo: k.identityDefault(),
+        },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
