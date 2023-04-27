@@ -75,7 +75,7 @@ export function getRevokeProgrammableConfigV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     RevokeProgrammableConfigV1InstructionDataArgs,
-    RevokeProgrammableConfigV1InstructionData,
+    any,
     RevokeProgrammableConfigV1InstructionData
   >(
     s.struct<RevokeProgrammableConfigV1InstructionData>(
@@ -85,12 +85,11 @@ export function getRevokeProgrammableConfigV1InstructionDataSerializer(
       ],
       { description: 'RevokeProgrammableConfigV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 45,
-        revokeProgrammableConfigV1Discriminator: 8,
-      } as RevokeProgrammableConfigV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 45,
+      revokeProgrammableConfigV1Discriminator: 8,
+    })
   ) as Serializer<
     RevokeProgrammableConfigV1InstructionDataArgs,
     RevokeProgrammableConfigV1InstructionData

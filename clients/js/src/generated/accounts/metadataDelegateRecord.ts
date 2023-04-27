@@ -181,3 +181,27 @@ export function findMetadataDelegateRecordPda(
     s.publicKey().serialize(seeds.delegate),
   ]);
 }
+
+export async function fetchMetadataDelegateRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMetadataDelegateRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<MetadataDelegateRecord> {
+  return fetchMetadataDelegateRecord(
+    context,
+    findMetadataDelegateRecordPda(context, seeds),
+    options
+  );
+}
+
+export async function safeFetchMetadataDelegateRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMetadataDelegateRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<MetadataDelegateRecord | null> {
+  return safeFetchMetadataDelegateRecord(
+    context,
+    findMetadataDelegateRecordPda(context, seeds),
+    options
+  );
+}

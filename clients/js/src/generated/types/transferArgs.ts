@@ -43,7 +43,7 @@ export function getTransferArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<TransferArgsArgs, 'V1'>,
-          GetDataEnumKindContent<TransferArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<TransferArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<TransferArgs, 'V1'>>([
@@ -53,12 +53,11 @@ export function getTransferArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ]),
-          (value) =>
-            ({
-              ...value,
-              amount: value.amount ?? 1,
-              authorizationData: value.authorizationData ?? none(),
-            } as GetDataEnumKindContent<TransferArgs, 'V1'>)
+          (value) => ({
+            ...value,
+            amount: value.amount ?? 1,
+            authorizationData: value.authorizationData ?? none(),
+          })
         ),
       ],
     ],

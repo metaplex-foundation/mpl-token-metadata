@@ -47,15 +47,11 @@ export function getBurnNftInstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<BurnNftInstructionDataArgs, BurnNftInstructionData> {
   const s = context.serializer;
-  return mapSerializer<
-    BurnNftInstructionDataArgs,
-    BurnNftInstructionData,
-    BurnNftInstructionData
-  >(
+  return mapSerializer<BurnNftInstructionDataArgs, any, BurnNftInstructionData>(
     s.struct<BurnNftInstructionData>([['discriminator', s.u8()]], {
       description: 'BurnNftInstructionData',
     }),
-    (value) => ({ ...value, discriminator: 29 } as BurnNftInstructionData)
+    (value) => ({ ...value, discriminator: 29 })
   ) as Serializer<BurnNftInstructionDataArgs, BurnNftInstructionData>;
 }
 

@@ -58,11 +58,7 @@ export function getTokenRecordAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData> {
   const s = context.serializer;
-  return mapSerializer<
-    TokenRecordAccountDataArgs,
-    TokenRecordAccountData,
-    TokenRecordAccountData
-  >(
+  return mapSerializer<TokenRecordAccountDataArgs, any, TokenRecordAccountData>(
     s.struct<TokenRecordAccountData>(
       [
         ['key', getKeySerializer(context)],
@@ -75,7 +71,7 @@ export function getTokenRecordAccountDataSerializer(
       ],
       { description: 'TokenRecordAccountData' }
     ),
-    (value) => ({ ...value, key: Key.TokenRecord } as TokenRecordAccountData)
+    (value) => ({ ...value, key: Key.TokenRecord })
   ) as Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData>;
 }
 
@@ -192,4 +188,24 @@ export function findTokenRecordPda(
     s.string({ size: 'variable' }).serialize('token_record'),
     s.publicKey().serialize(seeds.token),
   ]);
+}
+
+export async function fetchTokenRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findTokenRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<TokenRecord> {
+  return fetchTokenRecord(context, findTokenRecordPda(context, seeds), options);
+}
+
+export async function safeFetchTokenRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findTokenRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<TokenRecord | null> {
+  return safeFetchTokenRecord(
+    context,
+    findTokenRecordPda(context, seeds),
+    options
+  );
 }

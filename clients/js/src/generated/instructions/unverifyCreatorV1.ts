@@ -54,7 +54,7 @@ export function getUnverifyCreatorV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UnverifyCreatorV1InstructionDataArgs,
-    UnverifyCreatorV1InstructionData,
+    any,
     UnverifyCreatorV1InstructionData
   >(
     s.struct<UnverifyCreatorV1InstructionData>(
@@ -64,12 +64,11 @@ export function getUnverifyCreatorV1InstructionDataSerializer(
       ],
       { description: 'UnverifyCreatorV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 53,
-        unverifyCreatorV1Discriminator: 0,
-      } as UnverifyCreatorV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 53,
+      unverifyCreatorV1Discriminator: 0,
+    })
   ) as Serializer<
     UnverifyCreatorV1InstructionDataArgs,
     UnverifyCreatorV1InstructionData

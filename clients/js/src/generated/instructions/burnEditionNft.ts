@@ -56,14 +56,13 @@ export function getBurnEditionNftInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     BurnEditionNftInstructionDataArgs,
-    BurnEditionNftInstructionData,
+    any,
     BurnEditionNftInstructionData
   >(
     s.struct<BurnEditionNftInstructionData>([['discriminator', s.u8()]], {
       description: 'BurnEditionNftInstructionData',
     }),
-    (value) =>
-      ({ ...value, discriminator: 37 } as BurnEditionNftInstructionData)
+    (value) => ({ ...value, discriminator: 37 })
   ) as Serializer<
     BurnEditionNftInstructionDataArgs,
     BurnEditionNftInstructionData

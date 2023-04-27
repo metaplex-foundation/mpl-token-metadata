@@ -54,7 +54,7 @@ export function getSetCollectionSizeInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     SetCollectionSizeInstructionDataArgs,
-    SetCollectionSizeInstructionData,
+    any,
     SetCollectionSizeInstructionData
   >(
     s.struct<SetCollectionSizeInstructionData>(
@@ -64,8 +64,7 @@ export function getSetCollectionSizeInstructionDataSerializer(
       ],
       { description: 'SetCollectionSizeInstructionData' }
     ),
-    (value) =>
-      ({ ...value, discriminator: 34 } as SetCollectionSizeInstructionData)
+    (value) => ({ ...value, discriminator: 34 })
   ) as Serializer<
     SetCollectionSizeInstructionDataArgs,
     SetCollectionSizeInstructionData

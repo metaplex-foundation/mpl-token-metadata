@@ -118,7 +118,7 @@ export function getUpdateV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UpdateV1InstructionDataArgs,
-    UpdateV1InstructionData,
+    any,
     UpdateV1InstructionData
   >(
     s.struct<UpdateV1InstructionData>(
@@ -151,22 +151,21 @@ export function getUpdateV1InstructionDataSerializer(
       ],
       { description: 'UpdateV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 50,
-        updateV1Discriminator: 0,
-        newUpdateAuthority: value.newUpdateAuthority ?? none(),
-        data: value.data ?? none(),
-        primarySaleHappened: value.primarySaleHappened ?? none(),
-        isMutable: value.isMutable ?? none(),
-        collection: value.collection ?? collectionToggle('None'),
-        collectionDetails:
-          value.collectionDetails ?? collectionDetailsToggle('None'),
-        uses: value.uses ?? usesToggle('None'),
-        ruleSet: value.ruleSet ?? ruleSetToggle('None'),
-        authorizationData: value.authorizationData ?? none(),
-      } as UpdateV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 50,
+      updateV1Discriminator: 0,
+      newUpdateAuthority: value.newUpdateAuthority ?? none(),
+      data: value.data ?? none(),
+      primarySaleHappened: value.primarySaleHappened ?? none(),
+      isMutable: value.isMutable ?? none(),
+      collection: value.collection ?? collectionToggle('None'),
+      collectionDetails:
+        value.collectionDetails ?? collectionDetailsToggle('None'),
+      uses: value.uses ?? usesToggle('None'),
+      ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData>;
 }
 

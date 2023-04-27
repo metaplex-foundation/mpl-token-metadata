@@ -41,7 +41,7 @@ export function getLockArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<LockArgsArgs, 'V1'>,
-          GetDataEnumKindContent<LockArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<LockArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<LockArgs, 'V1'>>([
@@ -50,11 +50,10 @@ export function getLockArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ]),
-          (value) =>
-            ({
-              ...value,
-              authorizationData: value.authorizationData ?? none(),
-            } as GetDataEnumKindContent<LockArgs, 'V1'>)
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
         ),
       ],
     ],

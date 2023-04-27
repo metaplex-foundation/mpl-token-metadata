@@ -48,15 +48,14 @@ export function getFreezeDelegatedAccountInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     FreezeDelegatedAccountInstructionDataArgs,
-    FreezeDelegatedAccountInstructionData,
+    any,
     FreezeDelegatedAccountInstructionData
   >(
     s.struct<FreezeDelegatedAccountInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'FreezeDelegatedAccountInstructionData' }
     ),
-    (value) =>
-      ({ ...value, discriminator: 26 } as FreezeDelegatedAccountInstructionData)
+    (value) => ({ ...value, discriminator: 26 })
   ) as Serializer<
     FreezeDelegatedAccountInstructionDataArgs,
     FreezeDelegatedAccountInstructionData

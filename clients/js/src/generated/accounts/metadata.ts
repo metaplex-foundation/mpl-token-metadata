@@ -88,11 +88,7 @@ export function getMetadataAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<MetadataAccountDataArgs, MetadataAccountData> {
   const s = context.serializer;
-  return mapSerializer<
-    MetadataAccountDataArgs,
-    MetadataAccountData,
-    MetadataAccountData
-  >(
+  return mapSerializer<MetadataAccountDataArgs, any, MetadataAccountData>(
     s.struct<MetadataAccountData>(
       [
         ['key', getKeySerializer(context)],
@@ -120,7 +116,7 @@ export function getMetadataAccountDataSerializer(
       ],
       { description: 'MetadataAccountData' }
     ),
-    (value) => ({ ...value, key: Key.MetadataV1 } as MetadataAccountData)
+    (value) => ({ ...value, key: Key.MetadataV1 })
   ) as Serializer<MetadataAccountDataArgs, MetadataAccountData>;
 }
 
@@ -257,4 +253,20 @@ export function findMetadataPda(
     programId.bytes,
     s.publicKey().serialize(seeds.mint),
   ]);
+}
+
+export async function fetchMetadataFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMetadataPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<Metadata> {
+  return fetchMetadata(context, findMetadataPda(context, seeds), options);
+}
+
+export async function safeFetchMetadataFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMetadataPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<Metadata | null> {
+  return safeFetchMetadata(context, findMetadataPda(context, seeds), options);
 }

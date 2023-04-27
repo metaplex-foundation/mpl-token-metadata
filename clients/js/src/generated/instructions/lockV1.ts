@@ -81,11 +81,7 @@ export function getLockV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<LockV1InstructionDataArgs, LockV1InstructionData> {
   const s = context.serializer;
-  return mapSerializer<
-    LockV1InstructionDataArgs,
-    LockV1InstructionData,
-    LockV1InstructionData
-  >(
+  return mapSerializer<LockV1InstructionDataArgs, any, LockV1InstructionData>(
     s.struct<LockV1InstructionData>(
       [
         ['discriminator', s.u8()],
@@ -97,13 +93,12 @@ export function getLockV1InstructionDataSerializer(
       ],
       { description: 'LockV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 46,
-        lockV1Discriminator: 0,
-        authorizationData: value.authorizationData ?? none(),
-      } as LockV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 46,
+      lockV1Discriminator: 0,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
 }
 

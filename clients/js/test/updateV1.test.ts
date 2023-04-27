@@ -1,8 +1,7 @@
 import { some } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
-  fetchMetadata,
-  findMetadataPda,
+  fetchMetadataFromSeeds,
   Metadata,
   TokenStandard,
   updateV1,
@@ -21,19 +20,20 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       name: 'Asset #1',
       tokenStandard: TokenStandard[tokenStandard],
     });
-    const initialMetadata = findMetadataPda(umi, { mint: mint.publicKey });
-    const initialMetadataAccount = await fetchMetadata(umi, initialMetadata);
+    const initialMetadata = await fetchMetadataFromSeeds(umi, {
+      mint: mint.publicKey,
+    });
 
     // When we update the name of the asset.
     await updateV1(umi, {
       mint: mint.publicKey,
-      data: some({ ...initialMetadataAccount, name: 'Asset #2' }),
+      data: some({ ...initialMetadata, name: 'Asset #2' }),
     }).sendAndConfirm(umi);
 
     // Then the account data was updated.
-    const updatedMetadataAccount = await fetchMetadata(umi, initialMetadata);
-    t.like(updatedMetadataAccount, <Metadata>{
-      name: 'Asset #2',
+    const updatedMetadata = await fetchMetadataFromSeeds(umi, {
+      mint: mint.publicKey,
     });
+    t.like(updatedMetadata, <Metadata>{ name: 'Asset #2' });
   });
 });

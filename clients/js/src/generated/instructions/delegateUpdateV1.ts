@@ -86,7 +86,7 @@ export function getDelegateUpdateV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     DelegateUpdateV1InstructionDataArgs,
-    DelegateUpdateV1InstructionData,
+    any,
     DelegateUpdateV1InstructionData
   >(
     s.struct<DelegateUpdateV1InstructionData>(
@@ -100,13 +100,12 @@ export function getDelegateUpdateV1InstructionDataSerializer(
       ],
       { description: 'DelegateUpdateV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 44,
-        delegateUpdateV1Discriminator: 3,
-        authorizationData: value.authorizationData ?? none(),
-      } as DelegateUpdateV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 44,
+      delegateUpdateV1Discriminator: 3,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<
     DelegateUpdateV1InstructionDataArgs,
     DelegateUpdateV1InstructionData

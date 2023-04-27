@@ -89,7 +89,7 @@ export function getUpdateArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<UpdateArgsArgs, 'V1'>,
-          GetDataEnumKindContent<UpdateArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<UpdateArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>([
@@ -123,20 +123,19 @@ export function getUpdateArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ]),
-          (value) =>
-            ({
-              ...value,
-              newUpdateAuthority: value.newUpdateAuthority ?? none(),
-              data: value.data ?? none(),
-              primarySaleHappened: value.primarySaleHappened ?? none(),
-              isMutable: value.isMutable ?? none(),
-              collection: value.collection ?? collectionToggle('None'),
-              collectionDetails:
-                value.collectionDetails ?? collectionDetailsToggle('None'),
-              uses: value.uses ?? usesToggle('None'),
-              ruleSet: value.ruleSet ?? ruleSetToggle('None'),
-              authorizationData: value.authorizationData ?? none(),
-            } as GetDataEnumKindContent<UpdateArgs, 'V1'>)
+          (value) => ({
+            ...value,
+            newUpdateAuthority: value.newUpdateAuthority ?? none(),
+            data: value.data ?? none(),
+            primarySaleHappened: value.primarySaleHappened ?? none(),
+            isMutable: value.isMutable ?? none(),
+            collection: value.collection ?? collectionToggle('None'),
+            collectionDetails:
+              value.collectionDetails ?? collectionDetailsToggle('None'),
+            uses: value.uses ?? usesToggle('None'),
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+            authorizationData: value.authorizationData ?? none(),
+          })
         ),
       ],
     ],

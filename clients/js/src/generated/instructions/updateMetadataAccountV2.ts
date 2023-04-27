@@ -53,7 +53,7 @@ export function getUpdateMetadataAccountV2InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UpdateMetadataAccountV2InstructionDataArgs,
-    UpdateMetadataAccountV2InstructionData,
+    any,
     UpdateMetadataAccountV2InstructionData
   >(
     s.struct<UpdateMetadataAccountV2InstructionData>(
@@ -66,11 +66,7 @@ export function getUpdateMetadataAccountV2InstructionDataSerializer(
       ],
       { description: 'UpdateMetadataAccountV2InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 15,
-      } as UpdateMetadataAccountV2InstructionData)
+    (value) => ({ ...value, discriminator: 15 })
   ) as Serializer<
     UpdateMetadataAccountV2InstructionDataArgs,
     UpdateMetadataAccountV2InstructionData

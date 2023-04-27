@@ -56,7 +56,7 @@ export function getVerifyCreatorV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     VerifyCreatorV1InstructionDataArgs,
-    VerifyCreatorV1InstructionData,
+    any,
     VerifyCreatorV1InstructionData
   >(
     s.struct<VerifyCreatorV1InstructionData>(
@@ -66,12 +66,11 @@ export function getVerifyCreatorV1InstructionDataSerializer(
       ],
       { description: 'VerifyCreatorV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 52,
-        verifyCreatorV1Discriminator: 0,
-      } as VerifyCreatorV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 52,
+      verifyCreatorV1Discriminator: 0,
+    })
   ) as Serializer<
     VerifyCreatorV1InstructionDataArgs,
     VerifyCreatorV1InstructionData

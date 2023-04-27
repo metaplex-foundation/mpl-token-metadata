@@ -56,18 +56,14 @@ export function getApproveCollectionAuthorityInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     ApproveCollectionAuthorityInstructionDataArgs,
-    ApproveCollectionAuthorityInstructionData,
+    any,
     ApproveCollectionAuthorityInstructionData
   >(
     s.struct<ApproveCollectionAuthorityInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'ApproveCollectionAuthorityInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 23,
-      } as ApproveCollectionAuthorityInstructionData)
+    (value) => ({ ...value, discriminator: 23 })
   ) as Serializer<
     ApproveCollectionAuthorityInstructionDataArgs,
     ApproveCollectionAuthorityInstructionData

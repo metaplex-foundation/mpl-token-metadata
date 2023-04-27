@@ -37,13 +37,13 @@ export function getSignMetadataInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     SignMetadataInstructionDataArgs,
-    SignMetadataInstructionData,
+    any,
     SignMetadataInstructionData
   >(
     s.struct<SignMetadataInstructionData>([['discriminator', s.u8()]], {
       description: 'SignMetadataInstructionData',
     }),
-    (value) => ({ ...value, discriminator: 7 } as SignMetadataInstructionData)
+    (value) => ({ ...value, discriminator: 7 })
   ) as Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData>;
 }
 

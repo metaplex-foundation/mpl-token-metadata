@@ -72,11 +72,7 @@ export function getBurnV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData> {
   const s = context.serializer;
-  return mapSerializer<
-    BurnV1InstructionDataArgs,
-    BurnV1InstructionData,
-    BurnV1InstructionData
-  >(
+  return mapSerializer<BurnV1InstructionDataArgs, any, BurnV1InstructionData>(
     s.struct<BurnV1InstructionData>(
       [
         ['discriminator', s.u8()],
@@ -85,13 +81,12 @@ export function getBurnV1InstructionDataSerializer(
       ],
       { description: 'BurnV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 41,
-        burnV1Discriminator: 0,
-        amount: value.amount ?? 1,
-      } as BurnV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 41,
+      burnV1Discriminator: 0,
+      amount: value.amount ?? 1,
+    })
   ) as Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData>;
 }
 

@@ -71,11 +71,7 @@ export function getUseV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<UseV1InstructionDataArgs, UseV1InstructionData> {
   const s = context.serializer;
-  return mapSerializer<
-    UseV1InstructionDataArgs,
-    UseV1InstructionData,
-    UseV1InstructionData
-  >(
+  return mapSerializer<UseV1InstructionDataArgs, any, UseV1InstructionData>(
     s.struct<UseV1InstructionData>(
       [
         ['discriminator', s.u8()],
@@ -87,13 +83,12 @@ export function getUseV1InstructionDataSerializer(
       ],
       { description: 'UseV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 51,
-        useV1Discriminator: 0,
-        authorizationData: value.authorizationData ?? none(),
-      } as UseV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 51,
+      useV1Discriminator: 0,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<UseV1InstructionDataArgs, UseV1InstructionData>;
 }
 

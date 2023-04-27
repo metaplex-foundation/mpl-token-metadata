@@ -80,7 +80,7 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
   const s = context.serializer;
   return mapSerializer<
     MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
-    MintNewEditionFromMasterEditionViaVaultProxyInstructionData,
+    any,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData
   >(
     s.struct<MintNewEditionFromMasterEditionViaVaultProxyInstructionData>(
@@ -96,11 +96,7 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSe
           'MintNewEditionFromMasterEditionViaVaultProxyInstructionData',
       }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 13,
-      } as MintNewEditionFromMasterEditionViaVaultProxyInstructionData)
+    (value) => ({ ...value, discriminator: 13 })
   ) as Serializer<
     MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData

@@ -49,7 +49,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     TokenOwnedEscrowAccountDataArgs,
-    TokenOwnedEscrowAccountData,
+    any,
     TokenOwnedEscrowAccountData
   >(
     s.struct<TokenOwnedEscrowAccountData>(
@@ -61,8 +61,7 @@ export function getTokenOwnedEscrowAccountDataSerializer(
       ],
       { description: 'TokenOwnedEscrowAccountData' }
     ),
-    (value) =>
-      ({ ...value, key: Key.TokenOwnedEscrow } as TokenOwnedEscrowAccountData)
+    (value) => ({ ...value, key: Key.TokenOwnedEscrow })
   ) as Serializer<TokenOwnedEscrowAccountDataArgs, TokenOwnedEscrowAccountData>;
 }
 

@@ -74,7 +74,7 @@ export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSeriali
   const s = context.serializer;
   return mapSerializer<
     MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
-    MintNewEditionFromMasterEditionViaTokenInstructionData,
+    any,
     MintNewEditionFromMasterEditionViaTokenInstructionData
   >(
     s.struct<MintNewEditionFromMasterEditionViaTokenInstructionData>(
@@ -87,11 +87,7 @@ export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSeriali
       ],
       { description: 'MintNewEditionFromMasterEditionViaTokenInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 11,
-      } as MintNewEditionFromMasterEditionViaTokenInstructionData)
+    (value) => ({ ...value, discriminator: 11 })
   ) as Serializer<
     MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
     MintNewEditionFromMasterEditionViaTokenInstructionData

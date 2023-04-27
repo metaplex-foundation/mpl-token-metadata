@@ -44,18 +44,14 @@ export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     ConvertMasterEditionV1ToV2InstructionDataArgs,
-    ConvertMasterEditionV1ToV2InstructionData,
+    any,
     ConvertMasterEditionV1ToV2InstructionData
   >(
     s.struct<ConvertMasterEditionV1ToV2InstructionData>(
       [['discriminator', s.u8()]],
       { description: 'ConvertMasterEditionV1ToV2InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 12,
-      } as ConvertMasterEditionV1ToV2InstructionData)
+    (value) => ({ ...value, discriminator: 12 })
   ) as Serializer<
     ConvertMasterEditionV1ToV2InstructionDataArgs,
     ConvertMasterEditionV1ToV2InstructionData

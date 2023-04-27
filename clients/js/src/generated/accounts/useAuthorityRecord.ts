@@ -44,7 +44,7 @@ export function getUseAuthorityRecordAccountDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UseAuthorityRecordAccountDataArgs,
-    UseAuthorityRecordAccountData,
+    any,
     UseAuthorityRecordAccountData
   >(
     s.struct<UseAuthorityRecordAccountData>(
@@ -55,11 +55,7 @@ export function getUseAuthorityRecordAccountDataSerializer(
       ],
       { description: 'UseAuthorityRecordAccountData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        key: Key.UseAuthorityRecord,
-      } as UseAuthorityRecordAccountData)
+    (value) => ({ ...value, key: Key.UseAuthorityRecord })
   ) as Serializer<
     UseAuthorityRecordAccountDataArgs,
     UseAuthorityRecordAccountData
@@ -171,4 +167,28 @@ export function findUseAuthorityRecordPda(
     s.string({ size: 'variable' }).serialize('user'),
     s.publicKey().serialize(seeds.useAuthority),
   ]);
+}
+
+export async function fetchUseAuthorityRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findUseAuthorityRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<UseAuthorityRecord> {
+  return fetchUseAuthorityRecord(
+    context,
+    findUseAuthorityRecordPda(context, seeds),
+    options
+  );
+}
+
+export async function safeFetchUseAuthorityRecordFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findUseAuthorityRecordPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<UseAuthorityRecord | null> {
+  return safeFetchUseAuthorityRecord(
+    context,
+    findUseAuthorityRecordPda(context, seeds),
+    options
+  );
 }

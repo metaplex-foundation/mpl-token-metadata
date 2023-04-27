@@ -56,14 +56,13 @@ export function getCreateEscrowAccountInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     CreateEscrowAccountInstructionDataArgs,
-    CreateEscrowAccountInstructionData,
+    any,
     CreateEscrowAccountInstructionData
   >(
     s.struct<CreateEscrowAccountInstructionData>([['discriminator', s.u8()]], {
       description: 'CreateEscrowAccountInstructionData',
     }),
-    (value) =>
-      ({ ...value, discriminator: 38 } as CreateEscrowAccountInstructionData)
+    (value) => ({ ...value, discriminator: 38 })
   ) as Serializer<
     CreateEscrowAccountInstructionDataArgs,
     CreateEscrowAccountInstructionData

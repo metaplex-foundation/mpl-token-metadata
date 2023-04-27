@@ -85,7 +85,7 @@ export function getCreateArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<CreateArgsArgs, 'V1'>,
-          GetDataEnumKindContent<CreateArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<CreateArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>([
@@ -107,19 +107,18 @@ export function getCreateArgsSerializer(
             ['decimals', s.option(s.u8())],
             ['printSupply', s.option(getPrintSupplySerializer(context))],
           ]),
-          (value) =>
-            ({
-              ...value,
-              symbol: value.symbol ?? '',
-              primarySaleHappened: value.primarySaleHappened ?? false,
-              isMutable: value.isMutable ?? true,
-              collection: value.collection ?? none(),
-              uses: value.uses ?? none(),
-              collectionDetails: value.collectionDetails ?? none(),
-              ruleSet: value.ruleSet ?? none(),
-              decimals: value.decimals ?? none(),
-              printSupply: value.printSupply ?? none(),
-            } as GetDataEnumKindContent<CreateArgs, 'V1'>)
+          (value) => ({
+            ...value,
+            symbol: value.symbol ?? '',
+            primarySaleHappened: value.primarySaleHappened ?? false,
+            isMutable: value.isMutable ?? true,
+            collection: value.collection ?? none(),
+            uses: value.uses ?? none(),
+            collectionDetails: value.collectionDetails ?? none(),
+            ruleSet: value.ruleSet ?? none(),
+            decimals: value.decimals ?? none(),
+            printSupply: value.printSupply ?? none(),
+          })
         ),
       ],
     ],

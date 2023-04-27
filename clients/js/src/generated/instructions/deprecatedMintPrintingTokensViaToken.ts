@@ -65,7 +65,7 @@ export function getDeprecatedMintPrintingTokensViaTokenInstructionDataSerializer
   const s = context.serializer;
   return mapSerializer<
     DeprecatedMintPrintingTokensViaTokenInstructionDataArgs,
-    DeprecatedMintPrintingTokensViaTokenInstructionData,
+    any,
     DeprecatedMintPrintingTokensViaTokenInstructionData
   >(
     s.struct<DeprecatedMintPrintingTokensViaTokenInstructionData>(
@@ -78,11 +78,7 @@ export function getDeprecatedMintPrintingTokensViaTokenInstructionDataSerializer
       ],
       { description: 'DeprecatedMintPrintingTokensViaTokenInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 8,
-      } as DeprecatedMintPrintingTokensViaTokenInstructionData)
+    (value) => ({ ...value, discriminator: 8 })
   ) as Serializer<
     DeprecatedMintPrintingTokensViaTokenInstructionDataArgs,
     DeprecatedMintPrintingTokensViaTokenInstructionData

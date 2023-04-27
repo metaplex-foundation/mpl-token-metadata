@@ -55,7 +55,7 @@ export function getUnverifyCollectionV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UnverifyCollectionV1InstructionDataArgs,
-    UnverifyCollectionV1InstructionData,
+    any,
     UnverifyCollectionV1InstructionData
   >(
     s.struct<UnverifyCollectionV1InstructionData>(
@@ -65,12 +65,11 @@ export function getUnverifyCollectionV1InstructionDataSerializer(
       ],
       { description: 'UnverifyCollectionV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 53,
-        unverifyCollectionV1Discriminator: 1,
-      } as UnverifyCollectionV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 53,
+      unverifyCollectionV1Discriminator: 1,
+    })
   ) as Serializer<
     UnverifyCollectionV1InstructionDataArgs,
     UnverifyCollectionV1InstructionData

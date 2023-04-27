@@ -52,18 +52,14 @@ export function getUnverifySizedCollectionItemInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UnverifySizedCollectionItemInstructionDataArgs,
-    UnverifySizedCollectionItemInstructionData,
+    any,
     UnverifySizedCollectionItemInstructionData
   >(
     s.struct<UnverifySizedCollectionItemInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'UnverifySizedCollectionItemInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 31,
-      } as UnverifySizedCollectionItemInstructionData)
+    (value) => ({ ...value, discriminator: 31 })
   ) as Serializer<
     UnverifySizedCollectionItemInstructionDataArgs,
     UnverifySizedCollectionItemInstructionData

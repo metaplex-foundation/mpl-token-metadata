@@ -78,7 +78,7 @@ export function getDelegateStandardV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     DelegateStandardV1InstructionDataArgs,
-    DelegateStandardV1InstructionData,
+    any,
     DelegateStandardV1InstructionData
   >(
     s.struct<DelegateStandardV1InstructionData>(
@@ -89,13 +89,12 @@ export function getDelegateStandardV1InstructionDataSerializer(
       ],
       { description: 'DelegateStandardV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 44,
-        delegateStandardV1Discriminator: 6,
-        amount: value.amount ?? 1,
-      } as DelegateStandardV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 44,
+      delegateStandardV1Discriminator: 6,
+      amount: value.amount ?? 1,
+    })
   ) as Serializer<
     DelegateStandardV1InstructionDataArgs,
     DelegateStandardV1InstructionData

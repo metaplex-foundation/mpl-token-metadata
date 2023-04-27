@@ -66,7 +66,7 @@ export function getCreateMasterEditionInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     CreateMasterEditionInstructionDataArgs,
-    CreateMasterEditionInstructionData,
+    any,
     CreateMasterEditionInstructionData
   >(
     s.struct<CreateMasterEditionInstructionData>(
@@ -79,8 +79,7 @@ export function getCreateMasterEditionInstructionDataSerializer(
       ],
       { description: 'CreateMasterEditionInstructionData' }
     ),
-    (value) =>
-      ({ ...value, discriminator: 10 } as CreateMasterEditionInstructionData)
+    (value) => ({ ...value, discriminator: 10 })
   ) as Serializer<
     CreateMasterEditionInstructionDataArgs,
     CreateMasterEditionInstructionData

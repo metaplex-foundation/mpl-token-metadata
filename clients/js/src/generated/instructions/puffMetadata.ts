@@ -35,13 +35,13 @@ export function getPuffMetadataInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     PuffMetadataInstructionDataArgs,
-    PuffMetadataInstructionData,
+    any,
     PuffMetadataInstructionData
   >(
     s.struct<PuffMetadataInstructionData>([['discriminator', s.u8()]], {
       description: 'PuffMetadataInstructionData',
     }),
-    (value) => ({ ...value, discriminator: 14 } as PuffMetadataInstructionData)
+    (value) => ({ ...value, discriminator: 14 })
   ) as Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData>;
 }
 

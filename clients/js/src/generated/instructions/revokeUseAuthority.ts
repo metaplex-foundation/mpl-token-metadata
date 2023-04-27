@@ -56,14 +56,13 @@ export function getRevokeUseAuthorityInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     RevokeUseAuthorityInstructionDataArgs,
-    RevokeUseAuthorityInstructionData,
+    any,
     RevokeUseAuthorityInstructionData
   >(
     s.struct<RevokeUseAuthorityInstructionData>([['discriminator', s.u8()]], {
       description: 'RevokeUseAuthorityInstructionData',
     }),
-    (value) =>
-      ({ ...value, discriminator: 21 } as RevokeUseAuthorityInstructionData)
+    (value) => ({ ...value, discriminator: 21 })
   ) as Serializer<
     RevokeUseAuthorityInstructionDataArgs,
     RevokeUseAuthorityInstructionData

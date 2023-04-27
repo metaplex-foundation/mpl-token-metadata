@@ -28,17 +28,13 @@ export function getBurnArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<BurnArgsArgs, 'V1'>,
-          GetDataEnumKindContent<BurnArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<BurnArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([
             ['amount', s.u64()],
           ]),
-          (value) =>
-            ({ ...value, amount: value.amount ?? 1 } as GetDataEnumKindContent<
-              BurnArgs,
-              'V1'
-            >)
+          (value) => ({ ...value, amount: value.amount ?? 1 })
         ),
       ],
     ],

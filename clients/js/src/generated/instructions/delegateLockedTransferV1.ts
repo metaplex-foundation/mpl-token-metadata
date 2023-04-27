@@ -90,7 +90,7 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     DelegateLockedTransferV1InstructionDataArgs,
-    DelegateLockedTransferV1InstructionData,
+    any,
     DelegateLockedTransferV1InstructionData
   >(
     s.struct<DelegateLockedTransferV1InstructionData>(
@@ -106,14 +106,13 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
       ],
       { description: 'DelegateLockedTransferV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 44,
-        delegateLockedTransferV1Discriminator: 7,
-        amount: value.amount ?? 1,
-        authorizationData: value.authorizationData ?? none(),
-      } as DelegateLockedTransferV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 44,
+      delegateLockedTransferV1Discriminator: 7,
+      amount: value.amount ?? 1,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<
     DelegateLockedTransferV1InstructionDataArgs,
     DelegateLockedTransferV1InstructionData

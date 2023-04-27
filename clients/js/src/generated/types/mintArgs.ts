@@ -43,7 +43,7 @@ export function getMintArgsSerializer(
         'V1',
         mapSerializer<
           GetDataEnumKindContent<MintArgsArgs, 'V1'>,
-          GetDataEnumKindContent<MintArgs, 'V1'>,
+          any,
           GetDataEnumKindContent<MintArgs, 'V1'>
         >(
           s.struct<GetDataEnumKindContent<MintArgs, 'V1'>>([
@@ -53,12 +53,11 @@ export function getMintArgsSerializer(
               s.option(getAuthorizationDataSerializer(context)),
             ],
           ]),
-          (value) =>
-            ({
-              ...value,
-              amount: value.amount ?? 1,
-              authorizationData: value.authorizationData ?? none(),
-            } as GetDataEnumKindContent<MintArgs, 'V1'>)
+          (value) => ({
+            ...value,
+            amount: value.amount ?? 1,
+            authorizationData: value.authorizationData ?? none(),
+          })
         ),
       ],
     ],

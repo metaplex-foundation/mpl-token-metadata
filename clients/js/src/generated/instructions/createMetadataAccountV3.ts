@@ -70,7 +70,7 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     CreateMetadataAccountV3InstructionDataArgs,
-    CreateMetadataAccountV3InstructionData,
+    any,
     CreateMetadataAccountV3InstructionData
   >(
     s.struct<CreateMetadataAccountV3InstructionData>(
@@ -85,11 +85,7 @@ export function getCreateMetadataAccountV3InstructionDataSerializer(
       ],
       { description: 'CreateMetadataAccountV3InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 33,
-      } as CreateMetadataAccountV3InstructionData)
+    (value) => ({ ...value, discriminator: 33 })
   ) as Serializer<
     CreateMetadataAccountV3InstructionDataArgs,
     CreateMetadataAccountV3InstructionData

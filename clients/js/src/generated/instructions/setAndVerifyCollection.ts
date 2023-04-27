@@ -52,15 +52,14 @@ export function getSetAndVerifyCollectionInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     SetAndVerifyCollectionInstructionDataArgs,
-    SetAndVerifyCollectionInstructionData,
+    any,
     SetAndVerifyCollectionInstructionData
   >(
     s.struct<SetAndVerifyCollectionInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'SetAndVerifyCollectionInstructionData' }
     ),
-    (value) =>
-      ({ ...value, discriminator: 25 } as SetAndVerifyCollectionInstructionData)
+    (value) => ({ ...value, discriminator: 25 })
   ) as Serializer<
     SetAndVerifyCollectionInstructionDataArgs,
     SetAndVerifyCollectionInstructionData

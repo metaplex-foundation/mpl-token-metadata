@@ -42,18 +42,14 @@ export function getRemoveCreatorVerificationInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     RemoveCreatorVerificationInstructionDataArgs,
-    RemoveCreatorVerificationInstructionData,
+    any,
     RemoveCreatorVerificationInstructionData
   >(
     s.struct<RemoveCreatorVerificationInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'RemoveCreatorVerificationInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 28,
-      } as RemoveCreatorVerificationInstructionData)
+    (value) => ({ ...value, discriminator: 28 })
   ) as Serializer<
     RemoveCreatorVerificationInstructionDataArgs,
     RemoveCreatorVerificationInstructionData

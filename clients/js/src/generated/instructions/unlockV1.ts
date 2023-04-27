@@ -83,7 +83,7 @@ export function getUnlockV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UnlockV1InstructionDataArgs,
-    UnlockV1InstructionData,
+    any,
     UnlockV1InstructionData
   >(
     s.struct<UnlockV1InstructionData>(
@@ -97,13 +97,12 @@ export function getUnlockV1InstructionDataSerializer(
       ],
       { description: 'UnlockV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 47,
-        unlockV1Discriminator: 0,
-        authorizationData: value.authorizationData ?? none(),
-      } as UnlockV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 47,
+      unlockV1Discriminator: 0,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<UnlockV1InstructionDataArgs, UnlockV1InstructionData>;
 }
 

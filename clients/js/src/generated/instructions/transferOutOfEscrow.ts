@@ -68,7 +68,7 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     TransferOutOfEscrowInstructionDataArgs,
-    TransferOutOfEscrowInstructionData,
+    any,
     TransferOutOfEscrowInstructionData
   >(
     s.struct<TransferOutOfEscrowInstructionData>(
@@ -78,12 +78,7 @@ export function getTransferOutOfEscrowInstructionDataSerializer(
       ],
       { description: 'TransferOutOfEscrowInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 40,
-        amount: value.amount ?? 1,
-      } as TransferOutOfEscrowInstructionData)
+    (value) => ({ ...value, discriminator: 40, amount: value.amount ?? 1 })
   ) as Serializer<
     TransferOutOfEscrowInstructionDataArgs,
     TransferOutOfEscrowInstructionData

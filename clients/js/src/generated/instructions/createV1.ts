@@ -118,7 +118,7 @@ export function getCreateV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     CreateV1InstructionDataArgs,
-    CreateV1InstructionData,
+    any,
     CreateV1InstructionData
   >(
     s.struct<CreateV1InstructionData>(
@@ -145,21 +145,20 @@ export function getCreateV1InstructionDataSerializer(
       ],
       { description: 'CreateV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 42,
-        createV1Discriminator: 0,
-        symbol: value.symbol ?? '',
-        primarySaleHappened: value.primarySaleHappened ?? false,
-        isMutable: value.isMutable ?? true,
-        collection: value.collection ?? none(),
-        uses: value.uses ?? none(),
-        collectionDetails: value.collectionDetails ?? none(),
-        ruleSet: value.ruleSet ?? none(),
-        decimals: value.decimals ?? none(),
-        printSupply: value.printSupply ?? none(),
-      } as CreateV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 42,
+      createV1Discriminator: 0,
+      symbol: value.symbol ?? '',
+      primarySaleHappened: value.primarySaleHappened ?? false,
+      isMutable: value.isMutable ?? true,
+      collection: value.collection ?? none(),
+      uses: value.uses ?? none(),
+      collectionDetails: value.collectionDetails ?? none(),
+      ruleSet: value.ruleSet ?? none(),
+      decimals: value.decimals ?? none(),
+      printSupply: value.printSupply ?? none(),
+    })
   ) as Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
 }
 

@@ -92,7 +92,7 @@ export function getTransferV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     TransferV1InstructionDataArgs,
-    TransferV1InstructionData,
+    any,
     TransferV1InstructionData
   >(
     s.struct<TransferV1InstructionData>(
@@ -107,14 +107,13 @@ export function getTransferV1InstructionDataSerializer(
       ],
       { description: 'TransferV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 49,
-        transferV1Discriminator: 0,
-        amount: value.amount ?? 1,
-        authorizationData: value.authorizationData ?? none(),
-      } as TransferV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 49,
+      transferV1Discriminator: 0,
+      amount: value.amount ?? 1,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<TransferV1InstructionDataArgs, TransferV1InstructionData>;
 }
 

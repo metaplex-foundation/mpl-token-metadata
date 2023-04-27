@@ -48,14 +48,13 @@ export function getVerifyCollectionInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     VerifyCollectionInstructionDataArgs,
-    VerifyCollectionInstructionData,
+    any,
     VerifyCollectionInstructionData
   >(
     s.struct<VerifyCollectionInstructionData>([['discriminator', s.u8()]], {
       description: 'VerifyCollectionInstructionData',
     }),
-    (value) =>
-      ({ ...value, discriminator: 18 } as VerifyCollectionInstructionData)
+    (value) => ({ ...value, discriminator: 18 })
   ) as Serializer<
     VerifyCollectionInstructionDataArgs,
     VerifyCollectionInstructionData

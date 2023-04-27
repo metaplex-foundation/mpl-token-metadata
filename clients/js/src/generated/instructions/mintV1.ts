@@ -86,11 +86,7 @@ export function getMintV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<MintV1InstructionDataArgs, MintV1InstructionData> {
   const s = context.serializer;
-  return mapSerializer<
-    MintV1InstructionDataArgs,
-    MintV1InstructionData,
-    MintV1InstructionData
-  >(
+  return mapSerializer<MintV1InstructionDataArgs, any, MintV1InstructionData>(
     s.struct<MintV1InstructionData>(
       [
         ['discriminator', s.u8()],
@@ -103,14 +99,13 @@ export function getMintV1InstructionDataSerializer(
       ],
       { description: 'MintV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 43,
-        mintV1Discriminator: 0,
-        amount: value.amount ?? 1,
-        authorizationData: value.authorizationData ?? none(),
-      } as MintV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 43,
+      mintV1Discriminator: 0,
+      amount: value.amount ?? 1,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;
 }
 

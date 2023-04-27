@@ -86,7 +86,7 @@ export function getDelegateProgrammableConfigV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     DelegateProgrammableConfigV1InstructionDataArgs,
-    DelegateProgrammableConfigV1InstructionData,
+    any,
     DelegateProgrammableConfigV1InstructionData
   >(
     s.struct<DelegateProgrammableConfigV1InstructionData>(
@@ -100,13 +100,12 @@ export function getDelegateProgrammableConfigV1InstructionDataSerializer(
       ],
       { description: 'DelegateProgrammableConfigV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 44,
-        delegateProgrammableConfigV1Discriminator: 8,
-        authorizationData: value.authorizationData ?? none(),
-      } as DelegateProgrammableConfigV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 44,
+      delegateProgrammableConfigV1Discriminator: 8,
+      authorizationData: value.authorizationData ?? none(),
+    })
   ) as Serializer<
     DelegateProgrammableConfigV1InstructionDataArgs,
     DelegateProgrammableConfigV1InstructionData

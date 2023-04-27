@@ -75,7 +75,7 @@ export function getRevokeCollectionV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     RevokeCollectionV1InstructionDataArgs,
-    RevokeCollectionV1InstructionData,
+    any,
     RevokeCollectionV1InstructionData
   >(
     s.struct<RevokeCollectionV1InstructionData>(
@@ -85,12 +85,11 @@ export function getRevokeCollectionV1InstructionDataSerializer(
       ],
       { description: 'RevokeCollectionV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 45,
-        revokeCollectionV1Discriminator: 0,
-      } as RevokeCollectionV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 45,
+      revokeCollectionV1Discriminator: 0,
+    })
   ) as Serializer<
     RevokeCollectionV1InstructionDataArgs,
     RevokeCollectionV1InstructionData

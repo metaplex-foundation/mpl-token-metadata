@@ -44,18 +44,14 @@ export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
-    UpdatePrimarySaleHappenedViaTokenInstructionData,
+    any,
     UpdatePrimarySaleHappenedViaTokenInstructionData
   >(
     s.struct<UpdatePrimarySaleHappenedViaTokenInstructionData>(
       [['discriminator', s.u8()]],
       { description: 'UpdatePrimarySaleHappenedViaTokenInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 4,
-      } as UpdatePrimarySaleHappenedViaTokenInstructionData)
+    (value) => ({ ...value, discriminator: 4 })
   ) as Serializer<
     UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
     UpdatePrimarySaleHappenedViaTokenInstructionData

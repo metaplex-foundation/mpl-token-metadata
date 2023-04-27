@@ -38,11 +38,7 @@ export function getEditionAccountDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<EditionAccountDataArgs, EditionAccountData> {
   const s = context.serializer;
-  return mapSerializer<
-    EditionAccountDataArgs,
-    EditionAccountData,
-    EditionAccountData
-  >(
+  return mapSerializer<EditionAccountDataArgs, any, EditionAccountData>(
     s.struct<EditionAccountData>(
       [
         ['key', getKeySerializer(context)],
@@ -51,7 +47,7 @@ export function getEditionAccountDataSerializer(
       ],
       { description: 'EditionAccountData' }
     ),
-    (value) => ({ ...value, key: Key.EditionV1 } as EditionAccountData)
+    (value) => ({ ...value, key: Key.EditionV1 })
   ) as Serializer<EditionAccountDataArgs, EditionAccountData>;
 }
 

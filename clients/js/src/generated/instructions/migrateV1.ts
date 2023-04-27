@@ -84,7 +84,7 @@ export function getMigrateV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     MigrateV1InstructionDataArgs,
-    MigrateV1InstructionData,
+    any,
     MigrateV1InstructionData
   >(
     s.struct<MigrateV1InstructionData>(
@@ -96,12 +96,7 @@ export function getMigrateV1InstructionDataSerializer(
       ],
       { description: 'MigrateV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 48,
-        migrateV1Discriminator: 0,
-      } as MigrateV1InstructionData)
+    (value) => ({ ...value, discriminator: 48, migrateV1Discriminator: 0 })
   ) as Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData>;
 }
 

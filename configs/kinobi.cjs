@@ -10,7 +10,7 @@ const kinobi = k.createFromIdls([path.join(idlDir, "mpl_token_metadata.json")]);
 
 // Update Accounts.
 const metadataSeeds = [
-  k.literalSeed("metadata"),
+  k.stringConstantSeed("metadata"),
   k.programSeed(),
   k.publicKeySeed("mint", "The address of the mint account"),
 ];
@@ -23,13 +23,13 @@ kinobi.update(
     masterEditionV2: {
       size: 282,
       name: "masterEdition",
-      seeds: [...metadataSeeds, k.literalSeed("edition")],
+      seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
     },
     tokenRecord: {
       size: 80,
       seeds: [
         ...metadataSeeds,
-        k.literalSeed("token_record"),
+        k.stringConstantSeed("token_record"),
         k.publicKeySeed(
           "token",
           "The address of the token account (ata or not)"
@@ -55,7 +55,7 @@ kinobi.update(
     collectionAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        k.literalSeed("collection_authority"),
+        k.stringConstantSeed("collection_authority"),
         k.publicKeySeed(
           "collectionAuthority",
           "The address of the collection authority"
@@ -65,7 +65,7 @@ kinobi.update(
     useAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        k.literalSeed("user"),
+        k.stringConstantSeed("user"),
         k.publicKeySeed("useAuthority", "The address of the use authority"),
       ],
     },

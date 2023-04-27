@@ -56,7 +56,7 @@ export function getBubblegumSetCollectionSizeInstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     BubblegumSetCollectionSizeInstructionDataArgs,
-    BubblegumSetCollectionSizeInstructionData,
+    any,
     BubblegumSetCollectionSizeInstructionData
   >(
     s.struct<BubblegumSetCollectionSizeInstructionData>(
@@ -66,11 +66,7 @@ export function getBubblegumSetCollectionSizeInstructionDataSerializer(
       ],
       { description: 'BubblegumSetCollectionSizeInstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 36,
-      } as BubblegumSetCollectionSizeInstructionData)
+    (value) => ({ ...value, discriminator: 36 })
   ) as Serializer<
     BubblegumSetCollectionSizeInstructionDataArgs,
     BubblegumSetCollectionSizeInstructionData

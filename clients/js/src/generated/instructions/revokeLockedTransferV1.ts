@@ -76,7 +76,7 @@ export function getRevokeLockedTransferV1InstructionDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     RevokeLockedTransferV1InstructionDataArgs,
-    RevokeLockedTransferV1InstructionData,
+    any,
     RevokeLockedTransferV1InstructionData
   >(
     s.struct<RevokeLockedTransferV1InstructionData>(
@@ -86,12 +86,11 @@ export function getRevokeLockedTransferV1InstructionDataSerializer(
       ],
       { description: 'RevokeLockedTransferV1InstructionData' }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 45,
-        revokeLockedTransferV1Discriminator: 7,
-      } as RevokeLockedTransferV1InstructionData)
+    (value) => ({
+      ...value,
+      discriminator: 45,
+      revokeLockedTransferV1Discriminator: 7,
+    })
   ) as Serializer<
     RevokeLockedTransferV1InstructionDataArgs,
     RevokeLockedTransferV1InstructionData

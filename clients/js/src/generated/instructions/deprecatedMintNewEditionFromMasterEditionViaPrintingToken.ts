@@ -73,7 +73,7 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
   const s = context.serializer;
   return mapSerializer<
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
-    DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData,
+    any,
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData
   >(
     s.struct<DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData>(
@@ -83,11 +83,7 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
           'DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData',
       }
     ),
-    (value) =>
-      ({
-        ...value,
-        discriminator: 3,
-      } as DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData)
+    (value) => ({ ...value, discriminator: 3 })
   ) as Serializer<
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData

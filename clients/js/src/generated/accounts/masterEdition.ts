@@ -42,7 +42,7 @@ export function getMasterEditionAccountDataSerializer(
   const s = context.serializer;
   return mapSerializer<
     MasterEditionAccountDataArgs,
-    MasterEditionAccountData,
+    any,
     MasterEditionAccountData
   >(
     s.struct<MasterEditionAccountData>(
@@ -53,8 +53,7 @@ export function getMasterEditionAccountDataSerializer(
       ],
       { description: 'MasterEditionAccountData' }
     ),
-    (value) =>
-      ({ ...value, key: Key.MasterEditionV2 } as MasterEditionAccountData)
+    (value) => ({ ...value, key: Key.MasterEditionV2 })
   ) as Serializer<MasterEditionAccountDataArgs, MasterEditionAccountData>;
 }
 
@@ -160,4 +159,28 @@ export function findMasterEditionPda(
     s.publicKey().serialize(seeds.mint),
     s.string({ size: 'variable' }).serialize('edition'),
   ]);
+}
+
+export async function fetchMasterEditionFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMasterEditionPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<MasterEdition> {
+  return fetchMasterEdition(
+    context,
+    findMasterEditionPda(context, seeds),
+    options
+  );
+}
+
+export async function safeFetchMasterEditionFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findMasterEditionPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<MasterEdition | null> {
+  return safeFetchMasterEdition(
+    context,
+    findMasterEditionPda(context, seeds),
+    options
+  );
 }
