@@ -7,6 +7,7 @@ export type JsonMetadata = {
   description?: string;
   seller_fee_basis_points?: number;
   image?: string;
+  animation_url?: string;
   external_url?: string;
   attributes?: Array<{
     trait_type?: string;
