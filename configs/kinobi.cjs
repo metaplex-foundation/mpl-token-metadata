@@ -328,6 +328,11 @@ kinobi.update(
             k.dependsOnArg("tokenStandard"),
           ]),
         },
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveBurnMasterEdition", [
+            k.dependsOnAccount("masterEditionMint"),
+          ]),
+        },
         tokenRecord: {
           defaultsTo: k.resolverDefault("resolveTokenRecord", [
             k.dependsOnAccount("mint"),

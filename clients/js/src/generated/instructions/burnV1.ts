@@ -18,7 +18,11 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
+import {
+  resolveBurnMasterEdition,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import { TokenStandardArgs } from '../types';
@@ -168,13 +172,19 @@ export function burnV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'masterEdition',
-    input.masterEdition ?? programId
+    'masterEditionMint',
+    input.masterEditionMint ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'masterEditionMint',
-    input.masterEditionMint ?? programId
+    'masterEdition',
+    input.masterEdition ??
+      resolveBurnMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,

@@ -7,6 +7,7 @@ import {
   Signer,
   none,
   publicKey,
+  samePublicKey,
   some,
 } from '@metaplex-foundation/umi';
 import { getMintSize } from '@metaplex-foundation/mpl-essentials';
@@ -154,3 +155,15 @@ export const resolveTokenProgramForNonProgrammables = (
         isWritable: false,
       }
     : programId;
+
+export const resolveBurnMasterEdition = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { masterEditionMint: PublicKey },
+  args: any,
+  programId: PublicKey
+): PublicKey | Pda =>
+  samePublicKey(accounts.masterEditionMint, programId)
+    ? programId
+    : findMasterEditionPda(context, {
+        mint: publicKey(accounts.masterEditionMint),
+      });
