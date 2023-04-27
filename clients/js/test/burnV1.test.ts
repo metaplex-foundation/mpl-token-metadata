@@ -1,6 +1,10 @@
 import { generateSigner } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { TokenStandard, burnV1 } from '../src';
+import {
+  TokenStandard,
+  burnV1,
+  fetchDigitalAssetWithAssociatedToken,
+} from '../src';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
   createDigitalAssetWithToken,
@@ -14,6 +18,11 @@ test('it can burn a NonFungible', async (t) => {
   const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
     tokenOwner: owner.publicKey,
   });
+  const da = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    mint,
+    owner.publicKey
+  );
 
   // When the owner burns the asset.
   await burnV1(umi, {
@@ -24,10 +33,12 @@ test('it can burn a NonFungible', async (t) => {
   }).sendAndConfirm(umi);
 
   // Then the following accounts have been deleted.
-  // ...
+  t.false(await umi.rpc.accountExists(da.metadata.publicKey));
+  t.false(await umi.rpc.accountExists(da.edition!.publicKey));
+  t.false(await umi.rpc.accountExists(da.token.publicKey));
 
   // But the mint account still exists.
-  // ...
+  t.true(await umi.rpc.accountExists(mint));
 });
 
 test.skip('it can burn a ProgrammableNonFungible', async (t) => {
