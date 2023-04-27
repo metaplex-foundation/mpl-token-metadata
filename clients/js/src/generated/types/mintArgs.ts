@@ -29,7 +29,7 @@ export type MintArgs = {
 
 export type MintArgsArgs = {
   __kind: 'V1';
-  amount: number | bigint;
+  amount?: number | bigint;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -56,6 +56,7 @@ export function getMintArgsSerializer(
           (value) =>
             ({
               ...value,
+              amount: value.amount ?? 1,
               authorizationData: value.authorizationData ?? none(),
             } as GetDataEnumKindContent<MintArgs, 'V1'>)
         ),

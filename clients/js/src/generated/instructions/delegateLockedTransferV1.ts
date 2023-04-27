@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -15,14 +16,21 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
+import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
@@ -68,9 +76,9 @@ export type DelegateLockedTransferV1InstructionData = {
 };
 
 export type DelegateLockedTransferV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   lockedAddress: PublicKey;
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateLockedTransferV1InstructionDataSerializer(
@@ -103,6 +111,8 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateLockedTransferV1Discriminator: 7,
+        amount: value.amount ?? 1,
+        authorizationData: value.authorizationData ?? none(),
       } as DelegateLockedTransferV1InstructionData)
   ) as Serializer<
     DelegateLockedTransferV1InstructionDataArgs,
@@ -110,9 +120,18 @@ export function getDelegateLockedTransferV1InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type DelegateLockedTransferV1InstructionExtraArgs = {
+  tokenStandard: TokenStandardArgs;
+  tokenOwner: PublicKey;
+};
+
 // Args.
-export type DelegateLockedTransferV1InstructionArgs =
-  DelegateLockedTransferV1InstructionDataArgs;
+export type DelegateLockedTransferV1InstructionArgs = PickPartial<
+  DelegateLockedTransferV1InstructionDataArgs &
+    DelegateLockedTransferV1InstructionExtraArgs,
+  'tokenOwner'
+>;
 
 // Instruction.
 export function delegateLockedTransferV1(
@@ -139,9 +158,27 @@ export function delegateLockedTransferV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: resolvingArgs.tokenOwner,
+      })
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findTokenRecordPda(context, {
+        mint: publicKey(input.mint),
+        token: publicKey(resolvingAccounts.token),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -151,14 +188,25 @@ export function delegateLockedTransferV1(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',
@@ -185,17 +233,29 @@ export function delegateLockedTransferV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
   );
   addObjectProperty(
     resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

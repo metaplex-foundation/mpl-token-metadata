@@ -17,6 +17,7 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import { UpdateArgs, UpdateArgsArgs, getUpdateArgsSerializer } from '../types';
@@ -138,13 +139,19 @@ export function update(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    'authorizationRules',
+    input.authorizationRules ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRules',
-    input.authorizationRules ?? programId
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

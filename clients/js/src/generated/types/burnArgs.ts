@@ -11,11 +11,12 @@ import {
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
+  mapSerializer,
 } from '@metaplex-foundation/umi';
 
 export type BurnArgs = { __kind: 'V1'; amount: bigint };
 
-export type BurnArgsArgs = { __kind: 'V1'; amount: number | bigint };
+export type BurnArgsArgs = { __kind: 'V1'; amount?: number | bigint };
 
 export function getBurnArgsSerializer(
   context: Pick<Context, 'serializer'>
@@ -25,7 +26,20 @@ export function getBurnArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([['amount', s.u64()]]),
+        mapSerializer<
+          GetDataEnumKindContent<BurnArgsArgs, 'V1'>,
+          GetDataEnumKindContent<BurnArgs, 'V1'>,
+          GetDataEnumKindContent<BurnArgs, 'V1'>
+        >(
+          s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([
+            ['amount', s.u64()],
+          ]),
+          (value) =>
+            ({ ...value, amount: value.amount ?? 1 } as GetDataEnumKindContent<
+              BurnArgs,
+              'V1'
+            >)
+        ),
       ],
     ],
     { description: 'BurnArgs' }

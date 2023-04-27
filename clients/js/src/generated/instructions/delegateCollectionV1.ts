@@ -15,14 +15,22 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
+import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  MetadataDelegateRole,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
@@ -66,7 +74,7 @@ export type DelegateCollectionV1InstructionData = {
 };
 
 export type DelegateCollectionV1InstructionDataArgs = {
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getDelegateCollectionV1InstructionDataSerializer(
@@ -97,6 +105,7 @@ export function getDelegateCollectionV1InstructionDataSerializer(
         ...value,
         discriminator: 44,
         delegateCollectionV1Discriminator: 0,
+        authorizationData: value.authorizationData ?? none(),
       } as DelegateCollectionV1InstructionData)
   ) as Serializer<
     DelegateCollectionV1InstructionDataArgs,
@@ -104,9 +113,18 @@ export function getDelegateCollectionV1InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type DelegateCollectionV1InstructionExtraArgs = {
+  tokenStandard: TokenStandardArgs;
+  updateAuthority: PublicKey;
+};
+
 // Args.
-export type DelegateCollectionV1InstructionArgs =
-  DelegateCollectionV1InstructionDataArgs;
+export type DelegateCollectionV1InstructionArgs = PickPartial<
+  DelegateCollectionV1InstructionDataArgs &
+    DelegateCollectionV1InstructionExtraArgs,
+  'updateAuthority'
+>;
 
 // Instruction.
 export function delegateCollectionV1(
@@ -133,9 +151,20 @@ export function delegateCollectionV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findMetadataDelegateRecordPda(context, {
+        mint: publicKey(input.mint),
+        delegateRole: MetadataDelegateRole.Collection,
+        updateAuthority: resolvingArgs.updateAuthority,
+        delegate: publicKey(input.delegate),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -145,14 +174,26 @@ export function delegateCollectionV1(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',
@@ -183,13 +224,19 @@ export function delegateCollectionV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    'authorizationRules',
+    input.authorizationRules ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRules',
-    input.authorizationRules ?? programId
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

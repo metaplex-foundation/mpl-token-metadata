@@ -21,8 +21,9 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
+  resolveAuthorizationRulesProgram,
   resolveMasterEdition,
-  resolveMintTokenOwner,
+  resolveOptionalTokenOwner,
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
@@ -77,7 +78,7 @@ export type MintV1InstructionData = {
 };
 
 export type MintV1InstructionDataArgs = {
-  amount: number | bigint;
+  amount?: number | bigint;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -107,6 +108,7 @@ export function getMintV1InstructionDataSerializer(
         ...value,
         discriminator: 43,
         mintV1Discriminator: 0,
+        amount: value.amount ?? 1,
         authorizationData: value.authorizationData ?? none(),
       } as MintV1InstructionData)
   ) as Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;
@@ -146,7 +148,7 @@ export function mintV1(
     resolvingAccounts,
     'tokenOwner',
     input.tokenOwner ??
-      resolveMintTokenOwner(
+      resolveOptionalTokenOwner(
         context,
         { ...input, ...resolvingAccounts },
         { ...input, ...resolvingArgs },
@@ -241,13 +243,19 @@ export function mintV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    'authorizationRules',
+    input.authorizationRules ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRules',
-    input.authorizationRules ?? programId
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

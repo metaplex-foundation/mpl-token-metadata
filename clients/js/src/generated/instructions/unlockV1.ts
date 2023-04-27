@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -15,14 +16,23 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveOptionalTokenOwner,
+  resolveTokenProgramForNonProgrammables,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
 
@@ -33,7 +43,7 @@ export type UnlockV1InstructionAccounts = {
   /** Token owner account */
   tokenOwner?: PublicKey;
   /** Token account */
-  token: PublicKey;
+  token?: PublicKey;
   /** Mint account */
   mint: PublicKey;
   /** Metadata account */
@@ -64,7 +74,7 @@ export type UnlockV1InstructionData = {
 };
 
 export type UnlockV1InstructionDataArgs = {
-  authorizationData: Option<AuthorizationDataArgs>;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getUnlockV1InstructionDataSerializer(
@@ -92,12 +102,17 @@ export function getUnlockV1InstructionDataSerializer(
         ...value,
         discriminator: 47,
         unlockV1Discriminator: 0,
+        authorizationData: value.authorizationData ?? none(),
       } as UnlockV1InstructionData)
   ) as Serializer<UnlockV1InstructionDataArgs, UnlockV1InstructionData>;
 }
 
+// Extra Args.
+export type UnlockV1InstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type UnlockV1InstructionArgs = UnlockV1InstructionDataArgs;
+export type UnlockV1InstructionArgs = UnlockV1InstructionDataArgs &
+  UnlockV1InstructionExtraArgs;
 
 // Instruction.
 export function unlockV1(
@@ -130,18 +145,49 @@ export function unlockV1(
   addObjectProperty(
     resolvingAccounts,
     'tokenOwner',
-    input.tokenOwner ?? programId
+    input.tokenOwner ??
+      resolveOptionalTokenOwner(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: publicKey(resolvingAccounts.tokenOwner),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
+  addObjectProperty(
+    resolvingAccounts,
+    'edition',
+    input.edition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
+  );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
@@ -164,17 +210,29 @@ export function unlockV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    input.splTokenProgram ??
+      resolveTokenProgramForNonProgrammables(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

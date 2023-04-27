@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   AccountMeta,
   Context,
@@ -17,8 +18,13 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+} from '../../hooked';
+import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
+import { TokenStandardArgs } from '../types';
 
 // Accounts.
 export type RevokeStandardV1InstructionAccounts = {
@@ -91,13 +97,25 @@ export function getRevokeStandardV1InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type RevokeStandardV1InstructionExtraArgs = {
+  tokenStandard: TokenStandardArgs;
+  tokenOwner: PublicKey;
+};
+
+// Args.
+export type RevokeStandardV1InstructionArgs = PickPartial<
+  RevokeStandardV1InstructionExtraArgs,
+  'tokenOwner'
+>;
+
 // Instruction.
 export function revokeStandardV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: RevokeStandardV1InstructionAccounts
+  input: RevokeStandardV1InstructionAccounts & RevokeStandardV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -113,10 +131,29 @@ export function revokeStandardV1(
 
   // Resolved inputs.
   const resolvingAccounts = {};
+  const resolvingArgs = {};
+  addObjectProperty(
+    resolvingArgs,
+    'tokenOwner',
+    input.tokenOwner ?? context.identity.publicKey
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'token',
+    input.token ??
+      findAssociatedTokenPda(context, {
+        mint: publicKey(input.mint),
+        owner: resolvingArgs.tokenOwner,
+      })
+  );
   addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findTokenRecordPda(context, {
+        mint: publicKey(input.mint),
+        token: publicKey(resolvingAccounts.token),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
@@ -126,14 +163,19 @@ export function revokeStandardV1(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
     input.tokenRecord ?? programId
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',
@@ -160,17 +202,29 @@ export function revokeStandardV1(
   addObjectProperty(
     resolvingAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    input.splTokenProgram ?? {
+      ...context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      ),
+      isWritable: false,
+    }
   );
   addObjectProperty(
     resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
+  );
+  addObjectProperty(
+    resolvingAccounts,
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
 

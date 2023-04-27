@@ -99,13 +99,24 @@ kinobi.update(
       ignoreIfOptional: true,
       ...k.pdaDefault("masterEdition"),
     },
+    {
+      account: "authorizationRulesProgram",
+      ...k.resolverDefault("resolveAuthorizationRulesProgram", [
+        k.dependsOnAccount("authorizationRules"),
+      ]),
+    },
   ])
 );
 
 // Update Instructions.
+const ataPdaDefault = (mint = "mint", owner = "owner") =>
+  k.pdaDefault("associatedToken", {
+    importFrom: "mplEssentials",
+    seeds: { mint: k.accountDefault(mint), owner: k.accountDefault(owner) },
+  });
 kinobi.update(
   new k.UpdateInstructionsVisitor({
-    Create: {
+    create: {
       bytesCreatedOnChain: k.bytesFromNumber(
         82 + // Mint account.
           679 + // Metadata account.
@@ -121,13 +132,222 @@ kinobi.update(
         },
       },
     },
-    Mint: {
+    mint: {
       bytesCreatedOnChain: k.bytesFromNumber(
         165 + // Token account.
           47 + // Token Record account.
           128 * 2, // 2 account headers.
         false
       ),
+      accounts: {
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    transfer: {
+      accounts: {
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        tokenOwner: {
+          defaultsTo: k.identityDefault(),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault(
+            "resolveMasterEditionForProgrammables",
+            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")]
+          ),
+        },
+        ownerTokenRecord: {
+          name: "tokenRecord",
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        destination: {
+          name: "destinationToken",
+          defaultsTo: ataPdaDefault("mint", "destinationOwner"),
+        },
+        destinationTokenRecord: {
+          defaultsTo: k.resolverDefault("resolveDestinationTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("destinationToken"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    delegate: {
+      accounts: {
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: {
+          type: k.linkTypeNode("tokenStandard"),
+        },
+      },
+    },
+    revoke: {
+      accounts: {
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenStandard: {
+          type: k.linkTypeNode("tokenStandard"),
+        },
+      },
+    },
+    lock: {
+      accounts: {
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        splTokenProgram: {
+          defaultsTo: k.resolverDefault(
+            "resolveTokenProgramForNonProgrammables",
+            [k.dependsOnArg("tokenStandard")]
+          ),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    unlock: {
+      accounts: {
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
+        token: {
+          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        splTokenProgram: {
+          defaultsTo: k.resolverDefault(
+            "resolveTokenProgramForNonProgrammables",
+            [k.dependsOnArg("tokenStandard")]
+          ),
+        },
+      },
+      args: {
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    burn: {
+      accounts: {
+        token: {
+          isOptional: false,
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplEssentials",
+            seeds: {
+              mint: k.accountDefault("mint"),
+              owner: k.argDefault("tokenOwner"),
+            },
+          }),
+        },
+        edition: {
+          defaultsTo: k.resolverDefault("resolveMasterEdition", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        masterEdition: {
+          defaultsTo: k.resolverDefault("resolveBurnMasterEdition", [
+            k.dependsOnAccount("masterEditionMint"),
+          ]),
+        },
+        tokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecord", [
+            k.dependsOnAccount("mint"),
+            k.dependsOnAccount("token"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        tokenOwner: {
+          type: k.publicKeyTypeNode(),
+          defaultsTo: k.identityDefault(),
+        },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
     },
     updateMetadataAccount: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
@@ -196,12 +416,34 @@ kinobi.update(
       collectionDetails: k.vEnum("CollectionDetailsToggle", "None", "empty"),
       uses: k.vEnum("UsesToggle", "None", "empty"),
       ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
-      authorizationData: k.vNone(),
-    },
-    "mintArgs.V1": {
-      authorizationData: k.vNone(),
     },
   })
+);
+
+// Set more struct default values dynamically.
+kinobi.update(
+  new k.TransformNodesVisitor([
+    {
+      selector: { kind: "structFieldTypeNode", name: "authorizationData" },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vNone() },
+        });
+      },
+    },
+    {
+      selector: { kind: "structFieldTypeNode", name: "amount" },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vScalar(1) },
+        });
+      },
+    },
+  ])
 );
 
 // Unwrap types and structs.
@@ -235,17 +477,66 @@ kinobi.update(
 );
 
 // Update versioned instructions.
-const collectionMintDefaults = {
-  collectionMint: { isOptional: false, defaultsTo: null },
-  collectionMetadata: {
-    defaultsTo: k.pdaDefault("metadata", {
-      seeds: { mint: k.accountDefault("collectionMint") },
-    }),
+const tokenDelegateDefaults = {
+  accounts: {
+    token: {
+      isOptional: false,
+      defaultsTo: k.pdaDefault("associatedToken", {
+        importFrom: "mplEssentials",
+        seeds: {
+          mint: k.accountDefault("mint"),
+          owner: k.argDefault("tokenOwner"),
+        },
+      }),
+    },
+    delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
+    splTokenProgram: {
+      defaultsTo: k.programDefault(
+        "splToken",
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      ),
+    },
   },
-  collectionMasterEdition: {
-    defaultsTo: k.pdaDefault("masterEdition", {
-      seeds: { mint: k.accountDefault("collectionMint") },
-    }),
+  args: {
+    tokenOwner: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+};
+const metadataDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.accountDefault("mint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("updateAuthority"),
+          delegate: k.accountDefault("delegate"),
+        },
+      }),
+    },
+  },
+  args: {
+    updateAuthority: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+});
+const verifyCollectionDefaults = {
+  accounts: {
+    collectionMint: { isOptional: false, defaultsTo: null },
+    collectionMetadata: {
+      defaultsTo: k.pdaDefault("metadata", {
+        seeds: { mint: k.accountDefault("collectionMint") },
+      }),
+    },
+    collectionMasterEdition: {
+      defaultsTo: k.pdaDefault("masterEdition", {
+        seeds: { mint: k.accountDefault("collectionMint") },
+      }),
+    },
   },
 };
 kinobi.update(
@@ -290,42 +581,39 @@ kinobi.update(
         },
       },
     },
-    mintV1: {
+    delegateCollectionV1: metadataDelegateDefaults("Collection"),
+    delegateLockedTransferV1: tokenDelegateDefaults,
+    delegateProgrammableConfigV1:
+      metadataDelegateDefaults("ProgrammableConfig"),
+    delegateSaleV1: tokenDelegateDefaults,
+    delegateStakingV1: tokenDelegateDefaults,
+    delegateStandardV1: {
+      ...tokenDelegateDefaults,
       accounts: {
-        masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
-        },
-        tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveMintTokenOwner", [], {
-            resolvedIsOptional: false,
-          }),
-        },
-        token: {
-          defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplEssentials",
-            seeds: {
-              mint: k.accountDefault("mint"),
-              owner: k.accountDefault("tokenOwner"),
-            },
-          }),
-        },
-        tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
-        },
-      },
-      args: {
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        ...tokenDelegateDefaults.accounts,
+        tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    verifyCollectionV1: { accounts: { ...collectionMintDefaults } },
-    unverifyCollectionV1: { accounts: { ...collectionMintDefaults } },
+    delegateTransferV1: tokenDelegateDefaults,
+    delegateUpdateV1: metadataDelegateDefaults("Update"),
+    delegateUtilityV1: tokenDelegateDefaults,
+    revokeCollectionV1: metadataDelegateDefaults("Collection"),
+    revokeLockedTransferV1: tokenDelegateDefaults,
+    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
+    revokeSaleV1: tokenDelegateDefaults,
+    revokeStakingV1: tokenDelegateDefaults,
+    revokeStandardV1: {
+      ...tokenDelegateDefaults,
+      accounts: {
+        ...tokenDelegateDefaults.accounts,
+        tokenRecord: { defaultsTo: k.programIdDefault() },
+      },
+    },
+    revokeTransferV1: tokenDelegateDefaults,
+    revokeUpdateV1: metadataDelegateDefaults("Update"),
+    revokeUtilityV1: tokenDelegateDefaults,
+    verifyCollectionV1: verifyCollectionDefaults,
+    unverifyCollectionV1: verifyCollectionDefaults,
   })
 );
 

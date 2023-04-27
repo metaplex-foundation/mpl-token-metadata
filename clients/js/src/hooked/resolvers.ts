@@ -7,6 +7,7 @@ import {
   Signer,
   none,
   publicKey,
+  samePublicKey,
   some,
 } from '@metaplex-foundation/umi';
 import { getMintSize } from '@metaplex-foundation/mpl-essentials';
@@ -39,6 +40,16 @@ export const resolveMasterEdition = (
   programId: PublicKey
 ): PublicKey | Pda =>
   isNonFungible(args.tokenStandard)
+    ? findMasterEditionPda(context, { mint: publicKey(accounts.mint) })
+    : programId;
+
+export const resolveMasterEditionForProgrammables = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { mint: PublicKey | Signer },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey | Pda =>
+  isNonFungible(args.tokenStandard) && isProgrammable(args.tokenStandard)
     ? findMasterEditionPda(context, { mint: publicKey(accounts.mint) })
     : programId;
 
@@ -80,22 +91,79 @@ export const resolveCreateV1Bytes = (
   return base;
 };
 
-export const resolveMintTokenOwner = (
+export const resolveOptionalTokenOwner = (
   context: Pick<Context, 'identity'>,
   accounts: { token?: PublicKey },
   args: any,
   programId: PublicKey
-): PublicKey | Pda => (accounts.token ? programId : context.identity.publicKey);
+): PublicKey => (accounts.token ? programId : context.identity.publicKey);
 
 export const resolveTokenRecord = (
   context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
-  accounts: { mint: PublicKey | Signer; token: PublicKey },
+  accounts: { mint: PublicKey | Signer; token?: PublicKey },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey | Pda =>
+  isProgrammable(args.tokenStandard) && accounts.token
+    ? findTokenRecordPda(context, {
+        mint: publicKey(accounts.mint),
+        token: accounts.token,
+      })
+    : programId;
+
+export const resolveDestinationTokenRecord = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { mint: PublicKey | Signer; destinationToken: PublicKey },
   args: { tokenStandard: TokenStandard },
   programId: PublicKey
 ): PublicKey | Pda =>
   isProgrammable(args.tokenStandard)
     ? findTokenRecordPda(context, {
         mint: publicKey(accounts.mint),
-        token: accounts.token,
+        token: accounts.destinationToken,
       })
     : programId;
+
+export const resolveAuthorizationRulesProgram = (
+  context: Pick<Context, 'programs'>,
+  accounts: { authorizationRules?: PublicKey },
+  args: any,
+  programId: PublicKey
+): PublicKey & { isWritable?: false } =>
+  accounts.authorizationRules
+    ? {
+        ...context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        ),
+        isWritable: false,
+      }
+    : programId;
+
+export const resolveTokenProgramForNonProgrammables = (
+  context: Pick<Context, 'programs'>,
+  accounts: any,
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey
+): PublicKey & { isWritable?: false } =>
+  !isProgrammable(args.tokenStandard)
+    ? {
+        ...context.programs.getPublicKey(
+          'splToken',
+          'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+        ),
+        isWritable: false,
+      }
+    : programId;
+
+export const resolveBurnMasterEdition = (
+  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  accounts: { masterEditionMint: PublicKey },
+  args: any,
+  programId: PublicKey
+): PublicKey | Pda =>
+  samePublicKey(accounts.masterEditionMint, programId)
+    ? programId
+    : findMasterEditionPda(context, {
+        mint: publicKey(accounts.masterEditionMint),
+      });

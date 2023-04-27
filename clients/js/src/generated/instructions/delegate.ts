@@ -17,11 +17,17 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  resolveAuthorizationRulesProgram,
+  resolveMasterEdition,
+  resolveTokenRecord,
+} from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
 import {
   DelegateArgs,
   DelegateArgsArgs,
+  TokenStandardArgs,
   getDelegateArgsSerializer,
 } from '../types';
 
@@ -85,8 +91,12 @@ export function getDelegateInstructionDataSerializer(
   ) as Serializer<DelegateInstructionDataArgs, DelegateInstructionData>;
 }
 
+// Extra Args.
+export type DelegateInstructionExtraArgs = { tokenStandard: TokenStandardArgs };
+
 // Args.
-export type DelegateInstructionArgs = DelegateInstructionDataArgs;
+export type DelegateInstructionArgs = DelegateInstructionDataArgs &
+  DelegateInstructionExtraArgs;
 
 // Instruction.
 export function delegate(
@@ -124,14 +134,26 @@ export function delegate(
   addObjectProperty(
     resolvingAccounts,
     'masterEdition',
-    input.masterEdition ?? programId
+    input.masterEdition ??
+      resolveMasterEdition(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'tokenRecord',
-    input.tokenRecord ?? programId
+    input.tokenRecord ??
+      resolveTokenRecord(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'authority',
@@ -162,13 +184,19 @@ export function delegate(
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram ?? programId
+    'authorizationRules',
+    input.authorizationRules ?? programId
   );
   addObjectProperty(
     resolvingAccounts,
-    'authorizationRules',
-    input.authorizationRules ?? programId
+    'authorizationRulesProgram',
+    input.authorizationRulesProgram ??
+      resolveAuthorizationRulesProgram(
+        context,
+        { ...input, ...resolvingAccounts },
+        { ...input, ...resolvingArgs },
+        programId
+      )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };

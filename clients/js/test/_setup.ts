@@ -10,6 +10,34 @@ import {
 import { createUmi as baseCreateUmi } from '@metaplex-foundation/umi-bundle-tests';
 import { createV1, mintV1, mplTokenMetadata, TokenStandard } from '../src';
 
+export type TokenStandardKeys = keyof typeof TokenStandard;
+
+export const ALL_TOKEN_STANDARDS: TokenStandardKeys[] = [
+  'NonFungible',
+  'FungibleAsset',
+  'Fungible',
+  'NonFungibleEdition',
+  'ProgrammableNonFungible',
+];
+
+export const NON_EDITION_TOKEN_STANDARDS: TokenStandardKeys[] = [
+  'NonFungible',
+  'FungibleAsset',
+  'Fungible',
+  'ProgrammableNonFungible',
+];
+
+export const OG_TOKEN_STANDARDS: TokenStandardKeys[] = [
+  'NonFungible',
+  'FungibleAsset',
+  'Fungible',
+];
+
+export const FUNGIBLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
+  'FungibleAsset',
+  'Fungible',
+];
+
 export const createUmi = async () =>
   (await baseCreateUmi()).use(mplTokenMetadata());
 
@@ -49,6 +77,7 @@ export const createDigitalAssetWithToken = async (
     )
     .add(
       mintV1(umi, {
+        authority: input.authority,
         mint: mint.publicKey,
         token: input.token,
         tokenOwner: input.tokenOwner,

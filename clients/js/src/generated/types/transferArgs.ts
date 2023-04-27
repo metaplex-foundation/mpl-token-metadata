@@ -12,6 +12,8 @@ import {
   GetDataEnumKindContent,
   Option,
   Serializer,
+  mapSerializer,
+  none,
 } from '@metaplex-foundation/umi';
 import {
   AuthorizationData,
@@ -27,8 +29,8 @@ export type TransferArgs = {
 
 export type TransferArgsArgs = {
   __kind: 'V1';
-  amount: number | bigint;
-  authorizationData: Option<AuthorizationDataArgs>;
+  amount?: number | bigint;
+  authorizationData?: Option<AuthorizationDataArgs>;
 };
 
 export function getTransferArgsSerializer(
@@ -39,13 +41,25 @@ export function getTransferArgsSerializer(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<TransferArgs, 'V1'>>([
-          ['amount', s.u64()],
-          [
-            'authorizationData',
-            s.option(getAuthorizationDataSerializer(context)),
-          ],
-        ]),
+        mapSerializer<
+          GetDataEnumKindContent<TransferArgsArgs, 'V1'>,
+          GetDataEnumKindContent<TransferArgs, 'V1'>,
+          GetDataEnumKindContent<TransferArgs, 'V1'>
+        >(
+          s.struct<GetDataEnumKindContent<TransferArgs, 'V1'>>([
+            ['amount', s.u64()],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) =>
+            ({
+              ...value,
+              amount: value.amount ?? 1,
+              authorizationData: value.authorizationData ?? none(),
+            } as GetDataEnumKindContent<TransferArgs, 'V1'>)
+        ),
       ],
     ],
     { description: 'TransferArgs' }
