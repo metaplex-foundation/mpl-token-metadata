@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Option,
   PublicKey,
   Serializer,
   Signer,
@@ -19,11 +20,6 @@ import {
 } from '@metaplex-foundation/umi';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addObjectProperty, isWritable } from '../shared';
-import {
-  CreateMasterEditionArgs,
-  CreateMasterEditionArgsArgs,
-  getCreateMasterEditionArgsSerializer,
-} from '../types';
 
 // Accounts.
 export type CreateMasterEditionV3InstructionAccounts = {
@@ -50,11 +46,11 @@ export type CreateMasterEditionV3InstructionAccounts = {
 // Data.
 export type CreateMasterEditionV3InstructionData = {
   discriminator: number;
-  createMasterEditionArgs: CreateMasterEditionArgs;
+  maxSupply: Option<bigint>;
 };
 
 export type CreateMasterEditionV3InstructionDataArgs = {
-  createMasterEditionArgs: CreateMasterEditionArgsArgs;
+  maxSupply: Option<number | bigint>;
 };
 
 export function getCreateMasterEditionV3InstructionDataSerializer(
@@ -72,10 +68,7 @@ export function getCreateMasterEditionV3InstructionDataSerializer(
     s.struct<CreateMasterEditionV3InstructionData>(
       [
         ['discriminator', s.u8()],
-        [
-          'createMasterEditionArgs',
-          getCreateMasterEditionArgsSerializer(context),
-        ],
+        ['maxSupply', s.option(s.u64())],
       ],
       { description: 'CreateMasterEditionV3InstructionData' }
     ),

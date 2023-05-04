@@ -604,6 +604,31 @@
       "code": 35,
       "name": "ProgramOwnedSetCheckFailed",
       "msg": "Program Owned Set check failed"
+    },
+    {
+      "code": 36,
+      "name": "InvalidCompareOp",
+      "msg": "Invalid compare operator"
+    },
+    {
+      "code": 37,
+      "name": "InvalidConstraintType",
+      "msg": "Invalid constraint type value"
+    },
+    {
+      "code": 38,
+      "name": "RuleSetReadFailed",
+      "msg": "Failed to read the rule set"
+    },
+    {
+      "code": 39,
+      "name": "DuplicatedOperationName",
+      "msg": "Duplicated operation name"
+    },
+    {
+      "code": 40,
+      "name": "AlignmentError",
+      "msg": "Could not determine alignemnt"
     }
   ],
   "metadata": {

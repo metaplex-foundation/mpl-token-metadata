@@ -25,30 +25,14 @@ import { addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
-  CollectionDetailsToggle,
-  CollectionDetailsToggleArgs,
   CollectionToggle,
   CollectionToggleArgs,
-  Creator,
-  CreatorArgs,
-  RuleSetToggle,
-  RuleSetToggleArgs,
-  UsesToggle,
-  UsesToggleArgs,
-  collectionDetailsToggle,
-  collectionToggle,
   getAuthorizationDataSerializer,
-  getCollectionDetailsToggleSerializer,
   getCollectionToggleSerializer,
-  getCreatorSerializer,
-  getRuleSetToggleSerializer,
-  getUsesToggleSerializer,
-  ruleSetToggle,
-  usesToggle,
 } from '../types';
 
 // Accounts.
-export type UpdateV1InstructionAccounts = {
+export type UpdateAsCollectionItemDelegateV2InstructionAccounts = {
   /** Update authority or delegate */
   authority?: Signer;
   /** Delegate record PDA */
@@ -74,111 +58,66 @@ export type UpdateV1InstructionAccounts = {
 };
 
 // Data.
-export type UpdateV1InstructionData = {
+export type UpdateAsCollectionItemDelegateV2InstructionData = {
   discriminator: number;
-  updateV1Discriminator: number;
-  newUpdateAuthority: Option<PublicKey>;
-  data: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
-  }>;
-  primarySaleHappened: Option<boolean>;
-  isMutable: Option<boolean>;
+  updateAsCollectionItemDelegateV2Discriminator: number;
   collection: CollectionToggle;
-  collectionDetails: CollectionDetailsToggle;
-  uses: UsesToggle;
-  ruleSet: RuleSetToggle;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type UpdateV1InstructionDataArgs = {
-  newUpdateAuthority?: Option<PublicKey>;
-  data?: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<CreatorArgs>>;
-  }>;
-  primarySaleHappened?: Option<boolean>;
-  isMutable?: Option<boolean>;
-  collection?: CollectionToggleArgs;
-  collectionDetails?: CollectionDetailsToggleArgs;
-  uses?: UsesToggleArgs;
-  ruleSet?: RuleSetToggleArgs;
+export type UpdateAsCollectionItemDelegateV2InstructionDataArgs = {
+  collection: CollectionToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getUpdateV1InstructionDataSerializer(
+export function getUpdateAsCollectionItemDelegateV2InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData> {
+): Serializer<
+  UpdateAsCollectionItemDelegateV2InstructionDataArgs,
+  UpdateAsCollectionItemDelegateV2InstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    UpdateV1InstructionDataArgs,
+    UpdateAsCollectionItemDelegateV2InstructionDataArgs,
     any,
-    UpdateV1InstructionData
+    UpdateAsCollectionItemDelegateV2InstructionData
   >(
-    s.struct<UpdateV1InstructionData>(
+    s.struct<UpdateAsCollectionItemDelegateV2InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['updateV1Discriminator', s.u8()],
-        ['newUpdateAuthority', s.option(s.publicKey())],
-        [
-          'data',
-          s.option(
-            s.struct<any>([
-              ['name', s.string()],
-              ['symbol', s.string()],
-              ['uri', s.string()],
-              ['sellerFeeBasisPoints', s.u16()],
-              ['creators', s.option(s.array(getCreatorSerializer(context)))],
-            ])
-          ),
-        ],
-        ['primarySaleHappened', s.option(s.bool())],
-        ['isMutable', s.option(s.bool())],
+        ['updateAsCollectionItemDelegateV2Discriminator', s.u8()],
         ['collection', getCollectionToggleSerializer(context)],
-        ['collectionDetails', getCollectionDetailsToggleSerializer(context)],
-        ['uses', getUsesToggleSerializer(context)],
-        ['ruleSet', getRuleSetToggleSerializer(context)],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'UpdateV1InstructionData' }
+      { description: 'UpdateAsCollectionItemDelegateV2InstructionData' }
     ),
     (value) => ({
       ...value,
       discriminator: 50,
-      updateV1Discriminator: 0,
-      newUpdateAuthority: value.newUpdateAuthority ?? none(),
-      data: value.data ?? none(),
-      primarySaleHappened: value.primarySaleHappened ?? none(),
-      isMutable: value.isMutable ?? none(),
-      collection: value.collection ?? collectionToggle('None'),
-      collectionDetails:
-        value.collectionDetails ?? collectionDetailsToggle('None'),
-      uses: value.uses ?? usesToggle('None'),
-      ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+      updateAsCollectionItemDelegateV2Discriminator: 7,
       authorizationData: value.authorizationData ?? none(),
     })
-  ) as Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData>;
+  ) as Serializer<
+    UpdateAsCollectionItemDelegateV2InstructionDataArgs,
+    UpdateAsCollectionItemDelegateV2InstructionData
+  >;
 }
 
 // Args.
-export type UpdateV1InstructionArgs = UpdateV1InstructionDataArgs;
+export type UpdateAsCollectionItemDelegateV2InstructionArgs =
+  UpdateAsCollectionItemDelegateV2InstructionDataArgs;
 
 // Instruction.
-export function updateV1(
+export function updateAsCollectionItemDelegateV2(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UpdateV1InstructionAccounts & UpdateV1InstructionArgs
+  input: UpdateAsCollectionItemDelegateV2InstructionAccounts &
+    UpdateAsCollectionItemDelegateV2InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -330,7 +269,9 @@ export function updateV1(
 
   // Data.
   const data =
-    getUpdateV1InstructionDataSerializer(context).serialize(resolvedArgs);
+    getUpdateAsCollectionItemDelegateV2InstructionDataSerializer(
+      context
+    ).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

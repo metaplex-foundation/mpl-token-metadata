@@ -2853,6 +2853,19 @@ export class InvalidCloseAuthorityError extends ProgramError {
 codeToErrorMap.set(0xbc, InvalidCloseAuthorityError);
 nameToErrorMap.set('InvalidCloseAuthority', InvalidCloseAuthorityError);
 
+/** InvalidInstruction: Invalid or removed instruction */
+export class InvalidInstructionError extends ProgramError {
+  readonly name: string = 'InvalidInstruction';
+
+  readonly code: number = 0xbd; // 189
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid or removed instruction', program, cause);
+  }
+}
+codeToErrorMap.set(0xbd, InvalidInstructionError);
+nameToErrorMap.set('InvalidInstruction', InvalidInstructionError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

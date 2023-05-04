@@ -349,15 +349,19 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
-    updateMetadataAccount: {
-      args: { updateAuthority: { name: "newUpdateAuthority" } },
-    },
     updateMetadataAccountV2: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
     // Deprecated instructions.
-    "mplTokenMetadata.deprecatedCreateReservationList": { delete: true },
-    "mplTokenMetadata.deprecatedSetReservationList": { delete: true },
+    createMetadataAccount: { delete: true },
+    createMetadataAccountV2: { delete: true },
+    createMasterEdition: { delete: true },
+    updateMetadataAccount: { delete: true },
+    deprecatedCreateReservationList: { delete: true },
+    deprecatedSetReservationList: { delete: true },
+    deprecatedCreateMasterEdition: { delete: true },
+    deprecatedMintPrintingTokens: { delete: true },
+    deprecatedMintPrintingTokensViaToken: { delete: true },
   })
 );
 
@@ -595,7 +599,7 @@ kinobi.update(
       },
     },
     delegateTransferV1: tokenDelegateDefaults,
-    delegateUpdateV1: metadataDelegateDefaults("Update"),
+    delegateDataV1: metadataDelegateDefaults("Data"),
     delegateUtilityV1: tokenDelegateDefaults,
     revokeCollectionV1: metadataDelegateDefaults("Collection"),
     revokeLockedTransferV1: tokenDelegateDefaults,
@@ -610,7 +614,7 @@ kinobi.update(
       },
     },
     revokeTransferV1: tokenDelegateDefaults,
-    revokeUpdateV1: metadataDelegateDefaults("Update"),
+    revokeDataV1: metadataDelegateDefaults("Data"),
     revokeUtilityV1: tokenDelegateDefaults,
     verifyCollectionV1: verifyCollectionDefaults,
     unverifyCollectionV1: verifyCollectionDefaults,

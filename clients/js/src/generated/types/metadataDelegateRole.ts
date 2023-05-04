@@ -9,11 +9,14 @@
 import { Context, Serializer } from '@metaplex-foundation/umi';
 
 export enum MetadataDelegateRole {
-  Authority,
+  AuthorityItem,
   Collection,
   Use,
-  Update,
+  Data,
   ProgrammableConfig,
+  DataItem,
+  CollectionItem,
+  ProgrammableConfigItem,
 }
 
 export type MetadataDelegateRoleArgs = MetadataDelegateRole;
