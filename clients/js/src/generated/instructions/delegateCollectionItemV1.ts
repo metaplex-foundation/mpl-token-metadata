@@ -24,11 +24,12 @@ import {
   resolveMasterEdition,
   resolveTokenRecord,
 } from '../../hooked';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  MetadataDelegateRole,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -114,12 +115,15 @@ export function getDelegateCollectionItemV1InstructionDataSerializer(
 // Extra Args.
 export type DelegateCollectionItemV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
+  updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateCollectionItemV1InstructionArgs =
+export type DelegateCollectionItemV1InstructionArgs = PickPartial<
   DelegateCollectionItemV1InstructionDataArgs &
-    DelegateCollectionItemV1InstructionExtraArgs;
+    DelegateCollectionItemV1InstructionExtraArgs,
+  'updateAuthority'
+>;
 
 // Instruction.
 export function delegateCollectionItemV1(
@@ -146,9 +150,20 @@ export function delegateCollectionItemV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findMetadataDelegateRecordPda(context, {
+        mint: publicKey(input.mint),
+        delegateRole: MetadataDelegateRole.CollectionItem,
+        updateAuthority: resolvingArgs.updateAuthority,
+        delegate: publicKey(input.delegate),
+      })
   );
   addObjectProperty(
     resolvingAccounts,

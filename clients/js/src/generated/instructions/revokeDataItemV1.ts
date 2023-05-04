@@ -22,9 +22,9 @@ import {
   resolveMasterEdition,
   resolveTokenRecord,
 } from '../../hooked';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
-import { TokenStandardArgs } from '../types';
+import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
+import { MetadataDelegateRole, TokenStandardArgs } from '../types';
 
 // Accounts.
 export type RevokeDataItemV1InstructionAccounts = {
@@ -99,11 +99,14 @@ export function getRevokeDataItemV1InstructionDataSerializer(
 // Extra Args.
 export type RevokeDataItemV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
+  updateAuthority: PublicKey;
 };
 
 // Args.
-export type RevokeDataItemV1InstructionArgs =
-  RevokeDataItemV1InstructionExtraArgs;
+export type RevokeDataItemV1InstructionArgs = PickPartial<
+  RevokeDataItemV1InstructionExtraArgs,
+  'updateAuthority'
+>;
 
 // Instruction.
 export function revokeDataItemV1(
@@ -129,9 +132,20 @@ export function revokeDataItemV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingArgs,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findMetadataDelegateRecordPda(context, {
+        mint: publicKey(input.mint),
+        delegateRole: MetadataDelegateRole.DataItem,
+        updateAuthority: resolvingArgs.updateAuthority,
+        delegate: publicKey(input.delegate),
+      })
   );
   addObjectProperty(
     resolvingAccounts,
