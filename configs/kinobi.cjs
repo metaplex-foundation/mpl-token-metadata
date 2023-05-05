@@ -605,8 +605,8 @@ kinobi.update(
     delegateAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
     delegateDataItemV1: metadataDelegateDefaults("DataItem"),
     delegateCollectionItemV1: metadataDelegateDefaults("CollectionItem"),
-    delegateProgrammableConfigItemV1V1: metadataDelegateDefaults(
-      "ProgrammableConfigItemV1"
+    delegateProgrammableConfigItemV1: metadataDelegateDefaults(
+      "ProgrammableConfigItem"
     ),
     // Revoke.
     revokeCollectionV1: metadataDelegateDefaults("Collection"),
@@ -628,8 +628,8 @@ kinobi.update(
     revokeAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
     revokeDataItemV1: metadataDelegateDefaults("DataItem"),
     revokeCollectionItemV1: metadataDelegateDefaults("CollectionItem"),
-    revokeProgrammableConfigItemV1V1: metadataDelegateDefaults(
-      "ProgrammableConfigItemV1"
+    revokeProgrammableConfigItemV1: metadataDelegateDefaults(
+      "ProgrammableConfigItem"
     ),
     // Verify collection.
     verifyCollectionV1: verifyCollectionDefaults,
