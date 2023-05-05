@@ -587,10 +587,10 @@ kinobi.update(
     },
     // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
-    delegateLockedTransferV1: tokenDelegateDefaults,
-    delegateProgrammableConfigV1:
-      metadataDelegateDefaults("ProgrammableConfig"),
     delegateSaleV1: tokenDelegateDefaults,
+    delegateTransferV1: tokenDelegateDefaults,
+    delegateDataV1: metadataDelegateDefaults("Data"),
+    delegateUtilityV1: tokenDelegateDefaults,
     delegateStakingV1: tokenDelegateDefaults,
     delegateStandardV1: {
       ...tokenDelegateDefaults,
@@ -599,9 +599,9 @@ kinobi.update(
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    delegateTransferV1: tokenDelegateDefaults,
-    delegateDataV1: metadataDelegateDefaults("Data"),
-    delegateUtilityV1: tokenDelegateDefaults,
+    delegateLockedTransferV1: tokenDelegateDefaults,
+    delegateProgrammableConfigV1:
+      metadataDelegateDefaults("ProgrammableConfig"),
     delegateAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
     delegateDataItemV1: metadataDelegateDefaults("DataItem"),
     delegateCollectionItemV1: metadataDelegateDefaults("CollectionItem"),
@@ -610,9 +610,10 @@ kinobi.update(
     ),
     // Revoke.
     revokeCollectionV1: metadataDelegateDefaults("Collection"),
-    revokeLockedTransferV1: tokenDelegateDefaults,
-    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
     revokeSaleV1: tokenDelegateDefaults,
+    revokeTransferV1: tokenDelegateDefaults,
+    revokeDataV1: metadataDelegateDefaults("Data"),
+    revokeUtilityV1: tokenDelegateDefaults,
     revokeStakingV1: tokenDelegateDefaults,
     revokeStandardV1: {
       ...tokenDelegateDefaults,
@@ -621,9 +622,8 @@ kinobi.update(
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    revokeTransferV1: tokenDelegateDefaults,
-    revokeDataV1: metadataDelegateDefaults("Data"),
-    revokeUtilityV1: tokenDelegateDefaults,
+    revokeLockedTransferV1: tokenDelegateDefaults,
+    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
     revokeMigrationV1: tokenDelegateDefaults,
     revokeAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
     revokeDataItemV1: metadataDelegateDefaults("DataItem"),
@@ -631,6 +631,7 @@ kinobi.update(
     revokeProgrammableConfigItemV1V1: metadataDelegateDefaults(
       "ProgrammableConfigItemV1"
     ),
+    // Verify collection.
     verifyCollectionV1: verifyCollectionDefaults,
     unverifyCollectionV1: verifyCollectionDefaults,
   })
