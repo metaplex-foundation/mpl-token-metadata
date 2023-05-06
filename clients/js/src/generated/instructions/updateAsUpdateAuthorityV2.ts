@@ -37,6 +37,8 @@ import {
   TokenStandardArgs,
   UsesToggle,
   UsesToggleArgs,
+  collectionDetailsToggle,
+  collectionToggle,
   getAuthorizationDataSerializer,
   getCollectionDetailsToggleSerializer,
   getCollectionToggleSerializer,
@@ -44,6 +46,8 @@ import {
   getRuleSetToggleSerializer,
   getTokenStandardSerializer,
   getUsesToggleSerializer,
+  ruleSetToggle,
+  usesToggle,
 } from '../types';
 
 // Accounts.
@@ -95,20 +99,20 @@ export type UpdateAsUpdateAuthorityV2InstructionData = {
 };
 
 export type UpdateAsUpdateAuthorityV2InstructionDataArgs = {
-  newUpdateAuthority: Option<PublicKey>;
-  data: Option<{
+  newUpdateAuthority?: Option<PublicKey>;
+  data?: Option<{
     name: string;
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
     creators: Option<Array<CreatorArgs>>;
   }>;
-  primarySaleHappened: Option<boolean>;
-  isMutable: Option<boolean>;
-  collection: CollectionToggleArgs;
-  collectionDetails: CollectionDetailsToggleArgs;
-  uses: UsesToggleArgs;
-  ruleSet: RuleSetToggleArgs;
+  primarySaleHappened?: Option<boolean>;
+  isMutable?: Option<boolean>;
+  collection?: CollectionToggleArgs;
+  collectionDetails?: CollectionDetailsToggleArgs;
+  uses?: UsesToggleArgs;
+  ruleSet?: RuleSetToggleArgs;
   tokenStandard: Option<TokenStandardArgs>;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
@@ -160,6 +164,15 @@ export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(
       ...value,
       discriminator: 50,
       updateAsUpdateAuthorityV2Discriminator: 1,
+      newUpdateAuthority: value.newUpdateAuthority ?? none(),
+      data: value.data ?? none(),
+      primarySaleHappened: value.primarySaleHappened ?? none(),
+      isMutable: value.isMutable ?? none(),
+      collection: value.collection ?? collectionToggle('None'),
+      collectionDetails:
+        value.collectionDetails ?? collectionDetailsToggle('None'),
+      uses: value.uses ?? usesToggle('None'),
+      ruleSet: value.ruleSet ?? ruleSetToggle('None'),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

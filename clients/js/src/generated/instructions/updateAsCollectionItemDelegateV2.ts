@@ -27,6 +27,7 @@ import {
   AuthorizationDataArgs,
   CollectionToggle,
   CollectionToggleArgs,
+  collectionToggle,
   getAuthorizationDataSerializer,
   getCollectionToggleSerializer,
 } from '../types';
@@ -66,7 +67,7 @@ export type UpdateAsCollectionItemDelegateV2InstructionData = {
 };
 
 export type UpdateAsCollectionItemDelegateV2InstructionDataArgs = {
-  collection: CollectionToggleArgs;
+  collection?: CollectionToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -98,6 +99,7 @@ export function getUpdateAsCollectionItemDelegateV2InstructionDataSerializer(
       ...value,
       discriminator: 50,
       updateAsCollectionItemDelegateV2Discriminator: 7,
+      collection: value.collection ?? collectionToggle('None'),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

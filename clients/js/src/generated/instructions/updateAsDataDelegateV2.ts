@@ -72,7 +72,7 @@ export type UpdateAsDataDelegateV2InstructionData = {
 };
 
 export type UpdateAsDataDelegateV2InstructionDataArgs = {
-  data: Option<{
+  data?: Option<{
     name: string;
     symbol: string;
     uri: string;
@@ -121,6 +121,7 @@ export function getUpdateAsDataDelegateV2InstructionDataSerializer(
       ...value,
       discriminator: 50,
       updateAsDataDelegateV2Discriminator: 4,
+      data: value.data ?? none(),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

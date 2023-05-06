@@ -154,39 +154,39 @@ export type UpdateArgsArgs =
     }
   | {
       __kind: 'AsUpdateAuthorityV2';
-      newUpdateAuthority: Option<PublicKey>;
-      data: Option<{
+      newUpdateAuthority?: Option<PublicKey>;
+      data?: Option<{
         name: string;
         symbol: string;
         uri: string;
         sellerFeeBasisPoints: number;
         creators: Option<Array<CreatorArgs>>;
       }>;
-      primarySaleHappened: Option<boolean>;
-      isMutable: Option<boolean>;
-      collection: CollectionToggleArgs;
-      collectionDetails: CollectionDetailsToggleArgs;
-      uses: UsesToggleArgs;
-      ruleSet: RuleSetToggleArgs;
+      primarySaleHappened?: Option<boolean>;
+      isMutable?: Option<boolean>;
+      collection?: CollectionToggleArgs;
+      collectionDetails?: CollectionDetailsToggleArgs;
+      uses?: UsesToggleArgs;
+      ruleSet?: RuleSetToggleArgs;
       tokenStandard: Option<TokenStandardArgs>;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsAuthorityItemDelegateV2';
-      newUpdateAuthority: Option<PublicKey>;
-      primarySaleHappened: Option<boolean>;
-      isMutable: Option<boolean>;
+      newUpdateAuthority?: Option<PublicKey>;
+      primarySaleHappened?: Option<boolean>;
+      isMutable?: Option<boolean>;
       tokenStandard: Option<TokenStandardArgs>;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsCollectionDelegateV2';
-      collection: CollectionToggleArgs;
+      collection?: CollectionToggleArgs;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsDataDelegateV2';
-      data: Option<{
+      data?: Option<{
         name: string;
         symbol: string;
         uri: string;
@@ -197,12 +197,12 @@ export type UpdateArgsArgs =
     }
   | {
       __kind: 'AsProgrammableConfigDelegateV2';
-      ruleSet: RuleSetToggleArgs;
+      ruleSet?: RuleSetToggleArgs;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsDataItemDelegateV2';
-      data: Option<{
+      data?: Option<{
         name: string;
         symbol: string;
         uri: string;
@@ -213,12 +213,12 @@ export type UpdateArgsArgs =
     }
   | {
       __kind: 'AsCollectionItemDelegateV2';
-      collection: CollectionToggleArgs;
+      collection?: CollectionToggleArgs;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsProgrammableConfigItemDelegateV2';
-      ruleSet: RuleSetToggleArgs;
+      ruleSet?: RuleSetToggleArgs;
       authorizationData?: Option<AuthorizationDataArgs>;
     };
 
@@ -322,6 +322,15 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            newUpdateAuthority: value.newUpdateAuthority ?? none(),
+            data: value.data ?? none(),
+            primarySaleHappened: value.primarySaleHappened ?? none(),
+            isMutable: value.isMutable ?? none(),
+            collection: value.collection ?? collectionToggle('None'),
+            collectionDetails:
+              value.collectionDetails ?? collectionDetailsToggle('None'),
+            uses: value.uses ?? usesToggle('None'),
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -347,6 +356,9 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            newUpdateAuthority: value.newUpdateAuthority ?? none(),
+            primarySaleHappened: value.primarySaleHappened ?? none(),
+            isMutable: value.isMutable ?? none(),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -369,6 +381,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            collection: value.collection ?? collectionToggle('None'),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -403,6 +416,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            data: value.data ?? none(),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -428,6 +442,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -462,6 +477,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            data: value.data ?? none(),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -484,6 +500,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            collection: value.collection ?? collectionToggle('None'),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -515,6 +532,7 @@ export function getUpdateArgsSerializer(
           ]),
           (value) => ({
             ...value,
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
             authorizationData: value.authorizationData ?? none(),
           })
         ),

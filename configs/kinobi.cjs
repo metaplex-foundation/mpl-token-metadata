@@ -447,6 +447,55 @@ kinobi.update(
         });
       },
     },
+    {
+      selector: (node) => {
+        const names = [
+          "decimals",
+          "printSupply",
+          "newUpdateAuthority",
+          "data",
+          "primarySaleHappened",
+          "isMutable",
+        ];
+        return (
+          k.isStructFieldTypeNode(node) &&
+          k.isOptionTypeNode(node.child) &&
+          names.includes(node.name)
+        );
+      },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vNone() },
+        });
+      },
+    },
+    {
+      selector: (node) => {
+        const toggles = [
+          "collectionToggle",
+          "collectionDetailsToggle",
+          "usesToggle",
+          "ruleSetToggle",
+        ];
+        return (
+          k.isStructFieldTypeNode(node) &&
+          k.isLinkTypeNode(node.child) &&
+          toggles.includes(node.child.name)
+        );
+      },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: {
+            strategy: "optional",
+            value: k.vEnum(node.child.name, "None", "empty"),
+          },
+        });
+      },
+    },
   ])
 );
 

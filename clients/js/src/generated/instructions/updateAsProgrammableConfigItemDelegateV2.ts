@@ -29,6 +29,7 @@ import {
   RuleSetToggleArgs,
   getAuthorizationDataSerializer,
   getRuleSetToggleSerializer,
+  ruleSetToggle,
 } from '../types';
 
 // Accounts.
@@ -66,7 +67,7 @@ export type UpdateAsProgrammableConfigItemDelegateV2InstructionData = {
 };
 
 export type UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs = {
-  ruleSet: RuleSetToggleArgs;
+  ruleSet?: RuleSetToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -98,6 +99,7 @@ export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerial
       ...value,
       discriminator: 50,
       updateAsProgrammableConfigItemDelegateV2Discriminator: 8,
+      ruleSet: value.ruleSet ?? ruleSetToggle('None'),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

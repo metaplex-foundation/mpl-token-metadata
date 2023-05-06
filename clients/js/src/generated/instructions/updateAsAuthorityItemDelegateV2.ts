@@ -69,9 +69,9 @@ export type UpdateAsAuthorityItemDelegateV2InstructionData = {
 };
 
 export type UpdateAsAuthorityItemDelegateV2InstructionDataArgs = {
-  newUpdateAuthority: Option<PublicKey>;
-  primarySaleHappened: Option<boolean>;
-  isMutable: Option<boolean>;
+  newUpdateAuthority?: Option<PublicKey>;
+  primarySaleHappened?: Option<boolean>;
+  isMutable?: Option<boolean>;
   tokenStandard: Option<TokenStandardArgs>;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
@@ -107,6 +107,9 @@ export function getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(
       ...value,
       discriminator: 50,
       updateAsAuthorityItemDelegateV2Discriminator: 2,
+      newUpdateAuthority: value.newUpdateAuthority ?? none(),
+      primarySaleHappened: value.primarySaleHappened ?? none(),
+      isMutable: value.isMutable ?? none(),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

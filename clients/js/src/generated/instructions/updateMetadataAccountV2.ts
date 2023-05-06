@@ -15,6 +15,7 @@ import {
   Signer,
   TransactionBuilder,
   mapSerializer,
+  none,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { addObjectProperty, isWritable } from '../shared';
@@ -38,10 +39,10 @@ export type UpdateMetadataAccountV2InstructionData = {
 };
 
 export type UpdateMetadataAccountV2InstructionDataArgs = {
-  data: Option<DataV2Args>;
-  newUpdateAuthority: Option<PublicKey>;
-  primarySaleHappened: Option<boolean>;
-  isMutable: Option<boolean>;
+  data?: Option<DataV2Args>;
+  newUpdateAuthority?: Option<PublicKey>;
+  primarySaleHappened?: Option<boolean>;
+  isMutable?: Option<boolean>;
 };
 
 export function getUpdateMetadataAccountV2InstructionDataSerializer(
@@ -66,7 +67,14 @@ export function getUpdateMetadataAccountV2InstructionDataSerializer(
       ],
       { description: 'UpdateMetadataAccountV2InstructionData' }
     ),
-    (value) => ({ ...value, discriminator: 15 })
+    (value) => ({
+      ...value,
+      discriminator: 15,
+      data: value.data ?? none(),
+      newUpdateAuthority: value.newUpdateAuthority ?? none(),
+      primarySaleHappened: value.primarySaleHappened ?? none(),
+      isMutable: value.isMutable ?? none(),
+    })
   ) as Serializer<
     UpdateMetadataAccountV2InstructionDataArgs,
     UpdateMetadataAccountV2InstructionData
