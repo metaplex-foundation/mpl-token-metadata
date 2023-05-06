@@ -30,7 +30,7 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
 
-    // When we update the name of the asset.
+    // When the delegate updates the name of the asset.
     const initialMetadata = await fetchMetadataFromSeeds(umi, { mint });
     await updateAsDataDelegateV2(umi, {
       mint,
