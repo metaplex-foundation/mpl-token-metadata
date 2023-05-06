@@ -552,6 +552,26 @@ const metadataDelegateDefaults = (role) => ({
   args: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(), // TODO: Default to authority as public key.
+    },
+  },
+});
+const updateAsMetadataDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.accountDefault("mint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("updateAuthority"),
+          delegate: k.accountDefault("authority"),
+        },
+      }),
+    },
+  },
+  args: {
+    updateAuthority: {
+      type: k.publicKeyTypeNode(),
       defaultsTo: k.identityDefault(),
     },
   },
@@ -613,6 +633,8 @@ kinobi.update(
         },
       },
     },
+    // Update.
+    updateAsDataDelegateV2: updateAsMetadataDelegateDefaults("Data"),
     // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
     delegateSaleV1: tokenDelegateDefaults,
