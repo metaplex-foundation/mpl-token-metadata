@@ -40,7 +40,7 @@ export type UpdateAsProgrammableConfigDelegateV2InstructionAccounts = {
   /** Delegate record PDA */
   delegateRecord?: PublicKey;
   /** Token account */
-  token?: PublicKey;
+  token: PublicKey;
   /** Mint account */
   mint: PublicKey;
   /** Metadata account */
@@ -172,7 +172,6 @@ export function updateAsProgrammableConfigDelegateV2(
         delegate: publicKey(resolvingAccounts.authority),
       })
   );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'metadata',

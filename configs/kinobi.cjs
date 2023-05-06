@@ -568,6 +568,10 @@ const updateAsMetadataDelegateDefaults = (role) => ({
         },
       }),
     },
+    token:
+      role === "ProgrammableConfigItem"
+        ? { isOptional: false, defaultsTo: null }
+        : undefined,
   },
   args: {
     updateAuthority: {
@@ -588,6 +592,10 @@ const updateAsMetadataCollectionDelegateDefaults = (role) => ({
         },
       }),
     },
+    token:
+      role === "ProgrammableConfig"
+        ? { isOptional: false, defaultsTo: null }
+        : undefined,
   },
   args: {
     delegateMint: {
