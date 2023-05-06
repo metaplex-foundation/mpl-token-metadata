@@ -20,13 +20,14 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
-import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
+import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
   CollectionToggle,
   CollectionToggleArgs,
+  MetadataDelegateRole,
   collectionToggle,
   getAuthorizationDataSerializer,
   getCollectionToggleSerializer,
@@ -108,9 +109,17 @@ export function getUpdateAsCollectionDelegateV2InstructionDataSerializer(
   >;
 }
 
+// Extra Args.
+export type UpdateAsCollectionDelegateV2InstructionExtraArgs = {
+  updateAuthority: PublicKey;
+};
+
 // Args.
-export type UpdateAsCollectionDelegateV2InstructionArgs =
-  UpdateAsCollectionDelegateV2InstructionDataArgs;
+export type UpdateAsCollectionDelegateV2InstructionArgs = PickPartial<
+  UpdateAsCollectionDelegateV2InstructionDataArgs &
+    UpdateAsCollectionDelegateV2InstructionExtraArgs,
+  'updateAuthority'
+>;
 
 // Instruction.
 export function updateAsCollectionDelegateV2(
@@ -142,9 +151,20 @@ export function updateAsCollectionDelegateV2(
     input.authority ?? context.identity
   );
   addObjectProperty(
+    resolvingArgs,
+    'updateAuthority',
+    input.updateAuthority ?? context.identity.publicKey
+  );
+  addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord ??
+      findMetadataDelegateRecordPda(context, {
+        mint: publicKey(input.mint),
+        delegateRole: MetadataDelegateRole.Collection,
+        updateAuthority: resolvingArgs.updateAuthority,
+        delegate: publicKey(resolvingAccounts.authority),
+      })
   );
   addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(

@@ -634,7 +634,19 @@ kinobi.update(
       },
     },
     // Update.
+    updateAsAuthorityItemDelegateV2:
+      updateAsMetadataDelegateDefaults("AuthorityItem"),
+    updateAsCollectionDelegateV2:
+      updateAsMetadataDelegateDefaults("Collection"),
     updateAsDataDelegateV2: updateAsMetadataDelegateDefaults("Data"),
+    updateAsProgrammableConfigDelegateV2:
+      updateAsMetadataDelegateDefaults("ProgrammableConfig"),
+    updateAsDataItemDelegateV2: updateAsMetadataDelegateDefaults("DataItem"),
+    updateAsCollectionItemDelegateV2:
+      updateAsMetadataDelegateDefaults("CollectionItem"),
+    updateAsProgrammableConfigItemDelegateV2: updateAsMetadataDelegateDefaults(
+      "ProgrammableConfigItem"
+    ),
     // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
     delegateSaleV1: tokenDelegateDefaults,
