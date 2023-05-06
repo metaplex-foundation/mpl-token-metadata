@@ -113,7 +113,7 @@ export type UpdateAsUpdateAuthorityV2InstructionDataArgs = {
   collectionDetails?: CollectionDetailsToggleArgs;
   uses?: UsesToggleArgs;
   ruleSet?: RuleSetToggleArgs;
-  tokenStandard: Option<TokenStandardArgs>;
+  tokenStandard?: Option<TokenStandardArgs>;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
@@ -173,6 +173,7 @@ export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(
         value.collectionDetails ?? collectionDetailsToggle('None'),
       uses: value.uses ?? usesToggle('None'),
       ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+      tokenStandard: value.tokenStandard ?? none(),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<

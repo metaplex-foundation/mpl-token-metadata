@@ -407,6 +407,8 @@ kinobi.update(
       collectionDetails: k.vNone(),
       ruleSet: k.vNone(),
     },
+    "updateArgs.AsUpdateAuthorityV2": { tokenStandard: k.vNone() },
+    "updateArgs.AsAuthorityItemDelegateV2": { tokenStandard: k.vNone() },
   })
 );
 

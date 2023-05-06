@@ -168,7 +168,7 @@ export type UpdateArgsArgs =
       collectionDetails?: CollectionDetailsToggleArgs;
       uses?: UsesToggleArgs;
       ruleSet?: RuleSetToggleArgs;
-      tokenStandard: Option<TokenStandardArgs>;
+      tokenStandard?: Option<TokenStandardArgs>;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
@@ -176,7 +176,7 @@ export type UpdateArgsArgs =
       newUpdateAuthority?: Option<PublicKey>;
       primarySaleHappened?: Option<boolean>;
       isMutable?: Option<boolean>;
-      tokenStandard: Option<TokenStandardArgs>;
+      tokenStandard?: Option<TokenStandardArgs>;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
   | {
@@ -331,6 +331,7 @@ export function getUpdateArgsSerializer(
               value.collectionDetails ?? collectionDetailsToggle('None'),
             uses: value.uses ?? usesToggle('None'),
             ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+            tokenStandard: value.tokenStandard ?? none(),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
@@ -359,6 +360,7 @@ export function getUpdateArgsSerializer(
             newUpdateAuthority: value.newUpdateAuthority ?? none(),
             primarySaleHappened: value.primarySaleHappened ?? none(),
             isMutable: value.isMutable ?? none(),
+            tokenStandard: value.tokenStandard ?? none(),
             authorizationData: value.authorizationData ?? none(),
           })
         ),
