@@ -1,6 +1,6 @@
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import { generateSigner, none, some } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
 import {
   Metadata,
   TokenStandard,
@@ -11,7 +11,6 @@ import {
 } from '../src';
 import {
   OG_TOKEN_STANDARDS,
-  createDigitalAsset,
   createDigitalAssetWithToken,
   createUmi,
 } from './_setup';
@@ -52,7 +51,7 @@ OG_TOKEN_STANDARDS.forEach((tokenStandard) => {
   test(`it cannot update a ${tokenStandard} as a programmable config item delegate`, async (t) => {
     // Given an existing asset with no rule set.
     const umi = await createUmi();
-    const { publicKey: mint } = await createDigitalAsset(umi, {
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
       ruleSet: none(),
       tokenStandard: TokenStandard[tokenStandard],
     });
@@ -69,6 +68,10 @@ OG_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const ruleSet = generateSigner(umi).publicKey;
     const promise = updateAsProgrammableConfigItemDelegateV2(umi, {
       mint,
+      token: findAssociatedTokenPda(umi, {
+        mint,
+        owner: umi.identity.publicKey,
+      }),
       authority: programmableConfigItemDelegate,
       ruleSet: ruleSetToggle('Set', [ruleSet]),
     }).sendAndConfirm(umi);
