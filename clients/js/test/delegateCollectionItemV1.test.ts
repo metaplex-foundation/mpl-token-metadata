@@ -4,7 +4,7 @@ import {
   MetadataDelegateRecord,
   MetadataDelegateRole,
   TokenStandard,
-  delegateProgrammableConfigV1,
+  delegateCollectionItemV1,
   fetchMetadataDelegateRecord,
   findMetadataDelegateRecordPda,
 } from '../src';
@@ -15,7 +15,7 @@ import {
 } from './_setup';
 
 NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
-  test(`it can approve a programmable config delegate for a ${tokenStandard}`, async (t) => {
+  test(`it can approve a collection item delegate for a ${tokenStandard}`, async (t) => {
     // Given an asset.
     const umi = await createUmi();
     const updateAuthority = generateSigner(umi);
@@ -24,12 +24,12 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       tokenStandard: TokenStandard[tokenStandard],
     });
 
-    // When we approve a programmable config delegate.
-    const programmableConfigDelegate = generateSigner(umi).publicKey;
-    await delegateProgrammableConfigV1(umi, {
+    // When we approve a collection item delegate.
+    const collectionItemDelegate = generateSigner(umi).publicKey;
+    await delegateCollectionItemV1(umi, {
       mint,
       authority: updateAuthority,
-      delegate: programmableConfigDelegate,
+      delegate: collectionItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
 
@@ -38,15 +38,15 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       umi,
       findMetadataDelegateRecordPda(umi, {
         mint,
-        delegateRole: MetadataDelegateRole.ProgrammableConfig,
-        delegate: programmableConfigDelegate,
+        delegateRole: MetadataDelegateRole.CollectionItem,
+        delegate: collectionItemDelegate,
         updateAuthority: updateAuthority.publicKey,
       })
     );
     t.like(delegateRecord, <MetadataDelegateRecord>{
       mint: publicKey(mint),
       updateAuthority: publicKey(updateAuthority),
-      delegate: publicKey(programmableConfigDelegate),
+      delegate: publicKey(collectionItemDelegate),
     });
   });
 });

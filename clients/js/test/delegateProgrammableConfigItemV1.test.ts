@@ -4,7 +4,7 @@ import {
   MetadataDelegateRecord,
   MetadataDelegateRole,
   TokenStandard,
-  delegateUpdateV1,
+  delegateProgrammableConfigItemV1,
   fetchMetadataDelegateRecord,
   findMetadataDelegateRecordPda,
 } from '../src';
@@ -15,7 +15,7 @@ import {
 } from './_setup';
 
 NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
-  test(`it can approve a update delegate for a ${tokenStandard}`, async (t) => {
+  test(`it can approve a programmable config item delegate for a ${tokenStandard}`, async (t) => {
     // Given an asset.
     const umi = await createUmi();
     const updateAuthority = generateSigner(umi);
@@ -24,13 +24,12 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       tokenStandard: TokenStandard[tokenStandard],
     });
 
-    // When we approve a update delegate.
-    const updateDelegate = generateSigner(umi).publicKey;
-    await delegateUpdateV1(umi, {
+    // When we approve a programmable config item delegate.
+    const programmableConfigItemDelegate = generateSigner(umi).publicKey;
+    await delegateProgrammableConfigItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
-      delegate: updateDelegate,
+      delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
 
@@ -39,15 +38,15 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       umi,
       findMetadataDelegateRecordPda(umi, {
         mint,
-        delegateRole: MetadataDelegateRole.Update,
-        delegate: updateDelegate,
+        delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
+        delegate: programmableConfigItemDelegate,
         updateAuthority: updateAuthority.publicKey,
       })
     );
     t.like(delegateRecord, <MetadataDelegateRecord>{
       mint: publicKey(mint),
       updateAuthority: publicKey(updateAuthority),
-      delegate: publicKey(updateDelegate),
+      delegate: publicKey(programmableConfigItemDelegate),
     });
   });
 });

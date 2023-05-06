@@ -35,7 +35,7 @@ import {
 } from '../types';
 
 // Accounts.
-export type DelegateCollectionV1InstructionAccounts = {
+export type DelegateAuthorityItemV1InstructionAccounts = {
   /** Delegate record account */
   delegateRecord?: PublicKey;
   /** Owner of the delegated account */
@@ -67,72 +67,72 @@ export type DelegateCollectionV1InstructionAccounts = {
 };
 
 // Data.
-export type DelegateCollectionV1InstructionData = {
+export type DelegateAuthorityItemV1InstructionData = {
   discriminator: number;
-  delegateCollectionV1Discriminator: number;
+  delegateAuthorityItemV1Discriminator: number;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateCollectionV1InstructionDataArgs = {
+export type DelegateAuthorityItemV1InstructionDataArgs = {
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getDelegateCollectionV1InstructionDataSerializer(
+export function getDelegateAuthorityItemV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateCollectionV1InstructionDataArgs,
-  DelegateCollectionV1InstructionData
+  DelegateAuthorityItemV1InstructionDataArgs,
+  DelegateAuthorityItemV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateCollectionV1InstructionDataArgs,
+    DelegateAuthorityItemV1InstructionDataArgs,
     any,
-    DelegateCollectionV1InstructionData
+    DelegateAuthorityItemV1InstructionData
   >(
-    s.struct<DelegateCollectionV1InstructionData>(
+    s.struct<DelegateAuthorityItemV1InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['delegateCollectionV1Discriminator', s.u8()],
+        ['delegateAuthorityItemV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'DelegateCollectionV1InstructionData' }
+      { description: 'DelegateAuthorityItemV1InstructionData' }
     ),
     (value) => ({
       ...value,
       discriminator: 44,
-      delegateCollectionV1Discriminator: 0,
+      delegateAuthorityItemV1Discriminator: 9,
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<
-    DelegateCollectionV1InstructionDataArgs,
-    DelegateCollectionV1InstructionData
+    DelegateAuthorityItemV1InstructionDataArgs,
+    DelegateAuthorityItemV1InstructionData
   >;
 }
 
 // Extra Args.
-export type DelegateCollectionV1InstructionExtraArgs = {
+export type DelegateAuthorityItemV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateCollectionV1InstructionArgs = PickPartial<
-  DelegateCollectionV1InstructionDataArgs &
-    DelegateCollectionV1InstructionExtraArgs,
+export type DelegateAuthorityItemV1InstructionArgs = PickPartial<
+  DelegateAuthorityItemV1InstructionDataArgs &
+    DelegateAuthorityItemV1InstructionExtraArgs,
   'updateAuthority'
 >;
 
 // Instruction.
-export function delegateCollectionV1(
+export function delegateAuthorityItemV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateCollectionV1InstructionAccounts &
-    DelegateCollectionV1InstructionArgs
+  input: DelegateAuthorityItemV1InstructionAccounts &
+    DelegateAuthorityItemV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -165,7 +165,7 @@ export function delegateCollectionV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Collection,
+        delegateRole: MetadataDelegateRole.AuthorityItem,
         updateAuthority: resolvingArgs.updateAuthority,
         delegate: publicKey(input.delegate),
       })
@@ -342,7 +342,7 @@ export function delegateCollectionV1(
 
   // Data.
   const data =
-    getDelegateCollectionV1InstructionDataSerializer(context).serialize(
+    getDelegateAuthorityItemV1InstructionDataSerializer(context).serialize(
       resolvedArgs
     );
 

@@ -33,6 +33,8 @@ import {
   CreatorArgs,
   RuleSetToggle,
   RuleSetToggleArgs,
+  TokenStandard,
+  TokenStandardArgs,
   UsesToggle,
   UsesToggleArgs,
   collectionDetailsToggle,
@@ -42,13 +44,14 @@ import {
   getCollectionToggleSerializer,
   getCreatorSerializer,
   getRuleSetToggleSerializer,
+  getTokenStandardSerializer,
   getUsesToggleSerializer,
   ruleSetToggle,
   usesToggle,
 } from '../types';
 
 // Accounts.
-export type UpdateV1InstructionAccounts = {
+export type UpdateAsUpdateAuthorityV2InstructionAccounts = {
   /** Update authority or delegate */
   authority?: Signer;
   /** Delegate record PDA */
@@ -74,9 +77,9 @@ export type UpdateV1InstructionAccounts = {
 };
 
 // Data.
-export type UpdateV1InstructionData = {
+export type UpdateAsUpdateAuthorityV2InstructionData = {
   discriminator: number;
-  updateV1Discriminator: number;
+  updateAsUpdateAuthorityV2Discriminator: number;
   newUpdateAuthority: Option<PublicKey>;
   data: Option<{
     name: string;
@@ -91,10 +94,11 @@ export type UpdateV1InstructionData = {
   collectionDetails: CollectionDetailsToggle;
   uses: UsesToggle;
   ruleSet: RuleSetToggle;
+  tokenStandard: Option<TokenStandard>;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type UpdateV1InstructionDataArgs = {
+export type UpdateAsUpdateAuthorityV2InstructionDataArgs = {
   newUpdateAuthority?: Option<PublicKey>;
   data?: Option<{
     name: string;
@@ -109,22 +113,26 @@ export type UpdateV1InstructionDataArgs = {
   collectionDetails?: CollectionDetailsToggleArgs;
   uses?: UsesToggleArgs;
   ruleSet?: RuleSetToggleArgs;
+  tokenStandard?: Option<TokenStandardArgs>;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getUpdateV1InstructionDataSerializer(
+export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData> {
+): Serializer<
+  UpdateAsUpdateAuthorityV2InstructionDataArgs,
+  UpdateAsUpdateAuthorityV2InstructionData
+> {
   const s = context.serializer;
   return mapSerializer<
-    UpdateV1InstructionDataArgs,
+    UpdateAsUpdateAuthorityV2InstructionDataArgs,
     any,
-    UpdateV1InstructionData
+    UpdateAsUpdateAuthorityV2InstructionData
   >(
-    s.struct<UpdateV1InstructionData>(
+    s.struct<UpdateAsUpdateAuthorityV2InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['updateV1Discriminator', s.u8()],
+        ['updateAsUpdateAuthorityV2Discriminator', s.u8()],
         ['newUpdateAuthority', s.option(s.publicKey())],
         [
           'data',
@@ -144,17 +152,18 @@ export function getUpdateV1InstructionDataSerializer(
         ['collectionDetails', getCollectionDetailsToggleSerializer(context)],
         ['uses', getUsesToggleSerializer(context)],
         ['ruleSet', getRuleSetToggleSerializer(context)],
+        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'UpdateV1InstructionData' }
+      { description: 'UpdateAsUpdateAuthorityV2InstructionData' }
     ),
     (value) => ({
       ...value,
       discriminator: 50,
-      updateV1Discriminator: 0,
+      updateAsUpdateAuthorityV2Discriminator: 1,
       newUpdateAuthority: value.newUpdateAuthority ?? none(),
       data: value.data ?? none(),
       primarySaleHappened: value.primarySaleHappened ?? none(),
@@ -164,21 +173,27 @@ export function getUpdateV1InstructionDataSerializer(
         value.collectionDetails ?? collectionDetailsToggle('None'),
       uses: value.uses ?? usesToggle('None'),
       ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+      tokenStandard: value.tokenStandard ?? none(),
       authorizationData: value.authorizationData ?? none(),
     })
-  ) as Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData>;
+  ) as Serializer<
+    UpdateAsUpdateAuthorityV2InstructionDataArgs,
+    UpdateAsUpdateAuthorityV2InstructionData
+  >;
 }
 
 // Args.
-export type UpdateV1InstructionArgs = UpdateV1InstructionDataArgs;
+export type UpdateAsUpdateAuthorityV2InstructionArgs =
+  UpdateAsUpdateAuthorityV2InstructionDataArgs;
 
 // Instruction.
-export function updateV1(
+export function updateAsUpdateAuthorityV2(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: UpdateV1InstructionAccounts & UpdateV1InstructionArgs
+  input: UpdateAsUpdateAuthorityV2InstructionAccounts &
+    UpdateAsUpdateAuthorityV2InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -330,7 +345,9 @@ export function updateV1(
 
   // Data.
   const data =
-    getUpdateV1InstructionDataSerializer(context).serialize(resolvedArgs);
+    getUpdateAsUpdateAuthorityV2InstructionDataSerializer(context).serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

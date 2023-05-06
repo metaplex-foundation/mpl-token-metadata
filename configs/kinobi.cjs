@@ -349,15 +349,19 @@ kinobi.update(
         tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
-    updateMetadataAccount: {
-      args: { updateAuthority: { name: "newUpdateAuthority" } },
-    },
     updateMetadataAccountV2: {
       args: { updateAuthority: { name: "newUpdateAuthority" } },
     },
     // Deprecated instructions.
-    "mplTokenMetadata.deprecatedCreateReservationList": { delete: true },
-    "mplTokenMetadata.deprecatedSetReservationList": { delete: true },
+    createMetadataAccount: { delete: true },
+    createMetadataAccountV2: { delete: true },
+    createMasterEdition: { delete: true },
+    updateMetadataAccount: { delete: true },
+    deprecatedCreateReservationList: { delete: true },
+    deprecatedSetReservationList: { delete: true },
+    deprecatedCreateMasterEdition: { delete: true },
+    deprecatedMintPrintingTokens: { delete: true },
+    deprecatedMintPrintingTokensViaToken: { delete: true },
   })
 );
 
@@ -403,20 +407,8 @@ kinobi.update(
       collectionDetails: k.vNone(),
       ruleSet: k.vNone(),
     },
-    "createArgs.V1": {
-      decimals: k.vNone(),
-      printSupply: k.vNone(),
-    },
-    "updateArgs.V1": {
-      newUpdateAuthority: k.vNone(),
-      data: k.vNone(),
-      primarySaleHappened: k.vNone(),
-      isMutable: k.vNone(),
-      collection: k.vEnum("CollectionToggle", "None", "empty"),
-      collectionDetails: k.vEnum("CollectionDetailsToggle", "None", "empty"),
-      uses: k.vEnum("UsesToggle", "None", "empty"),
-      ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
-    },
+    "updateArgs.AsUpdateAuthorityV2": { tokenStandard: k.vNone() },
+    "updateArgs.AsAuthorityItemDelegateV2": { tokenStandard: k.vNone() },
   })
 );
 
@@ -424,7 +416,32 @@ kinobi.update(
 kinobi.update(
   new k.TransformNodesVisitor([
     {
-      selector: { kind: "structFieldTypeNode", name: "authorizationData" },
+      selector: { kind: "structFieldTypeNode", name: "amount" },
+      transformer: (node) => {
+        k.assertStructFieldTypeNode(node);
+        return k.structFieldTypeNode({
+          ...node,
+          defaultsTo: { strategy: "optional", value: k.vScalar(1) },
+        });
+      },
+    },
+    {
+      selector: (node) => {
+        const names = [
+          "authorizationData",
+          "decimals",
+          "printSupply",
+          "newUpdateAuthority",
+          "data",
+          "primarySaleHappened",
+          "isMutable",
+        ];
+        return (
+          k.isStructFieldTypeNode(node) &&
+          k.isOptionTypeNode(node.child) &&
+          names.includes(node.name)
+        );
+      },
       transformer: (node) => {
         k.assertStructFieldTypeNode(node);
         return k.structFieldTypeNode({
@@ -434,12 +451,27 @@ kinobi.update(
       },
     },
     {
-      selector: { kind: "structFieldTypeNode", name: "amount" },
+      selector: (node) => {
+        const toggles = [
+          "collectionToggle",
+          "collectionDetailsToggle",
+          "usesToggle",
+          "ruleSetToggle",
+        ];
+        return (
+          k.isStructFieldTypeNode(node) &&
+          k.isLinkTypeNode(node.child) &&
+          toggles.includes(node.child.name)
+        );
+      },
       transformer: (node) => {
         k.assertStructFieldTypeNode(node);
         return k.structFieldTypeNode({
           ...node,
-          defaultsTo: { strategy: "optional", value: k.vScalar(1) },
+          defaultsTo: {
+            strategy: "optional",
+            value: k.vEnum(node.child.name, "None", "empty"),
+          },
         });
       },
     },
@@ -520,6 +552,58 @@ const metadataDelegateDefaults = (role) => ({
   args: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
+      defaultsTo: k.accountDefault("authority"),
+    },
+  },
+});
+const updateAsMetadataDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.accountDefault("mint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("updateAuthority"),
+          delegate: k.accountDefault("authority"),
+        },
+      }),
+    },
+    token:
+      role === "ProgrammableConfigItem"
+        ? { isOptional: false, defaultsTo: null }
+        : undefined,
+  },
+  args: {
+    updateAuthority: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+});
+const updateAsMetadataCollectionDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.argDefault("delegateMint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("delegateUpdateAuthority"),
+          delegate: k.accountDefault("authority"),
+        },
+      }),
+    },
+    token:
+      role === "ProgrammableConfig"
+        ? { isOptional: false, defaultsTo: null }
+        : undefined,
+  },
+  args: {
+    delegateMint: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.accountDefault("mint"),
+    },
+    delegateUpdateAuthority: {
+      type: k.publicKeyTypeNode(),
       defaultsTo: k.identityDefault(),
     },
   },
@@ -581,11 +665,26 @@ kinobi.update(
         },
       },
     },
+    // Update.
+    updateAsAuthorityItemDelegateV2:
+      updateAsMetadataDelegateDefaults("AuthorityItem"),
+    updateAsCollectionDelegateV2:
+      updateAsMetadataCollectionDelegateDefaults("Collection"),
+    updateAsDataDelegateV2: updateAsMetadataCollectionDelegateDefaults("Data"),
+    updateAsProgrammableConfigDelegateV2:
+      updateAsMetadataCollectionDelegateDefaults("ProgrammableConfig"),
+    updateAsDataItemDelegateV2: updateAsMetadataDelegateDefaults("DataItem"),
+    updateAsCollectionItemDelegateV2:
+      updateAsMetadataDelegateDefaults("CollectionItem"),
+    updateAsProgrammableConfigItemDelegateV2: updateAsMetadataDelegateDefaults(
+      "ProgrammableConfigItem"
+    ),
+    // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
-    delegateLockedTransferV1: tokenDelegateDefaults,
-    delegateProgrammableConfigV1:
-      metadataDelegateDefaults("ProgrammableConfig"),
     delegateSaleV1: tokenDelegateDefaults,
+    delegateTransferV1: tokenDelegateDefaults,
+    delegateDataV1: metadataDelegateDefaults("Data"),
+    delegateUtilityV1: tokenDelegateDefaults,
     delegateStakingV1: tokenDelegateDefaults,
     delegateStandardV1: {
       ...tokenDelegateDefaults,
@@ -594,13 +693,21 @@ kinobi.update(
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    delegateTransferV1: tokenDelegateDefaults,
-    delegateUpdateV1: metadataDelegateDefaults("Update"),
-    delegateUtilityV1: tokenDelegateDefaults,
+    delegateLockedTransferV1: tokenDelegateDefaults,
+    delegateProgrammableConfigV1:
+      metadataDelegateDefaults("ProgrammableConfig"),
+    delegateAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
+    delegateDataItemV1: metadataDelegateDefaults("DataItem"),
+    delegateCollectionItemV1: metadataDelegateDefaults("CollectionItem"),
+    delegateProgrammableConfigItemV1: metadataDelegateDefaults(
+      "ProgrammableConfigItem"
+    ),
+    // Revoke.
     revokeCollectionV1: metadataDelegateDefaults("Collection"),
-    revokeLockedTransferV1: tokenDelegateDefaults,
-    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
     revokeSaleV1: tokenDelegateDefaults,
+    revokeTransferV1: tokenDelegateDefaults,
+    revokeDataV1: metadataDelegateDefaults("Data"),
+    revokeUtilityV1: tokenDelegateDefaults,
     revokeStakingV1: tokenDelegateDefaults,
     revokeStandardV1: {
       ...tokenDelegateDefaults,
@@ -609,9 +716,16 @@ kinobi.update(
         tokenRecord: { defaultsTo: k.programIdDefault() },
       },
     },
-    revokeTransferV1: tokenDelegateDefaults,
-    revokeUpdateV1: metadataDelegateDefaults("Update"),
-    revokeUtilityV1: tokenDelegateDefaults,
+    revokeLockedTransferV1: tokenDelegateDefaults,
+    revokeProgrammableConfigV1: metadataDelegateDefaults("ProgrammableConfig"),
+    revokeMigrationV1: tokenDelegateDefaults,
+    revokeAuthorityItemV1: metadataDelegateDefaults("AuthorityItem"),
+    revokeDataItemV1: metadataDelegateDefaults("DataItem"),
+    revokeCollectionItemV1: metadataDelegateDefaults("CollectionItem"),
+    revokeProgrammableConfigItemV1: metadataDelegateDefaults(
+      "ProgrammableConfigItem"
+    ),
+    // Verify collection.
     verifyCollectionV1: verifyCollectionDefaults,
     unverifyCollectionV1: verifyCollectionDefaults,
   })

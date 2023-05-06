@@ -34,7 +34,7 @@ export type DelegateArgs =
       amount: bigint;
       authorizationData: Option<AuthorizationData>;
     }
-  | { __kind: 'UpdateV1'; authorizationData: Option<AuthorizationData> }
+  | { __kind: 'DataV1'; authorizationData: Option<AuthorizationData> }
   | {
       __kind: 'UtilityV1';
       amount: bigint;
@@ -55,6 +55,13 @@ export type DelegateArgs =
   | {
       __kind: 'ProgrammableConfigV1';
       authorizationData: Option<AuthorizationData>;
+    }
+  | { __kind: 'AuthorityItemV1'; authorizationData: Option<AuthorizationData> }
+  | { __kind: 'DataItemV1'; authorizationData: Option<AuthorizationData> }
+  | { __kind: 'CollectionItemV1'; authorizationData: Option<AuthorizationData> }
+  | {
+      __kind: 'ProgrammableConfigItemV1';
+      authorizationData: Option<AuthorizationData>;
     };
 
 export type DelegateArgsArgs =
@@ -72,7 +79,7 @@ export type DelegateArgsArgs =
       amount?: number | bigint;
       authorizationData?: Option<AuthorizationDataArgs>;
     }
-  | { __kind: 'UpdateV1'; authorizationData?: Option<AuthorizationDataArgs> }
+  | { __kind: 'DataV1'; authorizationData?: Option<AuthorizationDataArgs> }
   | {
       __kind: 'UtilityV1';
       amount?: number | bigint;
@@ -92,6 +99,19 @@ export type DelegateArgsArgs =
     }
   | {
       __kind: 'ProgrammableConfigV1';
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AuthorityItemV1';
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | { __kind: 'DataItemV1'; authorizationData?: Option<AuthorizationDataArgs> }
+  | {
+      __kind: 'CollectionItemV1';
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'ProgrammableConfigItemV1';
       authorizationData?: Option<AuthorizationDataArgs>;
     };
 
@@ -163,13 +183,13 @@ export function getDelegateArgsSerializer(
         ),
       ],
       [
-        'UpdateV1',
+        'DataV1',
         mapSerializer<
-          GetDataEnumKindContent<DelegateArgsArgs, 'UpdateV1'>,
+          GetDataEnumKindContent<DelegateArgsArgs, 'DataV1'>,
           any,
-          GetDataEnumKindContent<DelegateArgs, 'UpdateV1'>
+          GetDataEnumKindContent<DelegateArgs, 'DataV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'UpdateV1'>>([
+          s.struct<GetDataEnumKindContent<DelegateArgs, 'DataV1'>>([
             [
               'authorizationData',
               s.option(getAuthorizationDataSerializer(context)),
@@ -279,6 +299,84 @@ export function getDelegateArgsSerializer(
           })
         ),
       ],
+      [
+        'AuthorityItemV1',
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'AuthorityItemV1'>,
+          any,
+          GetDataEnumKindContent<DelegateArgs, 'AuthorityItemV1'>
+        >(
+          s.struct<GetDataEnumKindContent<DelegateArgs, 'AuthorityItemV1'>>([
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'DataItemV1',
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'DataItemV1'>,
+          any,
+          GetDataEnumKindContent<DelegateArgs, 'DataItemV1'>
+        >(
+          s.struct<GetDataEnumKindContent<DelegateArgs, 'DataItemV1'>>([
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'CollectionItemV1',
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'CollectionItemV1'>,
+          any,
+          GetDataEnumKindContent<DelegateArgs, 'CollectionItemV1'>
+        >(
+          s.struct<GetDataEnumKindContent<DelegateArgs, 'CollectionItemV1'>>([
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'ProgrammableConfigItemV1',
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'ProgrammableConfigItemV1'>,
+          any,
+          GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigItemV1'>
+        >(
+          s.struct<
+            GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigItemV1'>
+          >([
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
     ],
     { description: 'DelegateArgs' }
   ) as Serializer<DelegateArgsArgs, DelegateArgs>;
@@ -298,9 +396,9 @@ export function delegateArgs(
   data: GetDataEnumKindContent<DelegateArgsArgs, 'TransferV1'>
 ): GetDataEnumKind<DelegateArgsArgs, 'TransferV1'>;
 export function delegateArgs(
-  kind: 'UpdateV1',
-  data: GetDataEnumKindContent<DelegateArgsArgs, 'UpdateV1'>
-): GetDataEnumKind<DelegateArgsArgs, 'UpdateV1'>;
+  kind: 'DataV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'DataV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'DataV1'>;
 export function delegateArgs(
   kind: 'UtilityV1',
   data: GetDataEnumKindContent<DelegateArgsArgs, 'UtilityV1'>
@@ -321,6 +419,22 @@ export function delegateArgs(
   kind: 'ProgrammableConfigV1',
   data: GetDataEnumKindContent<DelegateArgsArgs, 'ProgrammableConfigV1'>
 ): GetDataEnumKind<DelegateArgsArgs, 'ProgrammableConfigV1'>;
+export function delegateArgs(
+  kind: 'AuthorityItemV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'AuthorityItemV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'AuthorityItemV1'>;
+export function delegateArgs(
+  kind: 'DataItemV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'DataItemV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'DataItemV1'>;
+export function delegateArgs(
+  kind: 'CollectionItemV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'CollectionItemV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'CollectionItemV1'>;
+export function delegateArgs(
+  kind: 'ProgrammableConfigItemV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'ProgrammableConfigItemV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'ProgrammableConfigItemV1'>;
 export function delegateArgs<K extends DelegateArgsArgs['__kind']>(
   kind: K,
   data?: any

@@ -35,7 +35,7 @@ import {
 } from '../types';
 
 // Accounts.
-export type DelegateCollectionV1InstructionAccounts = {
+export type DelegateDataV1InstructionAccounts = {
   /** Delegate record account */
   delegateRecord?: PublicKey;
   /** Owner of the delegated account */
@@ -67,72 +67,70 @@ export type DelegateCollectionV1InstructionAccounts = {
 };
 
 // Data.
-export type DelegateCollectionV1InstructionData = {
+export type DelegateDataV1InstructionData = {
   discriminator: number;
-  delegateCollectionV1Discriminator: number;
+  delegateDataV1Discriminator: number;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateCollectionV1InstructionDataArgs = {
+export type DelegateDataV1InstructionDataArgs = {
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getDelegateCollectionV1InstructionDataSerializer(
+export function getDelegateDataV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateCollectionV1InstructionDataArgs,
-  DelegateCollectionV1InstructionData
+  DelegateDataV1InstructionDataArgs,
+  DelegateDataV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateCollectionV1InstructionDataArgs,
+    DelegateDataV1InstructionDataArgs,
     any,
-    DelegateCollectionV1InstructionData
+    DelegateDataV1InstructionData
   >(
-    s.struct<DelegateCollectionV1InstructionData>(
+    s.struct<DelegateDataV1InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['delegateCollectionV1Discriminator', s.u8()],
+        ['delegateDataV1Discriminator', s.u8()],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'DelegateCollectionV1InstructionData' }
+      { description: 'DelegateDataV1InstructionData' }
     ),
     (value) => ({
       ...value,
       discriminator: 44,
-      delegateCollectionV1Discriminator: 0,
+      delegateDataV1Discriminator: 3,
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<
-    DelegateCollectionV1InstructionDataArgs,
-    DelegateCollectionV1InstructionData
+    DelegateDataV1InstructionDataArgs,
+    DelegateDataV1InstructionData
   >;
 }
 
 // Extra Args.
-export type DelegateCollectionV1InstructionExtraArgs = {
+export type DelegateDataV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateCollectionV1InstructionArgs = PickPartial<
-  DelegateCollectionV1InstructionDataArgs &
-    DelegateCollectionV1InstructionExtraArgs,
+export type DelegateDataV1InstructionArgs = PickPartial<
+  DelegateDataV1InstructionDataArgs & DelegateDataV1InstructionExtraArgs,
   'updateAuthority'
 >;
 
 // Instruction.
-export function delegateCollectionV1(
+export function delegateDataV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateCollectionV1InstructionAccounts &
-    DelegateCollectionV1InstructionArgs
+  input: DelegateDataV1InstructionAccounts & DelegateDataV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -165,7 +163,7 @@ export function delegateCollectionV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Collection,
+        delegateRole: MetadataDelegateRole.Data,
         updateAuthority: resolvingArgs.updateAuthority,
         delegate: publicKey(input.delegate),
       })
@@ -342,9 +340,7 @@ export function delegateCollectionV1(
 
   // Data.
   const data =
-    getDelegateCollectionV1InstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getDelegateDataV1InstructionDataSerializer(context).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

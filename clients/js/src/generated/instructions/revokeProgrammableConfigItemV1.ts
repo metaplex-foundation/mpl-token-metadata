@@ -27,7 +27,7 @@ import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import { MetadataDelegateRole, TokenStandardArgs } from '../types';
 
 // Accounts.
-export type RevokeUpdateV1InstructionAccounts = {
+export type RevokeProgrammableConfigItemV1InstructionAccounts = {
   /** Delegate record account */
   delegateRecord?: PublicKey;
   /** Owner of the delegated account */
@@ -59,58 +59,63 @@ export type RevokeUpdateV1InstructionAccounts = {
 };
 
 // Data.
-export type RevokeUpdateV1InstructionData = {
+export type RevokeProgrammableConfigItemV1InstructionData = {
   discriminator: number;
-  revokeUpdateV1Discriminator: number;
+  revokeProgrammableConfigItemV1Discriminator: number;
 };
 
-export type RevokeUpdateV1InstructionDataArgs = {};
+export type RevokeProgrammableConfigItemV1InstructionDataArgs = {};
 
-export function getRevokeUpdateV1InstructionDataSerializer(
+export function getRevokeProgrammableConfigItemV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  RevokeUpdateV1InstructionDataArgs,
-  RevokeUpdateV1InstructionData
+  RevokeProgrammableConfigItemV1InstructionDataArgs,
+  RevokeProgrammableConfigItemV1InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    RevokeUpdateV1InstructionDataArgs,
+    RevokeProgrammableConfigItemV1InstructionDataArgs,
     any,
-    RevokeUpdateV1InstructionData
+    RevokeProgrammableConfigItemV1InstructionData
   >(
-    s.struct<RevokeUpdateV1InstructionData>(
+    s.struct<RevokeProgrammableConfigItemV1InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['revokeUpdateV1Discriminator', s.u8()],
+        ['revokeProgrammableConfigItemV1Discriminator', s.u8()],
       ],
-      { description: 'RevokeUpdateV1InstructionData' }
+      { description: 'RevokeProgrammableConfigItemV1InstructionData' }
     ),
-    (value) => ({ ...value, discriminator: 45, revokeUpdateV1Discriminator: 3 })
+    (value) => ({
+      ...value,
+      discriminator: 45,
+      revokeProgrammableConfigItemV1Discriminator: 13,
+    })
   ) as Serializer<
-    RevokeUpdateV1InstructionDataArgs,
-    RevokeUpdateV1InstructionData
+    RevokeProgrammableConfigItemV1InstructionDataArgs,
+    RevokeProgrammableConfigItemV1InstructionData
   >;
 }
 
 // Extra Args.
-export type RevokeUpdateV1InstructionExtraArgs = {
+export type RevokeProgrammableConfigItemV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type RevokeUpdateV1InstructionArgs = PickPartial<
-  RevokeUpdateV1InstructionExtraArgs,
+export type RevokeProgrammableConfigItemV1InstructionArgs = PickPartial<
+  RevokeProgrammableConfigItemV1InstructionExtraArgs,
   'updateAuthority'
 >;
 
 // Instruction.
-export function revokeUpdateV1(
+export function revokeProgrammableConfigItemV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: RevokeUpdateV1InstructionAccounts & RevokeUpdateV1InstructionArgs
+  input: RevokeProgrammableConfigItemV1InstructionAccounts &
+    RevokeProgrammableConfigItemV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -128,9 +133,14 @@ export function revokeUpdateV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingAccounts,
+    'authority',
+    input.authority ?? context.identity
+  );
+  addObjectProperty(
     resolvingArgs,
     'updateAuthority',
-    input.updateAuthority ?? context.identity.publicKey
+    input.updateAuthority ?? publicKey(resolvingAccounts.authority)
   );
   addObjectProperty(
     resolvingAccounts,
@@ -138,7 +148,7 @@ export function revokeUpdateV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Update,
+        delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
         updateAuthority: resolvingArgs.updateAuthority,
         delegate: publicKey(input.delegate),
       })
@@ -170,11 +180,6 @@ export function revokeUpdateV1(
         { ...input, ...resolvingArgs },
         programId
       )
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authority',
-    input.authority ?? context.identity
   );
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
@@ -318,9 +323,9 @@ export function revokeUpdateV1(
   });
 
   // Data.
-  const data = getRevokeUpdateV1InstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getRevokeProgrammableConfigItemV1InstructionDataSerializer(
+    context
+  ).serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

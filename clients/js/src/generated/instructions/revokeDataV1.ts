@@ -9,13 +9,11 @@
 import {
   AccountMeta,
   Context,
-  Option,
   PublicKey,
   Serializer,
   Signer,
   TransactionBuilder,
   mapSerializer,
-  none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -26,16 +24,10 @@ import {
 } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addObjectProperty, isWritable } from '../shared';
-import {
-  AuthorizationData,
-  AuthorizationDataArgs,
-  MetadataDelegateRole,
-  TokenStandardArgs,
-  getAuthorizationDataSerializer,
-} from '../types';
+import { MetadataDelegateRole, TokenStandardArgs } from '../types';
 
 // Accounts.
-export type DelegateCollectionV1InstructionAccounts = {
+export type RevokeDataV1InstructionAccounts = {
   /** Delegate record account */
   delegateRecord?: PublicKey;
   /** Owner of the delegated account */
@@ -67,72 +59,52 @@ export type DelegateCollectionV1InstructionAccounts = {
 };
 
 // Data.
-export type DelegateCollectionV1InstructionData = {
+export type RevokeDataV1InstructionData = {
   discriminator: number;
-  delegateCollectionV1Discriminator: number;
-  authorizationData: Option<AuthorizationData>;
+  revokeDataV1Discriminator: number;
 };
 
-export type DelegateCollectionV1InstructionDataArgs = {
-  authorizationData?: Option<AuthorizationDataArgs>;
-};
+export type RevokeDataV1InstructionDataArgs = {};
 
-export function getDelegateCollectionV1InstructionDataSerializer(
+export function getRevokeDataV1InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
-): Serializer<
-  DelegateCollectionV1InstructionDataArgs,
-  DelegateCollectionV1InstructionData
-> {
+): Serializer<RevokeDataV1InstructionDataArgs, RevokeDataV1InstructionData> {
   const s = context.serializer;
   return mapSerializer<
-    DelegateCollectionV1InstructionDataArgs,
+    RevokeDataV1InstructionDataArgs,
     any,
-    DelegateCollectionV1InstructionData
+    RevokeDataV1InstructionData
   >(
-    s.struct<DelegateCollectionV1InstructionData>(
+    s.struct<RevokeDataV1InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['delegateCollectionV1Discriminator', s.u8()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['revokeDataV1Discriminator', s.u8()],
       ],
-      { description: 'DelegateCollectionV1InstructionData' }
+      { description: 'RevokeDataV1InstructionData' }
     ),
-    (value) => ({
-      ...value,
-      discriminator: 44,
-      delegateCollectionV1Discriminator: 0,
-      authorizationData: value.authorizationData ?? none(),
-    })
-  ) as Serializer<
-    DelegateCollectionV1InstructionDataArgs,
-    DelegateCollectionV1InstructionData
-  >;
+    (value) => ({ ...value, discriminator: 45, revokeDataV1Discriminator: 3 })
+  ) as Serializer<RevokeDataV1InstructionDataArgs, RevokeDataV1InstructionData>;
 }
 
 // Extra Args.
-export type DelegateCollectionV1InstructionExtraArgs = {
+export type RevokeDataV1InstructionExtraArgs = {
   tokenStandard: TokenStandardArgs;
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateCollectionV1InstructionArgs = PickPartial<
-  DelegateCollectionV1InstructionDataArgs &
-    DelegateCollectionV1InstructionExtraArgs,
+export type RevokeDataV1InstructionArgs = PickPartial<
+  RevokeDataV1InstructionExtraArgs,
   'updateAuthority'
 >;
 
 // Instruction.
-export function delegateCollectionV1(
+export function revokeDataV1(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateCollectionV1InstructionAccounts &
-    DelegateCollectionV1InstructionArgs
+  input: RevokeDataV1InstructionAccounts & RevokeDataV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -165,7 +137,7 @@ export function delegateCollectionV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Collection,
+        delegateRole: MetadataDelegateRole.Data,
         updateAuthority: resolvingArgs.updateAuthority,
         delegate: publicKey(input.delegate),
       })
@@ -238,7 +210,6 @@ export function delegateCollectionV1(
       )
   );
   const resolvedAccounts = { ...input, ...resolvingAccounts };
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
   // Delegate Record.
   keys.push({
@@ -341,10 +312,7 @@ export function delegateCollectionV1(
   });
 
   // Data.
-  const data =
-    getDelegateCollectionV1InstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+  const data = getRevokeDataV1InstructionDataSerializer(context).serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

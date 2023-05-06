@@ -3,9 +3,9 @@ import test from 'ava';
 import {
   MetadataDelegateRole,
   TokenStandard,
-  delegateUpdateV1,
+  delegateProgrammableConfigItemV1,
   findMetadataDelegateRecordPda,
-  revokeUpdateV1,
+  revokeProgrammableConfigItemV1,
 } from '../src';
 import {
   NON_EDITION_TOKEN_STANDARDS,
@@ -14,36 +14,34 @@ import {
 } from './_setup';
 
 NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
-  test(`it can revoke a update delegate for a ${tokenStandard}`, async (t) => {
-    // Given an asset with an approved update delegate.
+  test(`it can revoke a programmable config item delegate for a ${tokenStandard}`, async (t) => {
+    // Given an asset with an approved programmable config item delegate.
     const umi = await createUmi();
     const updateAuthority = generateSigner(umi);
     const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
       authority: updateAuthority,
       tokenStandard: TokenStandard[tokenStandard],
     });
-    const updateDelegate = generateSigner(umi).publicKey;
-    await delegateUpdateV1(umi, {
+    const programmableConfigItemDelegate = generateSigner(umi).publicKey;
+    await delegateProgrammableConfigItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
-      delegate: updateDelegate,
+      delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
     const metadataDelegateRecord = findMetadataDelegateRecordPda(umi, {
       mint,
-      delegateRole: MetadataDelegateRole.Update,
-      delegate: updateDelegate,
+      delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
+      delegate: programmableConfigItemDelegate,
       updateAuthority: updateAuthority.publicKey,
     });
     t.true(await umi.rpc.accountExists(metadataDelegateRecord));
 
-    // When we revoke the update delegate.
-    await revokeUpdateV1(umi, {
+    // When we revoke the programmable config item delegate.
+    await revokeProgrammableConfigItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
-      delegate: updateDelegate,
+      delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
 

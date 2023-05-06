@@ -27,6 +27,8 @@ import {
   CreatorArgs,
   RuleSetToggle,
   RuleSetToggleArgs,
+  TokenStandard,
+  TokenStandardArgs,
   UsesToggle,
   UsesToggleArgs,
   collectionDetailsToggle,
@@ -36,48 +38,189 @@ import {
   getCollectionToggleSerializer,
   getCreatorSerializer,
   getRuleSetToggleSerializer,
+  getTokenStandardSerializer,
   getUsesToggleSerializer,
   ruleSetToggle,
   usesToggle,
 } from '.';
 
-export type UpdateArgs = {
-  __kind: 'V1';
-  newUpdateAuthority: Option<PublicKey>;
-  data: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
-  }>;
-  primarySaleHappened: Option<boolean>;
-  isMutable: Option<boolean>;
-  collection: CollectionToggle;
-  collectionDetails: CollectionDetailsToggle;
-  uses: UsesToggle;
-  ruleSet: RuleSetToggle;
-  authorizationData: Option<AuthorizationData>;
-};
+export type UpdateArgs =
+  | {
+      __kind: 'V1';
+      newUpdateAuthority: Option<PublicKey>;
+      data: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<Creator>>;
+      }>;
+      primarySaleHappened: Option<boolean>;
+      isMutable: Option<boolean>;
+      collection: CollectionToggle;
+      collectionDetails: CollectionDetailsToggle;
+      uses: UsesToggle;
+      ruleSet: RuleSetToggle;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsUpdateAuthorityV2';
+      newUpdateAuthority: Option<PublicKey>;
+      data: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<Creator>>;
+      }>;
+      primarySaleHappened: Option<boolean>;
+      isMutable: Option<boolean>;
+      collection: CollectionToggle;
+      collectionDetails: CollectionDetailsToggle;
+      uses: UsesToggle;
+      ruleSet: RuleSetToggle;
+      tokenStandard: Option<TokenStandard>;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsAuthorityItemDelegateV2';
+      newUpdateAuthority: Option<PublicKey>;
+      primarySaleHappened: Option<boolean>;
+      isMutable: Option<boolean>;
+      tokenStandard: Option<TokenStandard>;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsCollectionDelegateV2';
+      collection: CollectionToggle;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsDataDelegateV2';
+      data: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<Creator>>;
+      }>;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsProgrammableConfigDelegateV2';
+      ruleSet: RuleSetToggle;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsDataItemDelegateV2';
+      data: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<Creator>>;
+      }>;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsCollectionItemDelegateV2';
+      collection: CollectionToggle;
+      authorizationData: Option<AuthorizationData>;
+    }
+  | {
+      __kind: 'AsProgrammableConfigItemDelegateV2';
+      ruleSet: RuleSetToggle;
+      authorizationData: Option<AuthorizationData>;
+    };
 
-export type UpdateArgsArgs = {
-  __kind: 'V1';
-  newUpdateAuthority?: Option<PublicKey>;
-  data?: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<CreatorArgs>>;
-  }>;
-  primarySaleHappened?: Option<boolean>;
-  isMutable?: Option<boolean>;
-  collection?: CollectionToggleArgs;
-  collectionDetails?: CollectionDetailsToggleArgs;
-  uses?: UsesToggleArgs;
-  ruleSet?: RuleSetToggleArgs;
-  authorizationData?: Option<AuthorizationDataArgs>;
-};
+export type UpdateArgsArgs =
+  | {
+      __kind: 'V1';
+      newUpdateAuthority?: Option<PublicKey>;
+      data?: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<CreatorArgs>>;
+      }>;
+      primarySaleHappened?: Option<boolean>;
+      isMutable?: Option<boolean>;
+      collection?: CollectionToggleArgs;
+      collectionDetails?: CollectionDetailsToggleArgs;
+      uses?: UsesToggleArgs;
+      ruleSet?: RuleSetToggleArgs;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsUpdateAuthorityV2';
+      newUpdateAuthority?: Option<PublicKey>;
+      data?: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<CreatorArgs>>;
+      }>;
+      primarySaleHappened?: Option<boolean>;
+      isMutable?: Option<boolean>;
+      collection?: CollectionToggleArgs;
+      collectionDetails?: CollectionDetailsToggleArgs;
+      uses?: UsesToggleArgs;
+      ruleSet?: RuleSetToggleArgs;
+      tokenStandard?: Option<TokenStandardArgs>;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsAuthorityItemDelegateV2';
+      newUpdateAuthority?: Option<PublicKey>;
+      primarySaleHappened?: Option<boolean>;
+      isMutable?: Option<boolean>;
+      tokenStandard?: Option<TokenStandardArgs>;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsCollectionDelegateV2';
+      collection?: CollectionToggleArgs;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsDataDelegateV2';
+      data?: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<CreatorArgs>>;
+      }>;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsProgrammableConfigDelegateV2';
+      ruleSet?: RuleSetToggleArgs;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsDataItemDelegateV2';
+      data?: Option<{
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+        creators: Option<Array<CreatorArgs>>;
+      }>;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsCollectionItemDelegateV2';
+      collection?: CollectionToggleArgs;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'AsProgrammableConfigItemDelegateV2';
+      ruleSet?: RuleSetToggleArgs;
+      authorizationData?: Option<AuthorizationDataArgs>;
+    };
 
 export function getUpdateArgsSerializer(
   context: Pick<Context, 'serializer'>
@@ -138,6 +281,264 @@ export function getUpdateArgsSerializer(
           })
         ),
       ],
+      [
+        'AsUpdateAuthorityV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsUpdateAuthorityV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsUpdateAuthorityV2'>
+        >(
+          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsUpdateAuthorityV2'>>([
+            ['newUpdateAuthority', s.option(s.publicKey())],
+            [
+              'data',
+              s.option(
+                s.struct<any>([
+                  ['name', s.string()],
+                  ['symbol', s.string()],
+                  ['uri', s.string()],
+                  ['sellerFeeBasisPoints', s.u16()],
+                  [
+                    'creators',
+                    s.option(s.array(getCreatorSerializer(context))),
+                  ],
+                ])
+              ),
+            ],
+            ['primarySaleHappened', s.option(s.bool())],
+            ['isMutable', s.option(s.bool())],
+            ['collection', getCollectionToggleSerializer(context)],
+            [
+              'collectionDetails',
+              getCollectionDetailsToggleSerializer(context),
+            ],
+            ['uses', getUsesToggleSerializer(context)],
+            ['ruleSet', getRuleSetToggleSerializer(context)],
+            ['tokenStandard', s.option(getTokenStandardSerializer(context))],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            newUpdateAuthority: value.newUpdateAuthority ?? none(),
+            data: value.data ?? none(),
+            primarySaleHappened: value.primarySaleHappened ?? none(),
+            isMutable: value.isMutable ?? none(),
+            collection: value.collection ?? collectionToggle('None'),
+            collectionDetails:
+              value.collectionDetails ?? collectionDetailsToggle('None'),
+            uses: value.uses ?? usesToggle('None'),
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+            tokenStandard: value.tokenStandard ?? none(),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsAuthorityItemDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsAuthorityItemDelegateV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsAuthorityItemDelegateV2'>
+        >(
+          s.struct<
+            GetDataEnumKindContent<UpdateArgs, 'AsAuthorityItemDelegateV2'>
+          >([
+            ['newUpdateAuthority', s.option(s.publicKey())],
+            ['primarySaleHappened', s.option(s.bool())],
+            ['isMutable', s.option(s.bool())],
+            ['tokenStandard', s.option(getTokenStandardSerializer(context))],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            newUpdateAuthority: value.newUpdateAuthority ?? none(),
+            primarySaleHappened: value.primarySaleHappened ?? none(),
+            isMutable: value.isMutable ?? none(),
+            tokenStandard: value.tokenStandard ?? none(),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsCollectionDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsCollectionDelegateV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsCollectionDelegateV2'>
+        >(
+          s.struct<
+            GetDataEnumKindContent<UpdateArgs, 'AsCollectionDelegateV2'>
+          >([
+            ['collection', getCollectionToggleSerializer(context)],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            collection: value.collection ?? collectionToggle('None'),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsDataDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsDataDelegateV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsDataDelegateV2'>
+        >(
+          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsDataDelegateV2'>>([
+            [
+              'data',
+              s.option(
+                s.struct<any>([
+                  ['name', s.string()],
+                  ['symbol', s.string()],
+                  ['uri', s.string()],
+                  ['sellerFeeBasisPoints', s.u16()],
+                  [
+                    'creators',
+                    s.option(s.array(getCreatorSerializer(context))),
+                  ],
+                ])
+              ),
+            ],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            data: value.data ?? none(),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsProgrammableConfigDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<
+            UpdateArgsArgs,
+            'AsProgrammableConfigDelegateV2'
+          >,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsProgrammableConfigDelegateV2'>
+        >(
+          s.struct<
+            GetDataEnumKindContent<UpdateArgs, 'AsProgrammableConfigDelegateV2'>
+          >([
+            ['ruleSet', getRuleSetToggleSerializer(context)],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsDataItemDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsDataItemDelegateV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsDataItemDelegateV2'>
+        >(
+          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsDataItemDelegateV2'>>([
+            [
+              'data',
+              s.option(
+                s.struct<any>([
+                  ['name', s.string()],
+                  ['symbol', s.string()],
+                  ['uri', s.string()],
+                  ['sellerFeeBasisPoints', s.u16()],
+                  [
+                    'creators',
+                    s.option(s.array(getCreatorSerializer(context))),
+                  ],
+                ])
+              ),
+            ],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            data: value.data ?? none(),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsCollectionItemDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<UpdateArgsArgs, 'AsCollectionItemDelegateV2'>,
+          any,
+          GetDataEnumKindContent<UpdateArgs, 'AsCollectionItemDelegateV2'>
+        >(
+          s.struct<
+            GetDataEnumKindContent<UpdateArgs, 'AsCollectionItemDelegateV2'>
+          >([
+            ['collection', getCollectionToggleSerializer(context)],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            collection: value.collection ?? collectionToggle('None'),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
+      [
+        'AsProgrammableConfigItemDelegateV2',
+        mapSerializer<
+          GetDataEnumKindContent<
+            UpdateArgsArgs,
+            'AsProgrammableConfigItemDelegateV2'
+          >,
+          any,
+          GetDataEnumKindContent<
+            UpdateArgs,
+            'AsProgrammableConfigItemDelegateV2'
+          >
+        >(
+          s.struct<
+            GetDataEnumKindContent<
+              UpdateArgs,
+              'AsProgrammableConfigItemDelegateV2'
+            >
+          >([
+            ['ruleSet', getRuleSetToggleSerializer(context)],
+            [
+              'authorizationData',
+              s.option(getAuthorizationDataSerializer(context)),
+            ],
+          ]),
+          (value) => ({
+            ...value,
+            ruleSet: value.ruleSet ?? ruleSetToggle('None'),
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
     ],
     { description: 'UpdateArgs' }
   ) as Serializer<UpdateArgsArgs, UpdateArgs>;
@@ -148,6 +549,41 @@ export function updateArgs(
   kind: 'V1',
   data: GetDataEnumKindContent<UpdateArgsArgs, 'V1'>
 ): GetDataEnumKind<UpdateArgsArgs, 'V1'>;
+export function updateArgs(
+  kind: 'AsUpdateAuthorityV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsUpdateAuthorityV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsUpdateAuthorityV2'>;
+export function updateArgs(
+  kind: 'AsAuthorityItemDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsAuthorityItemDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsAuthorityItemDelegateV2'>;
+export function updateArgs(
+  kind: 'AsCollectionDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsCollectionDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsCollectionDelegateV2'>;
+export function updateArgs(
+  kind: 'AsDataDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsDataDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsDataDelegateV2'>;
+export function updateArgs(
+  kind: 'AsProgrammableConfigDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsProgrammableConfigDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsProgrammableConfigDelegateV2'>;
+export function updateArgs(
+  kind: 'AsDataItemDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsDataItemDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsDataItemDelegateV2'>;
+export function updateArgs(
+  kind: 'AsCollectionItemDelegateV2',
+  data: GetDataEnumKindContent<UpdateArgsArgs, 'AsCollectionItemDelegateV2'>
+): GetDataEnumKind<UpdateArgsArgs, 'AsCollectionItemDelegateV2'>;
+export function updateArgs(
+  kind: 'AsProgrammableConfigItemDelegateV2',
+  data: GetDataEnumKindContent<
+    UpdateArgsArgs,
+    'AsProgrammableConfigItemDelegateV2'
+  >
+): GetDataEnumKind<UpdateArgsArgs, 'AsProgrammableConfigItemDelegateV2'>;
 export function updateArgs<K extends UpdateArgsArgs['__kind']>(
   kind: K,
   data?: any

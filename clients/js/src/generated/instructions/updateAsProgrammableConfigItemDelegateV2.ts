@@ -19,47 +19,40 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import {
-  resolveAuthorizationRulesProgram,
-  resolveMasterEdition,
-  resolveTokenRecord,
-} from '../../hooked';
+import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
   MetadataDelegateRole,
-  TokenStandardArgs,
+  RuleSetToggle,
+  RuleSetToggleArgs,
   getAuthorizationDataSerializer,
+  getRuleSetToggleSerializer,
+  ruleSetToggle,
 } from '../types';
 
 // Accounts.
-export type DelegateUpdateV1InstructionAccounts = {
-  /** Delegate record account */
+export type UpdateAsProgrammableConfigItemDelegateV2InstructionAccounts = {
+  /** Update authority or delegate */
+  authority?: Signer;
+  /** Delegate record PDA */
   delegateRecord?: PublicKey;
-  /** Owner of the delegated account */
-  delegate: PublicKey;
+  /** Token account */
+  token: PublicKey;
+  /** Mint account */
+  mint: PublicKey;
   /** Metadata account */
   metadata?: PublicKey;
-  /** Master Edition account */
-  masterEdition?: PublicKey;
-  /** Token record account */
-  tokenRecord?: PublicKey;
-  /** Mint of metadata */
-  mint: PublicKey;
-  /** Token account of mint */
-  token?: PublicKey;
-  /** Update authority or token owner */
-  authority?: Signer;
+  /** Edition account */
+  edition?: PublicKey;
   /** Payer */
   payer?: Signer;
-  /** System Program */
+  /** System program */
   systemProgram?: PublicKey;
   /** Instructions sysvar account */
   sysvarInstructions?: PublicKey;
-  /** SPL Token Program */
-  splTokenProgram?: PublicKey;
   /** Token Authorization Rules Program */
   authorizationRulesProgram?: PublicKey;
   /** Token Authorization Rules account */
@@ -67,70 +60,76 @@ export type DelegateUpdateV1InstructionAccounts = {
 };
 
 // Data.
-export type DelegateUpdateV1InstructionData = {
+export type UpdateAsProgrammableConfigItemDelegateV2InstructionData = {
   discriminator: number;
-  delegateUpdateV1Discriminator: number;
+  updateAsProgrammableConfigItemDelegateV2Discriminator: number;
+  ruleSet: RuleSetToggle;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateUpdateV1InstructionDataArgs = {
+export type UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs = {
+  ruleSet?: RuleSetToggleArgs;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getDelegateUpdateV1InstructionDataSerializer(
+export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateUpdateV1InstructionDataArgs,
-  DelegateUpdateV1InstructionData
+  UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
+  UpdateAsProgrammableConfigItemDelegateV2InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateUpdateV1InstructionDataArgs,
+    UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
     any,
-    DelegateUpdateV1InstructionData
+    UpdateAsProgrammableConfigItemDelegateV2InstructionData
   >(
-    s.struct<DelegateUpdateV1InstructionData>(
+    s.struct<UpdateAsProgrammableConfigItemDelegateV2InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['delegateUpdateV1Discriminator', s.u8()],
+        ['updateAsProgrammableConfigItemDelegateV2Discriminator', s.u8()],
+        ['ruleSet', getRuleSetToggleSerializer(context)],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'DelegateUpdateV1InstructionData' }
+      { description: 'UpdateAsProgrammableConfigItemDelegateV2InstructionData' }
     ),
     (value) => ({
       ...value,
-      discriminator: 44,
-      delegateUpdateV1Discriminator: 3,
+      discriminator: 50,
+      updateAsProgrammableConfigItemDelegateV2Discriminator: 8,
+      ruleSet: value.ruleSet ?? ruleSetToggle('None'),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<
-    DelegateUpdateV1InstructionDataArgs,
-    DelegateUpdateV1InstructionData
+    UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
+    UpdateAsProgrammableConfigItemDelegateV2InstructionData
   >;
 }
 
 // Extra Args.
-export type DelegateUpdateV1InstructionExtraArgs = {
-  tokenStandard: TokenStandardArgs;
+export type UpdateAsProgrammableConfigItemDelegateV2InstructionExtraArgs = {
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateUpdateV1InstructionArgs = PickPartial<
-  DelegateUpdateV1InstructionDataArgs & DelegateUpdateV1InstructionExtraArgs,
-  'updateAuthority'
->;
+export type UpdateAsProgrammableConfigItemDelegateV2InstructionArgs =
+  PickPartial<
+    UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs &
+      UpdateAsProgrammableConfigItemDelegateV2InstructionExtraArgs,
+    'updateAuthority'
+  >;
 
 // Instruction.
-export function delegateUpdateV1(
+export function updateAsProgrammableConfigItemDelegateV2(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateUpdateV1InstructionAccounts & DelegateUpdateV1InstructionArgs
+  input: UpdateAsProgrammableConfigItemDelegateV2InstructionAccounts &
+    UpdateAsProgrammableConfigItemDelegateV2InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -148,6 +147,11 @@ export function delegateUpdateV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingAccounts,
+    'authority',
+    input.authority ?? context.identity
+  );
+  addObjectProperty(
     resolvingArgs,
     'updateAuthority',
     input.updateAuthority ?? context.identity.publicKey
@@ -158,9 +162,9 @@ export function delegateUpdateV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Update,
+        delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
         updateAuthority: resolvingArgs.updateAuthority,
-        delegate: publicKey(input.delegate),
+        delegate: publicKey(resolvingAccounts.authority),
       })
   );
   addObjectProperty(
@@ -168,34 +172,7 @@ export function delegateUpdateV1(
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(
-    resolvingAccounts,
-    'masterEdition',
-    input.masterEdition ??
-      resolveMasterEdition(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
-  );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
-  addObjectProperty(
-    resolvingAccounts,
-    'tokenRecord',
-    input.tokenRecord ??
-      resolveTokenRecord(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authority',
-    input.authority ?? context.identity
-  );
+  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
     resolvingAccounts,
@@ -216,11 +193,6 @@ export function delegateUpdateV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'splTokenProgram',
-    input.splTokenProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
   );
@@ -238,39 +210,26 @@ export function delegateUpdateV1(
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
+  // Authority.
+  signers.push(resolvedAccounts.authority);
+  keys.push({
+    pubkey: resolvedAccounts.authority.publicKey,
+    isSigner: true,
+    isWritable: isWritable(resolvedAccounts.authority, false),
+  });
+
   // Delegate Record.
   keys.push({
     pubkey: resolvedAccounts.delegateRecord,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegateRecord, true),
+    isWritable: isWritable(resolvedAccounts.delegateRecord, false),
   });
 
-  // Delegate.
+  // Token.
   keys.push({
-    pubkey: resolvedAccounts.delegate,
+    pubkey: resolvedAccounts.token,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegate, false),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Master Edition.
-  keys.push({
-    pubkey: resolvedAccounts.masterEdition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEdition, false),
-  });
-
-  // Token Record.
-  keys.push({
-    pubkey: resolvedAccounts.tokenRecord,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenRecord, true),
+    isWritable: isWritable(resolvedAccounts.token, false),
   });
 
   // Mint.
@@ -280,19 +239,18 @@ export function delegateUpdateV1(
     isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
-  // Token.
+  // Metadata.
   keys.push({
-    pubkey: resolvedAccounts.token,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.token, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
-  // Authority.
-  signers.push(resolvedAccounts.authority);
+  // Edition.
   keys.push({
-    pubkey: resolvedAccounts.authority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.authority, false),
+    pubkey: resolvedAccounts.edition,
+    isSigner: false,
+    isWritable: isWritable(resolvedAccounts.edition, false),
   });
 
   // Payer.
@@ -317,13 +275,6 @@ export function delegateUpdateV1(
     isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
   });
 
-  // Spl Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.splTokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
-  });
-
   // Authorization Rules Program.
   keys.push({
     pubkey: resolvedAccounts.authorizationRulesProgram,
@@ -340,9 +291,9 @@ export function delegateUpdateV1(
 
   // Data.
   const data =
-    getDelegateUpdateV1InstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
+      context
+    ).serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

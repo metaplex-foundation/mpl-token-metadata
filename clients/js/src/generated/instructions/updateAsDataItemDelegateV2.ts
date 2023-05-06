@@ -19,47 +19,39 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import {
-  resolveAuthorizationRulesProgram,
-  resolveMasterEdition,
-  resolveTokenRecord,
-} from '../../hooked';
+import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addObjectProperty, isWritable } from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  Creator,
+  CreatorArgs,
   MetadataDelegateRole,
-  TokenStandardArgs,
   getAuthorizationDataSerializer,
+  getCreatorSerializer,
 } from '../types';
 
 // Accounts.
-export type DelegateCollectionV1InstructionAccounts = {
-  /** Delegate record account */
+export type UpdateAsDataItemDelegateV2InstructionAccounts = {
+  /** Update authority or delegate */
+  authority?: Signer;
+  /** Delegate record PDA */
   delegateRecord?: PublicKey;
-  /** Owner of the delegated account */
-  delegate: PublicKey;
+  /** Token account */
+  token?: PublicKey;
+  /** Mint account */
+  mint: PublicKey;
   /** Metadata account */
   metadata?: PublicKey;
-  /** Master Edition account */
-  masterEdition?: PublicKey;
-  /** Token record account */
-  tokenRecord?: PublicKey;
-  /** Mint of metadata */
-  mint: PublicKey;
-  /** Token account of mint */
-  token?: PublicKey;
-  /** Update authority or token owner */
-  authority?: Signer;
+  /** Edition account */
+  edition?: PublicKey;
   /** Payer */
   payer?: Signer;
-  /** System Program */
+  /** System program */
   systemProgram?: PublicKey;
   /** Instructions sysvar account */
   sysvarInstructions?: PublicKey;
-  /** SPL Token Program */
-  splTokenProgram?: PublicKey;
   /** Token Authorization Rules Program */
   authorizationRulesProgram?: PublicKey;
   /** Token Authorization Rules account */
@@ -67,72 +59,98 @@ export type DelegateCollectionV1InstructionAccounts = {
 };
 
 // Data.
-export type DelegateCollectionV1InstructionData = {
+export type UpdateAsDataItemDelegateV2InstructionData = {
   discriminator: number;
-  delegateCollectionV1Discriminator: number;
+  updateAsDataItemDelegateV2Discriminator: number;
+  data: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<Creator>>;
+  }>;
   authorizationData: Option<AuthorizationData>;
 };
 
-export type DelegateCollectionV1InstructionDataArgs = {
+export type UpdateAsDataItemDelegateV2InstructionDataArgs = {
+  data?: Option<{
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+    creators: Option<Array<CreatorArgs>>;
+  }>;
   authorizationData?: Option<AuthorizationDataArgs>;
 };
 
-export function getDelegateCollectionV1InstructionDataSerializer(
+export function getUpdateAsDataItemDelegateV2InstructionDataSerializer(
   context: Pick<Context, 'serializer'>
 ): Serializer<
-  DelegateCollectionV1InstructionDataArgs,
-  DelegateCollectionV1InstructionData
+  UpdateAsDataItemDelegateV2InstructionDataArgs,
+  UpdateAsDataItemDelegateV2InstructionData
 > {
   const s = context.serializer;
   return mapSerializer<
-    DelegateCollectionV1InstructionDataArgs,
+    UpdateAsDataItemDelegateV2InstructionDataArgs,
     any,
-    DelegateCollectionV1InstructionData
+    UpdateAsDataItemDelegateV2InstructionData
   >(
-    s.struct<DelegateCollectionV1InstructionData>(
+    s.struct<UpdateAsDataItemDelegateV2InstructionData>(
       [
         ['discriminator', s.u8()],
-        ['delegateCollectionV1Discriminator', s.u8()],
+        ['updateAsDataItemDelegateV2Discriminator', s.u8()],
+        [
+          'data',
+          s.option(
+            s.struct<any>([
+              ['name', s.string()],
+              ['symbol', s.string()],
+              ['uri', s.string()],
+              ['sellerFeeBasisPoints', s.u16()],
+              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+            ])
+          ),
+        ],
         [
           'authorizationData',
           s.option(getAuthorizationDataSerializer(context)),
         ],
       ],
-      { description: 'DelegateCollectionV1InstructionData' }
+      { description: 'UpdateAsDataItemDelegateV2InstructionData' }
     ),
     (value) => ({
       ...value,
-      discriminator: 44,
-      delegateCollectionV1Discriminator: 0,
+      discriminator: 50,
+      updateAsDataItemDelegateV2Discriminator: 6,
+      data: value.data ?? none(),
       authorizationData: value.authorizationData ?? none(),
     })
   ) as Serializer<
-    DelegateCollectionV1InstructionDataArgs,
-    DelegateCollectionV1InstructionData
+    UpdateAsDataItemDelegateV2InstructionDataArgs,
+    UpdateAsDataItemDelegateV2InstructionData
   >;
 }
 
 // Extra Args.
-export type DelegateCollectionV1InstructionExtraArgs = {
-  tokenStandard: TokenStandardArgs;
+export type UpdateAsDataItemDelegateV2InstructionExtraArgs = {
   updateAuthority: PublicKey;
 };
 
 // Args.
-export type DelegateCollectionV1InstructionArgs = PickPartial<
-  DelegateCollectionV1InstructionDataArgs &
-    DelegateCollectionV1InstructionExtraArgs,
+export type UpdateAsDataItemDelegateV2InstructionArgs = PickPartial<
+  UpdateAsDataItemDelegateV2InstructionDataArgs &
+    UpdateAsDataItemDelegateV2InstructionExtraArgs,
   'updateAuthority'
 >;
 
 // Instruction.
-export function delegateCollectionV1(
+export function updateAsDataItemDelegateV2(
   context: Pick<
     Context,
     'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
   >,
-  input: DelegateCollectionV1InstructionAccounts &
-    DelegateCollectionV1InstructionArgs
+  input: UpdateAsDataItemDelegateV2InstructionAccounts &
+    UpdateAsDataItemDelegateV2InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -157,7 +175,7 @@ export function delegateCollectionV1(
   addObjectProperty(
     resolvingArgs,
     'updateAuthority',
-    input.updateAuthority ?? publicKey(resolvingAccounts.authority)
+    input.updateAuthority ?? context.identity.publicKey
   );
   addObjectProperty(
     resolvingAccounts,
@@ -165,39 +183,18 @@ export function delegateCollectionV1(
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
         mint: publicKey(input.mint),
-        delegateRole: MetadataDelegateRole.Collection,
+        delegateRole: MetadataDelegateRole.DataItem,
         updateAuthority: resolvingArgs.updateAuthority,
-        delegate: publicKey(input.delegate),
+        delegate: publicKey(resolvingAccounts.authority),
       })
   );
+  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
   addObjectProperty(
     resolvingAccounts,
     'metadata',
     input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
   );
-  addObjectProperty(
-    resolvingAccounts,
-    'masterEdition',
-    input.masterEdition ??
-      resolveMasterEdition(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
-  );
-  addObjectProperty(resolvingAccounts, 'token', input.token ?? programId);
-  addObjectProperty(
-    resolvingAccounts,
-    'tokenRecord',
-    input.tokenRecord ??
-      resolveTokenRecord(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
-  );
+  addObjectProperty(resolvingAccounts, 'edition', input.edition ?? programId);
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
     resolvingAccounts,
@@ -218,11 +215,6 @@ export function delegateCollectionV1(
   );
   addObjectProperty(
     resolvingAccounts,
-    'splTokenProgram',
-    input.splTokenProgram ?? programId
-  );
-  addObjectProperty(
-    resolvingAccounts,
     'authorizationRules',
     input.authorizationRules ?? programId
   );
@@ -240,39 +232,26 @@ export function delegateCollectionV1(
   const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
+  // Authority.
+  signers.push(resolvedAccounts.authority);
+  keys.push({
+    pubkey: resolvedAccounts.authority.publicKey,
+    isSigner: true,
+    isWritable: isWritable(resolvedAccounts.authority, false),
+  });
+
   // Delegate Record.
   keys.push({
     pubkey: resolvedAccounts.delegateRecord,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegateRecord, true),
+    isWritable: isWritable(resolvedAccounts.delegateRecord, false),
   });
 
-  // Delegate.
+  // Token.
   keys.push({
-    pubkey: resolvedAccounts.delegate,
+    pubkey: resolvedAccounts.token,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegate, false),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Master Edition.
-  keys.push({
-    pubkey: resolvedAccounts.masterEdition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEdition, false),
-  });
-
-  // Token Record.
-  keys.push({
-    pubkey: resolvedAccounts.tokenRecord,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenRecord, true),
+    isWritable: isWritable(resolvedAccounts.token, false),
   });
 
   // Mint.
@@ -282,19 +261,18 @@ export function delegateCollectionV1(
     isWritable: isWritable(resolvedAccounts.mint, false),
   });
 
-  // Token.
+  // Metadata.
   keys.push({
-    pubkey: resolvedAccounts.token,
+    pubkey: resolvedAccounts.metadata,
     isSigner: false,
-    isWritable: isWritable(resolvedAccounts.token, true),
+    isWritable: isWritable(resolvedAccounts.metadata, true),
   });
 
-  // Authority.
-  signers.push(resolvedAccounts.authority);
+  // Edition.
   keys.push({
-    pubkey: resolvedAccounts.authority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.authority, false),
+    pubkey: resolvedAccounts.edition,
+    isSigner: false,
+    isWritable: isWritable(resolvedAccounts.edition, false),
   });
 
   // Payer.
@@ -319,13 +297,6 @@ export function delegateCollectionV1(
     isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
   });
 
-  // Spl Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.splTokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
-  });
-
   // Authorization Rules Program.
   keys.push({
     pubkey: resolvedAccounts.authorizationRulesProgram,
@@ -342,7 +313,7 @@ export function delegateCollectionV1(
 
   // Data.
   const data =
-    getDelegateCollectionV1InstructionDataSerializer(context).serialize(
+    getUpdateAsDataItemDelegateV2InstructionDataSerializer(context).serialize(
       resolvedArgs
     );
 
