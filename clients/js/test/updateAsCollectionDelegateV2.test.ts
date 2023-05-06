@@ -1,17 +1,17 @@
 import { generateSigner, none, some } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
+  Metadata,
+  TokenStandard,
   collectionToggle,
   delegateCollectionV1,
   fetchMetadataFromSeeds,
-  Metadata,
-  TokenStandard,
   updateAsCollectionDelegateV2,
 } from '../src';
 import {
+  NON_EDITION_TOKEN_STANDARDS,
   createDigitalAsset,
   createUmi,
-  NON_EDITION_TOKEN_STANDARDS,
 } from './_setup';
 
 NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
@@ -80,7 +80,7 @@ test('it can update the items of a collection as a collection delegate', async (
   let updatedMetadata = await fetchMetadataFromSeeds(umi, { mint });
   t.like(updatedMetadata, <Metadata>{ collection: none() });
 
-  // When we try to set the collection on the asset afterwards.
+  // When we re-set the collection on the asset afterwards.
   await updateAsCollectionDelegateV2(umi, {
     mint,
     delegateMint: collectionMint,
@@ -90,10 +90,47 @@ test('it can update the items of a collection as a collection delegate', async (
     ]),
   }).sendAndConfirm(umi);
 
-  // TODO? Then it fails because the asset is no longer part of the collection that has the delegate.
-  // Then the account data was updated.
+  // Then it works because the asset has the same update authority as the collection NFT.
   updatedMetadata = await fetchMetadataFromSeeds(umi, { mint });
   t.like(updatedMetadata, <Metadata>{
     collection: some({ key: collectionMint, verified: false }),
   });
+});
+
+test("it cannot update the collection of someone else's NFT as a collection delegate", async (t) => {
+  // Given a Collection NFT and a Regular NFT that does not belong to any collection.
+  const umi = await createUmi();
+  const updateAuthorityA = generateSigner(umi);
+  const updateAuthorityB = generateSigner(umi);
+  const { publicKey: collectionMint } = await createDigitalAsset(umi, {
+    authority: updateAuthorityA,
+    isCollection: true,
+  });
+  const { publicKey: mint } = await createDigitalAsset(umi, {
+    authority: updateAuthorityB,
+    collection: none(),
+  });
+
+  // And a collection delegate approved on the collection.
+  const collectionDelegate = generateSigner(umi);
+  await delegateCollectionV1(umi, {
+    authority: updateAuthorityA,
+    mint: collectionMint,
+    delegate: collectionDelegate.publicKey,
+    tokenStandard: TokenStandard.NonFungible,
+  }).sendAndConfirm(umi);
+
+  // When we try to set the collection on the asset as the delegate.
+  const promise = updateAsCollectionDelegateV2(umi, {
+    mint,
+    delegateMint: collectionMint,
+    delegateUpdateAuthority: updateAuthorityA.publicKey,
+    authority: collectionDelegate,
+    collection: collectionToggle('Set', [
+      { key: collectionMint, verified: false },
+    ]),
+  }).sendAndConfirm(umi);
+
+  // Then we expect a program error.
+  await t.throwsAsync(promise, { name: 'InvalidAuthorityType' });
 });
