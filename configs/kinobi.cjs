@@ -407,36 +407,12 @@ kinobi.update(
       collectionDetails: k.vNone(),
       ruleSet: k.vNone(),
     },
-    "createArgs.V1": {
-      decimals: k.vNone(),
-      printSupply: k.vNone(),
-    },
-    "updateArgs.V1": {
-      newUpdateAuthority: k.vNone(),
-      data: k.vNone(),
-      primarySaleHappened: k.vNone(),
-      isMutable: k.vNone(),
-      collection: k.vEnum("CollectionToggle", "None", "empty"),
-      collectionDetails: k.vEnum("CollectionDetailsToggle", "None", "empty"),
-      uses: k.vEnum("UsesToggle", "None", "empty"),
-      ruleSet: k.vEnum("RuleSetToggle", "None", "empty"),
-    },
   })
 );
 
 // Set more struct default values dynamically.
 kinobi.update(
   new k.TransformNodesVisitor([
-    {
-      selector: { kind: "structFieldTypeNode", name: "authorizationData" },
-      transformer: (node) => {
-        k.assertStructFieldTypeNode(node);
-        return k.structFieldTypeNode({
-          ...node,
-          defaultsTo: { strategy: "optional", value: k.vNone() },
-        });
-      },
-    },
     {
       selector: { kind: "structFieldTypeNode", name: "amount" },
       transformer: (node) => {
@@ -450,6 +426,7 @@ kinobi.update(
     {
       selector: (node) => {
         const names = [
+          "authorizationData",
           "decimals",
           "printSupply",
           "newUpdateAuthority",
