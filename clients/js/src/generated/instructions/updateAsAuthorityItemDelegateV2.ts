@@ -122,14 +122,15 @@ export function getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(
 
 // Extra Args.
 export type UpdateAsAuthorityItemDelegateV2InstructionExtraArgs = {
-  updateAuthority: PublicKey;
+  collectionMint: PublicKey;
+  collectionUpdateAuthority: PublicKey;
 };
 
 // Args.
 export type UpdateAsAuthorityItemDelegateV2InstructionArgs = PickPartial<
   UpdateAsAuthorityItemDelegateV2InstructionDataArgs &
     UpdateAsAuthorityItemDelegateV2InstructionExtraArgs,
-  'updateAuthority'
+  'collectionUpdateAuthority'
 >;
 
 // Instruction.
@@ -163,17 +164,17 @@ export function updateAsAuthorityItemDelegateV2(
   );
   addObjectProperty(
     resolvingArgs,
-    'updateAuthority',
-    input.updateAuthority ?? context.identity.publicKey
+    'collectionUpdateAuthority',
+    input.collectionUpdateAuthority ?? context.identity.publicKey
   );
   addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
-        mint: publicKey(input.mint),
+        mint: input.collectionMint,
         delegateRole: MetadataDelegateRole.AuthorityItem,
-        updateAuthority: resolvingArgs.updateAuthority,
+        updateAuthority: resolvingArgs.collectionUpdateAuthority,
         delegate: publicKey(resolvingAccounts.authority),
       })
   );

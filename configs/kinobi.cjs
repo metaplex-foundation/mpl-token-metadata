@@ -576,6 +576,27 @@ const updateAsMetadataDelegateDefaults = (role) => ({
     },
   },
 });
+const updateAsMetadataItemDelegateDefaults = (role) => ({
+  accounts: {
+    delegateRecord: {
+      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
+        seeds: {
+          mint: k.argDefault("collectionMint"),
+          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
+          updateAuthority: k.argDefault("collectionUpdateAuthority"),
+          delegate: k.accountDefault("authority"),
+        },
+      }),
+    },
+  },
+  args: {
+    collectionMint: { type: k.publicKeyTypeNode() },
+    collectionUpdateAuthority: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.identityDefault(),
+    },
+  },
+});
 const verifyCollectionDefaults = {
   accounts: {
     collectionMint: { isOptional: false, defaultsTo: null },
@@ -635,18 +656,18 @@ kinobi.update(
     },
     // Update.
     updateAsAuthorityItemDelegateV2:
-      updateAsMetadataDelegateDefaults("AuthorityItem"),
+      updateAsMetadataItemDelegateDefaults("AuthorityItem"),
     updateAsCollectionDelegateV2:
       updateAsMetadataDelegateDefaults("Collection"),
     updateAsDataDelegateV2: updateAsMetadataDelegateDefaults("Data"),
     updateAsProgrammableConfigDelegateV2:
       updateAsMetadataDelegateDefaults("ProgrammableConfig"),
-    updateAsDataItemDelegateV2: updateAsMetadataDelegateDefaults("DataItem"),
+    updateAsDataItemDelegateV2:
+      updateAsMetadataItemDelegateDefaults("DataItem"),
     updateAsCollectionItemDelegateV2:
-      updateAsMetadataDelegateDefaults("CollectionItem"),
-    updateAsProgrammableConfigItemDelegateV2: updateAsMetadataDelegateDefaults(
-      "ProgrammableConfigItem"
-    ),
+      updateAsMetadataItemDelegateDefaults("CollectionItem"),
+    updateAsProgrammableConfigItemDelegateV2:
+      updateAsMetadataItemDelegateDefaults("ProgrammableConfigItem"),
     // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
     delegateSaleV1: tokenDelegateDefaults,
