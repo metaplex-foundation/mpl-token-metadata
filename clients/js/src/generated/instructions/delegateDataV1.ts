@@ -148,9 +148,14 @@ export function delegateDataV1(
   const resolvingAccounts = {};
   const resolvingArgs = {};
   addObjectProperty(
+    resolvingAccounts,
+    'authority',
+    input.authority ?? context.identity
+  );
+  addObjectProperty(
     resolvingArgs,
     'updateAuthority',
-    input.updateAuthority ?? context.identity.publicKey
+    input.updateAuthority ?? publicKey(resolvingAccounts.authority)
   );
   addObjectProperty(
     resolvingAccounts,
@@ -190,11 +195,6 @@ export function delegateDataV1(
         { ...input, ...resolvingArgs },
         programId
       )
-  );
-  addObjectProperty(
-    resolvingAccounts,
-    'authority',
-    input.authority ?? context.identity
   );
   addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(

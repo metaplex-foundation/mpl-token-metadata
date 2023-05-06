@@ -552,7 +552,7 @@ const metadataDelegateDefaults = (role) => ({
   args: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.identityDefault(), // TODO: Default to authority as public key.
+      defaultsTo: k.accountDefault("authority"),
     },
   },
 });

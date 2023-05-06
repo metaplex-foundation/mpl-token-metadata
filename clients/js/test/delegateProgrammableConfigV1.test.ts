@@ -28,7 +28,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const programmableConfigDelegate = generateSigner(umi).publicKey;
     await delegateProgrammableConfigV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: programmableConfigDelegate,
       tokenStandard: TokenStandard[tokenStandard],

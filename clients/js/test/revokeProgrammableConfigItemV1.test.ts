@@ -25,7 +25,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const programmableConfigItemDelegate = generateSigner(umi).publicKey;
     await delegateProgrammableConfigItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
@@ -41,7 +40,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     // When we revoke the programmable config item delegate.
     await revokeProgrammableConfigItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],

@@ -28,7 +28,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const authorityItemDelegate = generateSigner(umi).publicKey;
     await delegateAuthorityItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: authorityItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],

@@ -25,7 +25,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const collectionItemDelegate = generateSigner(umi).publicKey;
     await delegateCollectionItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: collectionItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
@@ -41,7 +40,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     // When we revoke the collection item delegate.
     await revokeCollectionItemV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: collectionItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],

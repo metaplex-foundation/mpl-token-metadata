@@ -25,7 +25,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     const dataDelegate = generateSigner(umi).publicKey;
     await delegateDataV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: dataDelegate,
       tokenStandard: TokenStandard[tokenStandard],
@@ -41,7 +40,6 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     // When we revoke the data delegate.
     await revokeDataV1(umi, {
       mint,
-      updateAuthority: updateAuthority.publicKey,
       authority: updateAuthority,
       delegate: dataDelegate,
       tokenStandard: TokenStandard[tokenStandard],
