@@ -576,22 +576,25 @@ const updateAsMetadataDelegateDefaults = (role) => ({
     },
   },
 });
-const updateAsMetadataItemDelegateDefaults = (role) => ({
+const updateAsMetadataCollectionDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
       defaultsTo: k.pdaDefault("metadataDelegateRecord", {
         seeds: {
-          mint: k.argDefault("collectionMint"),
+          mint: k.argDefault("delegateMint"),
           delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
-          updateAuthority: k.argDefault("collectionUpdateAuthority"),
+          updateAuthority: k.argDefault("delegateUpdateAuthority"),
           delegate: k.accountDefault("authority"),
         },
       }),
     },
   },
   args: {
-    collectionMint: { type: k.publicKeyTypeNode() },
-    collectionUpdateAuthority: {
+    delegateMint: {
+      type: k.publicKeyTypeNode(),
+      defaultsTo: k.accountDefault("mint"),
+    },
+    delegateUpdateAuthority: {
       type: k.publicKeyTypeNode(),
       defaultsTo: k.identityDefault(),
     },
@@ -656,18 +659,18 @@ kinobi.update(
     },
     // Update.
     updateAsAuthorityItemDelegateV2:
-      updateAsMetadataItemDelegateDefaults("AuthorityItem"),
+      updateAsMetadataDelegateDefaults("AuthorityItem"),
     updateAsCollectionDelegateV2:
-      updateAsMetadataDelegateDefaults("Collection"),
-    updateAsDataDelegateV2: updateAsMetadataDelegateDefaults("Data"),
+      updateAsMetadataCollectionDelegateDefaults("Collection"),
+    updateAsDataDelegateV2: updateAsMetadataCollectionDelegateDefaults("Data"),
     updateAsProgrammableConfigDelegateV2:
-      updateAsMetadataDelegateDefaults("ProgrammableConfig"),
-    updateAsDataItemDelegateV2:
-      updateAsMetadataItemDelegateDefaults("DataItem"),
+      updateAsMetadataCollectionDelegateDefaults("ProgrammableConfig"),
+    updateAsDataItemDelegateV2: updateAsMetadataDelegateDefaults("DataItem"),
     updateAsCollectionItemDelegateV2:
-      updateAsMetadataItemDelegateDefaults("CollectionItem"),
-    updateAsProgrammableConfigItemDelegateV2:
-      updateAsMetadataItemDelegateDefaults("ProgrammableConfigItem"),
+      updateAsMetadataDelegateDefaults("CollectionItem"),
+    updateAsProgrammableConfigItemDelegateV2: updateAsMetadataDelegateDefaults(
+      "ProgrammableConfigItem"
+    ),
     // Delegate.
     delegateCollectionV1: metadataDelegateDefaults("Collection"),
     delegateSaleV1: tokenDelegateDefaults,

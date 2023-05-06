@@ -111,14 +111,15 @@ export function getUpdateAsProgrammableConfigDelegateV2InstructionDataSerializer
 
 // Extra Args.
 export type UpdateAsProgrammableConfigDelegateV2InstructionExtraArgs = {
-  updateAuthority: PublicKey;
+  delegateMint: PublicKey;
+  delegateUpdateAuthority: PublicKey;
 };
 
 // Args.
 export type UpdateAsProgrammableConfigDelegateV2InstructionArgs = PickPartial<
   UpdateAsProgrammableConfigDelegateV2InstructionDataArgs &
     UpdateAsProgrammableConfigDelegateV2InstructionExtraArgs,
-  'updateAuthority'
+  'delegateMint' | 'delegateUpdateAuthority'
 >;
 
 // Instruction.
@@ -152,17 +153,22 @@ export function updateAsProgrammableConfigDelegateV2(
   );
   addObjectProperty(
     resolvingArgs,
-    'updateAuthority',
-    input.updateAuthority ?? context.identity.publicKey
+    'delegateMint',
+    input.delegateMint ?? publicKey(input.mint)
+  );
+  addObjectProperty(
+    resolvingArgs,
+    'delegateUpdateAuthority',
+    input.delegateUpdateAuthority ?? context.identity.publicKey
   );
   addObjectProperty(
     resolvingAccounts,
     'delegateRecord',
     input.delegateRecord ??
       findMetadataDelegateRecordPda(context, {
-        mint: publicKey(input.mint),
+        mint: resolvingArgs.delegateMint,
         delegateRole: MetadataDelegateRole.ProgrammableConfig,
-        updateAuthority: resolvingArgs.updateAuthority,
+        updateAuthority: resolvingArgs.delegateUpdateAuthority,
         delegate: publicKey(resolvingAccounts.authority),
       })
   );
