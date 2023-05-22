@@ -9,6 +9,7 @@
 import {
   Account,
   Context,
+  Pda,
   PublicKey,
   RpcAccount,
   RpcGetAccountOptions,
@@ -124,4 +125,51 @@ export function getEditionMarkerGpaBuilder(
 
 export function getEditionMarkerSize(): number {
   return 32;
+}
+
+export function findEditionMarkerPda(
+  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  seeds: {
+    /** The address of the mint account */
+    mint: PublicKey;
+    /** The floor of the edition number divided by 248 as a string. I.e. ⌊edition/248⌋. */
+    editionMarker: string;
+  }
+): Pda {
+  const s = context.serializer;
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
+  return context.eddsa.findPda(programId, [
+    s.string({ size: 'variable' }).serialize('metadata'),
+    programId.bytes,
+    s.publicKey().serialize(seeds.mint),
+    s.string({ size: 'variable' }).serialize('edition'),
+    s.string({ size: 'variable' }).serialize(seeds.editionMarker),
+  ]);
+}
+
+export async function fetchEditionMarkerFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findEditionMarkerPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<EditionMarker> {
+  return fetchEditionMarker(
+    context,
+    findEditionMarkerPda(context, seeds),
+    options
+  );
+}
+
+export async function safeFetchEditionMarkerFromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  seeds: Parameters<typeof findEditionMarkerPda>[1],
+  options?: RpcGetAccountOptions
+): Promise<EditionMarker | null> {
+  return safeFetchEditionMarker(
+    context,
+    findEditionMarkerPda(context, seeds),
+    options
+  );
 }
