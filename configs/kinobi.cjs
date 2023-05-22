@@ -25,6 +25,16 @@ kinobi.update(
       name: "masterEdition",
       seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
     },
+    editionMarker: {
+      seeds: [
+        ...metadataSeeds,
+        k.stringConstantSeed("edition"),
+        k.stringSeed(
+          "editionMarker",
+          "The floor of the edition number divided by 248 as a string. I.e. ⌊edition/248⌋."
+        ),
+      ],
+    },
     tokenRecord: {
       size: 80,
       seeds: [
