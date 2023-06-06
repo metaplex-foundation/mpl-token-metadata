@@ -121,7 +121,7 @@ kinobi.update(
 // Update Instructions.
 const ataPdaDefault = (mint = "mint", owner = "owner") =>
   k.pdaDefault("associatedToken", {
-    importFrom: "mplEssentials",
+    importFrom: "mplToolbox",
     seeds: { mint: k.accountDefault(mint), owner: k.accountDefault(owner) },
   });
 kinobi.update(
@@ -325,7 +325,7 @@ kinobi.update(
         token: {
           isOptional: false,
           defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplEssentials",
+            importFrom: "mplToolbox",
             seeds: {
               mint: k.accountDefault("mint"),
               owner: k.argDefault("tokenOwner"),
@@ -524,7 +524,7 @@ const tokenDelegateDefaults = {
     token: {
       isOptional: false,
       defaultsTo: k.pdaDefault("associatedToken", {
-        importFrom: "mplEssentials",
+        importFrom: "mplToolbox",
         seeds: {
           mint: k.accountDefault("mint"),
           owner: k.argDefault("tokenOwner"),

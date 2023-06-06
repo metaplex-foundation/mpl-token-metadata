@@ -1,4 +1,4 @@
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-essentials';
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import { PublicKey, generateSigner, publicKey } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {

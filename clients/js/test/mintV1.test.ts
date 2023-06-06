@@ -10,7 +10,7 @@ import {
   fetchMint,
   fetchToken,
   findAssociatedTokenPda,
-} from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/mpl-toolbox';
 import { TokenStandard, createV1, mintV1 } from '../src';
 import { createUmi } from './_setup';
 

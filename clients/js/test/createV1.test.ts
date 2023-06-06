@@ -3,7 +3,7 @@ import {
   createMintWithAssociatedToken,
   fetchMint,
   Mint,
-} from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/mpl-toolbox';
 import {
   generateSigner,
   none,

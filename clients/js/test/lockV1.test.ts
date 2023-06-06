@@ -1,4 +1,4 @@
-import { TokenState as SplTokenState } from '@metaplex-foundation/mpl-essentials';
+import { TokenState as SplTokenState } from '@metaplex-foundation/mpl-toolbox';
 import { generateSigner } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {

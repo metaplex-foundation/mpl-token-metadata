@@ -2866,6 +2866,45 @@ export class InvalidInstructionError extends ProgramError {
 codeToErrorMap.set(0xbd, InvalidInstructionError);
 nameToErrorMap.set('InvalidInstruction', InvalidInstructionError);
 
+/** MissingDelegateRecord: Missing delegate record */
+export class MissingDelegateRecordError extends ProgramError {
+  readonly name: string = 'MissingDelegateRecord';
+
+  readonly code: number = 0xbe; // 190
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing delegate record', program, cause);
+  }
+}
+codeToErrorMap.set(0xbe, MissingDelegateRecordError);
+nameToErrorMap.set('MissingDelegateRecord', MissingDelegateRecordError);
+
+/** InvalidFeeAccount */
+export class InvalidFeeAccountError extends ProgramError {
+  readonly name: string = 'InvalidFeeAccount';
+
+  readonly code: number = 0xbf; // 191
+
+  constructor(program: Program, cause?: Error) {
+    super('', program, cause);
+  }
+}
+codeToErrorMap.set(0xbf, InvalidFeeAccountError);
+nameToErrorMap.set('InvalidFeeAccount', InvalidFeeAccountError);
+
+/** InvalidMetadataFlags */
+export class InvalidMetadataFlagsError extends ProgramError {
+  readonly name: string = 'InvalidMetadataFlags';
+
+  readonly code: number = 0xc0; // 192
+
+  constructor(program: Program, cause?: Error) {
+    super('', program, cause);
+  }
+}
+codeToErrorMap.set(0xc0, InvalidMetadataFlagsError);
+nameToErrorMap.set('InvalidMetadataFlags', InvalidMetadataFlagsError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

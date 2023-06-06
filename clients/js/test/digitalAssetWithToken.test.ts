@@ -1,7 +1,7 @@
 import {
   createToken,
   findAssociatedTokenPda,
-} from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/mpl-toolbox';
 import {
   base58PublicKey,
   generateSigner,

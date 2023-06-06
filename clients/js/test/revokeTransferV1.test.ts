@@ -1,7 +1,7 @@
 import {
   approveTokenDelegate,
   findAssociatedTokenPda,
-} from '@metaplex-foundation/mpl-essentials';
+} from '@metaplex-foundation/mpl-toolbox';
 import {
   generateSigner,
   none,

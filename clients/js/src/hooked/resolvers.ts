@@ -10,7 +10,7 @@ import {
   samePublicKey,
   some,
 } from '@metaplex-foundation/umi';
-import { getMintSize } from '@metaplex-foundation/mpl-essentials';
+import { getMintSize } from '@metaplex-foundation/mpl-toolbox';
 import { isNonFungible, isProgrammable } from '../digitalAsset';
 import {
   CollectionDetailsArgs,

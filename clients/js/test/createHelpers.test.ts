@@ -1,4 +1,4 @@
-import { fetchMint, Mint } from '@metaplex-foundation/mpl-essentials';
+import { fetchMint, Mint } from '@metaplex-foundation/mpl-toolbox';
 import {
   generateSigner,
   none,

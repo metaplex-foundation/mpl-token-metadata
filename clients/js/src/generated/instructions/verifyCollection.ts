@@ -32,6 +32,8 @@ export type VerifyCollectionInstructionAccounts = {
   collection: PublicKey;
   /** MasterEdition2 Account of the Collection Token */
   collectionMasterEditionAccount: PublicKey;
+  /** Collection Authority Record PDA */
+  collectionAuthorityRecord?: PublicKey;
 };
 
 // Data.
@@ -129,6 +131,15 @@ export function verifyCollection(
       false
     ),
   });
+
+  // Collection Authority Record (optional).
+  if (resolvedAccounts.collectionAuthorityRecord) {
+    keys.push({
+      pubkey: resolvedAccounts.collectionAuthorityRecord,
+      isSigner: false,
+      isWritable: isWritable(resolvedAccounts.collectionAuthorityRecord, false),
+    });
+  }
 
   // Data.
   const data = getVerifyCollectionInstructionDataSerializer(context).serialize(

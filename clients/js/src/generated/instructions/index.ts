@@ -13,6 +13,7 @@ export * from './burnEditionNft';
 export * from './burnNft';
 export * from './burnV1';
 export * from './closeEscrowAccount';
+export * from './collect';
 export * from './convertMasterEditionV1ToV2';
 export * from './createEscrowAccount';
 export * from './createMasterEditionV3';
