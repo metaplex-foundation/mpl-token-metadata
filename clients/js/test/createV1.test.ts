@@ -5,6 +5,7 @@ import {
   Mint,
 } from '@metaplex-foundation/mpl-toolbox';
 import {
+  addAmounts,
   generateSigner,
   none,
   percentAmount,
@@ -346,6 +347,7 @@ test('an explicit payer can be used for storage fees', async (t) => {
 
   // Then the payer has paid the storage fees.
   const storageFees = await builder.getRentCreatedOnChain(umi);
+  const totalFees = addAmounts(storageFees, sol(0.01)); // Create fee.
   const payerBalance = await umi.rpc.getBalance(payer.publicKey);
-  t.deepEqual(payerBalance, subtractAmounts(sol(10), storageFees));
+  t.deepEqual(payerBalance, subtractAmounts(sol(10), totalFees));
 });

@@ -1,4 +1,8 @@
-import { generateSigner } from '@metaplex-foundation/umi';
+import {
+  assertAccountExists,
+  generateSigner,
+  sol
+} from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   TokenStandard,
@@ -33,9 +37,15 @@ test('it can burn a NonFungible', async (t) => {
   }).sendAndConfirm(umi);
 
   // Then the following accounts have been deleted.
-  t.false(await umi.rpc.accountExists(da.metadata.publicKey));
   t.false(await umi.rpc.accountExists(da.edition!.publicKey));
   t.false(await umi.rpc.accountExists(da.token.publicKey));
+
+  // And the Metadata account still exists but it was drained and is left with the create fees.
+  const metadata = await umi.rpc.getAccount(da.metadata.publicKey);
+  t.true(metadata.exists);
+  assertAccountExists(metadata);
+  t.deepEqual(metadata.lamports, sol(0.01));
+  t.is(metadata.data.length, 0);
 
   // But the mint account still exists.
   t.true(await umi.rpc.accountExists(mint));
@@ -64,10 +74,16 @@ test('it can burn a ProgrammableNonFungible', async (t) => {
   }).sendAndConfirm(umi);
 
   // Then the following accounts have been deleted.
-  t.false(await umi.rpc.accountExists(da.metadata.publicKey));
   t.false(await umi.rpc.accountExists(da.edition!.publicKey));
   t.false(await umi.rpc.accountExists(da.token.publicKey));
   t.false(await umi.rpc.accountExists(da.tokenRecord!.publicKey));
+
+  // And the Metadata account still exists but it was drained and is left with the create fees.
+  const metadata = await umi.rpc.getAccount(da.metadata.publicKey);
+  t.true(metadata.exists);
+  assertAccountExists(metadata);
+  t.deepEqual(metadata.lamports, sol(0.01));
+  t.is(metadata.data.length, 0);
 
   // But the mint account still exists.
   t.true(await umi.rpc.accountExists(mint));
