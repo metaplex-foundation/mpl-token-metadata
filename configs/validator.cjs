@@ -13,14 +13,14 @@ module.exports = {
     commitment: "processed",
     programs: [
       {
-        label: "Token Auth Rules",
-        programId: "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg",
-        deployPath: getProgram("token-auth-rules", "mpl_token_auth_rules.so"),
-      },
-      {
         label: "Token Metadata",
         programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
         deployPath: getProgram("token-metadata", "mpl_token_metadata.so"),
+      },
+      {
+        label: "Token Auth Rules",
+        programId: "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg",
+        deployPath: getExternalProgram("mpl_token_auth_rules.so"),
       },
       {
         label: "System Extras",
