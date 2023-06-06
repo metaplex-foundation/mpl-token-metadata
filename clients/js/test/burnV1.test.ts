@@ -1,7 +1,7 @@
 import {
   assertAccountExists,
   generateSigner,
-  sol
+  sol,
 } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
