@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,20 +19,20 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMasterEditionPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type FreezeDelegatedAccountInstructionAccounts = {
   /** Delegate */
   delegate: Signer;
   /** Token account to freeze */
-  tokenAccount: PublicKey;
+  tokenAccount: PublicKey | Pda;
   /** Edition */
-  edition?: PublicKey;
+  edition?: PublicKey | Pda;
   /** Token mint */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
   /** Token Program */
-  tokenProgram?: PublicKey;
+  tokenProgram?: PublicKey | Pda;
 };
 
 // Data.
@@ -71,70 +72,46 @@ export function freezeDelegatedAccount(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    delegate: [input.delegate, true] as const,
+    tokenAccount: [input.tokenAccount, true] as const,
+    mint: [input.mint, false] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'edition',
-    input.edition ??
-      findMasterEditionPda(context, { mint: publicKey(input.mint) })
+    input.edition
+      ? ([input.edition, false] as const)
+      : ([
+          findMasterEditionPda(context, { mint: publicKey(input.mint, false) }),
+          false,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'tokenProgram',
-    input.tokenProgram ?? {
-      ...context.programs.getPublicKey(
-        'splToken',
-        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-      ),
-      isWritable: false,
-    }
+    input.tokenProgram
+      ? ([input.tokenProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splToken',
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+          ),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Delegate.
-  signers.push(resolvedAccounts.delegate);
-  keys.push({
-    pubkey: resolvedAccounts.delegate.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.delegate, true),
-  });
-
-  // Token Account.
-  keys.push({
-    pubkey: resolvedAccounts.tokenAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenAccount, true),
-  });
-
-  // Edition.
-  keys.push({
-    pubkey: resolvedAccounts.edition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.edition, false),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, false),
-  });
-
-  // Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.tokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenProgram, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.delegate, false);
+  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
 
   // Data.
   const data = getFreezeDelegatedAccountInstructionDataSerializer(

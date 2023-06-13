@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,20 +19,20 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type RevokeCollectionAuthorityInstructionAccounts = {
   /** Collection Authority Record PDA */
-  collectionAuthorityRecord: PublicKey;
+  collectionAuthorityRecord: PublicKey | Pda;
   /** Delegated Collection Authority */
-  delegateAuthority: PublicKey;
+  delegateAuthority: PublicKey | Pda;
   /** Update Authority, or Delegated Authority, of Collection NFT */
   revokeAuthority: Signer;
   /** Metadata account */
-  metadata?: PublicKey;
+  metadata?: PublicKey | Pda;
   /** Mint of Metadata */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
 };
 
 // Data.
@@ -73,58 +74,39 @@ export function revokeCollectionAuthority(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    collectionAuthorityRecord: [input.collectionAuthorityRecord, true] as const,
+    delegateAuthority: [input.delegateAuthority, true] as const,
+    revokeAuthority: [input.revokeAuthority, true] as const,
+    mint: [input.mint, false] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'metadata',
-    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+    input.metadata
+      ? ([input.metadata, false] as const)
+      : ([
+          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Collection Authority Record.
-  keys.push({
-    pubkey: resolvedAccounts.collectionAuthorityRecord,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionAuthorityRecord, true),
-  });
-
-  // Delegate Authority.
-  keys.push({
-    pubkey: resolvedAccounts.delegateAuthority,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegateAuthority, true),
-  });
-
-  // Revoke Authority.
-  signers.push(resolvedAccounts.revokeAuthority);
-  keys.push({
-    pubkey: resolvedAccounts.revokeAuthority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.revokeAuthority, true),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, false),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, false),
-  });
+  addAccountMeta(
+    keys,
+    signers,
+    resolvedAccounts.collectionAuthorityRecord,
+    false
+  );
+  addAccountMeta(keys, signers, resolvedAccounts.delegateAuthority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.revokeAuthority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
 
   // Data.
   const data = getRevokeCollectionAuthorityInstructionDataSerializer(

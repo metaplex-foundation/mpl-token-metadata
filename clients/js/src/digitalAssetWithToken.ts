@@ -46,10 +46,10 @@ export async function fetchDigitalAssetWithToken(
   ] = await context.rpc.getAccounts(
     [
       mint,
-      findMetadataPda(context, { mint }),
-      findMasterEditionPda(context, { mint }),
+      findMetadataPda(context, { mint })[0],
+      findMasterEditionPda(context, { mint })[0],
       token,
-      findTokenRecordPda(context, { mint, token }),
+      findTokenRecordPda(context, { mint, token })[0],
     ],
     options
   );
@@ -72,7 +72,7 @@ export async function fetchDigitalAssetWithAssociatedToken(
   owner: PublicKey,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAssetWithToken> {
-  const token = findAssociatedTokenPda(context, { mint, owner });
+  const [token] = findAssociatedTokenPda(context, { mint, owner });
   return fetchDigitalAssetWithToken(context, mint, token, options);
 }
 
@@ -110,9 +110,12 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
   const tokens = await fetchAllTokenByOwner(context, owner, options);
   const accountsToFetch = tokens.flatMap((token) => [
     token.mint,
-    findMetadataPda(context, { mint: token.mint }),
-    findMasterEditionPda(context, { mint: token.mint }),
-    findTokenRecordPda(context, { mint: token.mint, token: token.publicKey }),
+    findMetadataPda(context, { mint: token.mint })[0],
+    findMasterEditionPda(context, { mint: token.mint })[0],
+    findTokenRecordPda(context, {
+      mint: token.mint,
+      token: token.publicKey,
+    })[0],
   ]);
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);
 
@@ -177,13 +180,13 @@ export async function fetchAllDigitalAssetWithTokenByMint(
     .map((token) => token.publicKey);
   const accountsToFetch = [
     mint,
-    findMetadataPda(context, { mint }),
-    findMasterEditionPda(context, { mint }),
+    findMetadataPda(context, { mint })[0],
+    findMasterEditionPda(context, { mint })[0],
   ];
   accountsToFetch.push(
     ...nonEmptyTokens.flatMap((token) => [
       token,
-      findTokenRecordPda(context, { mint, token }),
+      findTokenRecordPda(context, { mint, token })[0],
     ])
   );
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);

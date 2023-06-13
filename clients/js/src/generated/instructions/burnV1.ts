@@ -10,6 +10,7 @@ import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -24,7 +25,7 @@ import {
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
-import { PickPartial, addObjectProperty, isWritable } from '../shared';
+import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
 import { TokenStandardArgs } from '../types';
 
 // Accounts.
@@ -32,31 +33,31 @@ export type BurnV1InstructionAccounts = {
   /** Asset owner or Utility delegate */
   authority?: Signer;
   /** Metadata of the Collection */
-  collectionMetadata?: PublicKey;
+  collectionMetadata?: PublicKey | Pda;
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata?: PublicKey;
+  metadata?: PublicKey | Pda;
   /** Edition of the asset */
-  edition?: PublicKey;
+  edition?: PublicKey | Pda;
   /** Mint of token asset */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
   /** Token account to close */
-  token?: PublicKey;
+  token?: PublicKey | Pda;
   /** Master edition account */
-  masterEdition?: PublicKey;
+  masterEdition?: PublicKey | Pda;
   /** Master edition mint of the asset */
-  masterEditionMint?: PublicKey;
+  masterEditionMint?: PublicKey | Pda;
   /** Master edition token account */
-  masterEditionToken?: PublicKey;
+  masterEditionToken?: PublicKey | Pda;
   /** Edition marker account */
-  editionMarker?: PublicKey;
+  editionMarker?: PublicKey | Pda;
   /** Token record account */
-  tokenRecord?: PublicKey;
+  tokenRecord?: PublicKey | Pda;
   /** System program */
-  systemProgram?: PublicKey;
+  systemProgram?: PublicKey | Pda;
   /** Instructions sysvar account */
-  sysvarInstructions?: PublicKey;
+  sysvarInstructions?: PublicKey | Pda;
   /** SPL Token Program */
-  splTokenProgram?: PublicKey;
+  splTokenProgram?: PublicKey | Pda;
 };
 
 // Data.
@@ -114,42 +115,52 @@ export function burnV1(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    mint: [input.mint, true] as const,
+  };
   const resolvingArgs = {};
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'authority',
-    input.authority ?? context.identity
+    input.authority
+      ? ([input.authority, true] as const)
+      : ([context.identity, true] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'collectionMetadata',
-    input.collectionMetadata ?? programId
+    input.collectionMetadata
+      ? ([input.collectionMetadata, true] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'metadata',
-    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+    input.metadata
+      ? ([input.metadata, true] as const)
+      : ([
+          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
+          true,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'edition',
-    input.edition ??
-      resolveMasterEdition(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
+    input.edition
+      ? ([input.edition, true] as const)
+      : resolveMasterEdition(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
     resolvingArgs,
@@ -157,180 +168,117 @@ export function burnV1(
     input.tokenOwner ?? context.identity.publicKey
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'token',
-    input.token ??
-      findAssociatedTokenPda(context, {
-        mint: publicKey(input.mint),
-        owner: resolvingArgs.tokenOwner,
-      })
+    input.token
+      ? ([input.token, true] as const)
+      : ([
+          findAssociatedTokenPda(context, {
+            mint: publicKey(input.mint, false),
+            owner: resolvingArgs.tokenOwner,
+          }),
+          true,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'masterEditionMint',
-    input.masterEditionMint ?? programId
+    input.masterEditionMint
+      ? ([input.masterEditionMint, false] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'masterEdition',
-    input.masterEdition ??
-      resolveBurnMasterEdition(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
+    input.masterEdition
+      ? ([input.masterEdition, true] as const)
+      : resolveBurnMasterEdition(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'masterEditionToken',
-    input.masterEditionToken ?? programId
+    input.masterEditionToken
+      ? ([input.masterEditionToken, false] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'editionMarker',
-    input.editionMarker ?? programId
+    input.editionMarker
+      ? ([input.editionMarker, true] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'tokenRecord',
-    input.tokenRecord ??
-      resolveTokenRecord(
-        context,
-        { ...input, ...resolvingAccounts },
-        { ...input, ...resolvingArgs },
-        programId
-      )
+    input.tokenRecord
+      ? ([input.tokenRecord, true] as const)
+      : resolveTokenRecord(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'systemProgram',
-    input.systemProgram ?? {
-      ...context.programs.getPublicKey(
-        'splSystem',
-        '11111111111111111111111111111111'
-      ),
-      isWritable: false,
-    }
+    input.systemProgram
+      ? ([input.systemProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splSystem',
+            '11111111111111111111111111111111'
+          ),
+          false,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'sysvarInstructions',
-    input.sysvarInstructions ??
-      publicKey('Sysvar1nstructions1111111111111111111111111')
+    input.sysvarInstructions
+      ? ([input.sysvarInstructions, false] as const)
+      : ([
+          publicKey('Sysvar1nstructions1111111111111111111111111'),
+          false,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? {
-      ...context.programs.getPublicKey(
-        'splToken',
-        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-      ),
-      isWritable: false,
-    }
+    input.splTokenProgram
+      ? ([input.splTokenProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splToken',
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+          ),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
-  // Authority.
-  signers.push(resolvedAccounts.authority);
-  keys.push({
-    pubkey: resolvedAccounts.authority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.authority, true),
-  });
-
-  // Collection Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.collectionMetadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionMetadata, true),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Edition.
-  keys.push({
-    pubkey: resolvedAccounts.edition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.edition, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, true),
-  });
-
-  // Token.
-  keys.push({
-    pubkey: resolvedAccounts.token,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.token, true),
-  });
-
-  // Master Edition.
-  keys.push({
-    pubkey: resolvedAccounts.masterEdition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEdition, true),
-  });
-
-  // Master Edition Mint.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionMint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionMint, false),
-  });
-
-  // Master Edition Token.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionToken,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionToken, false),
-  });
-
-  // Edition Marker.
-  keys.push({
-    pubkey: resolvedAccounts.editionMarker,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.editionMarker, true),
-  });
-
-  // Token Record.
-  keys.push({
-    pubkey: resolvedAccounts.tokenRecord,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenRecord, true),
-  });
-
-  // System Program.
-  keys.push({
-    pubkey: resolvedAccounts.systemProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.systemProgram, false),
-  });
-
-  // Sysvar Instructions.
-  keys.push({
-    pubkey: resolvedAccounts.sysvarInstructions,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
-  });
-
-  // Spl Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.splTokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.token, false);
+  addAccountMeta(keys, signers, resolvedAccounts.masterEdition, false);
+  addAccountMeta(keys, signers, resolvedAccounts.masterEditionMint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.masterEditionToken, false);
+  addAccountMeta(keys, signers, resolvedAccounts.editionMarker, false);
+  addAccountMeta(keys, signers, resolvedAccounts.tokenRecord, false);
+  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
+  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
+  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
   const data =

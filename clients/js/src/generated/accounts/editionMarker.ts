@@ -19,6 +19,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
+  publicKey as toPublicKey,
 } from '@metaplex-foundation/umi';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
@@ -60,20 +61,26 @@ export function deserializeEditionMarker(
 
 export async function fetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<EditionMarker> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   assertAccountExists(maybeAccount, 'EditionMarker');
   return deserializeEditionMarker(context, maybeAccount);
 }
 
 export async function safeFetchEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<EditionMarker | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   return maybeAccount.exists
     ? deserializeEditionMarker(context, maybeAccount)
     : null;
@@ -81,10 +88,13 @@ export async function safeFetchEditionMarker(
 
 export async function fetchAllEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<EditionMarker[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts.map((maybeAccount) => {
     assertAccountExists(maybeAccount, 'EditionMarker');
     return deserializeEditionMarker(context, maybeAccount);
@@ -93,10 +103,13 @@ export async function fetchAllEditionMarker(
 
 export async function safeFetchAllEditionMarker(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<EditionMarker[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
     .map((maybeAccount) =>
@@ -143,7 +156,7 @@ export function findEditionMarkerPda(
   );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
-    programId.bytes,
+    s.publicKey().serialize(programId),
     s.publicKey().serialize(seeds.mint),
     s.string({ size: 'variable' }).serialize('edition'),
     s.string({ size: 'variable' }).serialize(seeds.editionMarker),

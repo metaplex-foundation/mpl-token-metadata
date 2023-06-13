@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -17,24 +18,24 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type UnverifyCreatorV1InstructionAccounts = {
   /** Creator to verify, collection (or metadata if parent burned) update authority or delegate */
   authority?: Signer;
   /** Delegate record PDA */
-  delegateRecord?: PublicKey;
+  delegateRecord?: PublicKey | Pda;
   /** Metadata account */
-  metadata: PublicKey;
+  metadata: PublicKey | Pda;
   /** Mint of the Collection */
-  collectionMint?: PublicKey;
+  collectionMint?: PublicKey | Pda;
   /** Metadata Account of the Collection */
-  collectionMetadata?: PublicKey;
+  collectionMetadata?: PublicKey | Pda;
   /** System program */
-  systemProgram?: PublicKey;
+  systemProgram?: PublicKey | Pda;
   /** Instructions sysvar account */
-  sysvarInstructions?: PublicKey;
+  sysvarInstructions?: PublicKey | Pda;
 };
 
 // Data.
@@ -84,104 +85,74 @@ export function unverifyCreatorV1(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    metadata: [input.metadata, true] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'authority',
-    input.authority ?? context.identity
+    input.authority
+      ? ([input.authority, false] as const)
+      : ([context.identity, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'delegateRecord',
-    input.delegateRecord ?? programId
+    input.delegateRecord
+      ? ([input.delegateRecord, false] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'collectionMint',
-    input.collectionMint ?? programId
+    input.collectionMint
+      ? ([input.collectionMint, false] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'collectionMetadata',
-    input.collectionMetadata ?? programId
+    input.collectionMetadata
+      ? ([input.collectionMetadata, true] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'systemProgram',
-    input.systemProgram ?? {
-      ...context.programs.getPublicKey(
-        'splSystem',
-        '11111111111111111111111111111111'
-      ),
-      isWritable: false,
-    }
+    input.systemProgram
+      ? ([input.systemProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splSystem',
+            '11111111111111111111111111111111'
+          ),
+          false,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'sysvarInstructions',
-    input.sysvarInstructions ??
-      publicKey('Sysvar1nstructions1111111111111111111111111')
+    input.sysvarInstructions
+      ? ([input.sysvarInstructions, false] as const)
+      : ([
+          publicKey('Sysvar1nstructions1111111111111111111111111'),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Authority.
-  signers.push(resolvedAccounts.authority);
-  keys.push({
-    pubkey: resolvedAccounts.authority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.authority, false),
-  });
-
-  // Delegate Record.
-  keys.push({
-    pubkey: resolvedAccounts.delegateRecord,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.delegateRecord, false),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Collection Mint.
-  keys.push({
-    pubkey: resolvedAccounts.collectionMint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionMint, false),
-  });
-
-  // Collection Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.collectionMetadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionMetadata, true),
-  });
-
-  // System Program.
-  keys.push({
-    pubkey: resolvedAccounts.systemProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.systemProgram, false),
-  });
-
-  // Sysvar Instructions.
-  keys.push({
-    pubkey: resolvedAccounts.sysvarInstructions,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.delegateRecord, false);
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
+  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
 
   // Data.
   const data = getUnverifyCreatorV1InstructionDataSerializer(context).serialize(

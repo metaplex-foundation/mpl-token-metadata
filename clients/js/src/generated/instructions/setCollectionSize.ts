@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -16,7 +17,7 @@ import {
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { isWritable } from '../shared';
+import { addAccountMeta } from '../shared';
 import {
   SetCollectionSizeArgs,
   SetCollectionSizeArgsArgs,
@@ -26,13 +27,13 @@ import {
 // Accounts.
 export type SetCollectionSizeInstructionAccounts = {
   /** Collection Metadata account */
-  collectionMetadata: PublicKey;
+  collectionMetadata: PublicKey | Pda;
   /** Collection Update authority */
   collectionAuthority: Signer;
   /** Mint of the Collection */
-  collectionMint: PublicKey;
+  collectionMint: PublicKey | Pda;
   /** Collection Authority Record PDA */
-  collectionAuthorityRecord?: PublicKey;
+  collectionAuthorityRecord?: PublicKey | Pda;
 };
 
 // Data.
@@ -84,50 +85,33 @@ export function setCollectionSize(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    collectionMetadata: [input.collectionMetadata, true] as const,
+    collectionAuthority: [input.collectionAuthority, true] as const,
+    collectionMint: [input.collectionMint, false] as const,
+    collectionAuthorityRecord: [
+      input.collectionAuthorityRecord,
+      false,
+    ] as const,
+  };
   const resolvingArgs = {};
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
-  // Collection Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.collectionMetadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionMetadata, true),
-  });
-
-  // Collection Authority.
-  signers.push(resolvedAccounts.collectionAuthority);
-  keys.push({
-    pubkey: resolvedAccounts.collectionAuthority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.collectionAuthority, true),
-  });
-
-  // Collection Mint.
-  keys.push({
-    pubkey: resolvedAccounts.collectionMint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.collectionMint, false),
-  });
-
-  // Collection Authority Record (optional).
-  if (resolvedAccounts.collectionAuthorityRecord) {
-    keys.push({
-      pubkey: resolvedAccounts.collectionAuthorityRecord,
-      isSigner: false,
-      isWritable: isWritable(resolvedAccounts.collectionAuthorityRecord, false),
-    });
-  }
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionAuthority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
+  addAccountMeta(
+    keys,
+    signers,
+    resolvedAccounts.collectionAuthorityRecord,
+    true
+  );
 
   // Data.
   const data =

@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -16,16 +17,16 @@ import {
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { isWritable } from '../shared';
+import { addAccountMeta } from '../shared';
 
 // Accounts.
 export type UpdatePrimarySaleHappenedViaTokenInstructionAccounts = {
   /** Metadata key (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata: PublicKey | Pda;
   /** Owner on the token account */
   owner: Signer;
   /** Account containing tokens from the metadata's mint */
-  token: PublicKey;
+  token: PublicKey | Pda;
 };
 
 // Data.
@@ -67,39 +68,21 @@ export function updatePrimarySaleHappenedViaToken(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedAccounts = {
+    metadata: [input.metadata, true] as const,
+    owner: [input.owner, false] as const,
+    token: [input.token, false] as const,
+  };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Owner.
-  signers.push(resolvedAccounts.owner);
-  keys.push({
-    pubkey: resolvedAccounts.owner.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.owner, false),
-  });
-
-  // Token.
-  keys.push({
-    pubkey: resolvedAccounts.token,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.token, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
+  addAccountMeta(keys, signers, resolvedAccounts.token, false);
 
   // Data.
   const data = getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(

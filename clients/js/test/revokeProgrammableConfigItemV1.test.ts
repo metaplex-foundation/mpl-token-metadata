@@ -29,7 +29,7 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       delegate: programmableConfigItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
-    const metadataDelegateRecord = findMetadataDelegateRecordPda(umi, {
+    const [metadataDelegateRecord] = findMetadataDelegateRecordPda(umi, {
       mint,
       delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
       delegate: programmableConfigItemDelegate,

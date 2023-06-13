@@ -20,6 +20,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
+  publicKey as toPublicKey,
 } from '@metaplex-foundation/umi';
 import {
   Key,
@@ -87,20 +88,26 @@ export function deserializeTokenRecord(
 
 export async function fetchTokenRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<TokenRecord> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   assertAccountExists(maybeAccount, 'TokenRecord');
   return deserializeTokenRecord(context, maybeAccount);
 }
 
 export async function safeFetchTokenRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<TokenRecord | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   return maybeAccount.exists
     ? deserializeTokenRecord(context, maybeAccount)
     : null;
@@ -108,10 +115,13 @@ export async function safeFetchTokenRecord(
 
 export async function fetchAllTokenRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<TokenRecord[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts.map((maybeAccount) => {
     assertAccountExists(maybeAccount, 'TokenRecord');
     return deserializeTokenRecord(context, maybeAccount);
@@ -120,10 +130,13 @@ export async function fetchAllTokenRecord(
 
 export async function safeFetchAllTokenRecord(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<TokenRecord[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
     .map((maybeAccount) =>
@@ -183,7 +196,7 @@ export function findTokenRecordPda(
   );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
-    programId.bytes,
+    s.publicKey().serialize(programId),
     s.publicKey().serialize(seeds.mint),
     s.string({ size: 'variable' }).serialize('token_record'),
     s.publicKey().serialize(seeds.token),

@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,24 +19,24 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type BurnNftInstructionAccounts = {
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata?: PublicKey;
+  metadata?: PublicKey | Pda;
   /** NFT owner */
   owner: Signer;
   /** Mint of the NFT */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
   /** Token account to close */
-  tokenAccount: PublicKey;
+  tokenAccount: PublicKey | Pda;
   /** MasterEdition2 of the NFT */
-  masterEditionAccount: PublicKey;
+  masterEditionAccount: PublicKey | Pda;
   /** SPL Token Program */
-  splTokenProgram?: PublicKey;
+  splTokenProgram?: PublicKey | Pda;
   /** Metadata of the Collection */
-  collectionMetadata?: PublicKey;
+  collectionMetadata?: PublicKey | Pda;
 };
 
 // Data.
@@ -64,85 +65,50 @@ export function burnNft(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    owner: [input.owner, true] as const,
+    mint: [input.mint, true] as const,
+    tokenAccount: [input.tokenAccount, true] as const,
+    masterEditionAccount: [input.masterEditionAccount, true] as const,
+    collectionMetadata: [input.collectionMetadata, true] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'metadata',
-    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+    input.metadata
+      ? ([input.metadata, true] as const)
+      : ([
+          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
+          true,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? {
-      ...context.programs.getPublicKey(
-        'splToken',
-        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-      ),
-      isWritable: false,
-    }
+    input.splTokenProgram
+      ? ([input.splTokenProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splToken',
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+          ),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Owner.
-  signers.push(resolvedAccounts.owner);
-  keys.push({
-    pubkey: resolvedAccounts.owner.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.owner, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, true),
-  });
-
-  // Token Account.
-  keys.push({
-    pubkey: resolvedAccounts.tokenAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenAccount, true),
-  });
-
-  // Master Edition Account.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionAccount, true),
-  });
-
-  // Spl Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.splTokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
-  });
-
-  // Collection Metadata (optional).
-  if (resolvedAccounts.collectionMetadata) {
-    keys.push({
-      pubkey: resolvedAccounts.collectionMetadata,
-      isSigner: false,
-      isWritable: isWritable(resolvedAccounts.collectionMetadata, true),
-    });
-  }
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.masterEditionAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
+  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, true);
 
   // Data.
   const data = getBurnNftInstructionDataSerializer(context).serialize({});

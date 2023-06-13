@@ -1,5 +1,5 @@
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
-import { PublicKey, generateSigner, publicKey } from '@metaplex-foundation/umi';
+import { generateSigner, publicKey } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
@@ -43,7 +43,7 @@ test('it can transfer a NonFungible', async (t) => {
       publicKey: findAssociatedTokenPda(umi, {
         mint,
         owner: ownerB,
-      }) as PublicKey,
+      })[0],
       owner: ownerB,
       amount: 1n,
     },
@@ -80,7 +80,7 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
       publicKey: findAssociatedTokenPda(umi, {
         mint,
         owner: ownerB,
-      }) as PublicKey,
+      })[0],
       owner: ownerB,
       amount: 1n,
     },

@@ -10,6 +10,7 @@ import {
   AccountMeta,
   Context,
   Option,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,13 +19,13 @@ import {
   none,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 import { DataV2, DataV2Args, getDataV2Serializer } from '../types';
 
 // Accounts.
 export type UpdateMetadataAccountV2InstructionAccounts = {
   /** Metadata account */
-  metadata: PublicKey;
+  metadata: PublicKey | Pda;
   /** Update authority key */
   updateAuthority?: Signer;
 };
@@ -95,39 +96,27 @@ export function updateMetadataAccountV2(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    metadata: [input.metadata, true] as const,
+  };
   const resolvingArgs = {};
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'updateAuthority',
-    input.updateAuthority ?? context.identity
+    input.updateAuthority
+      ? ([input.updateAuthority, false] as const)
+      : ([context.identity, false] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
   const resolvedArgs = { ...input, ...resolvingArgs };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Update Authority.
-  signers.push(resolvedAccounts.updateAuthority);
-  keys.push({
-    pubkey: resolvedAccounts.updateAuthority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.updateAuthority, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
 
   // Data.
   const data =

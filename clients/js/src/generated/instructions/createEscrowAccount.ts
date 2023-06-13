@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,26 +19,26 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type CreateEscrowAccountInstructionAccounts = {
   /** Escrow account */
-  escrow: PublicKey;
+  escrow: PublicKey | Pda;
   /** Metadata account */
-  metadata?: PublicKey;
+  metadata?: PublicKey | Pda;
   /** Mint account */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
   /** Token account of the token */
-  tokenAccount: PublicKey;
+  tokenAccount: PublicKey | Pda;
   /** Edition account */
-  edition?: PublicKey;
+  edition?: PublicKey | Pda;
   /** Wallet paying for the transaction and new account */
   payer?: Signer;
   /** System program */
-  systemProgram?: PublicKey;
+  systemProgram?: PublicKey | Pda;
   /** Instructions sysvar account */
-  sysvarInstructions?: PublicKey;
+  sysvarInstructions?: PublicKey | Pda;
   /** Authority/creator of the escrow account */
   authority?: Signer;
 };
@@ -78,113 +79,78 @@ export function createEscrowAccount(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    escrow: [input.escrow, true] as const,
+    mint: [input.mint, false] as const,
+    tokenAccount: [input.tokenAccount, false] as const,
+    authority: [input.authority, false] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'metadata',
-    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+    input.metadata
+      ? ([input.metadata, true] as const)
+      : ([
+          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
+          true,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'edition',
-    input.edition ??
-      findMasterEditionPda(context, { mint: publicKey(input.mint) })
+    input.edition
+      ? ([input.edition, false] as const)
+      : ([
+          findMasterEditionPda(context, { mint: publicKey(input.mint, false) }),
+          false,
+        ] as const)
   );
-  addObjectProperty(resolvingAccounts, 'payer', input.payer ?? context.payer);
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
+    'payer',
+    input.payer
+      ? ([input.payer, true] as const)
+      : ([context.payer, true] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
     'systemProgram',
-    input.systemProgram ?? {
-      ...context.programs.getPublicKey(
-        'splSystem',
-        '11111111111111111111111111111111'
-      ),
-      isWritable: false,
-    }
+    input.systemProgram
+      ? ([input.systemProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splSystem',
+            '11111111111111111111111111111111'
+          ),
+          false,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'sysvarInstructions',
-    input.sysvarInstructions ??
-      publicKey('Sysvar1nstructions1111111111111111111111111')
+    input.sysvarInstructions
+      ? ([input.sysvarInstructions, false] as const)
+      : ([
+          publicKey('Sysvar1nstructions1111111111111111111111111'),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Escrow.
-  keys.push({
-    pubkey: resolvedAccounts.escrow,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.escrow, true),
-  });
-
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, false),
-  });
-
-  // Token Account.
-  keys.push({
-    pubkey: resolvedAccounts.tokenAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.tokenAccount, false),
-  });
-
-  // Edition.
-  keys.push({
-    pubkey: resolvedAccounts.edition,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.edition, false),
-  });
-
-  // Payer.
-  signers.push(resolvedAccounts.payer);
-  keys.push({
-    pubkey: resolvedAccounts.payer.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.payer, true),
-  });
-
-  // System Program.
-  keys.push({
-    pubkey: resolvedAccounts.systemProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.systemProgram, false),
-  });
-
-  // Sysvar Instructions.
-  keys.push({
-    pubkey: resolvedAccounts.sysvarInstructions,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.sysvarInstructions, false),
-  });
-
-  // Authority (optional).
-  if (resolvedAccounts.authority) {
-    signers.push(resolvedAccounts.authority);
-    keys.push({
-      pubkey: resolvedAccounts.authority.publicKey,
-      isSigner: true,
-      isWritable: isWritable(resolvedAccounts.authority, false),
-    });
-  }
+  addAccountMeta(keys, signers, resolvedAccounts.escrow, false);
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
+  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
+  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
+  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
+  addAccountMeta(keys, signers, resolvedAccounts.authority, true);
 
   // Data.
   const data = getCreateEscrowAccountInstructionDataSerializer(

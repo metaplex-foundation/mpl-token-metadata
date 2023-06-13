@@ -29,7 +29,7 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       delegate: authorityItemDelegate,
       tokenStandard: TokenStandard[tokenStandard],
     }).sendAndConfirm(umi);
-    const metadataDelegateRecord = findMetadataDelegateRecordPda(umi, {
+    const [metadataDelegateRecord] = findMetadataDelegateRecordPda(umi, {
       mint,
       delegateRole: MetadataDelegateRole.AuthorityItem,
       delegate: authorityItemDelegate,

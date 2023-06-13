@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -16,12 +17,12 @@ import {
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { isWritable } from '../shared';
+import { addAccountMeta } from '../shared';
 
 // Accounts.
 export type SignMetadataInstructionAccounts = {
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata: PublicKey | Pda;
   /** Creator */
   creator: Signer;
 };
@@ -56,32 +57,19 @@ export function signMetadata(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
+  const resolvedAccounts = {
+    metadata: [input.metadata, true] as const,
+    creator: [input.creator, false] as const,
+  };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Creator.
-  signers.push(resolvedAccounts.creator);
-  keys.push({
-    pubkey: resolvedAccounts.creator.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.creator, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.creator, false);
 
   // Data.
   const data = getSignMetadataInstructionDataSerializer(context).serialize({});

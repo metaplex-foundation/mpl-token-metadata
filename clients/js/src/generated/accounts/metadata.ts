@@ -20,6 +20,7 @@ import {
   deserializeAccount,
   gpaBuilder,
   mapSerializer,
+  publicKey as toPublicKey,
 } from '@metaplex-foundation/umi';
 import {
   Collection,
@@ -132,20 +133,26 @@ export function deserializeMetadata(
 
 export async function fetchMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<Metadata> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   assertAccountExists(maybeAccount, 'Metadata');
   return deserializeMetadata(context, maybeAccount);
 }
 
 export async function safeFetchMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKey: PublicKey,
+  publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<Metadata | null> {
-  const maybeAccount = await context.rpc.getAccount(publicKey, options);
+  const maybeAccount = await context.rpc.getAccount(
+    toPublicKey(publicKey, false),
+    options
+  );
   return maybeAccount.exists
     ? deserializeMetadata(context, maybeAccount)
     : null;
@@ -153,10 +160,13 @@ export async function safeFetchMetadata(
 
 export async function fetchAllMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<Metadata[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts.map((maybeAccount) => {
     assertAccountExists(maybeAccount, 'Metadata');
     return deserializeMetadata(context, maybeAccount);
@@ -165,10 +175,13 @@ export async function fetchAllMetadata(
 
 export async function safeFetchAllMetadata(
   context: Pick<Context, 'rpc' | 'serializer'>,
-  publicKeys: PublicKey[],
+  publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<Metadata[]> {
-  const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
+  const maybeAccounts = await context.rpc.getAccounts(
+    publicKeys.map((key) => toPublicKey(key, false)),
+    options
+  );
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
     .map((maybeAccount) =>
@@ -250,7 +263,7 @@ export function findMetadataPda(
   );
   return context.eddsa.findPda(programId, [
     s.string({ size: 'variable' }).serialize('metadata'),
-    programId.bytes,
+    s.publicKey().serialize(programId),
     s.publicKey().serialize(seeds.mint),
   ]);
 }

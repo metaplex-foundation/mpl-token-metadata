@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -18,18 +19,18 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import { findMetadataPda } from '../accounts';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type SetTokenStandardInstructionAccounts = {
   /** Metadata account */
-  metadata?: PublicKey;
+  metadata?: PublicKey | Pda;
   /** Metadata update authority */
   updateAuthority?: Signer;
   /** Mint account */
-  mint: PublicKey;
+  mint: PublicKey | Pda;
   /** Edition account */
-  edition?: PublicKey;
+  edition?: PublicKey | Pda;
 };
 
 // Data.
@@ -68,58 +69,38 @@ export function setTokenStandard(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    mint: [input.mint, false] as const,
+    edition: [input.edition, false] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'metadata',
-    input.metadata ?? findMetadataPda(context, { mint: publicKey(input.mint) })
+    input.metadata
+      ? ([input.metadata, true] as const)
+      : ([
+          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
+          true,
+        ] as const)
   );
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'updateAuthority',
-    input.updateAuthority ?? context.identity
+    input.updateAuthority
+      ? ([input.updateAuthority, true] as const)
+      : ([context.identity, true] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Update Authority.
-  signers.push(resolvedAccounts.updateAuthority);
-  keys.push({
-    pubkey: resolvedAccounts.updateAuthority.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.updateAuthority, true),
-  });
-
-  // Mint.
-  keys.push({
-    pubkey: resolvedAccounts.mint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.mint, false),
-  });
-
-  // Edition (optional).
-  if (resolvedAccounts.edition) {
-    keys.push({
-      pubkey: resolvedAccounts.edition,
-      isSigner: false,
-      isWritable: isWritable(resolvedAccounts.edition, false),
-    });
-  }
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.edition, true);
 
   // Data.
   const data = getSetTokenStandardInstructionDataSerializer(context).serialize(

@@ -9,6 +9,7 @@ import {
   assertAccountExists,
   chunk,
   Context,
+  Pda,
   PublicKey,
   RpcAccount,
   RpcGetAccountsOptions,
@@ -48,8 +49,8 @@ export async function fetchDigitalAsset(
   mint: PublicKey,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset> {
-  const metadata = findMetadataPda(context, { mint });
-  const edition = findMasterEditionPda(context, { mint });
+  const [metadata] = findMetadataPda(context, { mint });
+  const [edition] = findMasterEditionPda(context, { mint });
   const [mintAccount, metadataAccount, editionAccount] =
     await context.rpc.getAccounts([mint, metadata, edition], options);
   assertAccountExists(mintAccount, 'Mint');
@@ -64,7 +65,7 @@ export async function fetchDigitalAsset(
 
 export async function fetchDigitalAssetByMetadata(
   context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
-  metadata: PublicKey,
+  metadata: PublicKey | Pda,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset> {
   const metadataAccount = await fetchMetadata(context, metadata, options);
@@ -78,8 +79,8 @@ export async function fetchAllDigitalAsset(
 ): Promise<DigitalAsset[]> {
   const accountsToFetch = mints.flatMap((mint) => [
     mint,
-    findMetadataPda(context, { mint }),
-    findMasterEditionPda(context, { mint }),
+    findMetadataPda(context, { mint })[0],
+    findMasterEditionPda(context, { mint })[0],
   ]);
 
   const accounts = await context.rpc.getAccounts(accountsToFetch, options);
@@ -149,7 +150,7 @@ export async function fetchAllMetadataByOwner(
   }
 ): Promise<Metadata[]> {
   const mints = await fetchAllMintPublicKeyByOwner(context, owner, options);
-  const publicKeys = mints.map((mint) => findMetadataPda(context, { mint }));
+  const publicKeys = mints.map((mint) => findMetadataPda(context, { mint })[0]);
   const maybeAccounts = await context.rpc.getAccounts(publicKeys, options);
   return maybeAccounts.flatMap((maybeAccount) => {
     try {

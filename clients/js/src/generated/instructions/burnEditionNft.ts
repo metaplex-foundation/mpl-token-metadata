@@ -9,6 +9,7 @@
 import {
   AccountMeta,
   Context,
+  Pda,
   PublicKey,
   Serializer,
   Signer,
@@ -16,30 +17,30 @@ import {
   mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
-import { addObjectProperty, isWritable } from '../shared';
+import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
 export type BurnEditionNftInstructionAccounts = {
   /** Metadata (pda of ['metadata', program id, mint id]) */
-  metadata: PublicKey;
+  metadata: PublicKey | Pda;
   /** NFT owner */
   owner: Signer;
   /** Mint of the print edition NFT */
-  printEditionMint: PublicKey;
+  printEditionMint: PublicKey | Pda;
   /** Mint of the original/master NFT */
-  masterEditionMint: PublicKey;
+  masterEditionMint: PublicKey | Pda;
   /** Token account the print edition NFT is in */
-  printEditionTokenAccount: PublicKey;
+  printEditionTokenAccount: PublicKey | Pda;
   /** Token account the Master Edition NFT is in */
-  masterEditionTokenAccount: PublicKey;
+  masterEditionTokenAccount: PublicKey | Pda;
   /** MasterEdition2 of the original NFT */
-  masterEditionAccount: PublicKey;
+  masterEditionAccount: PublicKey | Pda;
   /** Print Edition account of the NFT */
-  printEditionAccount: PublicKey;
+  printEditionAccount: PublicKey | Pda;
   /** Edition Marker PDA of the NFT */
-  editionMarkerAccount: PublicKey;
+  editionMarkerAccount: PublicKey | Pda;
   /** SPL Token Program */
-  splTokenProgram?: PublicKey;
+  splTokenProgram?: PublicKey | Pda;
 };
 
 // Data.
@@ -78,99 +79,60 @@ export function burnEditionNft(
   const keys: AccountMeta[] = [];
 
   // Program ID.
-  const programId = {
-    ...context.programs.getPublicKey(
-      'mplTokenMetadata',
-      'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
-    ),
-    isWritable: false,
-  };
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
 
   // Resolved inputs.
-  const resolvingAccounts = {};
+  const resolvedAccounts = {
+    metadata: [input.metadata, true] as const,
+    owner: [input.owner, true] as const,
+    printEditionMint: [input.printEditionMint, true] as const,
+    masterEditionMint: [input.masterEditionMint, false] as const,
+    printEditionTokenAccount: [input.printEditionTokenAccount, true] as const,
+    masterEditionTokenAccount: [
+      input.masterEditionTokenAccount,
+      false,
+    ] as const,
+    masterEditionAccount: [input.masterEditionAccount, true] as const,
+    printEditionAccount: [input.printEditionAccount, true] as const,
+    editionMarkerAccount: [input.editionMarkerAccount, true] as const,
+  };
   addObjectProperty(
-    resolvingAccounts,
+    resolvedAccounts,
     'splTokenProgram',
-    input.splTokenProgram ?? {
-      ...context.programs.getPublicKey(
-        'splToken',
-        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-      ),
-      isWritable: false,
-    }
+    input.splTokenProgram
+      ? ([input.splTokenProgram, false] as const)
+      : ([
+          context.programs.getPublicKey(
+            'splToken',
+            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+          ),
+          false,
+        ] as const)
   );
-  const resolvedAccounts = { ...input, ...resolvingAccounts };
 
-  // Metadata.
-  keys.push({
-    pubkey: resolvedAccounts.metadata,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.metadata, true),
-  });
-
-  // Owner.
-  signers.push(resolvedAccounts.owner);
-  keys.push({
-    pubkey: resolvedAccounts.owner.publicKey,
-    isSigner: true,
-    isWritable: isWritable(resolvedAccounts.owner, true),
-  });
-
-  // Print Edition Mint.
-  keys.push({
-    pubkey: resolvedAccounts.printEditionMint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.printEditionMint, true),
-  });
-
-  // Master Edition Mint.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionMint,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionMint, false),
-  });
-
-  // Print Edition Token Account.
-  keys.push({
-    pubkey: resolvedAccounts.printEditionTokenAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.printEditionTokenAccount, true),
-  });
-
-  // Master Edition Token Account.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionTokenAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionTokenAccount, false),
-  });
-
-  // Master Edition Account.
-  keys.push({
-    pubkey: resolvedAccounts.masterEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.masterEditionAccount, true),
-  });
-
-  // Print Edition Account.
-  keys.push({
-    pubkey: resolvedAccounts.printEditionAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.printEditionAccount, true),
-  });
-
-  // Edition Marker Account.
-  keys.push({
-    pubkey: resolvedAccounts.editionMarkerAccount,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.editionMarkerAccount, true),
-  });
-
-  // Spl Token Program.
-  keys.push({
-    pubkey: resolvedAccounts.splTokenProgram,
-    isSigner: false,
-    isWritable: isWritable(resolvedAccounts.splTokenProgram, false),
-  });
+  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
+  addAccountMeta(keys, signers, resolvedAccounts.printEditionMint, false);
+  addAccountMeta(keys, signers, resolvedAccounts.masterEditionMint, false);
+  addAccountMeta(
+    keys,
+    signers,
+    resolvedAccounts.printEditionTokenAccount,
+    false
+  );
+  addAccountMeta(
+    keys,
+    signers,
+    resolvedAccounts.masterEditionTokenAccount,
+    false
+  );
+  addAccountMeta(keys, signers, resolvedAccounts.masterEditionAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.printEditionAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.editionMarkerAccount, false);
+  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
   const data = getBurnEditionNftInstructionDataSerializer(context).serialize(
