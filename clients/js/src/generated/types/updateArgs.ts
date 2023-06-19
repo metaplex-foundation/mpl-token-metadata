@@ -25,7 +25,6 @@ import {
   string,
   struct,
   u16,
-  u8,
 } from '@metaplex-foundation/umi/serializers';
 import {
   AuthorizationData,
