@@ -7,22 +7,28 @@
  */
 
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
+  dataEnum,
   mapSerializer,
-} from '@metaplex-foundation/umi';
+  struct,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 
 export type BurnArgs = { __kind: 'V1'; amount: bigint };
 
 export type BurnArgsArgs = { __kind: 'V1'; amount?: number | bigint };
 
+/** @deprecated Use `getBurnArgsSerializer()` without any argument instead. */
 export function getBurnArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<BurnArgsArgs, BurnArgs>;
+export function getBurnArgsSerializer(): Serializer<BurnArgsArgs, BurnArgs>;
+export function getBurnArgsSerializer(
+  _context: object = {}
 ): Serializer<BurnArgsArgs, BurnArgs> {
-  const s = context.serializer;
-  return s.dataEnum<BurnArgs>(
+  return dataEnum<BurnArgs>(
     [
       [
         'V1',
@@ -31,9 +37,7 @@ export function getBurnArgsSerializer(
           any,
           GetDataEnumKindContent<BurnArgs, 'V1'>
         >(
-          s.struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([
-            ['amount', s.u64()],
-          ]),
+          struct<GetDataEnumKindContent<BurnArgs, 'V1'>>([['amount', u64()]]),
           (value) => ({ ...value, amount: value.amount ?? 1 })
         ),
       ],

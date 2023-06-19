@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -67,22 +71,32 @@ export type RevokeCollectionV1InstructionData = {
 
 export type RevokeCollectionV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeCollectionV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeCollectionV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeCollectionV1InstructionDataArgs,
+  RevokeCollectionV1InstructionData
+>;
+export function getRevokeCollectionV1InstructionDataSerializer(): Serializer<
+  RevokeCollectionV1InstructionDataArgs,
+  RevokeCollectionV1InstructionData
+>;
+export function getRevokeCollectionV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeCollectionV1InstructionDataArgs,
   RevokeCollectionV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeCollectionV1InstructionDataArgs,
     any,
     RevokeCollectionV1InstructionData
   >(
-    s.struct<RevokeCollectionV1InstructionData>(
+    struct<RevokeCollectionV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeCollectionV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeCollectionV1Discriminator', u8()],
       ],
       { description: 'RevokeCollectionV1InstructionData' }
     ),
@@ -111,10 +125,7 @@ export type RevokeCollectionV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeCollectionV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeCollectionV1InstructionAccounts &
     RevokeCollectionV1InstructionArgs
 ): TransactionBuilder {
@@ -280,9 +291,7 @@ export function revokeCollectionV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeCollectionV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getRevokeCollectionV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

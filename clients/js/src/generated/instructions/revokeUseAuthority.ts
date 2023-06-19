@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -48,19 +52,29 @@ export type RevokeUseAuthorityInstructionData = { discriminator: number };
 
 export type RevokeUseAuthorityInstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeUseAuthorityInstructionDataSerializer()` without any argument instead. */
 export function getRevokeUseAuthorityInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeUseAuthorityInstructionDataArgs,
+  RevokeUseAuthorityInstructionData
+>;
+export function getRevokeUseAuthorityInstructionDataSerializer(): Serializer<
+  RevokeUseAuthorityInstructionDataArgs,
+  RevokeUseAuthorityInstructionData
+>;
+export function getRevokeUseAuthorityInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeUseAuthorityInstructionDataArgs,
   RevokeUseAuthorityInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeUseAuthorityInstructionDataArgs,
     any,
     RevokeUseAuthorityInstructionData
   >(
-    s.struct<RevokeUseAuthorityInstructionData>([['discriminator', s.u8()]], {
+    struct<RevokeUseAuthorityInstructionData>([['discriminator', u8()]], {
       description: 'RevokeUseAuthorityInstructionData',
     }),
     (value) => ({ ...value, discriminator: 21 })
@@ -72,7 +86,7 @@ export function getRevokeUseAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function revokeUseAuthority(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
+  context: Pick<Context, 'programs' | 'eddsa'>,
   input: RevokeUseAuthorityInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -141,9 +155,7 @@ export function revokeUseAuthority(
   addAccountMeta(keys, signers, resolvedAccounts.rent, true);
 
   // Data.
-  const data = getRevokeUseAuthorityInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getRevokeUseAuthorityInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

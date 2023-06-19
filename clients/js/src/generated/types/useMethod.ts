@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum UseMethod {
   Burn,
@@ -16,11 +16,15 @@ export enum UseMethod {
 
 export type UseMethodArgs = UseMethod;
 
+/** @deprecated Use `getUseMethodSerializer()` without any argument instead. */
 export function getUseMethodSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UseMethodArgs, UseMethod>;
+export function getUseMethodSerializer(): Serializer<UseMethodArgs, UseMethod>;
+export function getUseMethodSerializer(
+  _context: object = {}
 ): Serializer<UseMethodArgs, UseMethod> {
-  const s = context.serializer;
-  return s.enum<UseMethod>(UseMethod, {
+  return scalarEnum<UseMethod>(UseMethod, {
     description: 'UseMethod',
   }) as Serializer<UseMethodArgs, UseMethod>;
 }

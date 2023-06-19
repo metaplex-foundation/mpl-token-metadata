@@ -1,4 +1,8 @@
-import { Context, mapSerializer, Serializer } from '@metaplex-foundation/umi';
+import {
+  mapSerializer,
+  Serializer,
+  string,
+} from '@metaplex-foundation/umi/serializers';
 import { TokenMetadataError } from '../errors';
 import { MetadataDelegateRole } from '../generated/types/metadataDelegateRole';
 
@@ -16,12 +20,12 @@ export type MetadataDelegateRoleSeedArgs =
   | MetadataDelegateRoleSeed
   | MetadataDelegateRole;
 
-export function getMetadataDelegateRoleSeedSerializer(
-  context: Pick<Context, 'serializer'>
-): Serializer<MetadataDelegateRoleSeedArgs, MetadataDelegateRoleSeed> {
-  const s = context.serializer;
+export function getMetadataDelegateRoleSeedSerializer(): Serializer<
+  MetadataDelegateRoleSeedArgs,
+  MetadataDelegateRoleSeed
+> {
   return mapSerializer(
-    s.string({ size: 'variable' }),
+    string({ size: 'variable' }),
     (args: MetadataDelegateRoleSeedArgs): string => {
       if (typeof args === 'string') return args;
       switch (args) {

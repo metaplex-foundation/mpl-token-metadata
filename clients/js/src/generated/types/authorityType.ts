@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum AuthorityType {
   None,
@@ -18,11 +18,18 @@ export enum AuthorityType {
 
 export type AuthorityTypeArgs = AuthorityType;
 
+/** @deprecated Use `getAuthorityTypeSerializer()` without any argument instead. */
 export function getAuthorityTypeSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<AuthorityTypeArgs, AuthorityType>;
+export function getAuthorityTypeSerializer(): Serializer<
+  AuthorityTypeArgs,
+  AuthorityType
+>;
+export function getAuthorityTypeSerializer(
+  _context: object = {}
 ): Serializer<AuthorityTypeArgs, AuthorityType> {
-  const s = context.serializer;
-  return s.enum<AuthorityType>(AuthorityType, {
+  return scalarEnum<AuthorityType>(AuthorityType, {
     description: 'AuthorityType',
   }) as Serializer<AuthorityTypeArgs, AuthorityType>;
 }

@@ -12,13 +12,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -68,22 +72,32 @@ export type RevokeMigrationV1InstructionData = {
 
 export type RevokeMigrationV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeMigrationV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeMigrationV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeMigrationV1InstructionDataArgs,
+  RevokeMigrationV1InstructionData
+>;
+export function getRevokeMigrationV1InstructionDataSerializer(): Serializer<
+  RevokeMigrationV1InstructionDataArgs,
+  RevokeMigrationV1InstructionData
+>;
+export function getRevokeMigrationV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeMigrationV1InstructionDataArgs,
   RevokeMigrationV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeMigrationV1InstructionDataArgs,
     any,
     RevokeMigrationV1InstructionData
   >(
-    s.struct<RevokeMigrationV1InstructionData>(
+    struct<RevokeMigrationV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeMigrationV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeMigrationV1Discriminator', u8()],
       ],
       { description: 'RevokeMigrationV1InstructionData' }
     ),
@@ -112,10 +126,7 @@ export type RevokeMigrationV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeMigrationV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeMigrationV1InstructionAccounts & RevokeMigrationV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -292,9 +303,7 @@ export function revokeMigrationV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeMigrationV1InstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getRevokeMigrationV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

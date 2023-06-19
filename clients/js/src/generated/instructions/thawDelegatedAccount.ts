@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMasterEditionPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -40,19 +44,29 @@ export type ThawDelegatedAccountInstructionData = { discriminator: number };
 
 export type ThawDelegatedAccountInstructionDataArgs = {};
 
+/** @deprecated Use `getThawDelegatedAccountInstructionDataSerializer()` without any argument instead. */
 export function getThawDelegatedAccountInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  ThawDelegatedAccountInstructionDataArgs,
+  ThawDelegatedAccountInstructionData
+>;
+export function getThawDelegatedAccountInstructionDataSerializer(): Serializer<
+  ThawDelegatedAccountInstructionDataArgs,
+  ThawDelegatedAccountInstructionData
+>;
+export function getThawDelegatedAccountInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   ThawDelegatedAccountInstructionDataArgs,
   ThawDelegatedAccountInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     ThawDelegatedAccountInstructionDataArgs,
     any,
     ThawDelegatedAccountInstructionData
   >(
-    s.struct<ThawDelegatedAccountInstructionData>([['discriminator', s.u8()]], {
+    struct<ThawDelegatedAccountInstructionData>([['discriminator', u8()]], {
       description: 'ThawDelegatedAccountInstructionData',
     }),
     (value) => ({ ...value, discriminator: 27 })
@@ -64,7 +78,7 @@ export function getThawDelegatedAccountInstructionDataSerializer(
 
 // Instruction.
 export function thawDelegatedAccount(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
+  context: Pick<Context, 'programs' | 'eddsa'>,
   input: ThawDelegatedAccountInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -113,9 +127,7 @@ export function thawDelegatedAccount(
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
 
   // Data.
-  const data = getThawDelegatedAccountInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getThawDelegatedAccountInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

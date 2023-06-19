@@ -7,26 +7,35 @@
  */
 
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  struct,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 
 export type CollectionDetails = { __kind: 'V1'; size: bigint };
 
 export type CollectionDetailsArgs = { __kind: 'V1'; size: number | bigint };
 
+/** @deprecated Use `getCollectionDetailsSerializer()` without any argument instead. */
 export function getCollectionDetailsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<CollectionDetailsArgs, CollectionDetails>;
+export function getCollectionDetailsSerializer(): Serializer<
+  CollectionDetailsArgs,
+  CollectionDetails
+>;
+export function getCollectionDetailsSerializer(
+  _context: object = {}
 ): Serializer<CollectionDetailsArgs, CollectionDetails> {
-  const s = context.serializer;
-  return s.dataEnum<CollectionDetails>(
+  return dataEnum<CollectionDetails>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<CollectionDetails, 'V1'>>([
-          ['size', s.u64()],
+        struct<GetDataEnumKindContent<CollectionDetails, 'V1'>>([
+          ['size', u64()],
         ]),
       ],
     ],

@@ -11,17 +11,28 @@ import {
   Amount,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
   mapAmountSerializer,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  bool,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u16,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveCollectionDetails,
   resolveCreateV1Bytes,
@@ -100,48 +111,52 @@ export type CreateV1InstructionDataArgs = {
   symbol?: string;
   uri: string;
   sellerFeeBasisPoints: Amount<'%', 2>;
-  creators: Option<Array<CreatorArgs>>;
+  creators: OptionOrNullable<Array<CreatorArgs>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
   tokenStandard: TokenStandardArgs;
-  collection?: Option<CollectionArgs>;
-  uses?: Option<UsesArgs>;
-  collectionDetails?: Option<CollectionDetailsArgs>;
-  ruleSet?: Option<PublicKey>;
-  decimals?: Option<number>;
-  printSupply?: Option<PrintSupplyArgs>;
+  collection?: OptionOrNullable<CollectionArgs>;
+  uses?: OptionOrNullable<UsesArgs>;
+  collectionDetails?: OptionOrNullable<CollectionDetailsArgs>;
+  ruleSet?: OptionOrNullable<PublicKey>;
+  decimals?: OptionOrNullable<number>;
+  printSupply?: OptionOrNullable<PrintSupplyArgs>;
 };
 
+/** @deprecated Use `getCreateV1InstructionDataSerializer()` without any argument instead. */
 export function getCreateV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
+export function getCreateV1InstructionDataSerializer(): Serializer<
+  CreateV1InstructionDataArgs,
+  CreateV1InstructionData
+>;
+export function getCreateV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<
     CreateV1InstructionDataArgs,
     any,
     CreateV1InstructionData
   >(
-    s.struct<CreateV1InstructionData>(
+    struct<CreateV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['createV1Discriminator', s.u8()],
-        ['name', s.string()],
-        ['symbol', s.string()],
-        ['uri', s.string()],
-        ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
-        ['creators', s.option(s.array(getCreatorSerializer(context)))],
-        ['primarySaleHappened', s.bool()],
-        ['isMutable', s.bool()],
-        ['tokenStandard', getTokenStandardSerializer(context)],
-        ['collection', s.option(getCollectionSerializer(context))],
-        ['uses', s.option(getUsesSerializer(context))],
-        [
-          'collectionDetails',
-          s.option(getCollectionDetailsSerializer(context)),
-        ],
-        ['ruleSet', s.option(s.publicKey())],
-        ['decimals', s.option(s.u8())],
-        ['printSupply', s.option(getPrintSupplySerializer(context))],
+        ['discriminator', u8()],
+        ['createV1Discriminator', u8()],
+        ['name', string()],
+        ['symbol', string()],
+        ['uri', string()],
+        ['sellerFeeBasisPoints', mapAmountSerializer(u16(), '%', 2)],
+        ['creators', option(array(getCreatorSerializer()))],
+        ['primarySaleHappened', bool()],
+        ['isMutable', bool()],
+        ['tokenStandard', getTokenStandardSerializer()],
+        ['collection', option(getCollectionSerializer())],
+        ['uses', option(getUsesSerializer())],
+        ['collectionDetails', option(getCollectionDetailsSerializer())],
+        ['ruleSet', option(publicKeySerializer())],
+        ['decimals', option(u8())],
+        ['printSupply', option(getPrintSupplySerializer())],
       ],
       { description: 'CreateV1InstructionData' }
     ),
@@ -178,10 +193,7 @@ export type CreateV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function createV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: CreateV1InstructionAccounts & CreateV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -345,8 +357,7 @@ export function createV1(
   addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
-  const data =
-    getCreateV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getCreateV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = resolveCreateV1Bytes(

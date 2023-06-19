@@ -6,13 +6,17 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { PublicKey } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  publicKey as publicKeySerializer,
+  struct,
+  tuple,
+  unit,
+} from '@metaplex-foundation/umi/serializers';
 
 export type RuleSetToggle =
   | { __kind: 'None' }
@@ -21,18 +25,25 @@ export type RuleSetToggle =
 
 export type RuleSetToggleArgs = RuleSetToggle;
 
+/** @deprecated Use `getRuleSetToggleSerializer()` without any argument instead. */
 export function getRuleSetToggleSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<RuleSetToggleArgs, RuleSetToggle>;
+export function getRuleSetToggleSerializer(): Serializer<
+  RuleSetToggleArgs,
+  RuleSetToggle
+>;
+export function getRuleSetToggleSerializer(
+  _context: object = {}
 ): Serializer<RuleSetToggleArgs, RuleSetToggle> {
-  const s = context.serializer;
-  return s.dataEnum<RuleSetToggle>(
+  return dataEnum<RuleSetToggle>(
     [
-      ['None', s.unit()],
-      ['Clear', s.unit()],
+      ['None', unit()],
+      ['Clear', unit()],
       [
         'Set',
-        s.struct<GetDataEnumKindContent<RuleSetToggle, 'Set'>>([
-          ['fields', s.tuple([s.publicKey()])],
+        struct<GetDataEnumKindContent<RuleSetToggle, 'Set'>>([
+          ['fields', tuple([publicKeySerializer()])],
         ]),
       ],
     ],

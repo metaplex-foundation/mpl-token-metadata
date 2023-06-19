@@ -13,7 +13,7 @@ import {
   PublicKey,
   RpcAccount,
   RpcGetAccountsOptions,
-  unwrapSome,
+  unwrapOption,
 } from '@metaplex-foundation/umi';
 import { TokenMetadataError } from './errors';
 import {
@@ -45,7 +45,7 @@ export type DigitalAsset = {
 };
 
 export async function fetchDigitalAsset(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset> {
@@ -56,7 +56,6 @@ export async function fetchDigitalAsset(
   assertAccountExists(mintAccount, 'Mint');
   assertAccountExists(metadataAccount, 'Metadata');
   return deserializeDigitalAsset(
-    context,
     mintAccount,
     metadataAccount,
     editionAccount.exists ? editionAccount : undefined
@@ -64,7 +63,7 @@ export async function fetchDigitalAsset(
 }
 
 export async function fetchDigitalAssetByMetadata(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   metadata: PublicKey | Pda,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset> {
@@ -73,7 +72,7 @@ export async function fetchDigitalAssetByMetadata(
 }
 
 export async function fetchAllDigitalAsset(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mints: PublicKey[],
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset[]> {
@@ -91,7 +90,6 @@ export async function fetchAllDigitalAsset(
         assertAccountExists(metadataAccount, 'Metadata');
         return [
           deserializeDigitalAsset(
-            context,
             mintAccount,
             metadataAccount,
             editionAccount.exists ? editionAccount : undefined
@@ -105,7 +103,7 @@ export async function fetchAllDigitalAsset(
 }
 
 export async function fetchAllDigitalAssetByCreator(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   creator: PublicKey,
   options?: RpcGetAccountsOptions & { position?: number }
 ): Promise<DigitalAsset[]> {
@@ -118,7 +116,7 @@ export async function fetchAllDigitalAssetByCreator(
 }
 
 export async function fetchAllDigitalAssetByUpdateAuthority(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   updateAuthority: PublicKey,
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset[]> {
@@ -130,7 +128,7 @@ export async function fetchAllDigitalAssetByUpdateAuthority(
 }
 
 export async function fetchAllDigitalAssetByOwner(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   owner: PublicKey,
   options?: RpcGetAccountsOptions & {
     tokenStrategy?: FetchTokenStrategy;
@@ -142,7 +140,7 @@ export async function fetchAllDigitalAssetByOwner(
 }
 
 export async function fetchAllMetadataByOwner(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   owner: PublicKey,
   options?: RpcGetAccountsOptions & {
     tokenStrategy?: FetchTokenStrategy;
@@ -155,7 +153,7 @@ export async function fetchAllMetadataByOwner(
   return maybeAccounts.flatMap((maybeAccount) => {
     try {
       assertAccountExists(maybeAccount, 'Metadata');
-      return [deserializeMetadata(context, maybeAccount)];
+      return [deserializeMetadata(maybeAccount)];
     } catch (e) {
       return [];
     }
@@ -163,14 +161,13 @@ export async function fetchAllMetadataByOwner(
 }
 
 export function deserializeDigitalAsset(
-  context: Pick<Context, 'serializer'>,
   mintAccount: RpcAccount,
   metadataAccount: RpcAccount,
   editionAccount?: RpcAccount
 ): DigitalAsset {
-  const mint = deserializeMint(context, mintAccount);
-  const metadata = deserializeMetadata(context, metadataAccount);
-  const tokenStandard = unwrapSome(metadata.tokenStandard);
+  const mint = deserializeMint(mintAccount);
+  const metadata = deserializeMetadata(metadataAccount);
+  const tokenStandard = unwrapOption(metadata.tokenStandard);
   if (tokenStandard && isNonFungible(tokenStandard) && !editionAccount) {
     // TODO(loris): Custom error.
     throw new Error(
@@ -181,9 +178,7 @@ export function deserializeDigitalAsset(
   const digitalAsset = { publicKey: mint.publicKey, mint, metadata };
   if (!editionAccount) return digitalAsset;
 
-  const editionKey = getKeySerializer(context).deserialize(
-    editionAccount.data
-  )[0];
+  const editionKey = getKeySerializer().deserialize(editionAccount.data)[0];
   let edition: DigitalAsset['edition'];
   if (
     editionKey === Key.MasterEditionV1 ||
@@ -191,12 +186,12 @@ export function deserializeDigitalAsset(
   ) {
     edition = {
       isOriginal: true,
-      ...deserializeMasterEdition(context, editionAccount),
+      ...deserializeMasterEdition(editionAccount),
     };
   } else if (editionKey === Key.EditionV1) {
     edition = {
       isOriginal: false,
-      ...deserializeEdition(context, editionAccount),
+      ...deserializeEdition(editionAccount),
     };
   } else {
     throw new TokenMetadataError(

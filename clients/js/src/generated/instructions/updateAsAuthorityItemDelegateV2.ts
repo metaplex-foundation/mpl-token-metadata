@@ -10,16 +10,24 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  bool,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
@@ -71,37 +79,44 @@ export type UpdateAsAuthorityItemDelegateV2InstructionData = {
 };
 
 export type UpdateAsAuthorityItemDelegateV2InstructionDataArgs = {
-  newUpdateAuthority?: Option<PublicKey>;
-  primarySaleHappened?: Option<boolean>;
-  isMutable?: Option<boolean>;
-  tokenStandard?: Option<TokenStandardArgs>;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  newUpdateAuthority?: OptionOrNullable<PublicKey>;
+  primarySaleHappened?: OptionOrNullable<boolean>;
+  isMutable?: OptionOrNullable<boolean>;
+  tokenStandard?: OptionOrNullable<TokenStandardArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer()` without any argument instead. */
 export function getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdateAsAuthorityItemDelegateV2InstructionDataArgs,
+  UpdateAsAuthorityItemDelegateV2InstructionData
+>;
+export function getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(): Serializer<
+  UpdateAsAuthorityItemDelegateV2InstructionDataArgs,
+  UpdateAsAuthorityItemDelegateV2InstructionData
+>;
+export function getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdateAsAuthorityItemDelegateV2InstructionDataArgs,
   UpdateAsAuthorityItemDelegateV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdateAsAuthorityItemDelegateV2InstructionDataArgs,
     any,
     UpdateAsAuthorityItemDelegateV2InstructionData
   >(
-    s.struct<UpdateAsAuthorityItemDelegateV2InstructionData>(
+    struct<UpdateAsAuthorityItemDelegateV2InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['updateAsAuthorityItemDelegateV2Discriminator', s.u8()],
-        ['newUpdateAuthority', s.option(s.publicKey())],
-        ['primarySaleHappened', s.option(s.bool())],
-        ['isMutable', s.option(s.bool())],
-        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['updateAsAuthorityItemDelegateV2Discriminator', u8()],
+        ['newUpdateAuthority', option(publicKeySerializer())],
+        ['primarySaleHappened', option(bool())],
+        ['isMutable', option(bool())],
+        ['tokenStandard', option(getTokenStandardSerializer())],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsAuthorityItemDelegateV2InstructionData' }
     ),
@@ -135,10 +150,7 @@ export type UpdateAsAuthorityItemDelegateV2InstructionArgs = PickPartial<
 
 // Instruction.
 export function updateAsAuthorityItemDelegateV2(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UpdateAsAuthorityItemDelegateV2InstructionAccounts &
     UpdateAsAuthorityItemDelegateV2InstructionArgs
 ): TransactionBuilder {
@@ -278,9 +290,9 @@ export function updateAsAuthorityItemDelegateV2(
 
   // Data.
   const data =
-    getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer(
-      context
-    ).serialize(resolvedArgs);
+    getUpdateAsAuthorityItemDelegateV2InstructionDataSerializer().serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

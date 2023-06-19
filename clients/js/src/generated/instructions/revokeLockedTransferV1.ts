@@ -12,13 +12,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -68,22 +72,32 @@ export type RevokeLockedTransferV1InstructionData = {
 
 export type RevokeLockedTransferV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeLockedTransferV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeLockedTransferV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeLockedTransferV1InstructionDataArgs,
+  RevokeLockedTransferV1InstructionData
+>;
+export function getRevokeLockedTransferV1InstructionDataSerializer(): Serializer<
+  RevokeLockedTransferV1InstructionDataArgs,
+  RevokeLockedTransferV1InstructionData
+>;
+export function getRevokeLockedTransferV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeLockedTransferV1InstructionDataArgs,
   RevokeLockedTransferV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeLockedTransferV1InstructionDataArgs,
     any,
     RevokeLockedTransferV1InstructionData
   >(
-    s.struct<RevokeLockedTransferV1InstructionData>(
+    struct<RevokeLockedTransferV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeLockedTransferV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeLockedTransferV1Discriminator', u8()],
       ],
       { description: 'RevokeLockedTransferV1InstructionData' }
     ),
@@ -112,10 +126,7 @@ export type RevokeLockedTransferV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeLockedTransferV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeLockedTransferV1InstructionAccounts &
     RevokeLockedTransferV1InstructionArgs
 ): TransactionBuilder {
@@ -293,9 +304,9 @@ export function revokeLockedTransferV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeLockedTransferV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getRevokeLockedTransferV1InstructionDataSerializer().serialize(
+    {}
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

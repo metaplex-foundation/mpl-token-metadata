@@ -7,11 +7,14 @@
  */
 
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  struct,
+  tuple,
+  unit,
+} from '@metaplex-foundation/umi/serializers';
 import { Uses, UsesArgs, getUsesSerializer } from '.';
 
 export type UsesToggle =
@@ -24,18 +27,25 @@ export type UsesToggleArgs =
   | { __kind: 'Clear' }
   | { __kind: 'Set'; fields: [UsesArgs] };
 
+/** @deprecated Use `getUsesToggleSerializer()` without any argument instead. */
 export function getUsesToggleSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UsesToggleArgs, UsesToggle>;
+export function getUsesToggleSerializer(): Serializer<
+  UsesToggleArgs,
+  UsesToggle
+>;
+export function getUsesToggleSerializer(
+  _context: object = {}
 ): Serializer<UsesToggleArgs, UsesToggle> {
-  const s = context.serializer;
-  return s.dataEnum<UsesToggle>(
+  return dataEnum<UsesToggle>(
     [
-      ['None', s.unit()],
-      ['Clear', s.unit()],
+      ['None', unit()],
+      ['Clear', unit()],
       [
         'Set',
-        s.struct<GetDataEnumKindContent<UsesToggle, 'Set'>>([
-          ['fields', s.tuple([getUsesSerializer(context)])],
+        struct<GetDataEnumKindContent<UsesToggle, 'Set'>>([
+          ['fields', tuple([getUsesSerializer()])],
         ]),
       ],
     ],

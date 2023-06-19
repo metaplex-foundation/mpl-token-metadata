@@ -10,16 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
@@ -70,30 +76,37 @@ export type UpdateAsProgrammableConfigItemDelegateV2InstructionData = {
 
 export type UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs = {
   ruleSet?: RuleSetToggleArgs;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer()` without any argument instead. */
 export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
+  UpdateAsProgrammableConfigItemDelegateV2InstructionData
+>;
+export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(): Serializer<
+  UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
+  UpdateAsProgrammableConfigItemDelegateV2InstructionData
+>;
+export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
   UpdateAsProgrammableConfigItemDelegateV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
     any,
     UpdateAsProgrammableConfigItemDelegateV2InstructionData
   >(
-    s.struct<UpdateAsProgrammableConfigItemDelegateV2InstructionData>(
+    struct<UpdateAsProgrammableConfigItemDelegateV2InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['updateAsProgrammableConfigItemDelegateV2Discriminator', s.u8()],
-        ['ruleSet', getRuleSetToggleSerializer(context)],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['updateAsProgrammableConfigItemDelegateV2Discriminator', u8()],
+        ['ruleSet', getRuleSetToggleSerializer()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsProgrammableConfigItemDelegateV2InstructionData' }
     ),
@@ -125,10 +138,7 @@ export type UpdateAsProgrammableConfigItemDelegateV2InstructionArgs =
 
 // Instruction.
 export function updateAsProgrammableConfigItemDelegateV2(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UpdateAsProgrammableConfigItemDelegateV2InstructionAccounts &
     UpdateAsProgrammableConfigItemDelegateV2InstructionArgs
 ): TransactionBuilder {
@@ -262,9 +272,9 @@ export function updateAsProgrammableConfigItemDelegateV2(
 
   // Data.
   const data =
-    getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
-      context
-    ).serialize(resolvedArgs);
+    getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer().serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

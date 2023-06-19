@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -32,16 +36,23 @@ export type SignMetadataInstructionData = { discriminator: number };
 
 export type SignMetadataInstructionDataArgs = {};
 
+/** @deprecated Use `getSignMetadataInstructionDataSerializer()` without any argument instead. */
 export function getSignMetadataInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData>;
+export function getSignMetadataInstructionDataSerializer(): Serializer<
+  SignMetadataInstructionDataArgs,
+  SignMetadataInstructionData
+>;
+export function getSignMetadataInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData> {
-  const s = context.serializer;
   return mapSerializer<
     SignMetadataInstructionDataArgs,
     any,
     SignMetadataInstructionData
   >(
-    s.struct<SignMetadataInstructionData>([['discriminator', s.u8()]], {
+    struct<SignMetadataInstructionData>([['discriminator', u8()]], {
       description: 'SignMetadataInstructionData',
     }),
     (value) => ({ ...value, discriminator: 7 })
@@ -50,7 +61,7 @@ export function getSignMetadataInstructionDataSerializer(
 
 // Instruction.
 export function signMetadata(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: SignMetadataInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -72,7 +83,7 @@ export function signMetadata(
   addAccountMeta(keys, signers, resolvedAccounts.creator, false);
 
   // Data.
-  const data = getSignMetadataInstructionDataSerializer(context).serialize({});
+  const data = getSignMetadataInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

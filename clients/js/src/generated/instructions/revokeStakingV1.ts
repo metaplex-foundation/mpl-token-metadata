@@ -12,13 +12,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -68,22 +72,32 @@ export type RevokeStakingV1InstructionData = {
 
 export type RevokeStakingV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeStakingV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeStakingV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeStakingV1InstructionDataArgs,
+  RevokeStakingV1InstructionData
+>;
+export function getRevokeStakingV1InstructionDataSerializer(): Serializer<
+  RevokeStakingV1InstructionDataArgs,
+  RevokeStakingV1InstructionData
+>;
+export function getRevokeStakingV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeStakingV1InstructionDataArgs,
   RevokeStakingV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeStakingV1InstructionDataArgs,
     any,
     RevokeStakingV1InstructionData
   >(
-    s.struct<RevokeStakingV1InstructionData>(
+    struct<RevokeStakingV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeStakingV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeStakingV1Discriminator', u8()],
       ],
       { description: 'RevokeStakingV1InstructionData' }
     ),
@@ -112,10 +126,7 @@ export type RevokeStakingV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeStakingV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeStakingV1InstructionAccounts & RevokeStakingV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -292,9 +303,7 @@ export function revokeStakingV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeStakingV1InstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getRevokeStakingV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -10,16 +10,25 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  mapSerializer,
+  option,
+  string,
+  struct,
+  u16,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
@@ -74,48 +83,55 @@ export type UpdateAsDataItemDelegateV2InstructionData = {
 };
 
 export type UpdateAsDataItemDelegateV2InstructionDataArgs = {
-  data?: Option<{
+  data?: OptionOrNullable<{
     name: string;
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
-    creators: Option<Array<CreatorArgs>>;
+    creators: OptionOrNullable<Array<CreatorArgs>>;
   }>;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUpdateAsDataItemDelegateV2InstructionDataSerializer()` without any argument instead. */
 export function getUpdateAsDataItemDelegateV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdateAsDataItemDelegateV2InstructionDataArgs,
+  UpdateAsDataItemDelegateV2InstructionData
+>;
+export function getUpdateAsDataItemDelegateV2InstructionDataSerializer(): Serializer<
+  UpdateAsDataItemDelegateV2InstructionDataArgs,
+  UpdateAsDataItemDelegateV2InstructionData
+>;
+export function getUpdateAsDataItemDelegateV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdateAsDataItemDelegateV2InstructionDataArgs,
   UpdateAsDataItemDelegateV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdateAsDataItemDelegateV2InstructionDataArgs,
     any,
     UpdateAsDataItemDelegateV2InstructionData
   >(
-    s.struct<UpdateAsDataItemDelegateV2InstructionData>(
+    struct<UpdateAsDataItemDelegateV2InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['updateAsDataItemDelegateV2Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['updateAsDataItemDelegateV2Discriminator', u8()],
         [
           'data',
-          s.option(
-            s.struct<any>([
-              ['name', s.string()],
-              ['symbol', s.string()],
-              ['uri', s.string()],
-              ['sellerFeeBasisPoints', s.u16()],
-              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+          option(
+            struct<any>([
+              ['name', string()],
+              ['symbol', string()],
+              ['uri', string()],
+              ['sellerFeeBasisPoints', u16()],
+              ['creators', option(array(getCreatorSerializer()))],
             ])
           ),
         ],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsDataItemDelegateV2InstructionData' }
     ),
@@ -146,10 +162,7 @@ export type UpdateAsDataItemDelegateV2InstructionArgs = PickPartial<
 
 // Instruction.
 export function updateAsDataItemDelegateV2(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UpdateAsDataItemDelegateV2InstructionAccounts &
     UpdateAsDataItemDelegateV2InstructionArgs
 ): TransactionBuilder {
@@ -289,7 +302,7 @@ export function updateAsDataItemDelegateV2(
 
   // Data.
   const data =
-    getUpdateAsDataItemDelegateV2InstructionDataSerializer(context).serialize(
+    getUpdateAsDataItemDelegateV2InstructionDataSerializer().serialize(
       resolvedArgs
     );
 

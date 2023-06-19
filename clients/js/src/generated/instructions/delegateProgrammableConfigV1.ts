@@ -10,16 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -75,29 +81,36 @@ export type DelegateProgrammableConfigV1InstructionData = {
 };
 
 export type DelegateProgrammableConfigV1InstructionDataArgs = {
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getDelegateProgrammableConfigV1InstructionDataSerializer()` without any argument instead. */
 export function getDelegateProgrammableConfigV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  DelegateProgrammableConfigV1InstructionDataArgs,
+  DelegateProgrammableConfigV1InstructionData
+>;
+export function getDelegateProgrammableConfigV1InstructionDataSerializer(): Serializer<
+  DelegateProgrammableConfigV1InstructionDataArgs,
+  DelegateProgrammableConfigV1InstructionData
+>;
+export function getDelegateProgrammableConfigV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   DelegateProgrammableConfigV1InstructionDataArgs,
   DelegateProgrammableConfigV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     DelegateProgrammableConfigV1InstructionDataArgs,
     any,
     DelegateProgrammableConfigV1InstructionData
   >(
-    s.struct<DelegateProgrammableConfigV1InstructionData>(
+    struct<DelegateProgrammableConfigV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['delegateProgrammableConfigV1Discriminator', s.u8()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['delegateProgrammableConfigV1Discriminator', u8()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'DelegateProgrammableConfigV1InstructionData' }
     ),
@@ -128,10 +141,7 @@ export type DelegateProgrammableConfigV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function delegateProgrammableConfigV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: DelegateProgrammableConfigV1InstructionAccounts &
     DelegateProgrammableConfigV1InstructionArgs
 ): TransactionBuilder {
@@ -299,7 +309,7 @@ export function delegateProgrammableConfigV1(
 
   // Data.
   const data =
-    getDelegateProgrammableConfigV1InstructionDataSerializer(context).serialize(
+    getDelegateProgrammableConfigV1InstructionDataSerializer().serialize(
       resolvedArgs
     );
 

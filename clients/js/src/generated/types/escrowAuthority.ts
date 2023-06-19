@@ -6,13 +6,17 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { PublicKey } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  publicKey as publicKeySerializer,
+  struct,
+  tuple,
+  unit,
+} from '@metaplex-foundation/umi/serializers';
 
 export type EscrowAuthority =
   | { __kind: 'TokenOwner' }
@@ -20,17 +24,24 @@ export type EscrowAuthority =
 
 export type EscrowAuthorityArgs = EscrowAuthority;
 
+/** @deprecated Use `getEscrowAuthoritySerializer()` without any argument instead. */
 export function getEscrowAuthoritySerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<EscrowAuthorityArgs, EscrowAuthority>;
+export function getEscrowAuthoritySerializer(): Serializer<
+  EscrowAuthorityArgs,
+  EscrowAuthority
+>;
+export function getEscrowAuthoritySerializer(
+  _context: object = {}
 ): Serializer<EscrowAuthorityArgs, EscrowAuthority> {
-  const s = context.serializer;
-  return s.dataEnum<EscrowAuthority>(
+  return dataEnum<EscrowAuthority>(
     [
-      ['TokenOwner', s.unit()],
+      ['TokenOwner', unit()],
       [
         'Creator',
-        s.struct<GetDataEnumKindContent<EscrowAuthority, 'Creator'>>([
-          ['fields', s.tuple([s.publicKey()])],
+        struct<GetDataEnumKindContent<EscrowAuthority, 'Creator'>>([
+          ['fields', tuple([publicKeySerializer()])],
         ]),
       ],
     ],

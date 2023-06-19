@@ -35,7 +35,7 @@ export const resolveCollectionDetails = (
   args.isCollection ? some(collectionDetails('V1', { size: 0 })) : none();
 
 export const resolveMasterEdition = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { mint: WithWritable<PublicKey | Pda | Signer> },
   args: { tokenStandard: TokenStandard },
   programId: PublicKey,
@@ -49,7 +49,7 @@ export const resolveMasterEdition = (
     : [programId, false];
 
 export const resolveMasterEditionForProgrammables = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { mint: WithWritable<PublicKey | Pda | Signer> },
   args: { tokenStandard: TokenStandard },
   programId: PublicKey,
@@ -120,7 +120,7 @@ export const resolveOptionalTokenOwner = (
     : [context.identity.publicKey, isWritable];
 
 export const resolveTokenRecord = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: {
     mint: WithWritable<PublicKey | Pda | Signer>;
     token: WithWritable<PublicKey | Pda | undefined>;
@@ -140,7 +140,7 @@ export const resolveTokenRecord = (
     : [programId, false];
 
 export const resolveDestinationTokenRecord = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: {
     mint: WithWritable<PublicKey | Pda | Signer>;
     destinationToken: WithWritable<PublicKey | Pda>;
@@ -194,7 +194,7 @@ export const resolveTokenProgramForNonProgrammables = (
     : [programId, false];
 
 export const resolveBurnMasterEdition = (
-  context: Pick<Context, 'eddsa' | 'serializer' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },
   args: any,
   programId: PublicKey,

@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -44,22 +48,31 @@ export type SetAndVerifyCollectionInstructionData = { discriminator: number };
 
 export type SetAndVerifyCollectionInstructionDataArgs = {};
 
+/** @deprecated Use `getSetAndVerifyCollectionInstructionDataSerializer()` without any argument instead. */
 export function getSetAndVerifyCollectionInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  SetAndVerifyCollectionInstructionDataArgs,
+  SetAndVerifyCollectionInstructionData
+>;
+export function getSetAndVerifyCollectionInstructionDataSerializer(): Serializer<
+  SetAndVerifyCollectionInstructionDataArgs,
+  SetAndVerifyCollectionInstructionData
+>;
+export function getSetAndVerifyCollectionInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   SetAndVerifyCollectionInstructionDataArgs,
   SetAndVerifyCollectionInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     SetAndVerifyCollectionInstructionDataArgs,
     any,
     SetAndVerifyCollectionInstructionData
   >(
-    s.struct<SetAndVerifyCollectionInstructionData>(
-      [['discriminator', s.u8()]],
-      { description: 'SetAndVerifyCollectionInstructionData' }
-    ),
+    struct<SetAndVerifyCollectionInstructionData>([['discriminator', u8()]], {
+      description: 'SetAndVerifyCollectionInstructionData',
+    }),
     (value) => ({ ...value, discriminator: 25 })
   ) as Serializer<
     SetAndVerifyCollectionInstructionDataArgs,
@@ -69,7 +82,7 @@ export function getSetAndVerifyCollectionInstructionDataSerializer(
 
 // Instruction.
 export function setAndVerifyCollection(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity' | 'payer'>,
+  context: Pick<Context, 'programs' | 'identity' | 'payer'>,
   input: SetAndVerifyCollectionInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -131,9 +144,9 @@ export function setAndVerifyCollection(
   );
 
   // Data.
-  const data = getSetAndVerifyCollectionInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getSetAndVerifyCollectionInstructionDataSerializer().serialize(
+    {}
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

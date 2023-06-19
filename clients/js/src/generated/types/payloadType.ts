@@ -6,13 +6,17 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { PublicKey } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  publicKey as publicKeySerializer,
+  struct,
+  tuple,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 import {
   LeafInfo,
   LeafInfoArgs,
@@ -34,34 +38,41 @@ export type PayloadTypeArgs =
   | { __kind: 'MerkleProof'; fields: [LeafInfoArgs] }
   | { __kind: 'Number'; fields: [number | bigint] };
 
+/** @deprecated Use `getPayloadTypeSerializer()` without any argument instead. */
 export function getPayloadTypeSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<PayloadTypeArgs, PayloadType>;
+export function getPayloadTypeSerializer(): Serializer<
+  PayloadTypeArgs,
+  PayloadType
+>;
+export function getPayloadTypeSerializer(
+  _context: object = {}
 ): Serializer<PayloadTypeArgs, PayloadType> {
-  const s = context.serializer;
-  return s.dataEnum<PayloadType>(
+  return dataEnum<PayloadType>(
     [
       [
         'Pubkey',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Pubkey'>>([
-          ['fields', s.tuple([s.publicKey()])],
+        struct<GetDataEnumKindContent<PayloadType, 'Pubkey'>>([
+          ['fields', tuple([publicKeySerializer()])],
         ]),
       ],
       [
         'Seeds',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Seeds'>>([
-          ['fields', s.tuple([getSeedsVecSerializer(context)])],
+        struct<GetDataEnumKindContent<PayloadType, 'Seeds'>>([
+          ['fields', tuple([getSeedsVecSerializer()])],
         ]),
       ],
       [
         'MerkleProof',
-        s.struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>([
-          ['fields', s.tuple([getLeafInfoSerializer(context)])],
+        struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>([
+          ['fields', tuple([getLeafInfoSerializer()])],
         ]),
       ],
       [
         'Number',
-        s.struct<GetDataEnumKindContent<PayloadType, 'Number'>>([
-          ['fields', s.tuple([s.u64()])],
+        struct<GetDataEnumKindContent<PayloadType, 'Number'>>([
+          ['fields', tuple([u64()])],
         ]),
       ],
     ],

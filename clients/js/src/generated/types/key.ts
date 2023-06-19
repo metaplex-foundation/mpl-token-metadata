@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum Key {
   Uninitialized,
@@ -26,9 +26,14 @@ export enum Key {
 
 export type KeyArgs = Key;
 
+/** @deprecated Use `getKeySerializer()` without any argument instead. */
+export function getKeySerializer(_context: object): Serializer<KeyArgs, Key>;
+export function getKeySerializer(): Serializer<KeyArgs, Key>;
 export function getKeySerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object = {}
 ): Serializer<KeyArgs, Key> {
-  const s = context.serializer;
-  return s.enum<Key>(Key, { description: 'Key' }) as Serializer<KeyArgs, Key>;
+  return scalarEnum<Key>(Key, { description: 'Key' }) as Serializer<
+    KeyArgs,
+    Key
+  >;
 }

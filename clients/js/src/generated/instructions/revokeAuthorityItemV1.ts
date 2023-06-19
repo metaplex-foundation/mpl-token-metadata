@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -67,22 +71,32 @@ export type RevokeAuthorityItemV1InstructionData = {
 
 export type RevokeAuthorityItemV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeAuthorityItemV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeAuthorityItemV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeAuthorityItemV1InstructionDataArgs,
+  RevokeAuthorityItemV1InstructionData
+>;
+export function getRevokeAuthorityItemV1InstructionDataSerializer(): Serializer<
+  RevokeAuthorityItemV1InstructionDataArgs,
+  RevokeAuthorityItemV1InstructionData
+>;
+export function getRevokeAuthorityItemV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeAuthorityItemV1InstructionDataArgs,
   RevokeAuthorityItemV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeAuthorityItemV1InstructionDataArgs,
     any,
     RevokeAuthorityItemV1InstructionData
   >(
-    s.struct<RevokeAuthorityItemV1InstructionData>(
+    struct<RevokeAuthorityItemV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeAuthorityItemV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeAuthorityItemV1Discriminator', u8()],
       ],
       { description: 'RevokeAuthorityItemV1InstructionData' }
     ),
@@ -111,10 +125,7 @@ export type RevokeAuthorityItemV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeAuthorityItemV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeAuthorityItemV1InstructionAccounts &
     RevokeAuthorityItemV1InstructionArgs
 ): TransactionBuilder {
@@ -280,9 +291,9 @@ export function revokeAuthorityItemV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeAuthorityItemV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getRevokeAuthorityItemV1InstructionDataSerializer().serialize(
+    {}
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

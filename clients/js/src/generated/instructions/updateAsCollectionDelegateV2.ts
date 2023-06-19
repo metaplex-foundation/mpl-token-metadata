@@ -10,16 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
 import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
@@ -70,30 +76,37 @@ export type UpdateAsCollectionDelegateV2InstructionData = {
 
 export type UpdateAsCollectionDelegateV2InstructionDataArgs = {
   collection?: CollectionToggleArgs;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUpdateAsCollectionDelegateV2InstructionDataSerializer()` without any argument instead. */
 export function getUpdateAsCollectionDelegateV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdateAsCollectionDelegateV2InstructionDataArgs,
+  UpdateAsCollectionDelegateV2InstructionData
+>;
+export function getUpdateAsCollectionDelegateV2InstructionDataSerializer(): Serializer<
+  UpdateAsCollectionDelegateV2InstructionDataArgs,
+  UpdateAsCollectionDelegateV2InstructionData
+>;
+export function getUpdateAsCollectionDelegateV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdateAsCollectionDelegateV2InstructionDataArgs,
   UpdateAsCollectionDelegateV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdateAsCollectionDelegateV2InstructionDataArgs,
     any,
     UpdateAsCollectionDelegateV2InstructionData
   >(
-    s.struct<UpdateAsCollectionDelegateV2InstructionData>(
+    struct<UpdateAsCollectionDelegateV2InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['updateAsCollectionDelegateV2Discriminator', s.u8()],
-        ['collection', getCollectionToggleSerializer(context)],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['updateAsCollectionDelegateV2Discriminator', u8()],
+        ['collection', getCollectionToggleSerializer()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsCollectionDelegateV2InstructionData' }
     ),
@@ -125,10 +138,7 @@ export type UpdateAsCollectionDelegateV2InstructionArgs = PickPartial<
 
 // Instruction.
 export function updateAsCollectionDelegateV2(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UpdateAsCollectionDelegateV2InstructionAccounts &
     UpdateAsCollectionDelegateV2InstructionArgs
 ): TransactionBuilder {
@@ -273,7 +283,7 @@ export function updateAsCollectionDelegateV2(
 
   // Data.
   const data =
-    getUpdateAsCollectionDelegateV2InstructionDataSerializer(context).serialize(
+    getUpdateAsCollectionDelegateV2InstructionDataSerializer().serialize(
       resolvedArgs
     );
 

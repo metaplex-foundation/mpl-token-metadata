@@ -10,15 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  bool,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 import {
@@ -59,30 +66,37 @@ export type CreateMetadataAccountV3InstructionData = {
 export type CreateMetadataAccountV3InstructionDataArgs = {
   data: DataV2Args;
   isMutable: boolean;
-  collectionDetails: Option<CollectionDetailsArgs>;
+  collectionDetails: OptionOrNullable<CollectionDetailsArgs>;
 };
 
+/** @deprecated Use `getCreateMetadataAccountV3InstructionDataSerializer()` without any argument instead. */
 export function getCreateMetadataAccountV3InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  CreateMetadataAccountV3InstructionDataArgs,
+  CreateMetadataAccountV3InstructionData
+>;
+export function getCreateMetadataAccountV3InstructionDataSerializer(): Serializer<
+  CreateMetadataAccountV3InstructionDataArgs,
+  CreateMetadataAccountV3InstructionData
+>;
+export function getCreateMetadataAccountV3InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   CreateMetadataAccountV3InstructionDataArgs,
   CreateMetadataAccountV3InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     CreateMetadataAccountV3InstructionDataArgs,
     any,
     CreateMetadataAccountV3InstructionData
   >(
-    s.struct<CreateMetadataAccountV3InstructionData>(
+    struct<CreateMetadataAccountV3InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['data', getDataV2Serializer(context)],
-        ['isMutable', s.bool()],
-        [
-          'collectionDetails',
-          s.option(getCollectionDetailsSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['data', getDataV2Serializer()],
+        ['isMutable', bool()],
+        ['collectionDetails', option(getCollectionDetailsSerializer())],
       ],
       { description: 'CreateMetadataAccountV3InstructionData' }
     ),
@@ -99,10 +113,7 @@ export type CreateMetadataAccountV3InstructionArgs =
 
 // Instruction.
 export function createMetadataAccountV3(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: CreateMetadataAccountV3InstructionAccounts &
     CreateMetadataAccountV3InstructionArgs
 ): TransactionBuilder {
@@ -171,7 +182,7 @@ export function createMetadataAccountV3(
 
   // Data.
   const data =
-    getCreateMetadataAccountV3InstructionDataSerializer(context).serialize(
+    getCreateMetadataAccountV3InstructionDataSerializer().serialize(
       resolvedArgs
     );
 

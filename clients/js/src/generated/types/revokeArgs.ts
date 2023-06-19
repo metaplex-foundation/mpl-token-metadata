@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum RevokeArgs {
   CollectionV1,
@@ -27,11 +27,18 @@ export enum RevokeArgs {
 
 export type RevokeArgsArgs = RevokeArgs;
 
+/** @deprecated Use `getRevokeArgsSerializer()` without any argument instead. */
 export function getRevokeArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<RevokeArgsArgs, RevokeArgs>;
+export function getRevokeArgsSerializer(): Serializer<
+  RevokeArgsArgs,
+  RevokeArgs
+>;
+export function getRevokeArgsSerializer(
+  _context: object = {}
 ): Serializer<RevokeArgsArgs, RevokeArgs> {
-  const s = context.serializer;
-  return s.enum<RevokeArgs>(RevokeArgs, {
+  return scalarEnum<RevokeArgs>(RevokeArgs, {
     description: 'RevokeArgs',
   }) as Serializer<RevokeArgsArgs, RevokeArgs>;
 }

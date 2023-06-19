@@ -11,16 +11,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -75,22 +81,26 @@ export type LockV1InstructionData = {
 };
 
 export type LockV1InstructionDataArgs = {
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getLockV1InstructionDataSerializer()` without any argument instead. */
 export function getLockV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
+export function getLockV1InstructionDataSerializer(): Serializer<
+  LockV1InstructionDataArgs,
+  LockV1InstructionData
+>;
+export function getLockV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<LockV1InstructionDataArgs, LockV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<LockV1InstructionDataArgs, any, LockV1InstructionData>(
-    s.struct<LockV1InstructionData>(
+    struct<LockV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['lockV1Discriminator', s.u8()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['lockV1Discriminator', u8()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'LockV1InstructionData' }
     ),
@@ -112,10 +122,7 @@ export type LockV1InstructionArgs = LockV1InstructionDataArgs &
 
 // Instruction.
 export function lockV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: LockV1InstructionAccounts & LockV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -286,8 +293,7 @@ export function lockV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data =
-    getLockV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getLockV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

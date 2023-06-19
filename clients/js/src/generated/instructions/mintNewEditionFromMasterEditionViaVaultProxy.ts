@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 import {
   MintNewEditionFromMasterEditionViaTokenArgs,
@@ -72,24 +76,34 @@ export type MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgsArgs;
 };
 
+/** @deprecated Use `getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer()` without any argument instead. */
 export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionData
+>;
+export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(): Serializer<
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
+  MintNewEditionFromMasterEditionViaVaultProxyInstructionData
+>;
+export function getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
   MintNewEditionFromMasterEditionViaVaultProxyInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs,
     any,
     MintNewEditionFromMasterEditionViaVaultProxyInstructionData
   >(
-    s.struct<MintNewEditionFromMasterEditionViaVaultProxyInstructionData>(
+    struct<MintNewEditionFromMasterEditionViaVaultProxyInstructionData>(
       [
-        ['discriminator', s.u8()],
+        ['discriminator', u8()],
         [
           'mintNewEditionFromMasterEditionViaTokenArgs',
-          getMintNewEditionFromMasterEditionViaTokenArgsSerializer(context),
+          getMintNewEditionFromMasterEditionViaTokenArgsSerializer(),
         ],
       ],
       {
@@ -110,7 +124,7 @@ export type MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs =
 
 // Instruction.
 export function mintNewEditionFromMasterEditionViaVaultProxy(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'programs' | 'payer'>,
   input: MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts &
     MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs
 ): TransactionBuilder {
@@ -204,9 +218,9 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
 
   // Data.
   const data =
-    getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer(
-      context
-    ).serialize(resolvedArgs);
+    getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataSerializer().serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

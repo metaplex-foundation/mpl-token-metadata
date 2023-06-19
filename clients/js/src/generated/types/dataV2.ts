@@ -6,7 +6,15 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Option, Serializer } from '@metaplex-foundation/umi';
+import { Option, OptionOrNullable } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  option,
+  string,
+  struct,
+  u16,
+} from '@metaplex-foundation/umi/serializers';
 import {
   Collection,
   CollectionArgs,
@@ -34,24 +42,28 @@ export type DataV2Args = {
   symbol: string;
   uri: string;
   sellerFeeBasisPoints: number;
-  creators: Option<Array<CreatorArgs>>;
-  collection: Option<CollectionArgs>;
-  uses: Option<UsesArgs>;
+  creators: OptionOrNullable<Array<CreatorArgs>>;
+  collection: OptionOrNullable<CollectionArgs>;
+  uses: OptionOrNullable<UsesArgs>;
 };
 
+/** @deprecated Use `getDataV2Serializer()` without any argument instead. */
 export function getDataV2Serializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<DataV2Args, DataV2>;
+export function getDataV2Serializer(): Serializer<DataV2Args, DataV2>;
+export function getDataV2Serializer(
+  _context: object = {}
 ): Serializer<DataV2Args, DataV2> {
-  const s = context.serializer;
-  return s.struct<DataV2>(
+  return struct<DataV2>(
     [
-      ['name', s.string()],
-      ['symbol', s.string()],
-      ['uri', s.string()],
-      ['sellerFeeBasisPoints', s.u16()],
-      ['creators', s.option(s.array(getCreatorSerializer(context)))],
-      ['collection', s.option(getCollectionSerializer(context))],
-      ['uses', s.option(getUsesSerializer(context))],
+      ['name', string()],
+      ['symbol', string()],
+      ['uri', string()],
+      ['sellerFeeBasisPoints', u16()],
+      ['creators', option(array(getCreatorSerializer()))],
+      ['collection', option(getCollectionSerializer())],
+      ['uses', option(getUsesSerializer())],
     ],
     { description: 'DataV2' }
   ) as Serializer<DataV2Args, DataV2>;

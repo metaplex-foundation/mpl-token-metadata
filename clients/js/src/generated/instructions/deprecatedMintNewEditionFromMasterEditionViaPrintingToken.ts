@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -65,20 +69,30 @@ export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction
 export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs =
   {};
 
+/** @deprecated Use `getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer()` without any argument instead. */
 export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
+  DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData
+>;
+export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer(): Serializer<
+  DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
+  DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData
+>;
+export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
   DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataArgs,
     any,
     DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData
   >(
-    s.struct<DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData>(
-      [['discriminator', s.u8()]],
+    struct<DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData>(
+      [['discriminator', u8()]],
       {
         description:
           'DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData',
@@ -93,7 +107,7 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
 
 // Instruction.
 export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<Context, 'programs' | 'eddsa' | 'payer'>,
   input: DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -219,9 +233,9 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
 
   // Data.
   const data =
-    getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer(
-      context
-    ).serialize({});
+    getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataSerializer().serialize(
+      {}
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

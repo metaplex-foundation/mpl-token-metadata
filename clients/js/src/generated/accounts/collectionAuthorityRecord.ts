@@ -10,18 +10,26 @@ import {
   Account,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
   RpcAccount,
   RpcGetAccountOptions,
   RpcGetAccountsOptions,
-  Serializer,
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
-  mapSerializer,
   publicKey as toPublicKey,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type CollectionAuthorityRecord =
@@ -35,26 +43,36 @@ export type CollectionAuthorityRecordAccountData = {
 
 export type CollectionAuthorityRecordAccountDataArgs = {
   bump: number;
-  updateAuthority: Option<PublicKey>;
+  updateAuthority: OptionOrNullable<PublicKey>;
 };
 
+/** @deprecated Use `getCollectionAuthorityRecordAccountDataSerializer()` without any argument instead. */
 export function getCollectionAuthorityRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  CollectionAuthorityRecordAccountDataArgs,
+  CollectionAuthorityRecordAccountData
+>;
+export function getCollectionAuthorityRecordAccountDataSerializer(): Serializer<
+  CollectionAuthorityRecordAccountDataArgs,
+  CollectionAuthorityRecordAccountData
+>;
+export function getCollectionAuthorityRecordAccountDataSerializer(
+  _context: object = {}
 ): Serializer<
   CollectionAuthorityRecordAccountDataArgs,
   CollectionAuthorityRecordAccountData
 > {
-  const s = context.serializer;
   return mapSerializer<
     CollectionAuthorityRecordAccountDataArgs,
     any,
     CollectionAuthorityRecordAccountData
   >(
-    s.struct<CollectionAuthorityRecordAccountData>(
+    struct<CollectionAuthorityRecordAccountData>(
       [
-        ['key', getKeySerializer(context)],
-        ['bump', s.u8()],
-        ['updateAuthority', s.option(s.publicKey())],
+        ['key', getKeySerializer()],
+        ['bump', u8()],
+        ['updateAuthority', option(publicKeySerializer())],
       ],
       { description: 'CollectionAuthorityRecordAccountData' }
     ),
@@ -65,18 +83,26 @@ export function getCollectionAuthorityRecordAccountDataSerializer(
   >;
 }
 
+/** @deprecated Use `deserializeCollectionAuthorityRecord(rawAccount)` without any context instead. */
 export function deserializeCollectionAuthorityRecord(
-  context: Pick<Context, 'serializer'>,
+  context: object,
   rawAccount: RpcAccount
+): CollectionAuthorityRecord;
+export function deserializeCollectionAuthorityRecord(
+  rawAccount: RpcAccount
+): CollectionAuthorityRecord;
+export function deserializeCollectionAuthorityRecord(
+  context: RpcAccount | object,
+  rawAccount?: RpcAccount
 ): CollectionAuthorityRecord {
   return deserializeAccount(
-    rawAccount,
-    getCollectionAuthorityRecordAccountDataSerializer(context)
+    rawAccount ?? (context as RpcAccount),
+    getCollectionAuthorityRecordAccountDataSerializer()
   );
 }
 
 export async function fetchCollectionAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord> {
@@ -85,11 +111,11 @@ export async function fetchCollectionAuthorityRecord(
     options
   );
   assertAccountExists(maybeAccount, 'CollectionAuthorityRecord');
-  return deserializeCollectionAuthorityRecord(context, maybeAccount);
+  return deserializeCollectionAuthorityRecord(maybeAccount);
 }
 
 export async function safeFetchCollectionAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord | null> {
@@ -98,12 +124,12 @@ export async function safeFetchCollectionAuthorityRecord(
     options
   );
   return maybeAccount.exists
-    ? deserializeCollectionAuthorityRecord(context, maybeAccount)
+    ? deserializeCollectionAuthorityRecord(maybeAccount)
     : null;
 }
 
 export async function fetchAllCollectionAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<CollectionAuthorityRecord[]> {
@@ -113,12 +139,12 @@ export async function fetchAllCollectionAuthorityRecord(
   );
   return maybeAccounts.map((maybeAccount) => {
     assertAccountExists(maybeAccount, 'CollectionAuthorityRecord');
-    return deserializeCollectionAuthorityRecord(context, maybeAccount);
+    return deserializeCollectionAuthorityRecord(maybeAccount);
   });
 }
 
 export async function safeFetchAllCollectionAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<CollectionAuthorityRecord[]> {
@@ -129,14 +155,13 @@ export async function safeFetchAllCollectionAuthorityRecord(
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
     .map((maybeAccount) =>
-      deserializeCollectionAuthorityRecord(context, maybeAccount as RpcAccount)
+      deserializeCollectionAuthorityRecord(maybeAccount as RpcAccount)
     );
 }
 
 export function getCollectionAuthorityRecordGpaBuilder(
-  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+  context: Pick<Context, 'rpc' | 'programs'>
 ) {
-  const s = context.serializer;
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
@@ -145,20 +170,20 @@ export function getCollectionAuthorityRecordGpaBuilder(
     .registerFields<{
       key: KeyArgs;
       bump: number;
-      updateAuthority: Option<PublicKey>;
+      updateAuthority: OptionOrNullable<PublicKey>;
     }>({
-      key: [0, getKeySerializer(context)],
-      bump: [1, s.u8()],
-      updateAuthority: [2, s.option(s.publicKey())],
+      key: [0, getKeySerializer()],
+      bump: [1, u8()],
+      updateAuthority: [2, option(publicKeySerializer())],
     })
     .deserializeUsing<CollectionAuthorityRecord>((account) =>
-      deserializeCollectionAuthorityRecord(context, account)
+      deserializeCollectionAuthorityRecord(account)
     )
     .whereField('key', Key.CollectionAuthorityRecord);
 }
 
 export function findCollectionAuthorityRecordPda(
-  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {
     /** The address of the mint account */
     mint: PublicKey;
@@ -166,22 +191,21 @@ export function findCollectionAuthorityRecordPda(
     collectionAuthority: PublicKey;
   }
 ): Pda {
-  const s = context.serializer;
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
   return context.eddsa.findPda(programId, [
-    s.string({ size: 'variable' }).serialize('metadata'),
-    s.publicKey().serialize(programId),
-    s.publicKey().serialize(seeds.mint),
-    s.string({ size: 'variable' }).serialize('collection_authority'),
-    s.publicKey().serialize(seeds.collectionAuthority),
+    string({ size: 'variable' }).serialize('metadata'),
+    publicKeySerializer().serialize(programId),
+    publicKeySerializer().serialize(seeds.mint),
+    string({ size: 'variable' }).serialize('collection_authority'),
+    publicKeySerializer().serialize(seeds.collectionAuthority),
   ]);
 }
 
 export async function fetchCollectionAuthorityRecordFromSeeds(
-  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
   seeds: Parameters<typeof findCollectionAuthorityRecordPda>[1],
   options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord> {
@@ -193,7 +217,7 @@ export async function fetchCollectionAuthorityRecordFromSeeds(
 }
 
 export async function safeFetchCollectionAuthorityRecordFromSeeds(
-  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
   seeds: Parameters<typeof findCollectionAuthorityRecordPda>[1],
   options?: RpcGetAccountOptions
 ): Promise<CollectionAuthorityRecord | null> {

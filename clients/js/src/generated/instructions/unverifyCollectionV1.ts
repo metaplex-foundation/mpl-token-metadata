@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -47,22 +51,32 @@ export type UnverifyCollectionV1InstructionData = {
 
 export type UnverifyCollectionV1InstructionDataArgs = {};
 
+/** @deprecated Use `getUnverifyCollectionV1InstructionDataSerializer()` without any argument instead. */
 export function getUnverifyCollectionV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UnverifyCollectionV1InstructionDataArgs,
+  UnverifyCollectionV1InstructionData
+>;
+export function getUnverifyCollectionV1InstructionDataSerializer(): Serializer<
+  UnverifyCollectionV1InstructionDataArgs,
+  UnverifyCollectionV1InstructionData
+>;
+export function getUnverifyCollectionV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UnverifyCollectionV1InstructionDataArgs,
   UnverifyCollectionV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UnverifyCollectionV1InstructionDataArgs,
     any,
     UnverifyCollectionV1InstructionData
   >(
-    s.struct<UnverifyCollectionV1InstructionData>(
+    struct<UnverifyCollectionV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['unverifyCollectionV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['unverifyCollectionV1Discriminator', u8()],
       ],
       { description: 'UnverifyCollectionV1InstructionData' }
     ),
@@ -79,7 +93,7 @@ export function getUnverifyCollectionV1InstructionDataSerializer(
 
 // Instruction.
 export function unverifyCollectionV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity'>,
   input: UnverifyCollectionV1InstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -155,9 +169,7 @@ export function unverifyCollectionV1(
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
 
   // Data.
-  const data = getUnverifyCollectionV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getUnverifyCollectionV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

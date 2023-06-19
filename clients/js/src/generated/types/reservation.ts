@@ -6,7 +6,13 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, PublicKey, Serializer } from '@metaplex-foundation/umi';
+import { PublicKey } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  publicKey as publicKeySerializer,
+  struct,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 
 export type Reservation = {
   address: PublicKey;
@@ -20,15 +26,22 @@ export type ReservationArgs = {
   totalSpots: number | bigint;
 };
 
+/** @deprecated Use `getReservationSerializer()` without any argument instead. */
 export function getReservationSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<ReservationArgs, Reservation>;
+export function getReservationSerializer(): Serializer<
+  ReservationArgs,
+  Reservation
+>;
+export function getReservationSerializer(
+  _context: object = {}
 ): Serializer<ReservationArgs, Reservation> {
-  const s = context.serializer;
-  return s.struct<Reservation>(
+  return struct<Reservation>(
     [
-      ['address', s.publicKey()],
-      ['spotsRemaining', s.u64()],
-      ['totalSpots', s.u64()],
+      ['address', publicKeySerializer()],
+      ['spotsRemaining', u64()],
+      ['totalSpots', u64()],
     ],
     { description: 'Reservation' }
   ) as Serializer<ReservationArgs, Reservation>;

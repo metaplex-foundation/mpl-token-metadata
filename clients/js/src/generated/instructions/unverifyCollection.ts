@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -40,19 +44,29 @@ export type UnverifyCollectionInstructionData = { discriminator: number };
 
 export type UnverifyCollectionInstructionDataArgs = {};
 
+/** @deprecated Use `getUnverifyCollectionInstructionDataSerializer()` without any argument instead. */
 export function getUnverifyCollectionInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UnverifyCollectionInstructionDataArgs,
+  UnverifyCollectionInstructionData
+>;
+export function getUnverifyCollectionInstructionDataSerializer(): Serializer<
+  UnverifyCollectionInstructionDataArgs,
+  UnverifyCollectionInstructionData
+>;
+export function getUnverifyCollectionInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UnverifyCollectionInstructionDataArgs,
   UnverifyCollectionInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UnverifyCollectionInstructionDataArgs,
     any,
     UnverifyCollectionInstructionData
   >(
-    s.struct<UnverifyCollectionInstructionData>([['discriminator', s.u8()]], {
+    struct<UnverifyCollectionInstructionData>([['discriminator', u8()]], {
       description: 'UnverifyCollectionInstructionData',
     }),
     (value) => ({ ...value, discriminator: 22 })
@@ -64,7 +78,7 @@ export function getUnverifyCollectionInstructionDataSerializer(
 
 // Instruction.
 export function unverifyCollection(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: UnverifyCollectionInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -110,9 +124,7 @@ export function unverifyCollection(
   );
 
   // Data.
-  const data = getUnverifyCollectionInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getUnverifyCollectionInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;
