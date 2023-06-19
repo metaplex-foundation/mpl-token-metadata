@@ -12,13 +12,18 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveBurnMasterEdition,
   resolveMasterEdition,
@@ -69,16 +74,23 @@ export type BurnV1InstructionData = {
 
 export type BurnV1InstructionDataArgs = { amount?: number | bigint };
 
+/** @deprecated Use `getBurnV1InstructionDataSerializer()` without any argument instead. */
 export function getBurnV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData>;
+export function getBurnV1InstructionDataSerializer(): Serializer<
+  BurnV1InstructionDataArgs,
+  BurnV1InstructionData
+>;
+export function getBurnV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<BurnV1InstructionDataArgs, BurnV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<BurnV1InstructionDataArgs, any, BurnV1InstructionData>(
-    s.struct<BurnV1InstructionData>(
+    struct<BurnV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['burnV1Discriminator', s.u8()],
-        ['amount', s.u64()],
+        ['discriminator', u8()],
+        ['burnV1Discriminator', u8()],
+        ['amount', u64()],
       ],
       { description: 'BurnV1InstructionData' }
     ),
@@ -105,10 +117,7 @@ export type BurnV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function burnV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: BurnV1InstructionAccounts & BurnV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -281,8 +290,7 @@ export function burnV1(
   addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
-  const data =
-    getBurnV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getBurnV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

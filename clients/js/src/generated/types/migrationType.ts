@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum MigrationType {
   CollectionV1,
@@ -15,11 +15,18 @@ export enum MigrationType {
 
 export type MigrationTypeArgs = MigrationType;
 
+/** @deprecated Use `getMigrationTypeSerializer()` without any argument instead. */
 export function getMigrationTypeSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<MigrationTypeArgs, MigrationType>;
+export function getMigrationTypeSerializer(): Serializer<
+  MigrationTypeArgs,
+  MigrationType
+>;
+export function getMigrationTypeSerializer(
+  _context: object = {}
 ): Serializer<MigrationTypeArgs, MigrationType> {
-  const s = context.serializer;
-  return s.enum<MigrationType>(MigrationType, {
+  return scalarEnum<MigrationType>(MigrationType, {
     description: 'MigrationType',
   }) as Serializer<MigrationTypeArgs, MigrationType>;
 }

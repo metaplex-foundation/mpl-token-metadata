@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -67,22 +71,32 @@ export type RevokeProgrammableConfigItemV1InstructionData = {
 
 export type RevokeProgrammableConfigItemV1InstructionDataArgs = {};
 
+/** @deprecated Use `getRevokeProgrammableConfigItemV1InstructionDataSerializer()` without any argument instead. */
 export function getRevokeProgrammableConfigItemV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RevokeProgrammableConfigItemV1InstructionDataArgs,
+  RevokeProgrammableConfigItemV1InstructionData
+>;
+export function getRevokeProgrammableConfigItemV1InstructionDataSerializer(): Serializer<
+  RevokeProgrammableConfigItemV1InstructionDataArgs,
+  RevokeProgrammableConfigItemV1InstructionData
+>;
+export function getRevokeProgrammableConfigItemV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RevokeProgrammableConfigItemV1InstructionDataArgs,
   RevokeProgrammableConfigItemV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RevokeProgrammableConfigItemV1InstructionDataArgs,
     any,
     RevokeProgrammableConfigItemV1InstructionData
   >(
-    s.struct<RevokeProgrammableConfigItemV1InstructionData>(
+    struct<RevokeProgrammableConfigItemV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['revokeProgrammableConfigItemV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['revokeProgrammableConfigItemV1Discriminator', u8()],
       ],
       { description: 'RevokeProgrammableConfigItemV1InstructionData' }
     ),
@@ -111,10 +125,7 @@ export type RevokeProgrammableConfigItemV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function revokeProgrammableConfigItemV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: RevokeProgrammableConfigItemV1InstructionAccounts &
     RevokeProgrammableConfigItemV1InstructionArgs
 ): TransactionBuilder {
@@ -280,9 +291,8 @@ export function revokeProgrammableConfigItemV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getRevokeProgrammableConfigItemV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data =
+    getRevokeProgrammableConfigItemV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

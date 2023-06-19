@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -44,20 +48,30 @@ export type VerifySizedCollectionItemInstructionData = {
 
 export type VerifySizedCollectionItemInstructionDataArgs = {};
 
+/** @deprecated Use `getVerifySizedCollectionItemInstructionDataSerializer()` without any argument instead. */
 export function getVerifySizedCollectionItemInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  VerifySizedCollectionItemInstructionDataArgs,
+  VerifySizedCollectionItemInstructionData
+>;
+export function getVerifySizedCollectionItemInstructionDataSerializer(): Serializer<
+  VerifySizedCollectionItemInstructionDataArgs,
+  VerifySizedCollectionItemInstructionData
+>;
+export function getVerifySizedCollectionItemInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   VerifySizedCollectionItemInstructionDataArgs,
   VerifySizedCollectionItemInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     VerifySizedCollectionItemInstructionDataArgs,
     any,
     VerifySizedCollectionItemInstructionData
   >(
-    s.struct<VerifySizedCollectionItemInstructionData>(
-      [['discriminator', s.u8()]],
+    struct<VerifySizedCollectionItemInstructionData>(
+      [['discriminator', u8()]],
       { description: 'VerifySizedCollectionItemInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 30 })
@@ -69,7 +83,7 @@ export function getVerifySizedCollectionItemInstructionDataSerializer(
 
 // Instruction.
 export function verifySizedCollectionItem(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'programs' | 'payer'>,
   input: VerifySizedCollectionItemInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -123,9 +137,8 @@ export function verifySizedCollectionItem(
   );
 
   // Data.
-  const data = getVerifySizedCollectionItemInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data =
+    getVerifySizedCollectionItemInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

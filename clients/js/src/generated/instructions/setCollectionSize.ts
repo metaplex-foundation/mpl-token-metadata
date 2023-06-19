@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 import {
   SetCollectionSizeArgs,
@@ -46,22 +50,32 @@ export type SetCollectionSizeInstructionDataArgs = {
   setCollectionSizeArgs: SetCollectionSizeArgsArgs;
 };
 
+/** @deprecated Use `getSetCollectionSizeInstructionDataSerializer()` without any argument instead. */
 export function getSetCollectionSizeInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  SetCollectionSizeInstructionDataArgs,
+  SetCollectionSizeInstructionData
+>;
+export function getSetCollectionSizeInstructionDataSerializer(): Serializer<
+  SetCollectionSizeInstructionDataArgs,
+  SetCollectionSizeInstructionData
+>;
+export function getSetCollectionSizeInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   SetCollectionSizeInstructionDataArgs,
   SetCollectionSizeInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     SetCollectionSizeInstructionDataArgs,
     any,
     SetCollectionSizeInstructionData
   >(
-    s.struct<SetCollectionSizeInstructionData>(
+    struct<SetCollectionSizeInstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer(context)],
+        ['discriminator', u8()],
+        ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer()],
       ],
       { description: 'SetCollectionSizeInstructionData' }
     ),
@@ -78,7 +92,7 @@ export type SetCollectionSizeInstructionArgs =
 
 // Instruction.
 export function setCollectionSize(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: SetCollectionSizeInstructionAccounts & SetCollectionSizeInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -115,9 +129,7 @@ export function setCollectionSize(
 
   // Data.
   const data =
-    getSetCollectionSizeInstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getSetCollectionSizeInstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

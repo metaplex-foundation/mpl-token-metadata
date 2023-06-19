@@ -6,14 +6,16 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { Option, OptionOrNullable, PublicKey } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  Option,
-  PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  option,
+  publicKey as publicKeySerializer,
+  struct,
+} from '@metaplex-foundation/umi/serializers';
 import {
   MigrationType,
   MigrationTypeArgs,
@@ -29,20 +31,27 @@ export type MigrateArgs = {
 export type MigrateArgsArgs = {
   __kind: 'V1';
   migrationType: MigrationTypeArgs;
-  ruleSet: Option<PublicKey>;
+  ruleSet: OptionOrNullable<PublicKey>;
 };
 
+/** @deprecated Use `getMigrateArgsSerializer()` without any argument instead. */
 export function getMigrateArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<MigrateArgsArgs, MigrateArgs>;
+export function getMigrateArgsSerializer(): Serializer<
+  MigrateArgsArgs,
+  MigrateArgs
+>;
+export function getMigrateArgsSerializer(
+  _context: object = {}
 ): Serializer<MigrateArgsArgs, MigrateArgs> {
-  const s = context.serializer;
-  return s.dataEnum<MigrateArgs>(
+  return dataEnum<MigrateArgs>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>([
-          ['migrationType', getMigrationTypeSerializer(context)],
-          ['ruleSet', s.option(s.publicKey())],
+        struct<GetDataEnumKindContent<MigrateArgs, 'V1'>>([
+          ['migrationType', getMigrationTypeSerializer()],
+          ['ruleSet', option(publicKeySerializer())],
         ]),
       ],
     ],

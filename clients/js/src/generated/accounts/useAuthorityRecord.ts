@@ -14,13 +14,20 @@ import {
   RpcAccount,
   RpcGetAccountOptions,
   RpcGetAccountsOptions,
-  Serializer,
   assertAccountExists,
   deserializeAccount,
   gpaBuilder,
-  mapSerializer,
   publicKey as toPublicKey,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
 export type UseAuthorityRecord = Account<UseAuthorityRecordAccountData>;
@@ -36,23 +43,30 @@ export type UseAuthorityRecordAccountDataArgs = {
   bump: number;
 };
 
+/** @deprecated Use `getUseAuthorityRecordAccountDataSerializer()` without any argument instead. */
 export function getUseAuthorityRecordAccountDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UseAuthorityRecordAccountDataArgs, UseAuthorityRecordAccountData>;
+export function getUseAuthorityRecordAccountDataSerializer(): Serializer<
+  UseAuthorityRecordAccountDataArgs,
+  UseAuthorityRecordAccountData
+>;
+export function getUseAuthorityRecordAccountDataSerializer(
+  _context: object = {}
 ): Serializer<
   UseAuthorityRecordAccountDataArgs,
   UseAuthorityRecordAccountData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UseAuthorityRecordAccountDataArgs,
     any,
     UseAuthorityRecordAccountData
   >(
-    s.struct<UseAuthorityRecordAccountData>(
+    struct<UseAuthorityRecordAccountData>(
       [
-        ['key', getKeySerializer(context)],
-        ['allowedUses', s.u64()],
-        ['bump', s.u8()],
+        ['key', getKeySerializer()],
+        ['allowedUses', u64()],
+        ['bump', u8()],
       ],
       { description: 'UseAuthorityRecordAccountData' }
     ),
@@ -63,18 +77,26 @@ export function getUseAuthorityRecordAccountDataSerializer(
   >;
 }
 
+/** @deprecated Use `deserializeUseAuthorityRecord(rawAccount)` without any context instead. */
 export function deserializeUseAuthorityRecord(
-  context: Pick<Context, 'serializer'>,
+  context: object,
   rawAccount: RpcAccount
+): UseAuthorityRecord;
+export function deserializeUseAuthorityRecord(
+  rawAccount: RpcAccount
+): UseAuthorityRecord;
+export function deserializeUseAuthorityRecord(
+  context: RpcAccount | object,
+  rawAccount?: RpcAccount
 ): UseAuthorityRecord {
   return deserializeAccount(
-    rawAccount,
-    getUseAuthorityRecordAccountDataSerializer(context)
+    rawAccount ?? (context as RpcAccount),
+    getUseAuthorityRecordAccountDataSerializer()
   );
 }
 
 export async function fetchUseAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<UseAuthorityRecord> {
@@ -83,11 +105,11 @@ export async function fetchUseAuthorityRecord(
     options
   );
   assertAccountExists(maybeAccount, 'UseAuthorityRecord');
-  return deserializeUseAuthorityRecord(context, maybeAccount);
+  return deserializeUseAuthorityRecord(maybeAccount);
 }
 
 export async function safeFetchUseAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKey: PublicKey | Pda,
   options?: RpcGetAccountOptions
 ): Promise<UseAuthorityRecord | null> {
@@ -96,12 +118,12 @@ export async function safeFetchUseAuthorityRecord(
     options
   );
   return maybeAccount.exists
-    ? deserializeUseAuthorityRecord(context, maybeAccount)
+    ? deserializeUseAuthorityRecord(maybeAccount)
     : null;
 }
 
 export async function fetchAllUseAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<UseAuthorityRecord[]> {
@@ -111,12 +133,12 @@ export async function fetchAllUseAuthorityRecord(
   );
   return maybeAccounts.map((maybeAccount) => {
     assertAccountExists(maybeAccount, 'UseAuthorityRecord');
-    return deserializeUseAuthorityRecord(context, maybeAccount);
+    return deserializeUseAuthorityRecord(maybeAccount);
   });
 }
 
 export async function safeFetchAllUseAuthorityRecord(
-  context: Pick<Context, 'rpc' | 'serializer'>,
+  context: Pick<Context, 'rpc'>,
   publicKeys: Array<PublicKey | Pda>,
   options?: RpcGetAccountsOptions
 ): Promise<UseAuthorityRecord[]> {
@@ -127,14 +149,13 @@ export async function safeFetchAllUseAuthorityRecord(
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
     .map((maybeAccount) =>
-      deserializeUseAuthorityRecord(context, maybeAccount as RpcAccount)
+      deserializeUseAuthorityRecord(maybeAccount as RpcAccount)
     );
 }
 
 export function getUseAuthorityRecordGpaBuilder(
-  context: Pick<Context, 'rpc' | 'serializer' | 'programs'>
+  context: Pick<Context, 'rpc' | 'programs'>
 ) {
-  const s = context.serializer;
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
@@ -145,12 +166,12 @@ export function getUseAuthorityRecordGpaBuilder(
       allowedUses: number | bigint;
       bump: number;
     }>({
-      key: [0, getKeySerializer(context)],
-      allowedUses: [1, s.u64()],
-      bump: [9, s.u8()],
+      key: [0, getKeySerializer()],
+      allowedUses: [1, u64()],
+      bump: [9, u8()],
     })
     .deserializeUsing<UseAuthorityRecord>((account) =>
-      deserializeUseAuthorityRecord(context, account)
+      deserializeUseAuthorityRecord(account)
     )
     .whereField('key', Key.UseAuthorityRecord);
 }
@@ -160,7 +181,7 @@ export function getUseAuthorityRecordSize(): number {
 }
 
 export function findUseAuthorityRecordPda(
-  context: Pick<Context, 'eddsa' | 'programs' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {
     /** The address of the mint account */
     mint: PublicKey;
@@ -168,22 +189,21 @@ export function findUseAuthorityRecordPda(
     useAuthority: PublicKey;
   }
 ): Pda {
-  const s = context.serializer;
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
   return context.eddsa.findPda(programId, [
-    s.string({ size: 'variable' }).serialize('metadata'),
-    s.publicKey().serialize(programId),
-    s.publicKey().serialize(seeds.mint),
-    s.string({ size: 'variable' }).serialize('user'),
-    s.publicKey().serialize(seeds.useAuthority),
+    string({ size: 'variable' }).serialize('metadata'),
+    publicKeySerializer().serialize(programId),
+    publicKeySerializer().serialize(seeds.mint),
+    string({ size: 'variable' }).serialize('user'),
+    publicKeySerializer().serialize(seeds.useAuthority),
   ]);
 }
 
 export async function fetchUseAuthorityRecordFromSeeds(
-  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
   seeds: Parameters<typeof findUseAuthorityRecordPda>[1],
   options?: RpcGetAccountOptions
 ): Promise<UseAuthorityRecord> {
@@ -195,7 +215,7 @@ export async function fetchUseAuthorityRecordFromSeeds(
 }
 
 export async function safeFetchUseAuthorityRecordFromSeeds(
-  context: Pick<Context, 'eddsa' | 'programs' | 'rpc' | 'serializer'>,
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
   seeds: Parameters<typeof findUseAuthorityRecordPda>[1],
   options?: RpcGetAccountOptions
 ): Promise<UseAuthorityRecord | null> {

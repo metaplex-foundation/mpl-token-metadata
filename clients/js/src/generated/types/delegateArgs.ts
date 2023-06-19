@@ -7,15 +7,22 @@
  */
 
 import {
-  Context,
-  GetDataEnumKind,
-  GetDataEnumKindContent,
   Option,
+  OptionOrNullable,
   PublicKey,
-  Serializer,
-  mapSerializer,
   none,
 } from '@metaplex-foundation/umi';
+import {
+  GetDataEnumKind,
+  GetDataEnumKindContent,
+  Serializer,
+  dataEnum,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  struct,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -67,59 +74,72 @@ export type DelegateArgs =
 export type DelegateArgsArgs =
   | {
       __kind: 'CollectionV1';
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'SaleV1';
       amount?: number | bigint;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'TransferV1';
       amount?: number | bigint;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
-  | { __kind: 'DataV1'; authorizationData?: Option<AuthorizationDataArgs> }
+  | {
+      __kind: 'DataV1';
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
+    }
   | {
       __kind: 'UtilityV1';
       amount?: number | bigint;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'StakingV1';
       amount?: number | bigint;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | { __kind: 'StandardV1'; amount?: number | bigint }
   | {
       __kind: 'LockedTransferV1';
       amount?: number | bigint;
       lockedAddress: PublicKey;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'ProgrammableConfigV1';
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AuthorityItemV1';
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
-  | { __kind: 'DataItemV1'; authorizationData?: Option<AuthorizationDataArgs> }
+  | {
+      __kind: 'DataItemV1';
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
+    }
   | {
       __kind: 'CollectionItemV1';
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'ProgrammableConfigItemV1';
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     };
 
+/** @deprecated Use `getDelegateArgsSerializer()` without any argument instead. */
 export function getDelegateArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<DelegateArgsArgs, DelegateArgs>;
+export function getDelegateArgsSerializer(): Serializer<
+  DelegateArgsArgs,
+  DelegateArgs
+>;
+export function getDelegateArgsSerializer(
+  _context: object = {}
 ): Serializer<DelegateArgsArgs, DelegateArgs> {
-  const s = context.serializer;
-  return s.dataEnum<DelegateArgs>(
+  return dataEnum<DelegateArgs>(
     [
       [
         'CollectionV1',
@@ -128,11 +148,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'CollectionV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'CollectionV1'>>([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'CollectionV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -147,12 +164,9 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'SaleV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'SaleV1'>>([
-            ['amount', s.u64()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'SaleV1'>>([
+            ['amount', u64()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -168,12 +182,9 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'TransferV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'TransferV1'>>([
-            ['amount', s.u64()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'TransferV1'>>([
+            ['amount', u64()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -189,11 +200,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'DataV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'DataV1'>>([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'DataV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -208,12 +216,9 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'UtilityV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'UtilityV1'>>([
-            ['amount', s.u64()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'UtilityV1'>>([
+            ['amount', u64()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -229,12 +234,9 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'StakingV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'StakingV1'>>([
-            ['amount', s.u64()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'StakingV1'>>([
+            ['amount', u64()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -250,8 +252,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'StandardV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'StandardV1'>>([
-            ['amount', s.u64()],
+          struct<GetDataEnumKindContent<DelegateArgs, 'StandardV1'>>([
+            ['amount', u64()],
           ]),
           (value) => ({ ...value, amount: value.amount ?? 1 })
         ),
@@ -263,13 +265,10 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'LockedTransferV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'LockedTransferV1'>>([
-            ['amount', s.u64()],
-            ['lockedAddress', s.publicKey()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'LockedTransferV1'>>([
+            ['amount', u64()],
+            ['lockedAddress', publicKeySerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -285,13 +284,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigV1'>
         >(
-          s.struct<
-            GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigV1'>
-          >([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -306,11 +300,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'AuthorityItemV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'AuthorityItemV1'>>([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'AuthorityItemV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -325,11 +316,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'DataItemV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'DataItemV1'>>([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'DataItemV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -344,11 +332,8 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'CollectionItemV1'>
         >(
-          s.struct<GetDataEnumKindContent<DelegateArgs, 'CollectionItemV1'>>([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<DelegateArgs, 'CollectionItemV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -363,14 +348,9 @@ export function getDelegateArgsSerializer(
           any,
           GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigItemV1'>
         >(
-          s.struct<
+          struct<
             GetDataEnumKindContent<DelegateArgs, 'ProgrammableConfigItemV1'>
-          >([
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
-          ]),
+          >([['authorizationData', option(getAuthorizationDataSerializer())]]),
           (value) => ({
             ...value,
             authorizationData: value.authorizationData ?? none(),

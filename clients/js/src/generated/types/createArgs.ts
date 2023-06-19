@@ -8,16 +8,27 @@
 
 import {
   Amount,
-  Context,
-  GetDataEnumKind,
-  GetDataEnumKindContent,
   Option,
+  OptionOrNullable,
   PublicKey,
-  Serializer,
   mapAmountSerializer,
-  mapSerializer,
   none,
 } from '@metaplex-foundation/umi';
+import {
+  GetDataEnumKind,
+  GetDataEnumKindContent,
+  Serializer,
+  array,
+  bool,
+  dataEnum,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u16,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   Collection,
   CollectionArgs,
@@ -63,23 +74,30 @@ export type CreateArgsArgs = {
   symbol?: string;
   uri: string;
   sellerFeeBasisPoints: Amount<'%', 2>;
-  creators: Option<Array<CreatorArgs>>;
+  creators: OptionOrNullable<Array<CreatorArgs>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
   tokenStandard: TokenStandardArgs;
-  collection?: Option<CollectionArgs>;
-  uses?: Option<UsesArgs>;
-  collectionDetails?: Option<CollectionDetailsArgs>;
-  ruleSet?: Option<PublicKey>;
-  decimals?: Option<number>;
-  printSupply?: Option<PrintSupplyArgs>;
+  collection?: OptionOrNullable<CollectionArgs>;
+  uses?: OptionOrNullable<UsesArgs>;
+  collectionDetails?: OptionOrNullable<CollectionDetailsArgs>;
+  ruleSet?: OptionOrNullable<PublicKey>;
+  decimals?: OptionOrNullable<number>;
+  printSupply?: OptionOrNullable<PrintSupplyArgs>;
 };
 
+/** @deprecated Use `getCreateArgsSerializer()` without any argument instead. */
 export function getCreateArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<CreateArgsArgs, CreateArgs>;
+export function getCreateArgsSerializer(): Serializer<
+  CreateArgsArgs,
+  CreateArgs
+>;
+export function getCreateArgsSerializer(
+  _context: object = {}
 ): Serializer<CreateArgsArgs, CreateArgs> {
-  const s = context.serializer;
-  return s.dataEnum<CreateArgs>(
+  return dataEnum<CreateArgs>(
     [
       [
         'V1',
@@ -88,24 +106,21 @@ export function getCreateArgsSerializer(
           any,
           GetDataEnumKindContent<CreateArgs, 'V1'>
         >(
-          s.struct<GetDataEnumKindContent<CreateArgs, 'V1'>>([
-            ['name', s.string()],
-            ['symbol', s.string()],
-            ['uri', s.string()],
-            ['sellerFeeBasisPoints', mapAmountSerializer(s.u16(), '%', 2)],
-            ['creators', s.option(s.array(getCreatorSerializer(context)))],
-            ['primarySaleHappened', s.bool()],
-            ['isMutable', s.bool()],
-            ['tokenStandard', getTokenStandardSerializer(context)],
-            ['collection', s.option(getCollectionSerializer(context))],
-            ['uses', s.option(getUsesSerializer(context))],
-            [
-              'collectionDetails',
-              s.option(getCollectionDetailsSerializer(context)),
-            ],
-            ['ruleSet', s.option(s.publicKey())],
-            ['decimals', s.option(s.u8())],
-            ['printSupply', s.option(getPrintSupplySerializer(context))],
+          struct<GetDataEnumKindContent<CreateArgs, 'V1'>>([
+            ['name', string()],
+            ['symbol', string()],
+            ['uri', string()],
+            ['sellerFeeBasisPoints', mapAmountSerializer(u16(), '%', 2)],
+            ['creators', option(array(getCreatorSerializer()))],
+            ['primarySaleHappened', bool()],
+            ['isMutable', bool()],
+            ['tokenStandard', getTokenStandardSerializer()],
+            ['collection', option(getCollectionSerializer())],
+            ['uses', option(getUsesSerializer())],
+            ['collectionDetails', option(getCollectionDetailsSerializer())],
+            ['ruleSet', option(publicKeySerializer())],
+            ['decimals', option(u8())],
+            ['printSupply', option(getPrintSupplySerializer())],
           ]),
           (value) => ({
             ...value,

@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum TokenState {
   Unlocked,
@@ -16,11 +16,18 @@ export enum TokenState {
 
 export type TokenStateArgs = TokenState;
 
+/** @deprecated Use `getTokenStateSerializer()` without any argument instead. */
 export function getTokenStateSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<TokenStateArgs, TokenState>;
+export function getTokenStateSerializer(): Serializer<
+  TokenStateArgs,
+  TokenState
+>;
+export function getTokenStateSerializer(
+  _context: object = {}
 ): Serializer<TokenStateArgs, TokenState> {
-  const s = context.serializer;
-  return s.enum<TokenState>(TokenState, {
+  return scalarEnum<TokenState>(TokenState, {
     description: 'TokenState',
   }) as Serializer<TokenStateArgs, TokenState>;
 }

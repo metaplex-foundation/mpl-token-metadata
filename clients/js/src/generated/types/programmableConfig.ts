@@ -6,29 +6,41 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { Option, OptionOrNullable, PublicKey } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  Option,
-  PublicKey,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  option,
+  publicKey as publicKeySerializer,
+  struct,
+} from '@metaplex-foundation/umi/serializers';
 
 export type ProgrammableConfig = { __kind: 'V1'; ruleSet: Option<PublicKey> };
 
-export type ProgrammableConfigArgs = ProgrammableConfig;
+export type ProgrammableConfigArgs = {
+  __kind: 'V1';
+  ruleSet: OptionOrNullable<PublicKey>;
+};
 
+/** @deprecated Use `getProgrammableConfigSerializer()` without any argument instead. */
 export function getProgrammableConfigSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<ProgrammableConfigArgs, ProgrammableConfig>;
+export function getProgrammableConfigSerializer(): Serializer<
+  ProgrammableConfigArgs,
+  ProgrammableConfig
+>;
+export function getProgrammableConfigSerializer(
+  _context: object = {}
 ): Serializer<ProgrammableConfigArgs, ProgrammableConfig> {
-  const s = context.serializer;
-  return s.dataEnum<ProgrammableConfig>(
+  return dataEnum<ProgrammableConfig>(
     [
       [
         'V1',
-        s.struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>([
-          ['ruleSet', s.option(s.publicKey())],
+        struct<GetDataEnumKindContent<ProgrammableConfig, 'V1'>>([
+          ['ruleSet', option(publicKeySerializer())],
         ]),
       ],
     ],

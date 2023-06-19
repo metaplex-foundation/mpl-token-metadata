@@ -6,20 +6,29 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  bytes,
+  struct,
+} from '@metaplex-foundation/umi/serializers';
 
 export type LeafInfo = { leaf: Uint8Array; proof: Array<Uint8Array> };
 
 export type LeafInfoArgs = LeafInfo;
 
+/** @deprecated Use `getLeafInfoSerializer()` without any argument instead. */
 export function getLeafInfoSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<LeafInfoArgs, LeafInfo>;
+export function getLeafInfoSerializer(): Serializer<LeafInfoArgs, LeafInfo>;
+export function getLeafInfoSerializer(
+  _context: object = {}
 ): Serializer<LeafInfoArgs, LeafInfo> {
-  const s = context.serializer;
-  return s.struct<LeafInfo>(
+  return struct<LeafInfo>(
     [
-      ['leaf', s.bytes({ size: 32 })],
-      ['proof', s.array(s.bytes({ size: 32 }))],
+      ['leaf', bytes({ size: 32 })],
+      ['proof', array(bytes({ size: 32 }))],
     ],
     { description: 'LeafInfo' }
   ) as Serializer<LeafInfoArgs, LeafInfo>;

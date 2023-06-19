@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -48,19 +52,26 @@ export type BurnEditionNftInstructionData = { discriminator: number };
 
 export type BurnEditionNftInstructionDataArgs = {};
 
+/** @deprecated Use `getBurnEditionNftInstructionDataSerializer()` without any argument instead. */
 export function getBurnEditionNftInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<BurnEditionNftInstructionDataArgs, BurnEditionNftInstructionData>;
+export function getBurnEditionNftInstructionDataSerializer(): Serializer<
+  BurnEditionNftInstructionDataArgs,
+  BurnEditionNftInstructionData
+>;
+export function getBurnEditionNftInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   BurnEditionNftInstructionDataArgs,
   BurnEditionNftInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     BurnEditionNftInstructionDataArgs,
     any,
     BurnEditionNftInstructionData
   >(
-    s.struct<BurnEditionNftInstructionData>([['discriminator', s.u8()]], {
+    struct<BurnEditionNftInstructionData>([['discriminator', u8()]], {
       description: 'BurnEditionNftInstructionData',
     }),
     (value) => ({ ...value, discriminator: 37 })
@@ -72,7 +83,7 @@ export function getBurnEditionNftInstructionDataSerializer(
 
 // Instruction.
 export function burnEditionNft(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: BurnEditionNftInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -135,9 +146,7 @@ export function burnEditionNft(
   addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
-  const data = getBurnEditionNftInstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getBurnEditionNftInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

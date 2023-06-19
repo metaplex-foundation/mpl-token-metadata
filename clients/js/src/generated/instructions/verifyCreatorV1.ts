@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -48,22 +52,32 @@ export type VerifyCreatorV1InstructionData = {
 
 export type VerifyCreatorV1InstructionDataArgs = {};
 
+/** @deprecated Use `getVerifyCreatorV1InstructionDataSerializer()` without any argument instead. */
 export function getVerifyCreatorV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  VerifyCreatorV1InstructionDataArgs,
+  VerifyCreatorV1InstructionData
+>;
+export function getVerifyCreatorV1InstructionDataSerializer(): Serializer<
+  VerifyCreatorV1InstructionDataArgs,
+  VerifyCreatorV1InstructionData
+>;
+export function getVerifyCreatorV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   VerifyCreatorV1InstructionDataArgs,
   VerifyCreatorV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     VerifyCreatorV1InstructionDataArgs,
     any,
     VerifyCreatorV1InstructionData
   >(
-    s.struct<VerifyCreatorV1InstructionData>(
+    struct<VerifyCreatorV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['verifyCreatorV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['verifyCreatorV1Discriminator', u8()],
       ],
       { description: 'VerifyCreatorV1InstructionData' }
     ),
@@ -80,7 +94,7 @@ export function getVerifyCreatorV1InstructionDataSerializer(
 
 // Instruction.
 export function verifyCreatorV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
+  context: Pick<Context, 'programs' | 'identity'>,
   input: VerifyCreatorV1InstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -170,9 +184,7 @@ export function verifyCreatorV1(
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
 
   // Data.
-  const data = getVerifyCreatorV1InstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getVerifyCreatorV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

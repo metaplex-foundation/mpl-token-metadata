@@ -32,7 +32,7 @@ export type DigitalAssetWithToken = DigitalAsset & {
 };
 
 export async function fetchDigitalAssetWithToken(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   token: PublicKey,
   options?: RpcGetAccountsOptions
@@ -57,7 +57,6 @@ export async function fetchDigitalAssetWithToken(
   assertAccountExists(metadataAccount, 'Metadata');
   assertAccountExists(tokenAccount, 'Token');
   return deserializeDigitalAssetWithToken(
-    context,
     mintAccount,
     metadataAccount,
     tokenAccount,
@@ -67,7 +66,7 @@ export async function fetchDigitalAssetWithToken(
 }
 
 export async function fetchDigitalAssetWithAssociatedToken(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   owner: PublicKey,
   options?: RpcGetAccountsOptions
@@ -77,7 +76,7 @@ export async function fetchDigitalAssetWithAssociatedToken(
 }
 
 export async function fetchDigitalAssetWithTokenByMint(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   options?: RpcBaseOptions
 ): Promise<DigitalAssetWithToken> {
@@ -99,7 +98,7 @@ export async function fetchDigitalAssetWithTokenByMint(
 }
 
 export async function fetchAllDigitalAssetWithTokenByOwner(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   owner: PublicKey,
   options?: RpcBaseOptions & {
     mint?: PublicKey;
@@ -135,7 +134,6 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
         return [
           {
             ...deserializeDigitalAsset(
-              context,
               mintAccount,
               metadataAccount,
               editionAccount.exists ? editionAccount : undefined
@@ -154,7 +152,7 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
 }
 
 export function fetchAllDigitalAssetWithTokenByOwnerAndMint(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   owner: PublicKey,
   mint: PublicKey,
   options?: RpcBaseOptions
@@ -170,7 +168,7 @@ export function fetchAllDigitalAssetWithTokenByOwnerAndMint(
  * For a more robust solution, please use an external indexer.
  */
 export async function fetchAllDigitalAssetWithTokenByMint(
-  context: Pick<Context, 'rpc' | 'serializer' | 'eddsa' | 'programs'>,
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
   mint: PublicKey,
   options?: RpcBaseOptions
 ): Promise<DigitalAssetWithToken[]> {
@@ -200,7 +198,6 @@ export async function fetchAllDigitalAssetWithTokenByMint(
       if (!tokenAccount.exists) return [];
       return [
         deserializeDigitalAssetWithToken(
-          context,
           mintAccount,
           metadataAccount,
           tokenAccount,
@@ -213,7 +210,6 @@ export async function fetchAllDigitalAssetWithTokenByMint(
 }
 
 export function deserializeDigitalAssetWithToken(
-  context: Pick<Context, 'serializer'>,
   mintAccount: RpcAccount,
   metadataAccount: RpcAccount,
   tokenAccount: RpcAccount,
@@ -221,15 +217,10 @@ export function deserializeDigitalAssetWithToken(
   tokenRecordAccount?: RpcAccount
 ): DigitalAssetWithToken {
   return {
-    ...deserializeDigitalAsset(
-      context,
-      mintAccount,
-      metadataAccount,
-      editionAccount
-    ),
-    token: deserializeToken(context, tokenAccount),
+    ...deserializeDigitalAsset(mintAccount, metadataAccount, editionAccount),
+    token: deserializeToken(tokenAccount),
     tokenRecord: tokenRecordAccount
-      ? deserializeTokenRecord(context, tokenRecordAccount)
+      ? deserializeTokenRecord(tokenRecordAccount)
       : undefined,
   };
 }

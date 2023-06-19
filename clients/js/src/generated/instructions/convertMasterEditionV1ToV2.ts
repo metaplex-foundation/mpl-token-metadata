@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -36,20 +40,30 @@ export type ConvertMasterEditionV1ToV2InstructionData = {
 
 export type ConvertMasterEditionV1ToV2InstructionDataArgs = {};
 
+/** @deprecated Use `getConvertMasterEditionV1ToV2InstructionDataSerializer()` without any argument instead. */
 export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  ConvertMasterEditionV1ToV2InstructionDataArgs,
+  ConvertMasterEditionV1ToV2InstructionData
+>;
+export function getConvertMasterEditionV1ToV2InstructionDataSerializer(): Serializer<
+  ConvertMasterEditionV1ToV2InstructionDataArgs,
+  ConvertMasterEditionV1ToV2InstructionData
+>;
+export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   ConvertMasterEditionV1ToV2InstructionDataArgs,
   ConvertMasterEditionV1ToV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     ConvertMasterEditionV1ToV2InstructionDataArgs,
     any,
     ConvertMasterEditionV1ToV2InstructionData
   >(
-    s.struct<ConvertMasterEditionV1ToV2InstructionData>(
-      [['discriminator', s.u8()]],
+    struct<ConvertMasterEditionV1ToV2InstructionData>(
+      [['discriminator', u8()]],
       { description: 'ConvertMasterEditionV1ToV2InstructionData' }
     ),
     (value) => ({ ...value, discriminator: 12 })
@@ -61,7 +75,7 @@ export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
 
 // Instruction.
 export function convertMasterEditionV1ToV2(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: ConvertMasterEditionV1ToV2InstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -85,9 +99,8 @@ export function convertMasterEditionV1ToV2(
   addAccountMeta(keys, signers, resolvedAccounts.printingMint, false);
 
   // Data.
-  const data = getConvertMasterEditionV1ToV2InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data =
+    getConvertMasterEditionV1ToV2InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

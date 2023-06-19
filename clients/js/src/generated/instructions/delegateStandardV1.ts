@@ -12,13 +12,18 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -70,23 +75,33 @@ export type DelegateStandardV1InstructionDataArgs = {
   amount?: number | bigint;
 };
 
+/** @deprecated Use `getDelegateStandardV1InstructionDataSerializer()` without any argument instead. */
 export function getDelegateStandardV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  DelegateStandardV1InstructionDataArgs,
+  DelegateStandardV1InstructionData
+>;
+export function getDelegateStandardV1InstructionDataSerializer(): Serializer<
+  DelegateStandardV1InstructionDataArgs,
+  DelegateStandardV1InstructionData
+>;
+export function getDelegateStandardV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   DelegateStandardV1InstructionDataArgs,
   DelegateStandardV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     DelegateStandardV1InstructionDataArgs,
     any,
     DelegateStandardV1InstructionData
   >(
-    s.struct<DelegateStandardV1InstructionData>(
+    struct<DelegateStandardV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['delegateStandardV1Discriminator', s.u8()],
-        ['amount', s.u64()],
+        ['discriminator', u8()],
+        ['delegateStandardV1Discriminator', u8()],
+        ['amount', u64()],
       ],
       { description: 'DelegateStandardV1InstructionData' }
     ),
@@ -117,10 +132,7 @@ export type DelegateStandardV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function delegateStandardV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: DelegateStandardV1InstructionAccounts &
     DelegateStandardV1InstructionArgs
 ): TransactionBuilder {
@@ -294,9 +306,7 @@ export function delegateStandardV1(
 
   // Data.
   const data =
-    getDelegateStandardV1InstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getDelegateStandardV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

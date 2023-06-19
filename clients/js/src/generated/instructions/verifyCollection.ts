@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -42,19 +46,29 @@ export type VerifyCollectionInstructionData = { discriminator: number };
 
 export type VerifyCollectionInstructionDataArgs = {};
 
+/** @deprecated Use `getVerifyCollectionInstructionDataSerializer()` without any argument instead. */
 export function getVerifyCollectionInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  VerifyCollectionInstructionDataArgs,
+  VerifyCollectionInstructionData
+>;
+export function getVerifyCollectionInstructionDataSerializer(): Serializer<
+  VerifyCollectionInstructionDataArgs,
+  VerifyCollectionInstructionData
+>;
+export function getVerifyCollectionInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   VerifyCollectionInstructionDataArgs,
   VerifyCollectionInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     VerifyCollectionInstructionDataArgs,
     any,
     VerifyCollectionInstructionData
   >(
-    s.struct<VerifyCollectionInstructionData>([['discriminator', s.u8()]], {
+    struct<VerifyCollectionInstructionData>([['discriminator', u8()]], {
       description: 'VerifyCollectionInstructionData',
     }),
     (value) => ({ ...value, discriminator: 18 })
@@ -66,7 +80,7 @@ export function getVerifyCollectionInstructionDataSerializer(
 
 // Instruction.
 export function verifyCollection(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'programs' | 'payer'>,
   input: VerifyCollectionInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -120,9 +134,7 @@ export function verifyCollection(
   );
 
   // Data.
-  const data = getVerifyCollectionInstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getVerifyCollectionInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

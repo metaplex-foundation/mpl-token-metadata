@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -49,22 +53,32 @@ export type VerifyCollectionV1InstructionData = {
 
 export type VerifyCollectionV1InstructionDataArgs = {};
 
+/** @deprecated Use `getVerifyCollectionV1InstructionDataSerializer()` without any argument instead. */
 export function getVerifyCollectionV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  VerifyCollectionV1InstructionDataArgs,
+  VerifyCollectionV1InstructionData
+>;
+export function getVerifyCollectionV1InstructionDataSerializer(): Serializer<
+  VerifyCollectionV1InstructionDataArgs,
+  VerifyCollectionV1InstructionData
+>;
+export function getVerifyCollectionV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   VerifyCollectionV1InstructionDataArgs,
   VerifyCollectionV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     VerifyCollectionV1InstructionDataArgs,
     any,
     VerifyCollectionV1InstructionData
   >(
-    s.struct<VerifyCollectionV1InstructionData>(
+    struct<VerifyCollectionV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['verifyCollectionV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['verifyCollectionV1Discriminator', u8()],
       ],
       { description: 'VerifyCollectionV1InstructionData' }
     ),
@@ -81,7 +95,7 @@ export function getVerifyCollectionV1InstructionDataSerializer(
 
 // Instruction.
 export function verifyCollectionV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'identity'>,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity'>,
   input: VerifyCollectionV1InstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -175,9 +189,7 @@ export function verifyCollectionV1(
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
 
   // Data.
-  const data = getVerifyCollectionV1InstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getVerifyCollectionV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

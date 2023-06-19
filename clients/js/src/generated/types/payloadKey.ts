@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum PayloadKey {
   Amount,
@@ -23,11 +23,18 @@ export enum PayloadKey {
 
 export type PayloadKeyArgs = PayloadKey;
 
+/** @deprecated Use `getPayloadKeySerializer()` without any argument instead. */
 export function getPayloadKeySerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<PayloadKeyArgs, PayloadKey>;
+export function getPayloadKeySerializer(): Serializer<
+  PayloadKeyArgs,
+  PayloadKey
+>;
+export function getPayloadKeySerializer(
+  _context: object = {}
 ): Serializer<PayloadKeyArgs, PayloadKey> {
-  const s = context.serializer;
-  return s.enum<PayloadKey>(PayloadKey, {
+  return scalarEnum<PayloadKey>(PayloadKey, {
     description: 'PayloadKey',
   }) as Serializer<PayloadKeyArgs, PayloadKey>;
 }

@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 import {
   SetCollectionSizeArgs,
@@ -48,22 +52,32 @@ export type BubblegumSetCollectionSizeInstructionDataArgs = {
   setCollectionSizeArgs: SetCollectionSizeArgsArgs;
 };
 
+/** @deprecated Use `getBubblegumSetCollectionSizeInstructionDataSerializer()` without any argument instead. */
 export function getBubblegumSetCollectionSizeInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  BubblegumSetCollectionSizeInstructionDataArgs,
+  BubblegumSetCollectionSizeInstructionData
+>;
+export function getBubblegumSetCollectionSizeInstructionDataSerializer(): Serializer<
+  BubblegumSetCollectionSizeInstructionDataArgs,
+  BubblegumSetCollectionSizeInstructionData
+>;
+export function getBubblegumSetCollectionSizeInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   BubblegumSetCollectionSizeInstructionDataArgs,
   BubblegumSetCollectionSizeInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     BubblegumSetCollectionSizeInstructionDataArgs,
     any,
     BubblegumSetCollectionSizeInstructionData
   >(
-    s.struct<BubblegumSetCollectionSizeInstructionData>(
+    struct<BubblegumSetCollectionSizeInstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer(context)],
+        ['discriminator', u8()],
+        ['setCollectionSizeArgs', getSetCollectionSizeArgsSerializer()],
       ],
       { description: 'BubblegumSetCollectionSizeInstructionData' }
     ),
@@ -80,7 +94,7 @@ export type BubblegumSetCollectionSizeInstructionArgs =
 
 // Instruction.
 export function bubblegumSetCollectionSize(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: BubblegumSetCollectionSizeInstructionAccounts &
     BubblegumSetCollectionSizeInstructionArgs
 ): TransactionBuilder {
@@ -120,7 +134,7 @@ export function bubblegumSetCollectionSize(
 
   // Data.
   const data =
-    getBubblegumSetCollectionSizeInstructionDataSerializer(context).serialize(
+    getBubblegumSetCollectionSizeInstructionDataSerializer().serialize(
       resolvedArgs
     );
 

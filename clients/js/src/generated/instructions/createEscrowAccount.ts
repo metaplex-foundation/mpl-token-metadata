@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -48,19 +52,29 @@ export type CreateEscrowAccountInstructionData = { discriminator: number };
 
 export type CreateEscrowAccountInstructionDataArgs = {};
 
+/** @deprecated Use `getCreateEscrowAccountInstructionDataSerializer()` without any argument instead. */
 export function getCreateEscrowAccountInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  CreateEscrowAccountInstructionDataArgs,
+  CreateEscrowAccountInstructionData
+>;
+export function getCreateEscrowAccountInstructionDataSerializer(): Serializer<
+  CreateEscrowAccountInstructionDataArgs,
+  CreateEscrowAccountInstructionData
+>;
+export function getCreateEscrowAccountInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   CreateEscrowAccountInstructionDataArgs,
   CreateEscrowAccountInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     CreateEscrowAccountInstructionDataArgs,
     any,
     CreateEscrowAccountInstructionData
   >(
-    s.struct<CreateEscrowAccountInstructionData>([['discriminator', s.u8()]], {
+    struct<CreateEscrowAccountInstructionData>([['discriminator', u8()]], {
       description: 'CreateEscrowAccountInstructionData',
     }),
     (value) => ({ ...value, discriminator: 38 })
@@ -72,7 +86,7 @@ export function getCreateEscrowAccountInstructionDataSerializer(
 
 // Instruction.
 export function createEscrowAccount(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<Context, 'programs' | 'eddsa' | 'payer'>,
   input: CreateEscrowAccountInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -153,9 +167,7 @@ export function createEscrowAccount(
   addAccountMeta(keys, signers, resolvedAccounts.authority, true);
 
   // Data.
-  const data = getCreateEscrowAccountInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data = getCreateEscrowAccountInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -6,15 +6,17 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { Option, OptionOrNullable, none } from '@metaplex-foundation/umi';
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
-  Option,
   Serializer,
+  dataEnum,
   mapSerializer,
-  none,
-} from '@metaplex-foundation/umi';
+  option,
+  struct,
+  u64,
+} from '@metaplex-foundation/umi/serializers';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -30,14 +32,18 @@ export type MintArgs = {
 export type MintArgsArgs = {
   __kind: 'V1';
   amount?: number | bigint;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getMintArgsSerializer()` without any argument instead. */
 export function getMintArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<MintArgsArgs, MintArgs>;
+export function getMintArgsSerializer(): Serializer<MintArgsArgs, MintArgs>;
+export function getMintArgsSerializer(
+  _context: object = {}
 ): Serializer<MintArgsArgs, MintArgs> {
-  const s = context.serializer;
-  return s.dataEnum<MintArgs>(
+  return dataEnum<MintArgs>(
     [
       [
         'V1',
@@ -46,12 +52,9 @@ export function getMintArgsSerializer(
           any,
           GetDataEnumKindContent<MintArgs, 'V1'>
         >(
-          s.struct<GetDataEnumKindContent<MintArgs, 'V1'>>([
-            ['amount', s.u64()],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<MintArgs, 'V1'>>([
+            ['amount', u64()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,

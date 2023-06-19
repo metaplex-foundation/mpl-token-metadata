@@ -11,16 +11,23 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveDestinationTokenRecord,
@@ -84,27 +91,31 @@ export type TransferV1InstructionData = {
 
 export type TransferV1InstructionDataArgs = {
   amount?: number | bigint;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getTransferV1InstructionDataSerializer()` without any argument instead. */
 export function getTransferV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<TransferV1InstructionDataArgs, TransferV1InstructionData>;
+export function getTransferV1InstructionDataSerializer(): Serializer<
+  TransferV1InstructionDataArgs,
+  TransferV1InstructionData
+>;
+export function getTransferV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<TransferV1InstructionDataArgs, TransferV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<
     TransferV1InstructionDataArgs,
     any,
     TransferV1InstructionData
   >(
-    s.struct<TransferV1InstructionData>(
+    struct<TransferV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['transferV1Discriminator', s.u8()],
-        ['amount', s.u64()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['transferV1Discriminator', u8()],
+        ['amount', u64()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'TransferV1InstructionData' }
     ),
@@ -129,10 +140,7 @@ export type TransferV1InstructionArgs = TransferV1InstructionDataArgs &
 
 // Instruction.
 export function transferV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: TransferV1InstructionAccounts & TransferV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -341,8 +349,7 @@ export function transferV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data =
-    getTransferV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getTransferV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

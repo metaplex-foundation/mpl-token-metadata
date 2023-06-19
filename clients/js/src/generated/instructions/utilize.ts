@@ -11,13 +11,18 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -55,15 +60,22 @@ export type UtilizeInstructionData = {
 
 export type UtilizeInstructionDataArgs = { numberOfUses: number | bigint };
 
+/** @deprecated Use `getUtilizeInstructionDataSerializer()` without any argument instead. */
 export function getUtilizeInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UtilizeInstructionDataArgs, UtilizeInstructionData>;
+export function getUtilizeInstructionDataSerializer(): Serializer<
+  UtilizeInstructionDataArgs,
+  UtilizeInstructionData
+>;
+export function getUtilizeInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<UtilizeInstructionDataArgs, UtilizeInstructionData> {
-  const s = context.serializer;
   return mapSerializer<UtilizeInstructionDataArgs, any, UtilizeInstructionData>(
-    s.struct<UtilizeInstructionData>(
+    struct<UtilizeInstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['numberOfUses', s.u64()],
+        ['discriminator', u8()],
+        ['numberOfUses', u64()],
       ],
       { description: 'UtilizeInstructionData' }
     ),
@@ -76,7 +88,7 @@ export type UtilizeInstructionArgs = UtilizeInstructionDataArgs;
 
 // Instruction.
 export function utilize(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa'>,
+  context: Pick<Context, 'programs' | 'eddsa'>,
   input: UtilizeInstructionAccounts & UtilizeInstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -172,8 +184,7 @@ export function utilize(
   addAccountMeta(keys, signers, resolvedAccounts.burner, true);
 
   // Data.
-  const data =
-    getUtilizeInstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getUtilizeInstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

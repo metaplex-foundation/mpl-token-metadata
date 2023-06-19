@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, struct, u64 } from '@metaplex-foundation/umi/serializers';
 import { UseMethod, UseMethodArgs, getUseMethodSerializer } from '.';
 
 export type Uses = { useMethod: UseMethod; remaining: bigint; total: bigint };
@@ -17,15 +17,17 @@ export type UsesArgs = {
   total: number | bigint;
 };
 
+/** @deprecated Use `getUsesSerializer()` without any argument instead. */
+export function getUsesSerializer(_context: object): Serializer<UsesArgs, Uses>;
+export function getUsesSerializer(): Serializer<UsesArgs, Uses>;
 export function getUsesSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object = {}
 ): Serializer<UsesArgs, Uses> {
-  const s = context.serializer;
-  return s.struct<Uses>(
+  return struct<Uses>(
     [
-      ['useMethod', getUseMethodSerializer(context)],
-      ['remaining', s.u64()],
-      ['total', s.u64()],
+      ['useMethod', getUseMethodSerializer()],
+      ['remaining', u64()],
+      ['total', u64()],
     ],
     { description: 'Uses' }
   ) as Serializer<UsesArgs, Uses>;

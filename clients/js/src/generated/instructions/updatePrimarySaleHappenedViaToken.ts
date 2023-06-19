@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -36,20 +40,30 @@ export type UpdatePrimarySaleHappenedViaTokenInstructionData = {
 
 export type UpdatePrimarySaleHappenedViaTokenInstructionDataArgs = {};
 
+/** @deprecated Use `getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer()` without any argument instead. */
 export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
+  UpdatePrimarySaleHappenedViaTokenInstructionData
+>;
+export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(): Serializer<
+  UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
+  UpdatePrimarySaleHappenedViaTokenInstructionData
+>;
+export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
   UpdatePrimarySaleHappenedViaTokenInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
     any,
     UpdatePrimarySaleHappenedViaTokenInstructionData
   >(
-    s.struct<UpdatePrimarySaleHappenedViaTokenInstructionData>(
-      [['discriminator', s.u8()]],
+    struct<UpdatePrimarySaleHappenedViaTokenInstructionData>(
+      [['discriminator', u8()]],
       { description: 'UpdatePrimarySaleHappenedViaTokenInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 4 })
@@ -61,7 +75,7 @@ export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
 
 // Instruction.
 export function updatePrimarySaleHappenedViaToken(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: UpdatePrimarySaleHappenedViaTokenInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -85,9 +99,10 @@ export function updatePrimarySaleHappenedViaToken(
   addAccountMeta(keys, signers, resolvedAccounts.token, false);
 
   // Data.
-  const data = getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data =
+    getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer().serialize(
+      {}
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

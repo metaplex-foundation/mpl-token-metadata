@@ -6,7 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, scalarEnum } from '@metaplex-foundation/umi/serializers';
 
 export enum VerificationArgs {
   CreatorV1,
@@ -15,11 +15,18 @@ export enum VerificationArgs {
 
 export type VerificationArgsArgs = VerificationArgs;
 
+/** @deprecated Use `getVerificationArgsSerializer()` without any argument instead. */
 export function getVerificationArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<VerificationArgsArgs, VerificationArgs>;
+export function getVerificationArgsSerializer(): Serializer<
+  VerificationArgsArgs,
+  VerificationArgs
+>;
+export function getVerificationArgsSerializer(
+  _context: object = {}
 ): Serializer<VerificationArgsArgs, VerificationArgs> {
-  const s = context.serializer;
-  return s.enum<VerificationArgs>(VerificationArgs, {
+  return scalarEnum<VerificationArgs>(VerificationArgs, {
     description: 'VerificationArgs',
   }) as Serializer<VerificationArgsArgs, VerificationArgs>;
 }

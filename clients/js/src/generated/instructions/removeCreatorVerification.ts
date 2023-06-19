@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -34,20 +38,30 @@ export type RemoveCreatorVerificationInstructionData = {
 
 export type RemoveCreatorVerificationInstructionDataArgs = {};
 
+/** @deprecated Use `getRemoveCreatorVerificationInstructionDataSerializer()` without any argument instead. */
 export function getRemoveCreatorVerificationInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  RemoveCreatorVerificationInstructionDataArgs,
+  RemoveCreatorVerificationInstructionData
+>;
+export function getRemoveCreatorVerificationInstructionDataSerializer(): Serializer<
+  RemoveCreatorVerificationInstructionDataArgs,
+  RemoveCreatorVerificationInstructionData
+>;
+export function getRemoveCreatorVerificationInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   RemoveCreatorVerificationInstructionDataArgs,
   RemoveCreatorVerificationInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     RemoveCreatorVerificationInstructionDataArgs,
     any,
     RemoveCreatorVerificationInstructionData
   >(
-    s.struct<RemoveCreatorVerificationInstructionData>(
-      [['discriminator', s.u8()]],
+    struct<RemoveCreatorVerificationInstructionData>(
+      [['discriminator', u8()]],
       { description: 'RemoveCreatorVerificationInstructionData' }
     ),
     (value) => ({ ...value, discriminator: 28 })
@@ -59,7 +73,7 @@ export function getRemoveCreatorVerificationInstructionDataSerializer(
 
 // Instruction.
 export function removeCreatorVerification(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: RemoveCreatorVerificationInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -81,9 +95,8 @@ export function removeCreatorVerification(
   addAccountMeta(keys, signers, resolvedAccounts.creator, false);
 
   // Data.
-  const data = getRemoveCreatorVerificationInstructionDataSerializer(
-    context
-  ).serialize({});
+  const data =
+    getRemoveCreatorVerificationInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

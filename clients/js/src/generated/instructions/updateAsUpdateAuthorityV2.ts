@@ -10,16 +10,27 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  bool,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u16,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
@@ -100,64 +111,71 @@ export type UpdateAsUpdateAuthorityV2InstructionData = {
 };
 
 export type UpdateAsUpdateAuthorityV2InstructionDataArgs = {
-  newUpdateAuthority?: Option<PublicKey>;
-  data?: Option<{
+  newUpdateAuthority?: OptionOrNullable<PublicKey>;
+  data?: OptionOrNullable<{
     name: string;
     symbol: string;
     uri: string;
     sellerFeeBasisPoints: number;
-    creators: Option<Array<CreatorArgs>>;
+    creators: OptionOrNullable<Array<CreatorArgs>>;
   }>;
-  primarySaleHappened?: Option<boolean>;
-  isMutable?: Option<boolean>;
+  primarySaleHappened?: OptionOrNullable<boolean>;
+  isMutable?: OptionOrNullable<boolean>;
   collection?: CollectionToggleArgs;
   collectionDetails?: CollectionDetailsToggleArgs;
   uses?: UsesToggleArgs;
   ruleSet?: RuleSetToggleArgs;
-  tokenStandard?: Option<TokenStandardArgs>;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  tokenStandard?: OptionOrNullable<TokenStandardArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUpdateAsUpdateAuthorityV2InstructionDataSerializer()` without any argument instead. */
 export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UpdateAsUpdateAuthorityV2InstructionDataArgs,
+  UpdateAsUpdateAuthorityV2InstructionData
+>;
+export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(): Serializer<
+  UpdateAsUpdateAuthorityV2InstructionDataArgs,
+  UpdateAsUpdateAuthorityV2InstructionData
+>;
+export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UpdateAsUpdateAuthorityV2InstructionDataArgs,
   UpdateAsUpdateAuthorityV2InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UpdateAsUpdateAuthorityV2InstructionDataArgs,
     any,
     UpdateAsUpdateAuthorityV2InstructionData
   >(
-    s.struct<UpdateAsUpdateAuthorityV2InstructionData>(
+    struct<UpdateAsUpdateAuthorityV2InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['updateAsUpdateAuthorityV2Discriminator', s.u8()],
-        ['newUpdateAuthority', s.option(s.publicKey())],
+        ['discriminator', u8()],
+        ['updateAsUpdateAuthorityV2Discriminator', u8()],
+        ['newUpdateAuthority', option(publicKeySerializer())],
         [
           'data',
-          s.option(
-            s.struct<any>([
-              ['name', s.string()],
-              ['symbol', s.string()],
-              ['uri', s.string()],
-              ['sellerFeeBasisPoints', s.u16()],
-              ['creators', s.option(s.array(getCreatorSerializer(context)))],
+          option(
+            struct<any>([
+              ['name', string()],
+              ['symbol', string()],
+              ['uri', string()],
+              ['sellerFeeBasisPoints', u16()],
+              ['creators', option(array(getCreatorSerializer()))],
             ])
           ),
         ],
-        ['primarySaleHappened', s.option(s.bool())],
-        ['isMutable', s.option(s.bool())],
-        ['collection', getCollectionToggleSerializer(context)],
-        ['collectionDetails', getCollectionDetailsToggleSerializer(context)],
-        ['uses', getUsesToggleSerializer(context)],
-        ['ruleSet', getRuleSetToggleSerializer(context)],
-        ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['primarySaleHappened', option(bool())],
+        ['isMutable', option(bool())],
+        ['collection', getCollectionToggleSerializer()],
+        ['collectionDetails', getCollectionDetailsToggleSerializer()],
+        ['uses', getUsesToggleSerializer()],
+        ['ruleSet', getRuleSetToggleSerializer()],
+        ['tokenStandard', option(getTokenStandardSerializer())],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsUpdateAuthorityV2InstructionData' }
     ),
@@ -189,10 +207,7 @@ export type UpdateAsUpdateAuthorityV2InstructionArgs =
 
 // Instruction.
 export function updateAsUpdateAuthorityV2(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UpdateAsUpdateAuthorityV2InstructionAccounts &
     UpdateAsUpdateAuthorityV2InstructionArgs
 ): TransactionBuilder {
@@ -319,7 +334,7 @@ export function updateAsUpdateAuthorityV2(
 
   // Data.
   const data =
-    getUpdateAsUpdateAuthorityV2InstructionDataSerializer(context).serialize(
+    getUpdateAsUpdateAuthorityV2InstructionDataSerializer().serialize(
       resolvedArgs
     );
 

@@ -11,13 +11,17 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -46,22 +50,32 @@ export type UnverifyCreatorV1InstructionData = {
 
 export type UnverifyCreatorV1InstructionDataArgs = {};
 
+/** @deprecated Use `getUnverifyCreatorV1InstructionDataSerializer()` without any argument instead. */
 export function getUnverifyCreatorV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  UnverifyCreatorV1InstructionDataArgs,
+  UnverifyCreatorV1InstructionData
+>;
+export function getUnverifyCreatorV1InstructionDataSerializer(): Serializer<
+  UnverifyCreatorV1InstructionDataArgs,
+  UnverifyCreatorV1InstructionData
+>;
+export function getUnverifyCreatorV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   UnverifyCreatorV1InstructionDataArgs,
   UnverifyCreatorV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     UnverifyCreatorV1InstructionDataArgs,
     any,
     UnverifyCreatorV1InstructionData
   >(
-    s.struct<UnverifyCreatorV1InstructionData>(
+    struct<UnverifyCreatorV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['unverifyCreatorV1Discriminator', s.u8()],
+        ['discriminator', u8()],
+        ['unverifyCreatorV1Discriminator', u8()],
       ],
       { description: 'UnverifyCreatorV1InstructionData' }
     ),
@@ -78,7 +92,7 @@ export function getUnverifyCreatorV1InstructionDataSerializer(
 
 // Instruction.
 export function unverifyCreatorV1(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
+  context: Pick<Context, 'programs' | 'identity'>,
   input: UnverifyCreatorV1InstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -155,9 +169,7 @@ export function unverifyCreatorV1(
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
 
   // Data.
-  const data = getUnverifyCreatorV1InstructionDataSerializer(context).serialize(
-    {}
-  );
+  const data = getUnverifyCreatorV1InstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

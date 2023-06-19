@@ -6,19 +6,25 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import { Serializer, struct } from '@metaplex-foundation/umi/serializers';
 import { Payload, PayloadArgs, getPayloadSerializer } from '.';
 
 export type AuthorizationData = { payload: Payload };
 
 export type AuthorizationDataArgs = { payload: PayloadArgs };
 
+/** @deprecated Use `getAuthorizationDataSerializer()` without any argument instead. */
 export function getAuthorizationDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<AuthorizationDataArgs, AuthorizationData>;
+export function getAuthorizationDataSerializer(): Serializer<
+  AuthorizationDataArgs,
+  AuthorizationData
+>;
+export function getAuthorizationDataSerializer(
+  _context: object = {}
 ): Serializer<AuthorizationDataArgs, AuthorizationData> {
-  const s = context.serializer;
-  return s.struct<AuthorizationData>(
-    [['payload', getPayloadSerializer(context)]],
-    { description: 'AuthorizationData' }
-  ) as Serializer<AuthorizationDataArgs, AuthorizationData>;
+  return struct<AuthorizationData>([['payload', getPayloadSerializer()]], {
+    description: 'AuthorizationData',
+  }) as Serializer<AuthorizationDataArgs, AuthorizationData>;
 }

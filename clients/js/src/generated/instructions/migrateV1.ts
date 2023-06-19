@@ -10,15 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import {
   findMasterEditionPda,
@@ -76,24 +83,31 @@ export type MigrateV1InstructionData = {
 
 export type MigrateV1InstructionDataArgs = {
   migrationType: MigrationTypeArgs;
-  ruleSet: Option<PublicKey>;
+  ruleSet: OptionOrNullable<PublicKey>;
 };
 
+/** @deprecated Use `getMigrateV1InstructionDataSerializer()` without any argument instead. */
 export function getMigrateV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData>;
+export function getMigrateV1InstructionDataSerializer(): Serializer<
+  MigrateV1InstructionDataArgs,
+  MigrateV1InstructionData
+>;
+export function getMigrateV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<
     MigrateV1InstructionDataArgs,
     any,
     MigrateV1InstructionData
   >(
-    s.struct<MigrateV1InstructionData>(
+    struct<MigrateV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['migrateV1Discriminator', s.u8()],
-        ['migrationType', getMigrationTypeSerializer(context)],
-        ['ruleSet', s.option(s.publicKey())],
+        ['discriminator', u8()],
+        ['migrateV1Discriminator', u8()],
+        ['migrationType', getMigrationTypeSerializer()],
+        ['ruleSet', option(publicKeySerializer())],
       ],
       { description: 'MigrateV1InstructionData' }
     ),
@@ -106,10 +120,7 @@ export type MigrateV1InstructionArgs = MigrateV1InstructionDataArgs;
 
 // Instruction.
 export function migrateV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: MigrateV1InstructionAccounts & MigrateV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -257,8 +268,7 @@ export function migrateV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data =
-    getMigrateV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getMigrateV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

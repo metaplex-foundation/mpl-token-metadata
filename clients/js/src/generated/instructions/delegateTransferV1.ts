@@ -11,16 +11,23 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -77,30 +84,37 @@ export type DelegateTransferV1InstructionData = {
 
 export type DelegateTransferV1InstructionDataArgs = {
   amount?: number | bigint;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getDelegateTransferV1InstructionDataSerializer()` without any argument instead. */
 export function getDelegateTransferV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  DelegateTransferV1InstructionDataArgs,
+  DelegateTransferV1InstructionData
+>;
+export function getDelegateTransferV1InstructionDataSerializer(): Serializer<
+  DelegateTransferV1InstructionDataArgs,
+  DelegateTransferV1InstructionData
+>;
+export function getDelegateTransferV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   DelegateTransferV1InstructionDataArgs,
   DelegateTransferV1InstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     DelegateTransferV1InstructionDataArgs,
     any,
     DelegateTransferV1InstructionData
   >(
-    s.struct<DelegateTransferV1InstructionData>(
+    struct<DelegateTransferV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['delegateTransferV1Discriminator', s.u8()],
-        ['amount', s.u64()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['delegateTransferV1Discriminator', u8()],
+        ['amount', u64()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'DelegateTransferV1InstructionData' }
     ),
@@ -132,10 +146,7 @@ export type DelegateTransferV1InstructionArgs = PickPartial<
 
 // Instruction.
 export function delegateTransferV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: DelegateTransferV1InstructionAccounts &
     DelegateTransferV1InstructionArgs
 ): TransactionBuilder {
@@ -315,9 +326,7 @@ export function delegateTransferV1(
 
   // Data.
   const data =
-    getDelegateTransferV1InstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getDelegateTransferV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

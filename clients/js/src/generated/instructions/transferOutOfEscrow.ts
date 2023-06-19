@@ -11,13 +11,18 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -60,22 +65,32 @@ export type TransferOutOfEscrowInstructionDataArgs = {
   amount?: number | bigint;
 };
 
+/** @deprecated Use `getTransferOutOfEscrowInstructionDataSerializer()` without any argument instead. */
 export function getTransferOutOfEscrowInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  TransferOutOfEscrowInstructionDataArgs,
+  TransferOutOfEscrowInstructionData
+>;
+export function getTransferOutOfEscrowInstructionDataSerializer(): Serializer<
+  TransferOutOfEscrowInstructionDataArgs,
+  TransferOutOfEscrowInstructionData
+>;
+export function getTransferOutOfEscrowInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   TransferOutOfEscrowInstructionDataArgs,
   TransferOutOfEscrowInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     TransferOutOfEscrowInstructionDataArgs,
     any,
     TransferOutOfEscrowInstructionData
   >(
-    s.struct<TransferOutOfEscrowInstructionData>(
+    struct<TransferOutOfEscrowInstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['amount', s.u64()],
+        ['discriminator', u8()],
+        ['amount', u64()],
       ],
       { description: 'TransferOutOfEscrowInstructionData' }
     ),
@@ -92,7 +107,7 @@ export type TransferOutOfEscrowInstructionArgs =
 
 // Instruction.
 export function transferOutOfEscrow(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'programs' | 'payer'>,
   input: TransferOutOfEscrowInstructionAccounts &
     TransferOutOfEscrowInstructionArgs
 ): TransactionBuilder {
@@ -191,9 +206,7 @@ export function transferOutOfEscrow(
 
   // Data.
   const data =
-    getTransferOutOfEscrowInstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getTransferOutOfEscrowInstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

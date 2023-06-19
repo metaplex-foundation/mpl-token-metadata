@@ -11,13 +11,18 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
@@ -57,22 +62,32 @@ export type ApproveUseAuthorityInstructionDataArgs = {
   numberOfUses: number | bigint;
 };
 
+/** @deprecated Use `getApproveUseAuthorityInstructionDataSerializer()` without any argument instead. */
 export function getApproveUseAuthorityInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  ApproveUseAuthorityInstructionDataArgs,
+  ApproveUseAuthorityInstructionData
+>;
+export function getApproveUseAuthorityInstructionDataSerializer(): Serializer<
+  ApproveUseAuthorityInstructionDataArgs,
+  ApproveUseAuthorityInstructionData
+>;
+export function getApproveUseAuthorityInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   ApproveUseAuthorityInstructionDataArgs,
   ApproveUseAuthorityInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     ApproveUseAuthorityInstructionDataArgs,
     any,
     ApproveUseAuthorityInstructionData
   >(
-    s.struct<ApproveUseAuthorityInstructionData>(
+    struct<ApproveUseAuthorityInstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['numberOfUses', s.u64()],
+        ['discriminator', u8()],
+        ['numberOfUses', u64()],
       ],
       { description: 'ApproveUseAuthorityInstructionData' }
     ),
@@ -89,7 +104,7 @@ export type ApproveUseAuthorityInstructionArgs =
 
 // Instruction.
 export function approveUseAuthority(
-  context: Pick<Context, 'serializer' | 'programs' | 'eddsa' | 'payer'>,
+  context: Pick<Context, 'programs' | 'eddsa' | 'payer'>,
   input: ApproveUseAuthorityInstructionAccounts &
     ApproveUseAuthorityInstructionArgs
 ): TransactionBuilder {
@@ -172,9 +187,7 @@ export function approveUseAuthority(
 
   // Data.
   const data =
-    getApproveUseAuthorityInstructionDataSerializer(context).serialize(
-      resolvedArgs
-    );
+    getApproveUseAuthorityInstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

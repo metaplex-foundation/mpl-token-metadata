@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 
 // Accounts.
@@ -32,12 +36,19 @@ export type CollectInstructionData = { discriminator: number };
 
 export type CollectInstructionDataArgs = {};
 
+/** @deprecated Use `getCollectInstructionDataSerializer()` without any argument instead. */
 export function getCollectInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<CollectInstructionDataArgs, CollectInstructionData>;
+export function getCollectInstructionDataSerializer(): Serializer<
+  CollectInstructionDataArgs,
+  CollectInstructionData
+>;
+export function getCollectInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<CollectInstructionDataArgs, CollectInstructionData> {
-  const s = context.serializer;
   return mapSerializer<CollectInstructionDataArgs, any, CollectInstructionData>(
-    s.struct<CollectInstructionData>([['discriminator', s.u8()]], {
+    struct<CollectInstructionData>([['discriminator', u8()]], {
       description: 'CollectInstructionData',
     }),
     (value) => ({ ...value, discriminator: 54 })
@@ -46,7 +57,7 @@ export function getCollectInstructionDataSerializer(
 
 // Instruction.
 export function collect(
-  context: Pick<Context, 'serializer' | 'programs' | 'identity'>,
+  context: Pick<Context, 'programs' | 'identity'>,
   input: CollectInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -74,7 +85,7 @@ export function collect(
   addAccountMeta(keys, signers, resolvedAccounts.pdaAccount, false);
 
   // Data.
-  const data = getCollectInstructionDataSerializer(context).serialize({});
+  const data = getCollectInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

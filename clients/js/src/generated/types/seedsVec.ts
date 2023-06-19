@@ -6,17 +6,26 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  array,
+  bytes,
+  struct,
+} from '@metaplex-foundation/umi/serializers';
 
 export type SeedsVec = { seeds: Array<Uint8Array> };
 
 export type SeedsVecArgs = SeedsVec;
 
+/** @deprecated Use `getSeedsVecSerializer()` without any argument instead. */
 export function getSeedsVecSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<SeedsVecArgs, SeedsVec>;
+export function getSeedsVecSerializer(): Serializer<SeedsVecArgs, SeedsVec>;
+export function getSeedsVecSerializer(
+  _context: object = {}
 ): Serializer<SeedsVecArgs, SeedsVec> {
-  const s = context.serializer;
-  return s.struct<SeedsVec>([['seeds', s.array(s.bytes())]], {
+  return struct<SeedsVec>([['seeds', array(bytes())]], {
     description: 'SeedsVec',
   }) as Serializer<SeedsVecArgs, SeedsVec>;
 }

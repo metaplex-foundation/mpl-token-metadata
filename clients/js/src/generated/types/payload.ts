@@ -6,19 +6,27 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { Context, Serializer } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  map,
+  string,
+  struct,
+} from '@metaplex-foundation/umi/serializers';
 import { PayloadType, PayloadTypeArgs, getPayloadTypeSerializer } from '.';
 
 export type Payload = { map: Map<string, PayloadType> };
 
 export type PayloadArgs = { map: Map<string, PayloadTypeArgs> };
 
+/** @deprecated Use `getPayloadSerializer()` without any argument instead. */
 export function getPayloadSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<PayloadArgs, Payload>;
+export function getPayloadSerializer(): Serializer<PayloadArgs, Payload>;
+export function getPayloadSerializer(
+  _context: object = {}
 ): Serializer<PayloadArgs, Payload> {
-  const s = context.serializer;
-  return s.struct<Payload>(
-    [['map', s.map(s.string(), getPayloadTypeSerializer(context))]],
-    { description: 'Payload' }
-  ) as Serializer<PayloadArgs, Payload>;
+  return struct<Payload>([['map', map(string(), getPayloadTypeSerializer())]], {
+    description: 'Payload',
+  }) as Serializer<PayloadArgs, Payload>;
 }

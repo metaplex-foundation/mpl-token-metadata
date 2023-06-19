@@ -7,15 +7,25 @@
  */
 
 import {
-  Context,
-  GetDataEnumKind,
-  GetDataEnumKindContent,
   Option,
+  OptionOrNullable,
   PublicKey,
-  Serializer,
-  mapSerializer,
   none,
 } from '@metaplex-foundation/umi';
+import {
+  GetDataEnumKind,
+  GetDataEnumKindContent,
+  Serializer,
+  array,
+  bool,
+  dataEnum,
+  mapSerializer,
+  option,
+  publicKey as publicKeySerializer,
+  string,
+  struct,
+  u16,
+} from '@metaplex-foundation/umi/serializers';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -136,97 +146,104 @@ export type UpdateArgs =
 export type UpdateArgsArgs =
   | {
       __kind: 'V1';
-      newUpdateAuthority?: Option<PublicKey>;
-      data?: Option<{
+      newUpdateAuthority?: OptionOrNullable<PublicKey>;
+      data?: OptionOrNullable<{
         name: string;
         symbol: string;
         uri: string;
         sellerFeeBasisPoints: number;
-        creators: Option<Array<CreatorArgs>>;
+        creators: OptionOrNullable<Array<CreatorArgs>>;
       }>;
-      primarySaleHappened?: Option<boolean>;
-      isMutable?: Option<boolean>;
+      primarySaleHappened?: OptionOrNullable<boolean>;
+      isMutable?: OptionOrNullable<boolean>;
       collection?: CollectionToggleArgs;
       collectionDetails?: CollectionDetailsToggleArgs;
       uses?: UsesToggleArgs;
       ruleSet?: RuleSetToggleArgs;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsUpdateAuthorityV2';
-      newUpdateAuthority?: Option<PublicKey>;
-      data?: Option<{
+      newUpdateAuthority?: OptionOrNullable<PublicKey>;
+      data?: OptionOrNullable<{
         name: string;
         symbol: string;
         uri: string;
         sellerFeeBasisPoints: number;
-        creators: Option<Array<CreatorArgs>>;
+        creators: OptionOrNullable<Array<CreatorArgs>>;
       }>;
-      primarySaleHappened?: Option<boolean>;
-      isMutable?: Option<boolean>;
+      primarySaleHappened?: OptionOrNullable<boolean>;
+      isMutable?: OptionOrNullable<boolean>;
       collection?: CollectionToggleArgs;
       collectionDetails?: CollectionDetailsToggleArgs;
       uses?: UsesToggleArgs;
       ruleSet?: RuleSetToggleArgs;
-      tokenStandard?: Option<TokenStandardArgs>;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      tokenStandard?: OptionOrNullable<TokenStandardArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsAuthorityItemDelegateV2';
-      newUpdateAuthority?: Option<PublicKey>;
-      primarySaleHappened?: Option<boolean>;
-      isMutable?: Option<boolean>;
-      tokenStandard?: Option<TokenStandardArgs>;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      newUpdateAuthority?: OptionOrNullable<PublicKey>;
+      primarySaleHappened?: OptionOrNullable<boolean>;
+      isMutable?: OptionOrNullable<boolean>;
+      tokenStandard?: OptionOrNullable<TokenStandardArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsCollectionDelegateV2';
       collection?: CollectionToggleArgs;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsDataDelegateV2';
-      data?: Option<{
+      data?: OptionOrNullable<{
         name: string;
         symbol: string;
         uri: string;
         sellerFeeBasisPoints: number;
-        creators: Option<Array<CreatorArgs>>;
+        creators: OptionOrNullable<Array<CreatorArgs>>;
       }>;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsProgrammableConfigDelegateV2';
       ruleSet?: RuleSetToggleArgs;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsDataItemDelegateV2';
-      data?: Option<{
+      data?: OptionOrNullable<{
         name: string;
         symbol: string;
         uri: string;
         sellerFeeBasisPoints: number;
-        creators: Option<Array<CreatorArgs>>;
+        creators: OptionOrNullable<Array<CreatorArgs>>;
       }>;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsCollectionItemDelegateV2';
       collection?: CollectionToggleArgs;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     }
   | {
       __kind: 'AsProgrammableConfigItemDelegateV2';
       ruleSet?: RuleSetToggleArgs;
-      authorizationData?: Option<AuthorizationDataArgs>;
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     };
 
+/** @deprecated Use `getUpdateArgsSerializer()` without any argument instead. */
 export function getUpdateArgsSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UpdateArgsArgs, UpdateArgs>;
+export function getUpdateArgsSerializer(): Serializer<
+  UpdateArgsArgs,
+  UpdateArgs
+>;
+export function getUpdateArgsSerializer(
+  _context: object = {}
 ): Serializer<UpdateArgsArgs, UpdateArgs> {
-  const s = context.serializer;
-  return s.dataEnum<UpdateArgs>(
+  return dataEnum<UpdateArgs>(
     [
       [
         'V1',
@@ -235,36 +252,27 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'V1'>
         >(
-          s.struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>([
-            ['newUpdateAuthority', s.option(s.publicKey())],
+          struct<GetDataEnumKindContent<UpdateArgs, 'V1'>>([
+            ['newUpdateAuthority', option(publicKeySerializer())],
             [
               'data',
-              s.option(
-                s.struct<any>([
-                  ['name', s.string()],
-                  ['symbol', s.string()],
-                  ['uri', s.string()],
-                  ['sellerFeeBasisPoints', s.u16()],
-                  [
-                    'creators',
-                    s.option(s.array(getCreatorSerializer(context))),
-                  ],
+              option(
+                struct<any>([
+                  ['name', string()],
+                  ['symbol', string()],
+                  ['uri', string()],
+                  ['sellerFeeBasisPoints', u16()],
+                  ['creators', option(array(getCreatorSerializer()))],
                 ])
               ),
             ],
-            ['primarySaleHappened', s.option(s.bool())],
-            ['isMutable', s.option(s.bool())],
-            ['collection', getCollectionToggleSerializer(context)],
-            [
-              'collectionDetails',
-              getCollectionDetailsToggleSerializer(context),
-            ],
-            ['uses', getUsesToggleSerializer(context)],
-            ['ruleSet', getRuleSetToggleSerializer(context)],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['primarySaleHappened', option(bool())],
+            ['isMutable', option(bool())],
+            ['collection', getCollectionToggleSerializer()],
+            ['collectionDetails', getCollectionDetailsToggleSerializer()],
+            ['uses', getUsesToggleSerializer()],
+            ['ruleSet', getRuleSetToggleSerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -288,37 +296,28 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsUpdateAuthorityV2'>
         >(
-          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsUpdateAuthorityV2'>>([
-            ['newUpdateAuthority', s.option(s.publicKey())],
+          struct<GetDataEnumKindContent<UpdateArgs, 'AsUpdateAuthorityV2'>>([
+            ['newUpdateAuthority', option(publicKeySerializer())],
             [
               'data',
-              s.option(
-                s.struct<any>([
-                  ['name', s.string()],
-                  ['symbol', s.string()],
-                  ['uri', s.string()],
-                  ['sellerFeeBasisPoints', s.u16()],
-                  [
-                    'creators',
-                    s.option(s.array(getCreatorSerializer(context))),
-                  ],
+              option(
+                struct<any>([
+                  ['name', string()],
+                  ['symbol', string()],
+                  ['uri', string()],
+                  ['sellerFeeBasisPoints', u16()],
+                  ['creators', option(array(getCreatorSerializer()))],
                 ])
               ),
             ],
-            ['primarySaleHappened', s.option(s.bool())],
-            ['isMutable', s.option(s.bool())],
-            ['collection', getCollectionToggleSerializer(context)],
-            [
-              'collectionDetails',
-              getCollectionDetailsToggleSerializer(context),
-            ],
-            ['uses', getUsesToggleSerializer(context)],
-            ['ruleSet', getRuleSetToggleSerializer(context)],
-            ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['primarySaleHappened', option(bool())],
+            ['isMutable', option(bool())],
+            ['collection', getCollectionToggleSerializer()],
+            ['collectionDetails', getCollectionDetailsToggleSerializer()],
+            ['uses', getUsesToggleSerializer()],
+            ['ruleSet', getRuleSetToggleSerializer()],
+            ['tokenStandard', option(getTokenStandardSerializer())],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -343,17 +342,14 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsAuthorityItemDelegateV2'>
         >(
-          s.struct<
+          struct<
             GetDataEnumKindContent<UpdateArgs, 'AsAuthorityItemDelegateV2'>
           >([
-            ['newUpdateAuthority', s.option(s.publicKey())],
-            ['primarySaleHappened', s.option(s.bool())],
-            ['isMutable', s.option(s.bool())],
-            ['tokenStandard', s.option(getTokenStandardSerializer(context))],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['newUpdateAuthority', option(publicKeySerializer())],
+            ['primarySaleHappened', option(bool())],
+            ['isMutable', option(bool())],
+            ['tokenStandard', option(getTokenStandardSerializer())],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -372,14 +368,9 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsCollectionDelegateV2'>
         >(
-          s.struct<
-            GetDataEnumKindContent<UpdateArgs, 'AsCollectionDelegateV2'>
-          >([
-            ['collection', getCollectionToggleSerializer(context)],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+          struct<GetDataEnumKindContent<UpdateArgs, 'AsCollectionDelegateV2'>>([
+            ['collection', getCollectionToggleSerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -395,26 +386,20 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsDataDelegateV2'>
         >(
-          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsDataDelegateV2'>>([
+          struct<GetDataEnumKindContent<UpdateArgs, 'AsDataDelegateV2'>>([
             [
               'data',
-              s.option(
-                s.struct<any>([
-                  ['name', s.string()],
-                  ['symbol', s.string()],
-                  ['uri', s.string()],
-                  ['sellerFeeBasisPoints', s.u16()],
-                  [
-                    'creators',
-                    s.option(s.array(getCreatorSerializer(context))),
-                  ],
+              option(
+                struct<any>([
+                  ['name', string()],
+                  ['symbol', string()],
+                  ['uri', string()],
+                  ['sellerFeeBasisPoints', u16()],
+                  ['creators', option(array(getCreatorSerializer()))],
                 ])
               ),
             ],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -433,14 +418,11 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsProgrammableConfigDelegateV2'>
         >(
-          s.struct<
+          struct<
             GetDataEnumKindContent<UpdateArgs, 'AsProgrammableConfigDelegateV2'>
           >([
-            ['ruleSet', getRuleSetToggleSerializer(context)],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['ruleSet', getRuleSetToggleSerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -456,26 +438,20 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsDataItemDelegateV2'>
         >(
-          s.struct<GetDataEnumKindContent<UpdateArgs, 'AsDataItemDelegateV2'>>([
+          struct<GetDataEnumKindContent<UpdateArgs, 'AsDataItemDelegateV2'>>([
             [
               'data',
-              s.option(
-                s.struct<any>([
-                  ['name', s.string()],
-                  ['symbol', s.string()],
-                  ['uri', s.string()],
-                  ['sellerFeeBasisPoints', s.u16()],
-                  [
-                    'creators',
-                    s.option(s.array(getCreatorSerializer(context))),
-                  ],
+              option(
+                struct<any>([
+                  ['name', string()],
+                  ['symbol', string()],
+                  ['uri', string()],
+                  ['sellerFeeBasisPoints', u16()],
+                  ['creators', option(array(getCreatorSerializer()))],
                 ])
               ),
             ],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -491,14 +467,11 @@ export function getUpdateArgsSerializer(
           any,
           GetDataEnumKindContent<UpdateArgs, 'AsCollectionItemDelegateV2'>
         >(
-          s.struct<
+          struct<
             GetDataEnumKindContent<UpdateArgs, 'AsCollectionItemDelegateV2'>
           >([
-            ['collection', getCollectionToggleSerializer(context)],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['collection', getCollectionToggleSerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,
@@ -520,17 +493,14 @@ export function getUpdateArgsSerializer(
             'AsProgrammableConfigItemDelegateV2'
           >
         >(
-          s.struct<
+          struct<
             GetDataEnumKindContent<
               UpdateArgs,
               'AsProgrammableConfigItemDelegateV2'
             >
           >([
-            ['ruleSet', getRuleSetToggleSerializer(context)],
-            [
-              'authorizationData',
-              s.option(getAuthorizationDataSerializer(context)),
-            ],
+            ['ruleSet', getRuleSetToggleSerializer()],
+            ['authorizationData', option(getAuthorizationDataSerializer())],
           ]),
           (value) => ({
             ...value,

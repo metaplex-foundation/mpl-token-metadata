@@ -11,16 +11,23 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u64,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import {
   resolveAuthorizationRulesProgram,
   resolveMasterEdition,
@@ -80,23 +87,27 @@ export type MintV1InstructionData = {
 
 export type MintV1InstructionDataArgs = {
   amount?: number | bigint;
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getMintV1InstructionDataSerializer()` without any argument instead. */
 export function getMintV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<MintV1InstructionDataArgs, MintV1InstructionData>;
+export function getMintV1InstructionDataSerializer(): Serializer<
+  MintV1InstructionDataArgs,
+  MintV1InstructionData
+>;
+export function getMintV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<MintV1InstructionDataArgs, MintV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<MintV1InstructionDataArgs, any, MintV1InstructionData>(
-    s.struct<MintV1InstructionData>(
+    struct<MintV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['mintV1Discriminator', s.u8()],
-        ['amount', s.u64()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['mintV1Discriminator', u8()],
+        ['amount', u64()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'MintV1InstructionData' }
     ),
@@ -119,10 +130,7 @@ export type MintV1InstructionArgs = MintV1InstructionDataArgs &
 
 // Instruction.
 export function mintV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: MintV1InstructionAccounts & MintV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -315,8 +323,7 @@ export function mintV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data =
-    getMintV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getMintV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 468;

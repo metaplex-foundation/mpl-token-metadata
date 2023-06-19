@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta } from '../shared';
 
 // Accounts.
@@ -30,16 +34,23 @@ export type PuffMetadataInstructionData = { discriminator: number };
 
 export type PuffMetadataInstructionDataArgs = {};
 
+/** @deprecated Use `getPuffMetadataInstructionDataSerializer()` without any argument instead. */
 export function getPuffMetadataInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData>;
+export function getPuffMetadataInstructionDataSerializer(): Serializer<
+  PuffMetadataInstructionDataArgs,
+  PuffMetadataInstructionData
+>;
+export function getPuffMetadataInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData> {
-  const s = context.serializer;
   return mapSerializer<
     PuffMetadataInstructionDataArgs,
     any,
     PuffMetadataInstructionData
   >(
-    s.struct<PuffMetadataInstructionData>([['discriminator', s.u8()]], {
+    struct<PuffMetadataInstructionData>([['discriminator', u8()]], {
       description: 'PuffMetadataInstructionData',
     }),
     (value) => ({ ...value, discriminator: 14 })
@@ -48,7 +59,7 @@ export function getPuffMetadataInstructionDataSerializer(
 
 // Instruction.
 export function puffMetadata(
-  context: Pick<Context, 'serializer' | 'programs'>,
+  context: Pick<Context, 'programs'>,
   input: PuffMetadataInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -68,7 +79,7 @@ export function puffMetadata(
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
 
   // Data.
-  const data = getPuffMetadataInstructionDataSerializer(context).serialize({});
+  const data = getPuffMetadataInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

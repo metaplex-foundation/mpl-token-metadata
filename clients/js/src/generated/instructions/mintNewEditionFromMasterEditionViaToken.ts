@@ -11,12 +11,16 @@ import {
   Context,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { addAccountMeta, addObjectProperty } from '../shared';
 import {
   MintNewEditionFromMasterEditionViaTokenArgs,
@@ -66,24 +70,34 @@ export type MintNewEditionFromMasterEditionViaTokenInstructionDataArgs = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgsArgs;
 };
 
+/** @deprecated Use `getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer()` without any argument instead. */
 export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<
+  MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
+  MintNewEditionFromMasterEditionViaTokenInstructionData
+>;
+export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(): Serializer<
+  MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
+  MintNewEditionFromMasterEditionViaTokenInstructionData
+>;
+export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
+  _context: object = {}
 ): Serializer<
   MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
   MintNewEditionFromMasterEditionViaTokenInstructionData
 > {
-  const s = context.serializer;
   return mapSerializer<
     MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
     any,
     MintNewEditionFromMasterEditionViaTokenInstructionData
   >(
-    s.struct<MintNewEditionFromMasterEditionViaTokenInstructionData>(
+    struct<MintNewEditionFromMasterEditionViaTokenInstructionData>(
       [
-        ['discriminator', s.u8()],
+        ['discriminator', u8()],
         [
           'mintNewEditionFromMasterEditionViaTokenArgs',
-          getMintNewEditionFromMasterEditionViaTokenArgsSerializer(context),
+          getMintNewEditionFromMasterEditionViaTokenArgsSerializer(),
         ],
       ],
       { description: 'MintNewEditionFromMasterEditionViaTokenInstructionData' }
@@ -101,7 +115,7 @@ export type MintNewEditionFromMasterEditionViaTokenInstructionArgs =
 
 // Instruction.
 export function mintNewEditionFromMasterEditionViaToken(
-  context: Pick<Context, 'serializer' | 'programs' | 'payer'>,
+  context: Pick<Context, 'programs' | 'payer'>,
   input: MintNewEditionFromMasterEditionViaTokenInstructionAccounts &
     MintNewEditionFromMasterEditionViaTokenInstructionArgs
 ): TransactionBuilder {
@@ -189,9 +203,9 @@ export function mintNewEditionFromMasterEditionViaToken(
 
   // Data.
   const data =
-    getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
-      context
-    ).serialize(resolvedArgs);
+    getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer().serialize(
+      resolvedArgs
+    );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

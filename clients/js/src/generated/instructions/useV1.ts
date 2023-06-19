@@ -10,16 +10,22 @@ import {
   AccountMeta,
   Context,
   Option,
+  OptionOrNullable,
   Pda,
   PublicKey,
-  Serializer,
   Signer,
   TransactionBuilder,
-  mapSerializer,
   none,
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
+import {
+  Serializer,
+  mapSerializer,
+  option,
+  struct,
+  u8,
+} from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
@@ -65,22 +71,26 @@ export type UseV1InstructionData = {
 };
 
 export type UseV1InstructionDataArgs = {
-  authorizationData?: Option<AuthorizationDataArgs>;
+  authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
+/** @deprecated Use `getUseV1InstructionDataSerializer()` without any argument instead. */
 export function getUseV1InstructionDataSerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<UseV1InstructionDataArgs, UseV1InstructionData>;
+export function getUseV1InstructionDataSerializer(): Serializer<
+  UseV1InstructionDataArgs,
+  UseV1InstructionData
+>;
+export function getUseV1InstructionDataSerializer(
+  _context: object = {}
 ): Serializer<UseV1InstructionDataArgs, UseV1InstructionData> {
-  const s = context.serializer;
   return mapSerializer<UseV1InstructionDataArgs, any, UseV1InstructionData>(
-    s.struct<UseV1InstructionData>(
+    struct<UseV1InstructionData>(
       [
-        ['discriminator', s.u8()],
-        ['useV1Discriminator', s.u8()],
-        [
-          'authorizationData',
-          s.option(getAuthorizationDataSerializer(context)),
-        ],
+        ['discriminator', u8()],
+        ['useV1Discriminator', u8()],
+        ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UseV1InstructionData' }
     ),
@@ -98,10 +108,7 @@ export type UseV1InstructionArgs = UseV1InstructionDataArgs;
 
 // Instruction.
 export function useV1(
-  context: Pick<
-    Context,
-    'serializer' | 'programs' | 'eddsa' | 'identity' | 'payer'
-  >,
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
   input: UseV1InstructionAccounts & UseV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
@@ -232,8 +239,7 @@ export function useV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data =
-    getUseV1InstructionDataSerializer(context).serialize(resolvedArgs);
+  const data = getUseV1InstructionDataSerializer().serialize(resolvedArgs);
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

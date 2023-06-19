@@ -7,11 +7,15 @@
  */
 
 import {
-  Context,
   GetDataEnumKind,
   GetDataEnumKindContent,
   Serializer,
-} from '@metaplex-foundation/umi';
+  dataEnum,
+  struct,
+  tuple,
+  u64,
+  unit,
+} from '@metaplex-foundation/umi/serializers';
 
 export type PrintSupply =
   | { __kind: 'Zero' }
@@ -23,20 +27,27 @@ export type PrintSupplyArgs =
   | { __kind: 'Limited'; fields: [number | bigint] }
   | { __kind: 'Unlimited' };
 
+/** @deprecated Use `getPrintSupplySerializer()` without any argument instead. */
 export function getPrintSupplySerializer(
-  context: Pick<Context, 'serializer'>
+  _context: object
+): Serializer<PrintSupplyArgs, PrintSupply>;
+export function getPrintSupplySerializer(): Serializer<
+  PrintSupplyArgs,
+  PrintSupply
+>;
+export function getPrintSupplySerializer(
+  _context: object = {}
 ): Serializer<PrintSupplyArgs, PrintSupply> {
-  const s = context.serializer;
-  return s.dataEnum<PrintSupply>(
+  return dataEnum<PrintSupply>(
     [
-      ['Zero', s.unit()],
+      ['Zero', unit()],
       [
         'Limited',
-        s.struct<GetDataEnumKindContent<PrintSupply, 'Limited'>>([
-          ['fields', s.tuple([s.u64()])],
+        struct<GetDataEnumKindContent<PrintSupply, 'Limited'>>([
+          ['fields', tuple([u64()])],
         ]),
       ],
-      ['Unlimited', s.unit()],
+      ['Unlimited', unit()],
     ],
     { description: 'PrintSupply' }
   ) as Serializer<PrintSupplyArgs, PrintSupply>;
