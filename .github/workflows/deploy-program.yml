@@ -1,0 +1,144 @@
+name: Deploy Program
+
+# Run on manual dispatch or if changes are detected in programs src files on commits to the main branch.
+on:
+  workflow_dispatch:
+    inputs:
+      program:
+        description: Program
+        required: true
+        default: my-program
+        type: choice
+        options:
+          - my-program
+      cluster:
+        description: Cluster environment
+        required: true
+        default: devnet
+        type: choice
+        options:
+          - devnet
+          - mainnet-beta
+      publish_crate:
+        description: Release cargo crate
+        required: true
+        type: boolean
+        default: false
+      bump:
+        description: Version bump
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  CACHE: true
+
+jobs:
+  build_programs:
+    name: Programs
+    uses: ./.github/workflows/build-programs.yml
+    secrets: inherit
+
+  test_js:
+    name: JS client
+    needs: build_programs
+    uses: ./.github/workflows/test-js.yml
+    secrets: inherit
+
+  deploy_program:
+    name: Program / Deploy
+    runs-on: ubuntu-latest
+    needs: test_js
+    permissions:
+      contents: write
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: metaplex-foundation/actions/install-rust@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Install Solana
+        uses: metaplex-foundation/actions/install-solana@v1
+        with:
+          version: ${{ env.SOLANA_VERSION }}
+          cache: ${{ env.CACHE }}
+
+      - name: Install Themis
+        uses: ./.github/actions/install-themis
+
+      - name: Install cargo-release
+        uses: metaplex-foundation/actions/install-cargo-release@v1
+        with:
+          cache: ${{ env.CACHE }}
+
+      - name: Set RPC
+        run: |
+          if [ "${{ inputs.cluster }}" == "devnet" ]; then
+            echo RPC=${{ secrets.DEVNET_RPC }} >> $GITHUB_ENV
+          elif [ "${{ inputs.cluster }}" == "mainnet-beta" ]; then
+            echo RPC=${{ secrets.MAINNET_RPC }} >> $GITHUB_ENV
+          else
+            echo "Invalid cluster"
+            exit 1
+          fi
+
+      - name: Identify Program
+        run: |
+          echo DEPLOY_KEY=${{ secrets.MY_PROGRAM_DEPLOY_KEY }} >> $GITHUB_ENV
+          echo PROGRAM_ID_KEY=${{ secrets.MY_PROGRAM_ID_KEY }} >> $GITHUB_ENV
+          echo PROGRAM_NAME="my_program" >> $GITHUB_ENV
+
+      - name: Download program builds
+        uses: actions/download-artifact@v3
+
+      - name: Deploy Program
+        run: |
+          echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
+          echo "Creating program buffer"
+
+          echo ${{ env.DEPLOY_KEY }} > ./deploy-key.json
+          echo ${{ env.PROGRAM_ID_KEY }} > ./program-id-key.json
+
+          solana config set -k ./deploy-key.json > /dev/null 2>&1
+          solana config set --url ${{ env.RPC }} > /dev/null 2>&1
+
+          echo ${{ env.GOVERNANCE_ID }}
+          echo ${{ env.PROGRAM_ID }}
+          echo ${{ env.PROGRAM_DATA }}
+          echo ${{ env.REALM_ID }}
+
+          buffer=$(solana program write-buffer ./program-builds/programs/${{ inputs.program }}/target/deploy/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
+          echo "Buffer: $buffer"
+          solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $buffer
+
+          RUST_LOG=debug themis propose -s $buffer -n "Deploy ${{ inputs.program }}" -m "Council" -o ["Approve"] -d "Test"
+
+          rm deploy-key.json program-id-key.json
+
+      - name: Bump version
+        working-directory: ./programs/${{ inputs.program }}
+        run: |
+          git config user.name "${{ env.COMMIT_USER_NAME }}"
+          git config user.email "${{ env.COMMIT_USER_EMAIL }}"
+          cargo release ${{ inputs.bump }} --no-confirm --no-publish -x
+
+      # - name: Publish crate
+      #   working-directory: ./programs/${{ inputs.program }}/program
+      #   if: github.event.inputs.publish_crate == 'true'
+      #   run: |
+      #     git config user.name "${{ env.COMMIT_USER_NAME }}"
+      #     git config user.email "${{ env.COMMIT_USER_EMAIL }}"
+      #     cargo login ${{ secrets.CRATES_TOKEN }}
+      #     cargo release ${{ inputs.bump }} --no-confirm

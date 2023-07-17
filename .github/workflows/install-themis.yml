@@ -1,0 +1,16 @@
+name: Install Themis
+
+on: [workflow_call, workflow_dispatch]
+
+env:
+  CACHE: true
+
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download binary
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/metaplex-foundation/themis/main/scripts/install.sh)
+          echo $(themis -V)
