@@ -107,8 +107,8 @@ export function setTokenStandard(
     resolvedAccounts,
     'updateAuthority',
     input.updateAuthority
-      ? ([input.updateAuthority, true] as const)
-      : ([context.identity, true] as const)
+      ? ([input.updateAuthority, false] as const)
+      : ([context.identity, false] as const)
   );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);

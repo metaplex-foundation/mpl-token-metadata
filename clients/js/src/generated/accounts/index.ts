@@ -9,6 +9,7 @@
 export * from './collectionAuthorityRecord';
 export * from './edition';
 export * from './editionMarker';
+export * from './editionMarkerV2';
 export * from './masterEdition';
 export * from './metadata';
 export * from './metadataDelegateRecord';

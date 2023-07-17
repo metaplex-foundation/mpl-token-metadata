@@ -15,27 +15,27 @@ type ProgramErrorConstructor = new (
 const codeToErrorMap: Map<number, ProgramErrorConstructor> = new Map();
 const nameToErrorMap: Map<string, ProgramErrorConstructor> = new Map();
 
-/** InstructionUnpackError: Failed to unpack instruction data */
+/** InstructionUnpackError */
 export class InstructionUnpackErrorError extends ProgramError {
   readonly name: string = 'InstructionUnpackError';
 
   readonly code: number = 0x0; // 0
 
   constructor(program: Program, cause?: Error) {
-    super('Failed to unpack instruction data', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x0, InstructionUnpackErrorError);
 nameToErrorMap.set('InstructionUnpackError', InstructionUnpackErrorError);
 
-/** InstructionPackError: Failed to pack instruction data */
+/** InstructionPackError */
 export class InstructionPackErrorError extends ProgramError {
   readonly name: string = 'InstructionPackError';
 
   readonly code: number = 0x1; // 1
 
   constructor(program: Program, cause?: Error) {
-    super('Failed to pack instruction data', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x1, InstructionPackErrorError);
@@ -220,7 +220,7 @@ export class UriTooLongError extends ProgramError {
 codeToErrorMap.set(0xd, UriTooLongError);
 nameToErrorMap.set('UriTooLong', UriTooLongError);
 
-/** UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner: Update authority must be equivalent to the metadata's authority and also signer of this transaction */
+/** UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner */
 export class UpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError extends ProgramError {
   readonly name: string =
     'UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner';
@@ -228,11 +228,7 @@ export class UpdateAuthorityMustBeEqualToMetadataAuthorityAndSignerError extends
   readonly code: number = 0xe; // 14
 
   constructor(program: Program, cause?: Error) {
-    super(
-      "Update authority must be equivalent to the metadata's authority and also signer of this transaction",
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(
@@ -273,87 +269,79 @@ nameToErrorMap.set(
   EditionsMustHaveExactlyOneTokenError
 );
 
-/** MaxEditionsMintedAlready: Maximum editions printed already */
+/** MaxEditionsMintedAlready */
 export class MaxEditionsMintedAlreadyError extends ProgramError {
   readonly name: string = 'MaxEditionsMintedAlready';
 
   readonly code: number = 0x11; // 17
 
   constructor(program: Program, cause?: Error) {
-    super('Maximum editions printed already', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x11, MaxEditionsMintedAlreadyError);
 nameToErrorMap.set('MaxEditionsMintedAlready', MaxEditionsMintedAlreadyError);
 
-/** TokenMintToFailed: Token mint to failed */
+/** TokenMintToFailed */
 export class TokenMintToFailedError extends ProgramError {
   readonly name: string = 'TokenMintToFailed';
 
   readonly code: number = 0x12; // 18
 
   constructor(program: Program, cause?: Error) {
-    super('Token mint to failed', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x12, TokenMintToFailedError);
 nameToErrorMap.set('TokenMintToFailed', TokenMintToFailedError);
 
-/** MasterRecordMismatch: The master edition record passed must match the master record on the edition given */
+/** MasterRecordMismatch */
 export class MasterRecordMismatchError extends ProgramError {
   readonly name: string = 'MasterRecordMismatch';
 
   readonly code: number = 0x13; // 19
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'The master edition record passed must match the master record on the edition given',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x13, MasterRecordMismatchError);
 nameToErrorMap.set('MasterRecordMismatch', MasterRecordMismatchError);
 
-/** DestinationMintMismatch: The destination account does not have the right mint */
+/** DestinationMintMismatch */
 export class DestinationMintMismatchError extends ProgramError {
   readonly name: string = 'DestinationMintMismatch';
 
   readonly code: number = 0x14; // 20
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'The destination account does not have the right mint',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x14, DestinationMintMismatchError);
 nameToErrorMap.set('DestinationMintMismatch', DestinationMintMismatchError);
 
-/** EditionAlreadyMinted: An edition can only mint one of its kind! */
+/** EditionAlreadyMinted */
 export class EditionAlreadyMintedError extends ProgramError {
   readonly name: string = 'EditionAlreadyMinted';
 
   readonly code: number = 0x15; // 21
 
   constructor(program: Program, cause?: Error) {
-    super('An edition can only mint one of its kind!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x15, EditionAlreadyMintedError);
 nameToErrorMap.set('EditionAlreadyMinted', EditionAlreadyMintedError);
 
-/** PrintingMintDecimalsShouldBeZero: Printing mint decimals should be zero */
+/** PrintingMintDecimalsShouldBeZero */
 export class PrintingMintDecimalsShouldBeZeroError extends ProgramError {
   readonly name: string = 'PrintingMintDecimalsShouldBeZero';
 
   readonly code: number = 0x16; // 22
 
   constructor(program: Program, cause?: Error) {
-    super('Printing mint decimals should be zero', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x16, PrintingMintDecimalsShouldBeZeroError);
@@ -362,7 +350,7 @@ nameToErrorMap.set(
   PrintingMintDecimalsShouldBeZeroError
 );
 
-/** OneTimePrintingAuthorizationMintDecimalsShouldBeZero: OneTimePrintingAuthorization mint decimals should be zero */
+/** OneTimePrintingAuthorizationMintDecimalsShouldBeZero */
 export class OneTimePrintingAuthorizationMintDecimalsShouldBeZeroError extends ProgramError {
   readonly name: string =
     'OneTimePrintingAuthorizationMintDecimalsShouldBeZero';
@@ -370,11 +358,7 @@ export class OneTimePrintingAuthorizationMintDecimalsShouldBeZeroError extends P
   readonly code: number = 0x17; // 23
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'OneTimePrintingAuthorization mint decimals should be zero',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(
@@ -402,31 +386,27 @@ nameToErrorMap.set(
   EditionMintDecimalsShouldBeZeroError
 );
 
-/** TokenBurnFailed: Token burn failed */
+/** TokenBurnFailed */
 export class TokenBurnFailedError extends ProgramError {
   readonly name: string = 'TokenBurnFailed';
 
   readonly code: number = 0x19; // 25
 
   constructor(program: Program, cause?: Error) {
-    super('Token burn failed', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x19, TokenBurnFailedError);
 nameToErrorMap.set('TokenBurnFailed', TokenBurnFailedError);
 
-/** TokenAccountOneTimeAuthMintMismatch: The One Time authorization mint does not match that on the token account! */
+/** TokenAccountOneTimeAuthMintMismatch */
 export class TokenAccountOneTimeAuthMintMismatchError extends ProgramError {
   readonly name: string = 'TokenAccountOneTimeAuthMintMismatch';
 
   readonly code: number = 0x1a; // 26
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'The One Time authorization mint does not match that on the token account!',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x1a, TokenAccountOneTimeAuthMintMismatchError);
@@ -535,18 +515,14 @@ export class NotEnoughTokensError extends ProgramError {
 codeToErrorMap.set(0x20, NotEnoughTokensError);
 nameToErrorMap.set('NotEnoughTokens', NotEnoughTokensError);
 
-/** PrintingMintAuthorizationAccountMismatch: The mint on your authorization token holding account does not match your Printing mint! */
+/** PrintingMintAuthorizationAccountMismatch */
 export class PrintingMintAuthorizationAccountMismatchError extends ProgramError {
   readonly name: string = 'PrintingMintAuthorizationAccountMismatch';
 
   readonly code: number = 0x21; // 33
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'The mint on your authorization token holding account does not match your Printing mint!',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x21, PrintingMintAuthorizationAccountMismatchError);
@@ -555,18 +531,14 @@ nameToErrorMap.set(
   PrintingMintAuthorizationAccountMismatchError
 );
 
-/** AuthorizationTokenAccountOwnerMismatch: The authorization token account has a different owner than the update authority for the master edition! */
+/** AuthorizationTokenAccountOwnerMismatch */
 export class AuthorizationTokenAccountOwnerMismatchError extends ProgramError {
   readonly name: string = 'AuthorizationTokenAccountOwnerMismatch';
 
   readonly code: number = 0x22; // 34
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'The authorization token account has a different owner than the update authority for the master edition!',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x22, AuthorizationTokenAccountOwnerMismatchError);
@@ -575,14 +547,14 @@ nameToErrorMap.set(
   AuthorizationTokenAccountOwnerMismatchError
 );
 
-/** Disabled: This feature is currently disabled. */
+/** Disabled */
 export class DisabledError extends ProgramError {
   readonly name: string = 'Disabled';
 
   readonly code: number = 0x23; // 35
 
   constructor(program: Program, cause?: Error) {
-    super('This feature is currently disabled.', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x23, DisabledError);
@@ -614,18 +586,14 @@ export class CreatorsMustBeAtleastOneError extends ProgramError {
 codeToErrorMap.set(0x25, CreatorsMustBeAtleastOneError);
 nameToErrorMap.set('CreatorsMustBeAtleastOne', CreatorsMustBeAtleastOneError);
 
-/** MustBeOneOfCreators: If using a creators array, you must be one of the creators listed */
+/** MustBeOneOfCreators */
 export class MustBeOneOfCreatorsError extends ProgramError {
   readonly name: string = 'MustBeOneOfCreators';
 
   readonly code: number = 0x26; // 38
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'If using a creators array, you must be one of the creators listed',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x26, MustBeOneOfCreatorsError);
@@ -739,74 +707,66 @@ export class ShareTotalMustBe100Error extends ProgramError {
 codeToErrorMap.set(0x2d, ShareTotalMustBe100Error);
 nameToErrorMap.set('ShareTotalMustBe100', ShareTotalMustBe100Error);
 
-/** ReservationExists: This reservation list already exists! */
+/** ReservationExists */
 export class ReservationExistsError extends ProgramError {
   readonly name: string = 'ReservationExists';
 
   readonly code: number = 0x2e; // 46
 
   constructor(program: Program, cause?: Error) {
-    super('This reservation list already exists!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x2e, ReservationExistsError);
 nameToErrorMap.set('ReservationExists', ReservationExistsError);
 
-/** ReservationDoesNotExist: This reservation list does not exist! */
+/** ReservationDoesNotExist */
 export class ReservationDoesNotExistError extends ProgramError {
   readonly name: string = 'ReservationDoesNotExist';
 
   readonly code: number = 0x2f; // 47
 
   constructor(program: Program, cause?: Error) {
-    super('This reservation list does not exist!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x2f, ReservationDoesNotExistError);
 nameToErrorMap.set('ReservationDoesNotExist', ReservationDoesNotExistError);
 
-/** ReservationNotSet: This reservation list exists but was never set with reservations */
+/** ReservationNotSet */
 export class ReservationNotSetError extends ProgramError {
   readonly name: string = 'ReservationNotSet';
 
   readonly code: number = 0x30; // 48
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'This reservation list exists but was never set with reservations',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x30, ReservationNotSetError);
 nameToErrorMap.set('ReservationNotSet', ReservationNotSetError);
 
-/** ReservationAlreadyMade: This reservation list has already been set! */
+/** ReservationAlreadyMade */
 export class ReservationAlreadyMadeError extends ProgramError {
   readonly name: string = 'ReservationAlreadyMade';
 
   readonly code: number = 0x31; // 49
 
   constructor(program: Program, cause?: Error) {
-    super('This reservation list has already been set!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x31, ReservationAlreadyMadeError);
 nameToErrorMap.set('ReservationAlreadyMade', ReservationAlreadyMadeError);
 
-/** BeyondMaxAddressSize: Provided more addresses than max allowed in single reservation */
+/** BeyondMaxAddressSize */
 export class BeyondMaxAddressSizeError extends ProgramError {
   readonly name: string = 'BeyondMaxAddressSize';
 
   readonly code: number = 0x32; // 50
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'Provided more addresses than max allowed in single reservation',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x32, BeyondMaxAddressSizeError);
@@ -825,18 +785,14 @@ export class NumericalOverflowErrorError extends ProgramError {
 codeToErrorMap.set(0x33, NumericalOverflowErrorError);
 nameToErrorMap.set('NumericalOverflowError', NumericalOverflowErrorError);
 
-/** ReservationBreachesMaximumSupply: This reservation would go beyond the maximum supply of the master edition! */
+/** ReservationBreachesMaximumSupply */
 export class ReservationBreachesMaximumSupplyError extends ProgramError {
   readonly name: string = 'ReservationBreachesMaximumSupply';
 
   readonly code: number = 0x34; // 52
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'This reservation would go beyond the maximum supply of the master edition!',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x34, ReservationBreachesMaximumSupplyError);
@@ -845,14 +801,14 @@ nameToErrorMap.set(
   ReservationBreachesMaximumSupplyError
 );
 
-/** AddressNotInReservation: Address not in reservation! */
+/** AddressNotInReservation */
 export class AddressNotInReservationError extends ProgramError {
   readonly name: string = 'AddressNotInReservation';
 
   readonly code: number = 0x35; // 53
 
   constructor(program: Program, cause?: Error) {
-    super('Address not in reservation!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x35, AddressNotInReservationError);
@@ -894,18 +850,14 @@ nameToErrorMap.set(
   CannotUnverifyAnotherCreatorError
 );
 
-/** SpotMismatch: In initial reservation setting, spots remaining should equal total spots */
+/** SpotMismatch */
 export class SpotMismatchError extends ProgramError {
   readonly name: string = 'SpotMismatch';
 
   readonly code: number = 0x38; // 56
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'In initial reservation setting, spots remaining should equal total spots',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x38, SpotMismatchError);
@@ -924,18 +876,14 @@ export class IncorrectOwnerError extends ProgramError {
 codeToErrorMap.set(0x39, IncorrectOwnerError);
 nameToErrorMap.set('IncorrectOwner', IncorrectOwnerError);
 
-/** PrintingWouldBreachMaximumSupply: printing these tokens would breach the maximum supply limit of the master edition */
+/** PrintingWouldBreachMaximumSupply */
 export class PrintingWouldBreachMaximumSupplyError extends ProgramError {
   readonly name: string = 'PrintingWouldBreachMaximumSupply';
 
   readonly code: number = 0x3a; // 58
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'printing these tokens would breach the maximum supply limit of the master edition',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x3a, PrintingWouldBreachMaximumSupplyError);
@@ -970,7 +918,7 @@ export class DuplicateCreatorAddressError extends ProgramError {
 codeToErrorMap.set(0x3c, DuplicateCreatorAddressError);
 nameToErrorMap.set('DuplicateCreatorAddress', DuplicateCreatorAddressError);
 
-/** ReservationSpotsRemainingShouldMatchTotalSpotsAtStart: Reservation spots remaining should match total spots when first being created */
+/** ReservationSpotsRemainingShouldMatchTotalSpotsAtStart */
 export class ReservationSpotsRemainingShouldMatchTotalSpotsAtStartError extends ProgramError {
   readonly name: string =
     'ReservationSpotsRemainingShouldMatchTotalSpotsAtStart';
@@ -978,11 +926,7 @@ export class ReservationSpotsRemainingShouldMatchTotalSpotsAtStartError extends 
   readonly code: number = 0x3d; // 61
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'Reservation spots remaining should match total spots when first being created',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(
@@ -1020,40 +964,40 @@ export class DataTypeMismatchError extends ProgramError {
 codeToErrorMap.set(0x3f, DataTypeMismatchError);
 nameToErrorMap.set('DataTypeMismatch', DataTypeMismatchError);
 
-/** BeyondAlottedAddressSize: Beyond alotted address size in reservation! */
+/** BeyondAlottedAddressSize */
 export class BeyondAlottedAddressSizeError extends ProgramError {
   readonly name: string = 'BeyondAlottedAddressSize';
 
   readonly code: number = 0x40; // 64
 
   constructor(program: Program, cause?: Error) {
-    super('Beyond alotted address size in reservation!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x40, BeyondAlottedAddressSizeError);
 nameToErrorMap.set('BeyondAlottedAddressSize', BeyondAlottedAddressSizeError);
 
-/** ReservationNotComplete: The reservation has only been partially alotted */
+/** ReservationNotComplete */
 export class ReservationNotCompleteError extends ProgramError {
   readonly name: string = 'ReservationNotComplete';
 
   readonly code: number = 0x41; // 65
 
   constructor(program: Program, cause?: Error) {
-    super('The reservation has only been partially alotted', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x41, ReservationNotCompleteError);
 nameToErrorMap.set('ReservationNotComplete', ReservationNotCompleteError);
 
-/** TriedToReplaceAnExistingReservation: You cannot splice over an existing reservation! */
+/** TriedToReplaceAnExistingReservation */
 export class TriedToReplaceAnExistingReservationError extends ProgramError {
   readonly name: string = 'TriedToReplaceAnExistingReservation';
 
   readonly code: number = 0x42; // 66
 
   constructor(program: Program, cause?: Error) {
-    super('You cannot splice over an existing reservation!', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x42, TriedToReplaceAnExistingReservationError);
@@ -1141,18 +1085,14 @@ export class InvalidEditionIndexError extends ProgramError {
 codeToErrorMap.set(0x47, InvalidEditionIndexError);
 nameToErrorMap.set('InvalidEditionIndex', InvalidEditionIndexError);
 
-/** ReservationArrayShouldBeSizeOne: In the legacy system the reservation needs to be of size one for cpu limit reasons */
+/** ReservationArrayShouldBeSizeOne */
 export class ReservationArrayShouldBeSizeOneError extends ProgramError {
   readonly name: string = 'ReservationArrayShouldBeSizeOne';
 
   readonly code: number = 0x48; // 72
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'In the legacy system the reservation needs to be of size one for cpu limit reasons',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x48, ReservationArrayShouldBeSizeOneError);
@@ -1210,18 +1150,14 @@ export class RemovedError extends ProgramError {
 codeToErrorMap.set(0x4b, RemovedError);
 nameToErrorMap.set('Removed', RemovedError);
 
-/** MustBeBurned: This token use method is burn and there are no remaining uses, it must be burned */
+/** MustBeBurned */
 export class MustBeBurnedError extends ProgramError {
   readonly name: string = 'MustBeBurned';
 
   readonly code: number = 0x4c; // 76
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'This token use method is burn and there are no remaining uses, it must be burned',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x4c, MustBeBurnedError);
@@ -1432,14 +1368,14 @@ export class InvalidUseAuthorityRecordError extends ProgramError {
 codeToErrorMap.set(0x59, InvalidUseAuthorityRecordError);
 nameToErrorMap.set('InvalidUseAuthorityRecord', InvalidUseAuthorityRecordError);
 
-/** InvalidCollectionAuthorityRecord: This Collection Authority Record is invalid. */
+/** InvalidCollectionAuthorityRecord */
 export class InvalidCollectionAuthorityRecordError extends ProgramError {
   readonly name: string = 'InvalidCollectionAuthorityRecord';
 
   readonly code: number = 0x5a; // 90
 
   constructor(program: Program, cause?: Error) {
-    super('This Collection Authority Record is invalid.', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x5a, InvalidCollectionAuthorityRecordError);
@@ -1482,18 +1418,14 @@ export class InvalidDelegateError extends ProgramError {
 codeToErrorMap.set(0x5c, InvalidDelegateError);
 nameToErrorMap.set('InvalidDelegate', InvalidDelegateError);
 
-/** CannotAdjustVerifiedCreator: Creator can not be adjusted once they are verified. */
+/** CannotAdjustVerifiedCreator */
 export class CannotAdjustVerifiedCreatorError extends ProgramError {
   readonly name: string = 'CannotAdjustVerifiedCreator';
 
   readonly code: number = 0x5d; // 93
 
   constructor(program: Program, cause?: Error) {
-    super(
-      'Creator can not be adjusted once they are verified.',
-      program,
-      cause
-    );
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x5d, CannotAdjustVerifiedCreatorError);
@@ -1518,14 +1450,14 @@ nameToErrorMap.set(
   CannotRemoveVerifiedCreatorError
 );
 
-/** CannotWipeVerifiedCreators: Can not wipe verified creators. */
+/** CannotWipeVerifiedCreators */
 export class CannotWipeVerifiedCreatorsError extends ProgramError {
   readonly name: string = 'CannotWipeVerifiedCreators';
 
   readonly code: number = 0x5f; // 95
 
   constructor(program: Program, cause?: Error) {
-    super('Can not wipe verified creators.', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x5f, CannotWipeVerifiedCreatorsError);
@@ -1534,14 +1466,14 @@ nameToErrorMap.set(
   CannotWipeVerifiedCreatorsError
 );
 
-/** NotAllowedToChangeSellerFeeBasisPoints: Not allowed to change seller fee basis points. */
+/** NotAllowedToChangeSellerFeeBasisPoints */
 export class NotAllowedToChangeSellerFeeBasisPointsError extends ProgramError {
   readonly name: string = 'NotAllowedToChangeSellerFeeBasisPoints';
 
   readonly code: number = 0x60; // 96
 
   constructor(program: Program, cause?: Error) {
-    super('Not allowed to change seller fee basis points.', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x60, NotAllowedToChangeSellerFeeBasisPointsError);
@@ -1595,14 +1527,14 @@ nameToErrorMap.set(
   RevokeCollectionAuthoritySignerIncorrectError
 );
 
-/** TokenCloseFailed: Token close failed */
+/** TokenCloseFailed */
 export class TokenCloseFailedError extends ProgramError {
   readonly name: string = 'TokenCloseFailed';
 
   readonly code: number = 0x64; // 100
 
   constructor(program: Program, cause?: Error) {
-    super('Token close failed', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x64, TokenCloseFailedError);
@@ -1756,14 +1688,14 @@ export class MasterEditionHasPrintsError extends ProgramError {
 codeToErrorMap.set(0x6e, MasterEditionHasPrintsError);
 nameToErrorMap.set('MasterEditionHasPrints', MasterEditionHasPrintsError);
 
-/** BorshDeserializationError: Borsh Deserialization Error */
+/** BorshDeserializationError */
 export class BorshDeserializationErrorError extends ProgramError {
   readonly name: string = 'BorshDeserializationError';
 
   readonly code: number = 0x6f; // 111
 
   constructor(program: Program, cause?: Error) {
-    super('Borsh Deserialization Error', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x6f, BorshDeserializationErrorError);
@@ -1818,14 +1750,14 @@ export class AlreadyVerifiedError extends ProgramError {
 codeToErrorMap.set(0x72, AlreadyVerifiedError);
 nameToErrorMap.set('AlreadyVerified', AlreadyVerifiedError);
 
-/** AlreadyUnverified: Item is already unverified. */
+/** AlreadyUnverified */
 export class AlreadyUnverifiedError extends ProgramError {
   readonly name: string = 'AlreadyUnverified';
 
   readonly code: number = 0x73; // 115
 
   constructor(program: Program, cause?: Error) {
-    super('Item is already unverified.', program, cause);
+    super('', program, cause);
   }
 }
 codeToErrorMap.set(0x73, AlreadyUnverifiedError);
