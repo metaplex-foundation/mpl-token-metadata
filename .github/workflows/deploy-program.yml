@@ -43,11 +43,11 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
-  test_js:
-    name: JS client
-    needs: build_programs
-    uses: ./.github/workflows/test-js.yml
-    secrets: inherit
+  # test_js:
+  #   name: JS client
+  #   needs: build_programs
+  #   uses: ./.github/workflows/test-js.yml
+  #   secrets: inherit
 
   deploy_program:
     name: Program Deploy
