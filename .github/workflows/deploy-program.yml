@@ -53,6 +53,7 @@ jobs:
     name: Program Deploy
     runs-on: ubuntu-latest-8-cores
     # needs: test_js
+    needs: build_programs
     permissions:
       contents: write
     steps:
