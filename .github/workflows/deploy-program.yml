@@ -38,10 +38,10 @@ env:
   CACHE: true
 
 jobs:
-  build_programs:
-    name: Programs
-    uses: ./.github/workflows/build-programs.yml
-    secrets: inherit
+  # build_programs:
+  #   name: Programs
+  #   uses: ./.github/workflows/build-programs.yml
+  #   secrets: inherit
 
   # test_js:
   #   name: JS client
@@ -52,7 +52,7 @@ jobs:
   deploy_program:
     name: Program Deploy
     runs-on: ubuntu-latest
-    needs: test_js
+    # needs: test_js
     permissions:
       contents: write
     steps:
