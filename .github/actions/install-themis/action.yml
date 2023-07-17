@@ -1,0 +1,11 @@
+name: 'Install Themis'
+description: 'Installs Themis'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download binary
+      run: |
+        bash <(curl -sSf https://raw.githubusercontent.com/metaplex-foundation/themis/main/scripts/install.sh)
+        echo $(themis -V)
+      shell: bash
