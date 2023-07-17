@@ -84,12 +84,14 @@ jobs:
         with:
           cache: ${{ env.CACHE }}
 
-      - name: Set RPC
+      - name: Set RPC and mint type
         run: |
           if [ "${{ inputs.cluster }}" == "devnet" ]; then
             echo RPC=${{ secrets.DEVNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE=council >> $GITHUB_ENV
           elif [ "${{ inputs.cluster }}" == "mainnet-beta" ]; then
             echo RPC=${{ secrets.MAINNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE=member >> $GITHUB_ENV
           else
             echo "Invalid cluster"
             exit 1
@@ -119,13 +121,13 @@ jobs:
           echo ${{ env.PROGRAM_DATA }}
           echo ${{ env.REALM_ID }}
 
-          buffer=$(solana program write-buffer ./program-builds/programs/${{ inputs.program }}/target/deploy/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
-          echo "Buffer: $buffer"
-          # solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $buffer
+          BUFFER=$(solana program write-buffer ./program-builds/programs/${{ inputs.program }}/target/deploy/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
+          echo "Buffer: $BUFFER"
+          solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
-          # RUST_LOG=debug themis propose -s $buffer -n "Deploy ${{ inputs.program }}" -m "Council" -o ["Approve"] -d "Test"
+          RUST_LOG=debug themis upgrade-program -b $BUFFER -n "Deploy ${{ inputs.program }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "Test"
 
-          # rm bot-key.json
+          rm bot-key.json
 
       # - name: Bump version
       #   working-directory: ./programs/${{ inputs.program }}
