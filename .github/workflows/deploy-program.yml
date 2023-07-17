@@ -120,14 +120,15 @@ jobs:
           echo ${{ env.GOVERNANCE_ID }}
           echo ${{ env.PROGRAM_DATA }}
           echo ${{ env.REALM_ID }}
+          echo "mint type: ${{ env.MINT_TYPE }}"
 
-          BUFFER=$(solana program write-buffer ./program-builds/programs/${{ inputs.program }}/target/deploy/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
-          echo "Buffer: $BUFFER"
-          solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
+          # BUFFER=$(solana program write-buffer ./program-builds/programs/${{ inputs.program }}/target/deploy/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
+          # echo "Buffer: $BUFFER"
+          # solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
-          RUST_LOG=debug themis upgrade-program -b $BUFFER -n "Deploy ${{ inputs.program }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "Test"
+          # RUST_LOG=debug themis upgrade-program -b $BUFFER -n "Deploy ${{ inputs.program }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "Test"
 
-          rm bot-key.json
+          # rm bot-key.json
 
       # - name: Bump version
       #   working-directory: ./programs/${{ inputs.program }}
