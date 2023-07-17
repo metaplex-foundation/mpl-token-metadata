@@ -36,6 +36,15 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
+  test_programs:
+    name: Programs
+    if: ${{ needs.changes.outputs.programs == 'true' }}
+    needs: changes
+    uses: ./.github/workflows/test-programs.yml
+    secrets: inherit
+    with:
+      program_matrix: ${{ needs.changes.outputs.program_matrix }}
+
   generate_clients:
     name: Generate clients
     if: ${{ needs.changes.outputs.any == 'true' }}
