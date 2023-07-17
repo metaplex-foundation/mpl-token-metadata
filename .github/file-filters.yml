@@ -8,10 +8,16 @@ program_common: &program_common
   - ".github/workflows/build-programs.yml"
   - ".github/workflows/test-programs.yml"
   - ".github/workflows/main.yml"
+  - ".github/file-filters.yml"
+  - ".github/.env"
+
+token_metadata_program: &token_metadata_program
+  - *program_common
+  - "programs/token-metadata/**"
+  - "submodules/**"
 
 programs: &programs
-  - *program_common
-  - "submodules/**"
+  - *token_metadata_program
 
 # Clients.
 

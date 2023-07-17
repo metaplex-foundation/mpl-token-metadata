@@ -22,6 +22,7 @@ export enum Key {
   TokenOwnedEscrow,
   TokenRecord,
   MetadataDelegate,
+  EditionMarkerV2,
 }
 
 export type KeyArgs = Key;

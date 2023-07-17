@@ -9,8 +9,6 @@
 import {
   AccountMeta,
   Context,
-  Option,
-  OptionOrNullable,
   Pda,
   PublicKey,
   Signer,
@@ -21,8 +19,6 @@ import {
 import {
   Serializer,
   mapSerializer,
-  option,
-  publicKey as publicKeySerializer,
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
@@ -33,14 +29,9 @@ import {
   findTokenRecordPda,
 } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
-import {
-  MigrationType,
-  MigrationTypeArgs,
-  getMigrationTypeSerializer,
-} from '../types';
 
 // Accounts.
-export type MigrateV1InstructionAccounts = {
+export type MigrateInstructionAccounts = {
   /** Metadata account */
   metadata?: PublicKey | Pda;
   /** Edition account */
@@ -74,54 +65,33 @@ export type MigrateV1InstructionAccounts = {
 };
 
 // Data.
-export type MigrateV1InstructionData = {
-  discriminator: number;
-  migrateV1Discriminator: number;
-  migrationType: MigrationType;
-  ruleSet: Option<PublicKey>;
-};
+export type MigrateInstructionData = { discriminator: number };
 
-export type MigrateV1InstructionDataArgs = {
-  migrationType: MigrationTypeArgs;
-  ruleSet: OptionOrNullable<PublicKey>;
-};
+export type MigrateInstructionDataArgs = {};
 
-/** @deprecated Use `getMigrateV1InstructionDataSerializer()` without any argument instead. */
-export function getMigrateV1InstructionDataSerializer(
+/** @deprecated Use `getMigrateInstructionDataSerializer()` without any argument instead. */
+export function getMigrateInstructionDataSerializer(
   _context: object
-): Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData>;
-export function getMigrateV1InstructionDataSerializer(): Serializer<
-  MigrateV1InstructionDataArgs,
-  MigrateV1InstructionData
+): Serializer<MigrateInstructionDataArgs, MigrateInstructionData>;
+export function getMigrateInstructionDataSerializer(): Serializer<
+  MigrateInstructionDataArgs,
+  MigrateInstructionData
 >;
-export function getMigrateV1InstructionDataSerializer(
+export function getMigrateInstructionDataSerializer(
   _context: object = {}
-): Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData> {
-  return mapSerializer<
-    MigrateV1InstructionDataArgs,
-    any,
-    MigrateV1InstructionData
-  >(
-    struct<MigrateV1InstructionData>(
-      [
-        ['discriminator', u8()],
-        ['migrateV1Discriminator', u8()],
-        ['migrationType', getMigrationTypeSerializer()],
-        ['ruleSet', option(publicKeySerializer())],
-      ],
-      { description: 'MigrateV1InstructionData' }
-    ),
-    (value) => ({ ...value, discriminator: 48, migrateV1Discriminator: 0 })
-  ) as Serializer<MigrateV1InstructionDataArgs, MigrateV1InstructionData>;
+): Serializer<MigrateInstructionDataArgs, MigrateInstructionData> {
+  return mapSerializer<MigrateInstructionDataArgs, any, MigrateInstructionData>(
+    struct<MigrateInstructionData>([['discriminator', u8()]], {
+      description: 'MigrateInstructionData',
+    }),
+    (value) => ({ ...value, discriminator: 48 })
+  ) as Serializer<MigrateInstructionDataArgs, MigrateInstructionData>;
 }
 
-// Args.
-export type MigrateV1InstructionArgs = MigrateV1InstructionDataArgs;
-
 // Instruction.
-export function migrateV1(
+export function migrate(
   context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
-  input: MigrateV1InstructionAccounts & MigrateV1InstructionArgs
+  input: MigrateInstructionAccounts
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -244,7 +214,6 @@ export function migrateV1(
           false
         )
   );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.edition, false);
@@ -268,7 +237,7 @@ export function migrateV1(
   addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getMigrateV1InstructionDataSerializer().serialize(resolvedArgs);
+  const data = getMigrateInstructionDataSerializer().serialize({});
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;
