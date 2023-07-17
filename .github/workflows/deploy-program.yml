@@ -97,7 +97,7 @@ jobs:
       - name: Identify Program
         run: |
           echo BOT_KEY=${{ secrets.BOT_KEY }} >> $GITHUB_ENV
-          echo PROGRAM_NAME="token_metadata" >> $GITHUB_ENV
+          echo PROGRAM_NAME="mpl_token_metadata" >> $GITHUB_ENV
 
       - name: Download program builds
         uses: actions/download-artifact@v3
