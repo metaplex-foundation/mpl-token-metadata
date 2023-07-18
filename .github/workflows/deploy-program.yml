@@ -43,17 +43,16 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
-  # test_js:
-  #   name: JS client
-  #   needs: build_programs
-  #   uses: ./.github/workflows/test-js.yml
-  #   secrets: inherit
+  test_js:
+    name: JS client
+    needs: build_programs
+    uses: ./.github/workflows/test-js.yml
+    secrets: inherit
 
   deploy_program:
     name: Program Deploy
     runs-on: ubuntu-latest-8-cores
-    # needs: test_js
-    needs: build_programs
+    needs: test_js
     permissions:
       contents: write
     steps:
@@ -126,22 +125,22 @@ jobs:
           echo "Buffer: $BUFFER"
           solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
-          RUST_LOG=debug themis upgrade-program -b $BUFFER -n "Deploy ${{ inputs.program }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "TEST NO VOTE"
+          RUST_LOG=debug themis upgrade-program -b $BUFFER -n "Deploy ${{ inputs.program }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d ""
 
           rm bot-key.json
 
-      # - name: Bump version
-      #   working-directory: ./programs/${{ inputs.program }}
-      #   run: |
-      #     git config user.name "${{ env.COMMIT_USER_NAME }}"
-      #     git config user.email "${{ env.COMMIT_USER_EMAIL }}"
-      #     cargo release ${{ inputs.bump }} --no-confirm --no-publish -x
+      - name: Bump version
+        working-directory: ./programs/${{ inputs.program }}
+        run: |
+          git config user.name "${{ env.COMMIT_USER_NAME }}"
+          git config user.email "${{ env.COMMIT_USER_EMAIL }}"
+          cargo release ${{ inputs.bump }} --no-confirm --no-publish -x
 
-      # - name: Publish crate
-      #   working-directory: ./programs/${{ inputs.program }}/program
-      #   if: github.event.inputs.publish_crate == 'true'
-      #   run: |
-      #     git config user.name "${{ env.COMMIT_USER_NAME }}"
-      #     git config user.email "${{ env.COMMIT_USER_EMAIL }}"
-      #     cargo login ${{ secrets.CRATES_TOKEN }}
-      #     cargo release ${{ inputs.bump }} --no-confirm
+      - name: Publish crate
+        working-directory: ./programs/${{ inputs.program }}/program
+        if: github.event.inputs.publish_crate == 'true'
+        run: |
+          git config user.name "${{ env.COMMIT_USER_NAME }}"
+          git config user.email "${{ env.COMMIT_USER_EMAIL }}"
+          cargo login ${{ secrets.CRATES_TOKEN }}
+          cargo release ${{ inputs.bump }} --no-confirm
