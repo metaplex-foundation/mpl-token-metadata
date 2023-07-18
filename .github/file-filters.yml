@@ -25,6 +25,8 @@ client_common: &client_common
   - *programs
   - ".github/workflows/test-js.yml"
   - ".github/workflows/main.yml"
+  - ".github/file-filters.yml"
+  - ".github/.env"
   - "configs/shank.cjs"
   - "configs/kinobi.cjs"
 
