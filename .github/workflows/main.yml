@@ -29,6 +29,14 @@ jobs:
         with:
           filters: .github/file-filters.yml
 
+      - name: Filter program matrix
+        id: program_matrix
+        uses: metaplex-foundation/actions/filter-matrix@v1
+        with:
+          matrix: ${{ env.PROGRAMS }}
+          changes: ${{ steps.changes.outputs.changes }}
+          suffix: _program
+
   build_programs:
     name: Programs
     if: ${{ needs.changes.outputs.any == 'true' }}
