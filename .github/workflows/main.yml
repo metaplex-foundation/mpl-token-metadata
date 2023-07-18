@@ -16,6 +16,7 @@ jobs:
     outputs:
       any: ${{ steps.changes.outputs.any }}
       programs: ${{ steps.changes.outputs.programs }}
+      program_matrix: ${{ steps.program_matrix.outputs.matrix }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
