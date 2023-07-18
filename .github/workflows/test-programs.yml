@@ -54,5 +54,8 @@ jobs:
           args: --all-targets --all-features --no-deps --manifest-path ./programs/${{ matrix.program }}/Cargo.toml
 
       - name: Run tests
-        working-directory: ./programs/${{ matrix.program }}
-        run: cargo test-bpf
+        shell: bash
+        working-directory: configs/program-scripts
+        run: ./test.sh
+        env:
+          PROGRAM: ${{ matrix.program }}

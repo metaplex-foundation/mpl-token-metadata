@@ -8,3 +8,4 @@ test-ledger
 dist
 .amman
 .crates
+.bin
