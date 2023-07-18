@@ -45,7 +45,8 @@ test('it can burn a NonFungible', async (t) => {
   t.true(metadata.exists);
   assertAccountExists(metadata);
   t.deepEqual(metadata.lamports, sol(0.01));
-  t.is(metadata.data.length, 0);
+  t.is(metadata.data.length, 1);
+  t.is(metadata.data[0], 0);
 
   // But the mint account still exists.
   t.true(await umi.rpc.accountExists(mint));
@@ -83,7 +84,8 @@ test('it can burn a ProgrammableNonFungible', async (t) => {
   t.true(metadata.exists);
   assertAccountExists(metadata);
   t.deepEqual(metadata.lamports, sol(0.01));
-  t.is(metadata.data.length, 0);
+  t.is(metadata.data.length, 1);
+  t.is(metadata.data[0], 0);
 
   // But the mint account still exists.
   t.true(await umi.rpc.accountExists(mint));

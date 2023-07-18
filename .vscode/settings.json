@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./programs/token-metadata/Cargo.toml",
+    ]
+}
