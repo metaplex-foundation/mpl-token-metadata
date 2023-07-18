@@ -45,7 +45,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --manifest-path ./programs/${{ matrix.program }}/Cargo.toml -- --check
+          args: --all --manifest-path ./programs/${{ matrix.program }}/Cargo.toml -- --check
 
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
