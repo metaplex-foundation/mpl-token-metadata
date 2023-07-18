@@ -1,12 +1,15 @@
 {
   "private": true,
   "scripts": {
+    "programs:build": "./configs/program-scripts/build.sh",
+    "programs:test": "./configs/program-scripts/test.sh",
+    "programs:clean": "rm -rf ./programs/.bin",
     "generate": "pnpm generate:idls && pnpm generate:clients",
     "generate:idls": "node ./configs/shank.cjs",
     "generate:clients": "node ./configs/kinobi.cjs",
     "validator": "CI=1 amman start --config ./configs/validator.cjs",
-    "validator:devnet": "CI=1 amman start --config ./configs/validator.devnet.cjs",
-    "validator:mainnet": "CI=1 amman start --config ./configs/validator.mainnet.cjs",
+    "validator:debug": "amman start --config ./configs/validator.cjs",
+    "validator:logs": "CI=1 amman logs",
     "validator:stop": "amman stop"
   },
   "devDependencies": {

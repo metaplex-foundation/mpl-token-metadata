@@ -52,17 +52,16 @@ jobs:
         uses: metaplex-foundation/actions/cache-programs@v1
 
       - name: Build programs
+        shell: bash
+        working-directory: configs/program-scripts
+        run: ./build.sh
         env:
           PROGRAMS: ${{ env.PROGRAMS }}
-        run: |
-          for program in $(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g'); do
-            (cd ./programs/$program; cargo build-bpf)
-          done
 
       - name: Upload program builds
         uses: actions/upload-artifact@v3
         with:
           name: program-builds
           # First wildcard ensures exported paths are consistently under the programs folder.
-          path: ./program*/**/target/deploy/*.so
+          path: ./program*/.bin/*.so
           if-no-files-found: error
