@@ -16,6 +16,7 @@ jobs:
     outputs:
       any: ${{ steps.changes.outputs.any }}
       programs: ${{ steps.changes.outputs.programs }}
+      program_matrix: ${{ steps.program_matrix.outputs.matrix }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
@@ -28,6 +29,14 @@ jobs:
         id: changes
         with:
           filters: .github/file-filters.yml
+
+      - name: Filter program matrix
+        id: program_matrix
+        uses: metaplex-foundation/actions/filter-matrix@v1
+        with:
+          matrix: ${{ env.PROGRAMS }}
+          changes: ${{ steps.changes.outputs.changes }}
+          suffix: _program
 
   build_programs:
     name: Programs

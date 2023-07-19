@@ -331,7 +331,7 @@ fn generate_builders(variants: &[Variant]) -> TokenStream {
                 quote! { #ident_ty }
             };
             let arg_name = syn::parse_str::<syn::Ident>(name).unwrap();
-              
+
             quote! {
                 pub #arg_name: #arg_ty
             }
