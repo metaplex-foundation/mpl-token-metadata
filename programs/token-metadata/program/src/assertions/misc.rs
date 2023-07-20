@@ -13,7 +13,7 @@ use spl_token_2022::state::Account;
 use crate::{
     error::MetadataError,
     state::{TokenDelegateRole, TokenRecord},
-    utils::unpack_initialzed,
+    utils::unpack_initialized,
 };
 
 pub static SPL_TOKEN_PROGRAM_IDS: [&Pubkey; 2] = [&spl_token::ID, &spl_token_2022::ID];
@@ -92,7 +92,7 @@ pub fn assert_delegated_tokens(
 ) -> ProgramResult {
     assert_owned_by(mint_info, spl_token_program)?;
 
-    let token_account = unpack_initialzed::<Account>(&token_account_info.data.borrow())?.base;
+    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?.base;
     assert_owned_by(token_account_info, spl_token_program)?;
 
     if token_account.mint != *mint_info.key {
