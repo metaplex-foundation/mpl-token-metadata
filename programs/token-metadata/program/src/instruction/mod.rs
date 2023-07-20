@@ -565,7 +565,7 @@ pub enum MetadataInstruction {
     #[account(5, name="update_authority", desc="Update authority for the metadata account")]
     #[account(6, name="system_program", desc="System program")]
     #[account(7, name="sysvar_instructions", desc="Instructions sysvar account")]
-    #[account(8, name="spl_token_program", desc="SPL Token program")]
+    #[account(8, optional, name="spl_token_program", desc="SPL Token program")]
     #[args(initialize_mint: bool)]
     #[args(update_authority_as_signer: bool)]
     #[default_optional_accounts]
