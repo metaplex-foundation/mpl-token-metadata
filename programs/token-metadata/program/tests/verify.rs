@@ -21,10 +21,14 @@ use solana_sdk::{
 use utils::*;
 
 mod verify_creator {
+    use solana_program::pubkey::Pubkey;
+
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn metadata_wrong_owner() {
+    async fn metadata_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create and mint item.
@@ -47,6 +51,7 @@ mod verify_creator {
             None,
             1,
             creators.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -77,8 +82,10 @@ mod verify_creator {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn update_authority_cannot_verify_creator() {
+    async fn update_authority_cannot_verify_creator(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create and mint item.
@@ -101,6 +108,7 @@ mod verify_creator {
             None,
             1,
             creators.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -122,8 +130,10 @@ mod verify_creator {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn no_creators_found() {
+    async fn no_creators_found(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create and mint item.
@@ -135,6 +145,7 @@ mod verify_creator {
             None,
             1,
             None,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -156,8 +167,10 @@ mod verify_creator {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass() {
+    async fn pass(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create and mint item.
@@ -180,6 +193,7 @@ mod verify_creator {
             None,
             1,
             creators.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -206,6 +220,8 @@ mod verify_creator {
 }
 
 mod verify_collection {
+    use solana_program::pubkey::Pubkey;
+
     use super::*;
 
     #[tokio::test]
@@ -213,8 +229,10 @@ mod verify_collection {
         // See `collections_standard_delegate_cannot_verify()`.
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn metadata_wrong_owner() {
+    async fn metadata_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -237,6 +255,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -280,8 +299,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn collection_mint_info_wrong_owner() {
+    async fn collection_mint_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -304,6 +325,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -347,8 +369,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn collection_metadata_info_wrong_owner() {
+    async fn collection_metadata_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -371,6 +395,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -414,8 +439,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn collection_master_edition_info_wrong_owner() {
+    async fn collection_master_edition_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -437,6 +464,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -480,8 +508,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn missing_collection_mint_info() {
+    async fn missing_collection_mint_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -504,6 +534,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -546,8 +577,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn missing_collection_metadata_info() {
+    async fn missing_collection_metadata_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -570,6 +603,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -612,8 +646,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn missing_collection_master_edition_info() {
+    async fn missing_collection_master_edition_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -635,6 +671,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -677,8 +714,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_already_verified() {
+    async fn pass_already_verified(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -701,6 +740,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -768,8 +808,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn collection_not_found_on_item() {
+    async fn collection_not_found_on_item(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -790,6 +832,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -832,8 +875,12 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn item_collection_key_does_not_match_passed_in_collection_mint() {
+    async fn item_collection_key_does_not_match_passed_in_collection_mint(
+        spl_token_program: Pubkey,
+    ) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -857,6 +904,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -899,8 +947,12 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn collection_metadata_mint_does_not_match_passed_in_collection_mint() {
+    async fn collection_metadata_mint_does_not_match_passed_in_collection_mint(
+        spl_token_program: Pubkey,
+    ) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -928,6 +980,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -984,12 +1037,15 @@ mod verify_collection {
         );
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn wrong_collection_master_edition() {
+    async fn wrong_collection_master_edition(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
-        let collection_parent_nft = Metadata::new();
+        let mut collection_parent_nft = Metadata::new();
+        collection_parent_nft.spl_token_program = spl_token_program;
         collection_parent_nft
             .create_v3(
                 &mut context,
@@ -1006,14 +1062,16 @@ mod verify_collection {
             .await
             .unwrap();
 
-        let parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
+        let mut parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
+        parent_master_edition_account.spl_token_program = spl_token_program;
         parent_master_edition_account
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
 
         // Create a second collection parent NFT.
-        let second_collection_parent_nft = Metadata::new();
+        let mut second_collection_parent_nft = Metadata::new();
+        second_collection_parent_nft.spl_token_program = spl_token_program;
         second_collection_parent_nft
             .create_v3(
                 &mut context,
@@ -1030,8 +1088,9 @@ mod verify_collection {
             .await
             .unwrap();
 
-        let second_parent_master_edition_account =
+        let mut second_parent_master_edition_account =
             MasterEditionV2::new(&second_collection_parent_nft);
+        second_parent_master_edition_account.spl_token_program = spl_token_program;
         second_parent_master_edition_account
             .create_v3(&mut context, Some(0))
             .await
@@ -1051,6 +1110,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1107,12 +1167,15 @@ mod verify_collection {
         );
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn fail_collection_master_edition_has_nonzero_max_supply() {
+    async fn fail_collection_master_edition_has_nonzero_max_supply(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
-        let collection_parent_nft = Metadata::new();
+        let mut collection_parent_nft = Metadata::new();
+        collection_parent_nft.spl_token_program = spl_token_program;
         collection_parent_nft
             .create_v3(
                 &mut context,
@@ -1130,7 +1193,8 @@ mod verify_collection {
             .unwrap();
 
         // Create a parent master edition with a nonzero max supply.
-        let parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
+        let mut parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
+        parent_master_edition_account.spl_token_program = spl_token_program;
         parent_master_edition_account
             .create_v3(&mut context, Some(33))
             .await
@@ -1150,6 +1214,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1192,8 +1257,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn incorrect_collection_update_authority() {
+    async fn incorrect_collection_update_authority(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -1216,6 +1283,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1267,26 +1335,41 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_nft_collection_nft_both_old_handlers_update_authority() {
-        pass_item_nft_collection_nft_both_old_handlers_collection_update_authority(None).await;
+    async fn pass_unsized_collection_item_nft_collection_nft_both_old_handlers_update_authority(
+        spl_token_program: Pubkey,
+    ) {
+        pass_item_nft_collection_nft_both_old_handlers_collection_update_authority(
+            None,
+            spl_token_program,
+        )
+        .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_nft_collection_nft_both_old_handlers_update_authority() {
+    async fn pass_sized_collection_item_nft_collection_nft_both_old_handlers_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_item_nft_collection_nft_both_old_handlers_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
+            spl_token_program,
         )
         .await;
     }
 
     async fn pass_item_nft_collection_nft_both_old_handlers_collection_update_authority(
         collection_details: Option<CollectionDetails>,
+        spl_token_program: Pubkey,
     ) {
         let mut context = program_test().start_with_context().await;
 
         // Create a Collection Parent NFT with the CollectionDetails struct populated
-        let collection_parent_nft = Metadata::new();
+        let mut collection_parent_nft = Metadata::new();
+        collection_parent_nft.spl_token_program = spl_token_program;
         collection_parent_nft
             .create_v3(
                 &mut context,
@@ -1322,7 +1405,8 @@ mod verify_collection {
         let name = "Test".to_string();
         let symbol = "TST".to_string();
         let uri = "uri".to_string();
-        let test_metadata = Metadata::new();
+        let mut test_metadata = Metadata::new();
+        test_metadata.spl_token_program = spl_token_program;
         test_metadata
             .create_v3(
                 &mut context,
@@ -1399,26 +1483,41 @@ mod verify_collection {
         );
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_pnft_collection_nft_old_handler_update_authority() {
-        pass_item_pnft_collection_nft_old_handler_collection_update_authority(None).await;
+    async fn pass_unsized_collection_item_pnft_collection_nft_old_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
+        pass_item_pnft_collection_nft_old_handler_collection_update_authority(
+            None,
+            spl_token_program,
+        )
+        .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_pnft_collection_nft_old_handler_update_authority() {
+    async fn pass_sized_collection_item_pnft_collection_nft_old_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_item_pnft_collection_nft_old_handler_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
+            spl_token_program,
         )
         .await;
     }
 
     async fn pass_item_pnft_collection_nft_old_handler_collection_update_authority(
         collection_details: Option<CollectionDetails>,
+        spl_token_program: Pubkey,
     ) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
-        let collection_parent_nft = Metadata::new();
+        let mut collection_parent_nft = Metadata::new();
+        collection_parent_nft.spl_token_program = spl_token_program;
         collection_parent_nft
             .create_v3(
                 &mut context,
@@ -1455,6 +1554,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1494,8 +1594,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn pass_with_changed_collection_update_authority() {
+    async fn pass_with_changed_collection_update_authority(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -1525,6 +1627,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1563,8 +1666,10 @@ mod verify_collection {
         .await;
     }
 
+    // TODP: test with Token-2022
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn item_update_authority_cannot_verify() {
+    async fn item_update_authority_cannot_verify(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent NFT with the CollectionDetails struct populated.
@@ -1594,6 +1699,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1679,82 +1785,122 @@ mod verify_collection {
         );
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_nft_collection_nft_new_handler_update_authority() {
+    async fn pass_unsized_collection_item_nft_collection_nft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             None,
             TokenStandard::NonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_nft_collection_pnft_new_handler_update_authority() {
+    async fn pass_unsized_collection_item_nft_collection_pnft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             None,
             TokenStandard::NonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_pnft_collection_nft_new_handler_update_authority() {
+    async fn pass_unsized_collection_item_pnft_collection_nft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             None,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_pnft_collection_pnft_new_handler_update_authority() {
+    async fn pass_unsized_collection_item_pnft_collection_pnft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             None,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_nft_collection_nft_new_handler_update_authority() {
+    async fn pass_sized_collection_item_nft_collection_nft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::NonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_nft_collection_pnft_new_handler_update_authority() {
+    async fn pass_sized_collection_item_nft_collection_pnft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::NonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_pnft_collection_nft_new_handler_update_authority() {
+    async fn pass_sized_collection_item_pnft_collection_nft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_pnft_collection_pnft_new_handler_update_authority() {
+    async fn pass_sized_collection_item_pnft_collection_pnft_new_handler_update_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_collection_update_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
@@ -1763,6 +1909,7 @@ mod verify_collection {
         collection_details: Option<CollectionDetails>,
         item_token_standard: TokenStandard,
         collection_token_standard: TokenStandard,
+        spl_token_program: Pubkey,
     ) {
         let mut context = program_test().start_with_context().await;
 
@@ -1776,6 +1923,7 @@ mod verify_collection {
                 None,
                 1,
                 collection_details.clone(),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -1794,6 +1942,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1839,82 +1988,122 @@ mod verify_collection {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_nft_collection_nft_new_handler_delegated_authority() {
+    async fn pass_unsized_collection_item_nft_collection_nft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             None,
             TokenStandard::NonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_nft_collection_pnft_new_handler_delegated_authority() {
+    async fn pass_unsized_collection_item_nft_collection_pnft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             None,
             TokenStandard::NonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_pnft_collection_nft_new_handler_delegated_authority() {
+    async fn pass_unsized_collection_item_pnft_collection_nft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             None,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_unsized_collection_item_pnft_collection_pnft_new_handler_delegated_authority() {
+    async fn pass_unsized_collection_item_pnft_collection_pnft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             None,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_nft_collection_nft_new_handler_delegated_authority() {
+    async fn pass_sized_collection_item_nft_collection_nft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::NonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_nft_collection_pnft_new_handler_delegated_authority() {
+    async fn pass_sized_collection_item_nft_collection_pnft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::NonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_pnft_collection_nft_new_handler_delegated_authority() {
+    async fn pass_sized_collection_item_pnft_collection_nft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::NonFungible,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn pass_sized_collection_item_pnft_collection_pnft_new_handler_delegated_authority() {
+    async fn pass_sized_collection_item_pnft_collection_pnft_new_handler_delegated_authority(
+        spl_token_program: Pubkey,
+    ) {
         pass_collection_new_handler_delegated_authority(
             DEFAULT_COLLECTION_DETAILS,
             TokenStandard::ProgrammableNonFungible,
             TokenStandard::ProgrammableNonFungible,
+            spl_token_program,
         )
         .await;
     }
@@ -1923,6 +2112,7 @@ mod verify_collection {
         collection_details: Option<CollectionDetails>,
         item_token_standard: TokenStandard,
         collection_token_standard: TokenStandard,
+        spl_token_program: Pubkey,
     ) {
         let mut context = program_test().start_with_context().await;
 
@@ -1936,6 +2126,7 @@ mod verify_collection {
                 None,
                 1,
                 collection_details.clone(),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -1954,6 +2145,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1981,6 +2173,7 @@ mod verify_collection {
                 DelegateArgs::CollectionV1 {
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2026,8 +2219,10 @@ mod verify_collection {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn collections_collection_item_delegate_cannot_verify() {
+    async fn collections_collection_item_delegate_cannot_verify(spl_token_program: Pubkey) {
         let delegate_args = DelegateArgs::CollectionItemV1 {
             authorization_data: None,
         };
@@ -2038,12 +2233,15 @@ mod verify_collection {
             AssetToDelegate::CollectionParent,
             delegate_args,
             delegate_role,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn collections_programmable_config_delegate_cannot_verify() {
+    async fn collections_programmable_config_delegate_cannot_verify(spl_token_program: Pubkey) {
         let delegate_args = DelegateArgs::ProgrammableConfigV1 {
             authorization_data: None,
         };
@@ -2054,44 +2252,66 @@ mod verify_collection {
             AssetToDelegate::CollectionParent,
             delegate_args,
             delegate_role,
+            spl_token_program,
         )
         .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn items_collection_delegate_cannot_verify() {
+    async fn items_collection_delegate_cannot_verify(spl_token_program: Pubkey) {
         let delegate_args = DelegateArgs::CollectionV1 {
             authorization_data: None,
         };
 
         let delegate_role = MetadataDelegateRole::Collection;
 
-        other_metadata_delegates_cannot_verify(AssetToDelegate::Item, delegate_args, delegate_role)
-            .await;
+        other_metadata_delegates_cannot_verify(
+            AssetToDelegate::Item,
+            delegate_args,
+            delegate_role,
+            spl_token_program,
+        )
+        .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn items_collection_item_delegate_cannot_verify() {
+    async fn items_collection_item_delegate_cannot_verify(spl_token_program: Pubkey) {
         let delegate_args = DelegateArgs::CollectionItemV1 {
             authorization_data: None,
         };
 
         let delegate_role = MetadataDelegateRole::CollectionItem;
 
-        other_metadata_delegates_cannot_verify(AssetToDelegate::Item, delegate_args, delegate_role)
-            .await;
+        other_metadata_delegates_cannot_verify(
+            AssetToDelegate::Item,
+            delegate_args,
+            delegate_role,
+            spl_token_program,
+        )
+        .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn items_programmable_config_delegate_cannot_verify() {
+    async fn items_programmable_config_delegate_cannot_verify(spl_token_program: Pubkey) {
         let delegate_args = DelegateArgs::ProgrammableConfigV1 {
             authorization_data: None,
         };
 
         let delegate_role = MetadataDelegateRole::ProgrammableConfig;
 
-        other_metadata_delegates_cannot_verify(AssetToDelegate::Item, delegate_args, delegate_role)
-            .await;
+        other_metadata_delegates_cannot_verify(
+            AssetToDelegate::Item,
+            delegate_args,
+            delegate_role,
+            spl_token_program,
+        )
+        .await;
     }
 
     enum AssetToDelegate {
@@ -2103,6 +2323,7 @@ mod verify_collection {
         asset_to_delegate: AssetToDelegate,
         delegate_args: DelegateArgs,
         delegate_role: MetadataDelegateRole,
+        spl_token_program: Pubkey,
     ) {
         let mut context = program_test().start_with_context().await;
 
@@ -2116,6 +2337,7 @@ mod verify_collection {
                 None,
                 1,
                 DEFAULT_COLLECTION_DETAILS,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2134,6 +2356,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -2159,7 +2382,13 @@ mod verify_collection {
         let payer = context.payer.dirty_clone();
         let payer_pubkey = payer.pubkey();
         asset
-            .delegate(&mut context, payer, delegate.pubkey(), delegate_args)
+            .delegate(
+                &mut context,
+                payer,
+                delegate.pubkey(),
+                delegate_args,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -2198,8 +2427,10 @@ mod verify_collection {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn delegate_for_different_collection_cannot_verify() {
+    async fn delegate_for_different_collection_cannot_verify(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Create a collection parent pNFT with the CollectionDetails struct populated.
@@ -2212,6 +2443,7 @@ mod verify_collection {
                 None,
                 1,
                 DEFAULT_COLLECTION_DETAILS,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2226,6 +2458,7 @@ mod verify_collection {
                 None,
                 1,
                 DEFAULT_COLLECTION_DETAILS,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2245,6 +2478,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -2281,6 +2515,7 @@ mod verify_collection {
                 DelegateArgs::CollectionV1 {
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2324,8 +2559,10 @@ mod verify_collection {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn collections_standard_delegate_cannot_verify() {
+    async fn collections_standard_delegate_cannot_verify(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // Use NFT for collection parent for this test.
@@ -2338,6 +2575,7 @@ mod verify_collection {
                 None,
                 1,
                 DEFAULT_COLLECTION_DETAILS,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2356,6 +2594,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -2376,7 +2615,13 @@ mod verify_collection {
         let payer = context.payer.dirty_clone();
         let delegate_args = DelegateArgs::StandardV1 { amount: 1 };
         collection_parent_da
-            .delegate(&mut context, payer, delegate.pubkey(), delegate_args)
+            .delegate(
+                &mut context,
+                payer,
+                delegate.pubkey(),
+                delegate_args,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -2414,17 +2659,24 @@ mod verify_collection {
             .await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn collections_utility_delegate_cannot_verify() {
-        utility_delegate_cannot_verify(AssetToDelegate::CollectionParent).await;
+    async fn collections_utility_delegate_cannot_verify(spl_token_program: Pubkey) {
+        utility_delegate_cannot_verify(AssetToDelegate::CollectionParent, spl_token_program).await;
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn items_utility_delegate_cannot_verify() {
-        utility_delegate_cannot_verify(AssetToDelegate::Item).await;
+    async fn items_utility_delegate_cannot_verify(spl_token_program: Pubkey) {
+        utility_delegate_cannot_verify(AssetToDelegate::Item, spl_token_program).await;
     }
 
-    async fn utility_delegate_cannot_verify(asset_to_delegate: AssetToDelegate) {
+    async fn utility_delegate_cannot_verify(
+        asset_to_delegate: AssetToDelegate,
+        spl_token_program: Pubkey,
+    ) {
         let mut context = program_test().start_with_context().await;
 
         // Use pNFT for collection parent for this test.
@@ -2437,6 +2689,7 @@ mod verify_collection {
                 None,
                 1,
                 DEFAULT_COLLECTION_DETAILS,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -2455,6 +2708,7 @@ mod verify_collection {
             None,
             1,
             collection.clone(),
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -2483,7 +2737,13 @@ mod verify_collection {
             authorization_data: None,
         };
         asset
-            .delegate(&mut context, payer, delegate.pubkey(), delegate_args)
+            .delegate(
+                &mut context,
+                payer,
+                delegate.pubkey(),
+                delegate_args,
+                spl_token_program,
+            )
             .await
             .unwrap();
 

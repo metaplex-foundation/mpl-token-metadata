@@ -188,15 +188,23 @@ mod mint_new_edition_from_master_edition_via_token {
             .await
             .unwrap();
 
-        create_mint(&mut context, &fake_mint, &payer_pubkey, None, 0)
-            .await
-            .unwrap();
+        create_mint(
+            &mut context,
+            &fake_mint,
+            &payer_pubkey,
+            None,
+            0,
+            &spl_token::ID,
+        )
+        .await
+        .unwrap();
 
         create_token_account(
             &mut context,
             &fake_account,
             &fake_mint.pubkey(),
             &payer_pubkey,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -208,6 +216,7 @@ mod mint_new_edition_from_master_edition_via_token {
             1,
             &payer_pubkey,
             None,
+            &spl_token::ID,
         )
         .await
         .unwrap();

@@ -19,6 +19,7 @@ pub struct Metadata {
     pub mint: Keypair,
     pub pubkey: Pubkey,
     pub token: Keypair,
+    pub spl_token_program: Pubkey,
 }
 
 impl Metadata {
@@ -34,6 +35,7 @@ impl Metadata {
             mint,
             pubkey,
             token: Keypair::new(),
+            spl_token_program: spl_token::ID,
         }
     }
 
@@ -91,6 +93,7 @@ impl Metadata {
         TmMetadata::safe_deserialize(&metadata_account.data).unwrap()
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn create_v3(
         &self,
         context: &mut ProgramTestContext,
@@ -110,6 +113,7 @@ impl Metadata {
             &context.payer.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &self.spl_token_program,
         )
         .await?;
         create_token_account(
@@ -117,6 +121,7 @@ impl Metadata {
             &self.token,
             &self.mint.pubkey(),
             &context.payer.pubkey(),
+            &self.spl_token_program,
         )
         .await?;
         mint_tokens(
@@ -126,6 +131,7 @@ impl Metadata {
             1,
             &context.payer.pubkey(),
             None,
+            &self.spl_token_program,
         )
         .await?;
 
@@ -156,6 +162,7 @@ impl Metadata {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn create_fungible_v3(
         &self,
         context: &mut ProgramTestContext,
@@ -174,6 +181,7 @@ impl Metadata {
             &context.payer.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &self.spl_token_program,
         )
         .await?;
         create_token_account(
@@ -181,6 +189,7 @@ impl Metadata {
             &self.token,
             &self.mint.pubkey(),
             &context.payer.pubkey(),
+            &self.spl_token_program,
         )
         .await?;
         mint_tokens(
@@ -190,6 +199,7 @@ impl Metadata {
             10,
             &context.payer.pubkey(),
             None,
+            &self.spl_token_program,
         )
         .await?;
 
@@ -237,12 +247,21 @@ impl Metadata {
         let is_mutable = true;
 
         // Mint created with no freeze authority set.
-        create_mint(context, &self.mint, &context.payer.pubkey(), None, 0).await?;
+        create_mint(
+            context,
+            &self.mint,
+            &context.payer.pubkey(),
+            None,
+            0,
+            &self.spl_token_program,
+        )
+        .await?;
         create_token_account(
             context,
             &self.token,
             &self.mint.pubkey(),
             &context.payer.pubkey(),
+            &self.spl_token_program,
         )
         .await?;
         mint_tokens(
@@ -252,6 +271,7 @@ impl Metadata {
             1,
             &context.payer.pubkey(),
             None,
+            &self.spl_token_program,
         )
         .await?;
 
@@ -411,6 +431,7 @@ impl Metadata {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn update_v2(
         &self,
         context: &mut ProgramTestContext,
@@ -505,6 +526,7 @@ impl Metadata {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn set_and_verify_collection(
         &self,
         context: &mut ProgramTestContext,
@@ -534,6 +556,7 @@ impl Metadata {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn set_and_verify_sized_collection_item(
         &self,
         context: &mut ProgramTestContext,

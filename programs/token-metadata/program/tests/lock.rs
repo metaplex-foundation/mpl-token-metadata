@@ -12,19 +12,22 @@ mod lock {
         instruction::DelegateArgs,
         pda::find_token_record_account,
         state::{TokenRecord, TokenStandard, TokenState},
+        utils::unpack,
     };
-    use solana_program::{borsh::try_from_slice_unchecked, program_pack::Pack, pubkey::Pubkey};
+    use solana_program::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
     use solana_sdk::{
         instruction::InstructionError,
         signature::{Keypair, Signer},
         transaction::TransactionError,
     };
-    use spl_token::state::Account;
+    use spl_token_2022::state::Account;
 
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_owner_lock_programmable_nonfungible() {
+    async fn fail_owner_lock_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -37,6 +40,7 @@ mod lock {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -56,7 +60,13 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         let error = asset
-            .lock(&mut context, approver, Some(pda_key), payer)
+            .lock(
+                &mut context,
+                approver,
+                Some(pda_key),
+                payer,
+                spl_token_program,
+            )
             .await
             .unwrap_err();
 
@@ -65,22 +75,31 @@ mod lock {
         assert_custom_error!(error, MetadataError::InvalidAuthorityType);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_owner_lock_nonfungible() {
+    async fn fail_owner_lock_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
+            .create_and_mint(
+                &mut context,
+                TokenStandard::NonFungible,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -90,15 +109,17 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         let error = asset
-            .lock(&mut context, approver, None, payer)
+            .lock(&mut context, approver, None, payer, spl_token_program)
             .await
             .unwrap_err();
 
         assert_custom_error!(error, MetadataError::InvalidAuthorityType);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn delegate_lock_programmable_nonfungible() {
+    async fn delegate_lock_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -111,6 +132,7 @@ mod lock {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -139,6 +161,7 @@ mod lock {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -148,34 +171,49 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         asset
-            .lock(&mut context, delegate, Some(pda_key), payer)
+            .lock(
+                &mut context,
+                delegate,
+                Some(pda_key),
+                payer,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(token.is_frozen());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn delegate_lock_nonfungible() {
+    async fn delegate_lock_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
+            .create_and_mint(
+                &mut context,
+                TokenStandard::NonFungible,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -191,6 +229,7 @@ mod lock {
                 payer,
                 delegate_pubkey,
                 DelegateArgs::StandardV1 { amount: 1 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -200,20 +239,22 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         asset
-            .lock(&mut context, delegate, None, payer)
+            .lock(&mut context, delegate, None, payer, spl_token_program)
             .await
             .unwrap();
 
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = Account::unpack(&token_account.data).unwrap();
-        // should not be frozen
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        // should be frozen
         assert!(token.is_frozen());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn locked_programmable_nonfungible_delegate_fails() {
+    async fn locked_programmable_nonfungible_delegate_fails(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -226,6 +267,7 @@ mod lock {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -254,6 +296,7 @@ mod lock {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -263,7 +306,13 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         asset
-            .lock(&mut context, delegate, Some(pda_key), payer)
+            .lock(
+                &mut context,
+                delegate,
+                Some(pda_key),
+                payer,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -289,6 +338,7 @@ mod lock {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap_err();
@@ -296,8 +346,10 @@ mod lock {
         assert_custom_error_ix!(1, error, MetadataError::LockedToken);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn locked_transfer_delegate_lock_programmable_nonfungible() {
+    async fn locked_transfer_delegate_lock_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -310,6 +362,7 @@ mod lock {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -339,6 +392,7 @@ mod lock {
                     locked_address: Pubkey::default(),
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -348,14 +402,20 @@ mod lock {
         let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         asset
-            .lock(&mut context, delegate, Some(pda_key), payer)
+            .lock(
+                &mut context,
+                delegate,
+                Some(pda_key),
+                payer,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should be frozen
         assert!(token.is_frozen());
 

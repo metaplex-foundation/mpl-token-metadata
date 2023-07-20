@@ -24,15 +24,23 @@ async fn deserialize_removed_instruction() {
     let symbol = "TST".to_string();
     let uri = "uri".to_string();
 
-    create_mint(&mut context, &test_metadata.mint, &payer, Some(&payer), 0)
-        .await
-        .unwrap();
+    create_mint(
+        &mut context,
+        &test_metadata.mint,
+        &payer,
+        Some(&payer),
+        0,
+        &spl_token::ID,
+    )
+    .await
+    .unwrap();
 
     create_token_account(
         &mut context,
         &test_metadata.token,
         &test_metadata.mint.pubkey(),
         &payer,
+        &spl_token::ID,
     )
     .await
     .unwrap();
@@ -44,6 +52,7 @@ async fn deserialize_removed_instruction() {
         1,
         &payer,
         None,
+        &spl_token::ID,
     )
     .await
     .unwrap();

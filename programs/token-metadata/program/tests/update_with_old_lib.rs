@@ -280,6 +280,7 @@ impl OldDigitalAsset {
             .await
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn create_advanced(
         &mut self,
         context: &mut ProgramTestContext,

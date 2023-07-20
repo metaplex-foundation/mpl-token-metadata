@@ -136,14 +136,22 @@ mod create_meta_accounts {
         let fake_mint_authority = Keypair::new();
         let payer_pubkey = context.payer.pubkey();
 
-        create_mint(&mut context, &test_metadata.mint, &payer_pubkey, None, 0)
-            .await
-            .unwrap();
+        create_mint(
+            &mut context,
+            &test_metadata.mint,
+            &payer_pubkey,
+            None,
+            0,
+            &spl_token::ID,
+        )
+        .await
+        .unwrap();
         create_token_account(
             &mut context,
             &test_metadata.token,
             &test_metadata.mint.pubkey(),
             &payer_pubkey,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -154,6 +162,7 @@ mod create_meta_accounts {
             1,
             &payer_pubkey,
             None,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -633,6 +642,7 @@ mod create_meta_accounts {
             &mint_authority.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -642,6 +652,7 @@ mod create_meta_accounts {
             &test_metadata.token,
             &test_metadata.mint.pubkey(),
             &context.payer.pubkey(),
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -653,7 +664,7 @@ mod create_meta_accounts {
             1,
             &mint_authority.pubkey(),
             Some(&mint_authority),
-            // None
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -742,6 +753,7 @@ mod create_meta_accounts {
             &mint_authority.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -751,6 +763,7 @@ mod create_meta_accounts {
             &test_metadata.token,
             &test_metadata.mint.pubkey(),
             &context.payer.pubkey(),
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -762,7 +775,7 @@ mod create_meta_accounts {
             1,
             &mint_authority.pubkey(),
             Some(&mint_authority),
-            // None
+            &spl_token::ID,
         )
         .await
         .unwrap();

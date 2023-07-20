@@ -43,6 +43,7 @@ impl RoosterManager {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn withdraw(
         &self,
         context: &mut ProgramTestContext,
@@ -86,6 +87,7 @@ impl RoosterManager {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn delegate(
         &self,
         context: &mut ProgramTestContext,
@@ -119,6 +121,7 @@ impl RoosterManager {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn delegate_transfer(
         self,
         context: &mut ProgramTestContext,

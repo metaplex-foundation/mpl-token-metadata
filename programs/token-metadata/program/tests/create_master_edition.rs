@@ -203,14 +203,22 @@ mod create_master_edition {
             .await
             .unwrap();
 
-        create_mint(&mut context, &fake_mint, &payer_pubkey, None, 0)
-            .await
-            .unwrap();
+        create_mint(
+            &mut context,
+            &fake_mint,
+            &payer_pubkey,
+            None,
+            0,
+            &spl_token::ID,
+        )
+        .await
+        .unwrap();
         create_token_account(
             &mut context,
             &fake_account,
             &fake_mint.pubkey(),
             &payer_pubkey,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -221,6 +229,7 @@ mod create_master_edition {
             1000000,
             &payer_pubkey,
             None,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -229,6 +238,7 @@ mod create_master_edition {
             mint: fake_mint,
             pubkey: test_metadata.pubkey,
             token: fake_account,
+            spl_token_program: spl_token::ID,
         });
 
         let result = test_master_edition
@@ -361,14 +371,22 @@ mod create_master_edition {
             .await
             .unwrap();
 
-        create_mint(&mut context, &fake_mint, &payer_pubkey, None, 0)
-            .await
-            .unwrap();
+        create_mint(
+            &mut context,
+            &fake_mint,
+            &payer_pubkey,
+            None,
+            0,
+            &spl_token::ID,
+        )
+        .await
+        .unwrap();
         create_token_account(
             &mut context,
             &fake_account,
             &fake_mint.pubkey(),
             &payer_pubkey,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -379,6 +397,7 @@ mod create_master_edition {
             1000000,
             &payer_pubkey,
             None,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -387,6 +406,7 @@ mod create_master_edition {
             mint: fake_mint,
             pubkey: test_metadata.pubkey,
             token: fake_account,
+            spl_token_program: spl_token::ID,
         });
 
         let result = test_master_edition
