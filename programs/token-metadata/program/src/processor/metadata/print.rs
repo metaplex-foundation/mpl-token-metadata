@@ -10,7 +10,7 @@ use solana_program::{
     system_instruction,
     sysvar::{self, Sysvar},
 };
-use spl_token::state::Mint;
+use spl_token_2022::state::{Account, Mint};
 
 use crate::{
     assertions::assert_keys_equal,
@@ -22,9 +22,9 @@ use crate::{
         TOKEN_STANDARD_INDEX_EDITION,
     },
     utils::{
-        assert_initialized, assert_owned_by, create_token_record_account,
+        assert_owned_by, create_token_record_account,
         fee::{levy, set_fee_flag, LevyArgs},
-        freeze, process_mint_new_edition_from_master_edition_via_token_logic,
+        freeze, process_mint_new_edition_from_master_edition_via_token_logic, unpack_initialized,
         MintNewEditionFromMasterEditionViaTokenLogicArgs,
     },
 };
@@ -94,16 +94,16 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             &system_instruction::create_account(
                 payer_info.key,
                 edition_mint_info.key,
-                Rent::get()?.minimum_balance(spl_token::state::Mint::LEN),
-                spl_token::state::Mint::LEN as u64,
-                &spl_token::ID,
+                Rent::get()?.minimum_balance(Mint::LEN),
+                Mint::LEN as u64,
+                token_program.key,
             ),
             &[payer_info.clone(), edition_mint_info.clone()],
         )?;
 
         // initializing the mint account
         invoke(
-            &spl_token::instruction::initialize_mint2(
+            &spl_token_2022::instruction::initialize_mint2(
                 token_program.key,
                 edition_mint_info.key,
                 edition_account_info.key,
@@ -115,7 +115,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
     } else {
         // validates the existing mint account
 
-        let mint: Mint = assert_initialized(edition_mint_info)?;
+        let mint = unpack_initialized::<Mint>(&edition_mint_info.data.borrow())?.base;
         // NonFungible assets must have decimals == 0 and supply no greater than 1
         if mint.decimals > 0 || mint.supply > 1 {
             return Err(MetadataError::InvalidMintForTokenStandard.into());
@@ -138,7 +138,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
                 payer_info.key,
                 edition_token_account_owner_info.key,
                 edition_mint_info.key,
-                &spl_token::id(),
+                token_program.key,
             ),
             &[
                 payer_info.clone(),
@@ -148,9 +148,9 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             ],
         )?;
     } else {
-        assert_owned_by(edition_token_account_info, &spl_token::id())?;
-        let edition_token_account: spl_token::state::Account =
-            assert_initialized(edition_token_account_info)?;
+        assert_owned_by(edition_token_account_info, token_program.key)?;
+        let edition_token_account =
+            unpack_initialized::<Account>(&edition_token_account_info.data.borrow())?.base;
         if edition_token_account.amount < 1 {
             return Err(MetadataError::NotEnoughTokens.into());
         }

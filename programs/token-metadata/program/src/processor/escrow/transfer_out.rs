@@ -3,10 +3,10 @@ use solana_program::{
     account_info::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     program::{invoke, invoke_signed},
-    program_pack::Pack,
     pubkey::Pubkey,
 };
 use spl_token::state::is_initialized_account;
+use spl_token_2022::state::Account;
 
 use super::find_escrow_seeds;
 use crate::{
@@ -14,6 +14,7 @@ use crate::{
     error::MetadataError,
     instruction::TransferOutOfEscrowArgs,
     state::{EscrowAuthority, TokenMetadataAccount, TokenOwnedEscrow},
+    utils::unpack,
 };
 
 pub fn process_transfer_out_of_escrow(
@@ -113,7 +114,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Deserialize the token accounts and perform checks.
-    let attribute_src = spl_token::state::Account::unpack(&attribute_src_info.data.borrow())?;
+    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?.base;
     if attribute_src.mint != *attribute_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -125,7 +126,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Check that the authority matches based on the authority type.
-    let escrow_account = spl_token::state::Account::unpack(&escrow_account_info.data.borrow())?;
+    let escrow_account = unpack::<Account>(&escrow_account_info.data.borrow())?.base;
     if escrow_account.mint != *escrow_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -146,7 +147,7 @@ pub fn process_transfer_out_of_escrow(
         }
     }
 
-    let attribute_dst = spl_token::state::Account::unpack(&attribute_dst_info.data.borrow())?;
+    let attribute_dst = unpack::<Account>(&attribute_dst_info.data.borrow())?.base;
     if attribute_dst.mint != *attribute_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -172,7 +173,7 @@ pub fn process_transfer_out_of_escrow(
         &[&escrow_authority_seeds],
     )?;
 
-    let attribute_src = spl_token::state::Account::unpack(&attribute_src_info.data.borrow())?;
+    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?.base;
 
     // Close the source ATA and return funds to the user.
     if attribute_src.amount == 0 {

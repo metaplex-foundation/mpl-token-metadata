@@ -7,11 +7,13 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
 };
+use spl_token_2022::state::Account;
 
 use crate::{
     assertions::assert_owned_by,
     instruction::{Burn, Context},
     state::{Metadata, TokenMetadataAccount},
+    utils::unpack_initialized,
 };
 
 use super::nonfungible::{burn_nonfungible, BurnNonFungibleArgs};
@@ -46,7 +48,7 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
 
     // Deserialize accounts.
     let metadata = Metadata::from_account_info(metadata_info)?;
-    let token: TokenAccount = assert_initialized(token_info)?;
+    let token = unpack_initialized::<Account>(&token_info.data.borrow())?.base;
 
     // Validate relationships between accounts.
 

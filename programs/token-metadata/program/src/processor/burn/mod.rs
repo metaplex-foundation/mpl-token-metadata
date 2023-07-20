@@ -10,9 +10,8 @@ use mpl_utils::{
 };
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
-    program_pack::Pack, pubkey::Pubkey, system_program, sysvar,
+    pubkey::Pubkey, system_program, sysvar,
 };
-use spl_token::state::Account as TokenAccount;
 
 use crate::{
     error::MetadataError,
@@ -23,9 +22,8 @@ use crate::{
         Collection, Edition, EditionMarker, Key, Metadata, TokenMetadataAccount, TokenStandard,
     },
     utils::{
-        assert_derivation, assert_initialized, assert_owned_by,
-        assert_verified_member_of_collection, close_program_account, decrement_collection_size,
-        is_master_edition, is_print_edition,
+        assert_derivation, assert_owned_by, assert_verified_member_of_collection,
+        close_program_account, decrement_collection_size, is_master_edition, is_print_edition,
     },
 };
 

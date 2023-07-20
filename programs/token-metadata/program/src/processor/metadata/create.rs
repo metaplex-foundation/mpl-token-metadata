@@ -65,7 +65,10 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
             return Err(MetadataError::MintIsNotSigner.into());
         }
 
-        msg!("Init mint");
+        let spl_token_program = ctx
+            .accounts
+            .spl_token_program_info
+            .ok_or(MetadataError::MissingSplTokenProgram)?;
 
         invoke(
             &system_instruction::create_account(
@@ -73,7 +76,7 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
                 ctx.accounts.mint_info.key,
                 Rent::get()?.minimum_balance(spl_token::state::Mint::LEN),
                 spl_token::state::Mint::LEN as u64,
-                &spl_token::ID,
+                spl_token_program.key,
             ),
             &[
                 ctx.accounts.payer_info.clone(),
@@ -99,8 +102,8 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
 
         // initializing the mint account
         invoke(
-            &spl_token::instruction::initialize_mint2(
-                ctx.accounts.spl_token_program_info.key,
+            &spl_token_2022::instruction::initialize_mint2(
+                spl_token_program.key,
                 ctx.accounts.mint_info.key,
                 ctx.accounts.authority_info.key,
                 Some(ctx.accounts.authority_info.key),
@@ -163,6 +166,11 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
         let print_supply = print_supply.ok_or(MetadataError::MissingPrintSupply)?;
 
         if let Some(master_edition) = ctx.accounts.master_edition_info {
+            let spl_token_program = ctx
+                .accounts
+                .spl_token_program_info
+                .ok_or(MetadataError::MissingSplTokenProgram)?;
+
             create_master_edition(
                 program_id,
                 master_edition,
@@ -171,7 +179,7 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
                 ctx.accounts.authority_info,
                 ctx.accounts.payer_info,
                 ctx.accounts.metadata_info,
-                ctx.accounts.spl_token_program_info,
+                spl_token_program,
                 ctx.accounts.system_program_info,
                 print_supply.to_option(),
             )?;

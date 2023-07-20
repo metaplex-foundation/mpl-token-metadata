@@ -1,7 +1,7 @@
 use crate::{
     assertions::{
-        assert_owned_by, collection::assert_collection_verify_is_valid,
-        metadata::assert_metadata_derivation,
+        assert_owned_by, assert_owner_in, collection::assert_collection_verify_is_valid,
+        metadata::assert_metadata_derivation, SPL_TOKEN_PROGRAM_IDS,
     },
     error::MetadataError,
     instruction::{Context, MetadataDelegateRole, Unverify, Verify},
@@ -26,7 +26,7 @@ pub(crate) fn verify_collection_v1(program_id: &Pubkey, ctx: Context<Verify>) ->
         .accounts
         .collection_mint_info
         .ok_or(MetadataError::MissingCollectionMint)?;
-    assert_owned_by(collection_mint_info, &spl_token::ID)?;
+    assert_owner_in(collection_mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     let collection_metadata_info = ctx
         .accounts
@@ -114,7 +114,7 @@ pub(crate) fn unverify_collection_v1(program_id: &Pubkey, ctx: Context<Unverify>
         .accounts
         .collection_mint_info
         .ok_or(MetadataError::MissingCollectionMint)?;
-    assert_owned_by(collection_mint_info, &spl_token::ID)?;
+    assert_owner_in(collection_mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     let collection_metadata_info = ctx
         .accounts

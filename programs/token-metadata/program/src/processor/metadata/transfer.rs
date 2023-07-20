@@ -12,7 +12,7 @@ use solana_program::{
     system_program,
     sysvar::{self, instructions::get_instruction_relative},
 };
-use spl_token::state::Account;
+use spl_token_2022::state::Account;
 
 use crate::{
     assertions::{
@@ -27,9 +27,9 @@ use crate::{
         TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard,
     },
     utils::{
-        auth_rules_validate, clear_close_authority, close_program_account,
-        create_token_record_account, frozen_transfer, AuthRulesValidateParams,
-        ClearCloseAuthorityParams,
+        assert_token_program_matches_package, auth_rules_validate, clear_close_authority,
+        close_program_account, create_token_record_account, frozen_transfer, unpack,
+        AuthRulesValidateParams, ClearCloseAuthorityParams,
     },
 };
 
@@ -101,8 +101,14 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
 
     // Assert program ownership.
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(ctx.accounts.token_info, &spl_token::ID)?;
+    assert_owned_by(
+        ctx.accounts.mint_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
+    assert_owned_by(
+        ctx.accounts.token_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
     if let Some(owner_token_record_info) = ctx.accounts.owner_token_record_info {
         assert_owned_by(owner_token_record_info, program_id)?;
     }
@@ -121,7 +127,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 ctx.accounts.payer_info.key,
                 ctx.accounts.destination_owner_info.key,
                 ctx.accounts.mint_info.key,
-                &spl_token::ID,
+                ctx.accounts.spl_token_program_info.key,
             ),
             &[
                 ctx.accounts.payer_info.clone(),
@@ -131,7 +137,10 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             ],
         )?;
     } else {
-        assert_owned_by(ctx.accounts.destination_info, &spl_token::ID)?;
+        assert_owned_by(
+            ctx.accounts.destination_info,
+            ctx.accounts.spl_token_program_info.key,
+        )?;
         assert_token_matches_owner_and_mint(
             ctx.accounts.destination_info,
             ctx.accounts.destination_owner_info.key,
@@ -141,9 +150,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
 
     // Check program IDs.
 
-    if ctx.accounts.spl_token_program_info.key != &spl_token::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
+    assert_token_program_matches_package(ctx.accounts.spl_token_program_info)?;
 
     if ctx.accounts.spl_ata_program_info.key != &spl_associated_token_account::ID {
         return Err(ProgramError::IncorrectProgramId);
@@ -191,7 +198,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
     };
 
     let token_standard = metadata.token_standard;
-    let token = Account::unpack(&ctx.accounts.token_info.try_borrow_data()?)?;
+    let token = unpack::<Account>(&ctx.accounts.token_info.try_borrow_data()?)?.base;
 
     let AuthorityResponse { authority_type, .. } =
         AuthorityType::get_authority_type(AuthorityRequest {
@@ -421,7 +428,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                     && owner_token_record.delegate.is_some()
                 {
                     invoke(
-                        &spl_token::instruction::revoke(
+                        &spl_token_2022::instruction::revoke(
                             ctx.accounts.spl_token_program_info.key,
                             ctx.accounts.token_info.key,
                             ctx.accounts.authority_info.key,

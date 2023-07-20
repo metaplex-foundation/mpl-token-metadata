@@ -1,4 +1,5 @@
 use solana_program::program_option::COption;
+use spl_token_2022::state::Account;
 
 use super::*;
 
@@ -6,7 +7,7 @@ use crate::{
     pda::find_token_record_account,
     processor::burn::{fungible::burn_fungible, nonfungible_edition::burn_nonfungible_edition},
     state::{AuthorityRequest, AuthorityType, TokenDelegateRole, TokenRecord, TokenState},
-    utils::{check_token_standard, thaw},
+    utils::{check_token_standard, thaw, unpack_initialized},
 };
 
 /// Burn an asset, closing associated accounts.
@@ -95,7 +96,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
 
     // Deserialize accounts.
     let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
-    let token: TokenAccount = assert_initialized(ctx.accounts.token_info)?;
+    let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?.base;
 
     let authority_response = AuthorityType::get_authority_type(AuthorityRequest {
         authority: ctx.accounts.authority_info.key,

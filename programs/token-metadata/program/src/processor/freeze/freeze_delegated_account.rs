@@ -38,7 +38,12 @@ pub fn process_freeze_delegated_account(
 
     // assert delegate is signer and delegated tokens
     assert_signer(delegate_info)?;
-    assert_delegated_tokens(delegate_info, mint_info, token_account_info)?;
+    assert_delegated_tokens(
+        delegate_info,
+        mint_info,
+        token_account_info,
+        token_program_account_info.key,
+    )?;
 
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),

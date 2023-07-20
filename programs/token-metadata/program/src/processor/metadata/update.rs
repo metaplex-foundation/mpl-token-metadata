@@ -3,12 +3,15 @@ use std::fmt::{Display, Formatter};
 use mpl_utils::assert_signer;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
-    program_pack::Pack, pubkey::Pubkey, sysvar,
+    pubkey::Pubkey, sysvar,
 };
-use spl_token::state::Account;
+use spl_token_2022::state::Account;
 
 use crate::{
-    assertions::{assert_owned_by, programmable::assert_valid_authorization},
+    assertions::{
+        assert_owned_by, assert_owner_in, programmable::assert_valid_authorization,
+        SPL_TOKEN_PROGRAM_IDS,
+    },
     error::MetadataError,
     instruction::{
         CollectionDetailsToggle, CollectionToggle, Context, MetadataDelegateRole, Update,
@@ -19,7 +22,7 @@ use crate::{
         AuthorityRequest, AuthorityResponse, AuthorityType, Collection, Metadata,
         ProgrammableConfig, TokenMetadataAccount, TokenStandard,
     },
-    utils::{assert_derivation, check_token_standard},
+    utils::{assert_derivation, check_token_standard, unpack},
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -64,10 +67,10 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
     }
 
     if let Some(token_info) = ctx.accounts.token_info {
-        assert_owned_by(token_info, &spl_token::ID)?;
+        assert_owner_in(token_info, &SPL_TOKEN_PROGRAM_IDS)?;
     }
 
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
+    assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
 
     if let Some(edition) = ctx.accounts.edition_info {
@@ -105,7 +108,7 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
 
     // Token
     let (token_pubkey, token) = if let Some(token_info) = ctx.accounts.token_info {
-        let token = Account::unpack(&token_info.try_borrow_data()?)?;
+        let token = unpack::<Account>(&token_info.try_borrow_data()?)?.base;
 
         // Token mint must match mint account key.  Token amount must be greater than 0.
         if token.mint != *ctx.accounts.mint_info.key {

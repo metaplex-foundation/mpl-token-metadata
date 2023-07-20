@@ -2,23 +2,23 @@ use mpl_utils::{assert_signer, cmp_pubkeys};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
-    msg,
     program::{invoke, invoke_signed},
-    program_error::ProgramError,
     pubkey::Pubkey,
 };
-use spl_token::state::{Account, Mint as MintAccount};
+use spl_token_2022::state::{Account, Mint as MintAccount};
 
 use crate::{
     assertions::{
-        assert_derivation, assert_initialized, assert_keys_equal,
-        assert_mint_authority_matches_mint, assert_owned_by,
+        assert_derivation, assert_keys_equal, assert_mint_authority_matches_mint, assert_owned_by,
     },
     error::MetadataError,
     instruction::{Context, Mint, MintArgs},
     pda::{find_token_record_account, EDITION, PREFIX},
     state::{Metadata, TokenMetadataAccount, TokenStandard},
-    utils::{create_token_record_account, freeze, thaw},
+    utils::{
+        assert_token_program_matches_package, create_token_record_account, freeze, thaw,
+        unpack_initialized,
+    },
 };
 
 /// Mints tokens from a mint account.
@@ -68,17 +68,16 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         return Err(MetadataError::MintMismatch.into());
     }
 
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    let mint: MintAccount = assert_initialized(ctx.accounts.mint_info)?;
-
-    if !cmp_pubkeys(ctx.accounts.spl_token_program_info.key, &spl_token::ID) {
-        return Err(ProgramError::IncorrectProgramId);
-    }
+    assert_token_program_matches_package(ctx.accounts.spl_token_program_info)?;
+    assert_owned_by(
+        ctx.accounts.mint_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
+    let mint = unpack_initialized::<MintAccount>(&ctx.accounts.mint_info.data.borrow())?.base;
 
     // validates the authority:
     // - NonFungible must have a "valid" master edition
     // - Fungible must have the authority as the mint_authority
-
     match metadata.token_standard {
         Some(TokenStandard::ProgrammableNonFungible) | Some(TokenStandard::NonFungible) => {
             // for NonFungible assets, the mint authority is the master edition
@@ -115,13 +114,10 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
 
     if ctx.accounts.token_info.data_is_empty() {
         // if we are initializing a new account, we need the token_owner
-        let token_owner_info = if let Some(token_owner_info) = ctx.accounts.token_owner_info {
-            token_owner_info
-        } else {
-            return Err(MetadataError::MissingTokenOwnerAccount.into());
-        };
-
-        msg!("Init ATA");
+        let token_owner_info = ctx
+            .accounts
+            .token_owner_info
+            .ok_or(MetadataError::MissingTokenOwnerAccount)?;
 
         // creating the associated token account
         invoke(
@@ -129,7 +125,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                 ctx.accounts.payer_info.key,
                 token_owner_info.key,
                 ctx.accounts.mint_info.key,
-                &spl_token::ID,
+                ctx.accounts.spl_token_program_info.key,
             ),
             &[
                 ctx.accounts.payer_info.clone(),
@@ -139,10 +135,13 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
             ],
         )?;
     } else {
-        assert_owned_by(ctx.accounts.token_info, &spl_token::ID)?;
+        assert_owned_by(
+            ctx.accounts.token_info,
+            ctx.accounts.spl_token_program_info.key,
+        )?;
     }
 
-    let token: Account = assert_initialized(ctx.accounts.token_info)?;
+    let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?.base;
 
     match metadata.token_standard {
         Some(TokenStandard::NonFungible) | Some(TokenStandard::ProgrammableNonFungible) => {
@@ -165,8 +164,6 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                 assert_keys_equal(&pda_key, token_record_info.key)?;
 
                 if token_record_info.data_is_empty() {
-                    msg!("Init token record");
-
                     create_token_record_account(
                         program_id,
                         token_record_info,
@@ -180,17 +177,17 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                 }
             }
 
-            let mut signer_seeds = vec![
+            let master_edition_seeds = &[
                 PREFIX.as_bytes(),
                 program_id.as_ref(),
                 ctx.accounts.mint_info.key.as_ref(),
                 EDITION.as_bytes(),
+                &[metadata
+                    .edition_nonce
+                    .ok_or(MetadataError::NotAMasterEdition)?],
             ];
-
-            let (master_edition_key, bump) =
-                Pubkey::find_program_address(&signer_seeds, program_id);
-            let bump_seed = [bump];
-            signer_seeds.push(&bump_seed);
+            let master_edition_key =
+                Pubkey::create_program_address(master_edition_seeds, program_id)?;
 
             let master_edition_info = ctx
                 .accounts
@@ -217,7 +214,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
             }
 
             invoke_signed(
-                &spl_token::instruction::mint_to(
+                &spl_token_2022::instruction::mint_to(
                     ctx.accounts.spl_token_program_info.key,
                     ctx.accounts.mint_info.key,
                     ctx.accounts.token_info.key,
@@ -230,7 +227,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                     ctx.accounts.token_info.clone(),
                     master_edition_info.clone(),
                 ],
-                &[&signer_seeds],
+                &[master_edition_seeds],
             )?;
 
             // programmable assets are always in a frozen state
@@ -248,7 +245,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         }
         _ => {
             invoke(
-                &spl_token::instruction::mint_to(
+                &spl_token_2022::instruction::mint_to(
                     ctx.accounts.spl_token_program_info.key,
                     ctx.accounts.mint_info.key,
                     ctx.accounts.token_info.key,
