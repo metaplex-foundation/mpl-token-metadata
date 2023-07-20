@@ -2458,7 +2458,8 @@
           "name": "splTokenProgram",
           "isMut": false,
           "isSigner": false,
-          "desc": "SPL Token program"
+          "desc": "SPL Token program",
+          "optional": true
         }
       ],
       "args": [

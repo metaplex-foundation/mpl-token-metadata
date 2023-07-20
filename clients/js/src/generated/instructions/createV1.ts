@@ -287,13 +287,7 @@ export function createV1(
     'splTokenProgram',
     input.splTokenProgram
       ? ([input.splTokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
+      : ([programId, false] as const)
   );
   addObjectProperty(resolvingArgs, 'isCollection', input.isCollection ?? false);
   addObjectProperty(
