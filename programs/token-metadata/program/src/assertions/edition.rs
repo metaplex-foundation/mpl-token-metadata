@@ -1,17 +1,17 @@
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_option::COption,
-    program_pack::Pack, pubkey::Pubkey,
+    account_info::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
 };
-use spl_token::state::Mint;
+use spl_token_2022::state::Mint;
 
 use crate::{
     error::MetadataError,
     pda::find_master_edition_account,
     state::{TokenStandard, EDITION, PREFIX, TOKEN_STANDARD_INDEX},
+    utils::unpack,
 };
 
 pub fn assert_edition_is_not_mint_authority(mint_account_info: &AccountInfo) -> ProgramResult {
-    let mint = Mint::unpack_from_slice(&mint_account_info.try_borrow_data()?)?;
+    let mint = unpack::<Mint>(&mint_account_info.try_borrow_data()?)?.base;
 
     let (edition_pda, _) = find_master_edition_account(mint_account_info.key);
 

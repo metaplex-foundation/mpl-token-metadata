@@ -8,12 +8,15 @@ use solana_program::{
     pubkey::Pubkey,
     rent::Rent,
 };
-use spl_token::state::Account;
+use spl_token_2022::state::Account;
 
 use crate::{
     error::MetadataError,
     state::{TokenDelegateRole, TokenRecord},
+    utils::unpack_initialzed,
 };
+
+pub static SPL_TOKEN_PROGRAM_IDS: [&Pubkey; 2] = [&spl_token::ID, &spl_token_2022::ID];
 
 pub fn assert_keys_equal(key1: &Pubkey, key2: &Pubkey) -> Result<(), ProgramError> {
     if !cmp_pubkeys(key1, key2) {
@@ -85,12 +88,12 @@ pub fn assert_delegated_tokens(
     delegate: &AccountInfo,
     mint_info: &AccountInfo,
     token_account_info: &AccountInfo,
+    spl_token_program: &Pubkey,
 ) -> ProgramResult {
-    assert_owned_by(mint_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, spl_token_program)?;
 
-    let token_account: Account = assert_initialized(token_account_info)?;
-
-    assert_owned_by(token_account_info, &spl_token::ID)?;
+    let token_account = unpack_initialzed::<Account>(&token_account_info.data.borrow())?.base;
+    assert_owned_by(token_account_info, spl_token_program)?;
 
     if token_account.mint != *mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -121,11 +124,23 @@ pub fn assert_owned_by(account: &AccountInfo, owner: &Pubkey) -> ProgramResult {
     mpl_utils::assert_owned_by(account, owner, MetadataError::IncorrectOwner)
 }
 
+pub fn assert_owner_in(account: &AccountInfo, owners: &[&Pubkey]) -> ProgramResult {
+    if owners.iter().any(|owner| cmp_pubkeys(owner, account.owner)) {
+        Ok(())
+    } else {
+        Err(MetadataError::IncorrectOwner.into())
+    }
+}
+
 pub fn assert_token_program_matches_package(token_program_info: &AccountInfo) -> ProgramResult {
-    mpl_utils::token::assert_token_program_matches_package(
-        token_program_info,
-        MetadataError::InvalidTokenProgram,
-    )
+    if SPL_TOKEN_PROGRAM_IDS
+        .iter()
+        .any(|owner| cmp_pubkeys(owner, token_program_info.key))
+    {
+        Ok(())
+    } else {
+        Err(MetadataError::InvalidTokenProgram.into())
+    }
 }
 
 pub fn assert_rent_exempt(rent: &Rent, account_info: &AccountInfo) -> ProgramResult {
