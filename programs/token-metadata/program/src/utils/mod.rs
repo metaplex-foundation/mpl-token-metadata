@@ -23,7 +23,10 @@ use solana_program::{
     program::invoke_signed, program_error::ProgramError, pubkey::Pubkey, rent::Rent,
     sysvar::Sysvar,
 };
-use spl_token::instruction::{set_authority, AuthorityType};
+use spl_token_2022::{
+    extension::{BaseState, StateWithExtensions},
+    instruction::{set_authority, AuthorityType},
+};
 
 pub use crate::assertions::{
     assert_delegated_tokens, assert_derivation, assert_freeze_authority_matches_mint,
@@ -229,6 +232,24 @@ pub(crate) fn close_program_account<'a>(
     }
 
     Ok(())
+}
+
+pub fn unpack<S: BaseState>(
+    account_data: &[u8],
+) -> Result<StateWithExtensions<'_, S>, ProgramError> {
+    StateWithExtensions::<S>::unpack(account_data)
+}
+
+pub fn unpack_initialized<S: BaseState>(
+    account_data: &[u8],
+) -> Result<StateWithExtensions<'_, S>, ProgramError> {
+    let unpacked = unpack::<S>(account_data)?;
+
+    if unpacked.base.is_initialized() {
+        Ok(unpacked)
+    } else {
+        Err(MetadataError::Uninitialized.into())
+    }
 }
 
 #[cfg(test)]

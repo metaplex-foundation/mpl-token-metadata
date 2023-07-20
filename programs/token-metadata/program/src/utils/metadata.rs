@@ -7,9 +7,9 @@ use solana_program::{
 use super::{compression::is_decompression, *};
 use crate::{
     assertions::{
-        assert_mint_authority_matches_mint, assert_owned_by,
+        assert_mint_authority_matches_mint, assert_owner_in,
         collection::assert_collection_update_is_valid, metadata::assert_data_valid,
-        uses::assert_valid_use,
+        uses::assert_valid_use, SPL_TOKEN_PROGRAM_IDS,
     },
     state::{
         Collection, CollectionDetails, Data, DataV2, Key, Metadata, ProgrammableConfig,
@@ -42,6 +42,7 @@ pub struct CreateMetadataAccountsLogicArgs<'a> {
     pub system_account_info: &'a AccountInfo<'a>,
 }
 
+#[allow(clippy::too_many_arguments)]
 /// Create a new account instruction
 pub fn process_create_metadata_accounts_logic(
     program_id: &Pubkey,
@@ -84,7 +85,7 @@ pub fn process_create_metadata_accounts_logic(
             }
         },
     )?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
+    assert_owner_in(mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     let metadata_seeds = &[
         PREFIX.as_bytes(),
