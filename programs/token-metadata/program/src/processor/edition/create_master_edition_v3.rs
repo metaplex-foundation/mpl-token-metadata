@@ -25,12 +25,12 @@ pub fn process_create_master_edition(
 ) -> ProgramResult {
     all_account_infos!(
         accounts,
-        metadata_account_info,
+        edition_account_info,
         mint_info,
         update_authority_info,
         mint_authority_info,
         payer_account_info,
-        edition_account_info,
+        metadata_account_info,
         token_program_info,
         system_account_info
     );
