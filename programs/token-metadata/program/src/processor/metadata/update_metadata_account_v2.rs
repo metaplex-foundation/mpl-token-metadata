@@ -1,8 +1,4 @@
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{
@@ -12,6 +8,7 @@ use crate::{
         uses::assert_valid_use,
     },
     error::MetadataError,
+    processor::all_account_infos,
     state::{DataV2, Metadata, TokenMetadataAccount},
     utils::{clean_write_metadata, puff_out_data_fields},
 };
@@ -25,10 +22,8 @@ pub fn process_update_metadata_accounts_v2(
     primary_sale_happened: Option<bool>,
     is_mutable: Option<bool>,
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    all_account_infos!(accounts, metadata_account_info, update_authority_info);
 
-    let metadata_account_info = next_account_info(account_info_iter)?;
-    let update_authority_info = next_account_info(account_info_iter)?;
     let mut metadata = Metadata::from_account_info(metadata_account_info)?;
 
     assert_owned_by(metadata_account_info, program_id)?;

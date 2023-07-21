@@ -1,14 +1,11 @@
 use borsh::BorshSerialize;
 use mpl_utils::{assert_signer, create_or_allocate_account_raw};
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{assert_derivation, assert_owned_by},
     error::MetadataError,
+    processor::all_account_infos,
     state::{
         CollectionAuthorityRecord, Key, Metadata, TokenMetadataAccount, COLLECTION_AUTHORITY,
         COLLECTION_AUTHORITY_RECORD_SIZE, PREFIX,
@@ -19,14 +16,16 @@ pub fn process_approve_collection_authority(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-    let collection_authority_record = next_account_info(account_info_iter)?;
-    let new_collection_authority = next_account_info(account_info_iter)?;
-    let update_authority = next_account_info(account_info_iter)?;
-    let payer = next_account_info(account_info_iter)?;
-    let metadata_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let system_account_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        collection_authority_record,
+        new_collection_authority,
+        update_authority,
+        payer,
+        metadata_info,
+        mint_info,
+        system_account_info
+    );
 
     let metadata = Metadata::from_account_info(metadata_info)?;
     assert_owned_by(metadata_info, program_id)?;

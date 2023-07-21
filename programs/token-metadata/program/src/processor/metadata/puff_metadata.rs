@@ -1,11 +1,8 @@
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
+    processor::all_account_infos,
     state::{Metadata, TokenMetadataAccount, EDITION, PREFIX},
     utils::puff_out_data_fields,
 };
@@ -16,9 +13,8 @@ pub fn process_puff_metadata_account(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    all_account_infos!(accounts, metadata_account_info);
 
-    let metadata_account_info = next_account_info(account_info_iter)?;
     let mut metadata = Metadata::from_account_info(metadata_account_info)?;
 
     assert_owned_by(metadata_account_info, program_id)?;

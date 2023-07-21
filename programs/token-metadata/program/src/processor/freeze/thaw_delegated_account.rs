@@ -1,9 +1,6 @@
 use mpl_utils::assert_signer;
 use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    program::invoke_signed,
-    pubkey::Pubkey,
+    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, pubkey::Pubkey,
 };
 use spl_token::{instruction::thaw_account, state::Mint};
 
@@ -13,6 +10,7 @@ use crate::{
         assert_initialized, assert_owned_by, edition::assert_edition_is_not_programmable,
     },
     error::MetadataError,
+    processor::all_account_infos,
     state::{EDITION, PREFIX},
 };
 
@@ -20,12 +18,15 @@ pub fn process_thaw_delegated_account(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-    let delegate_info = next_account_info(account_info_iter)?;
-    let token_account_info = next_account_info(account_info_iter)?;
-    let edition_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let token_program_account_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        delegate_info,
+        token_account_info,
+        edition_info,
+        mint_info,
+        token_program_account_info
+    );
+
     if *token_program_account_info.key != spl_token::ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }

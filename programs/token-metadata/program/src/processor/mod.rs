@@ -448,3 +448,14 @@ fn is_locked(program_id: &Pubkey, accounts: &[AccountInfo]) -> bool {
 
     false
 }
+
+macro_rules! all_account_infos {
+    ($accounts:expr, $($account:ident),*) => {
+        let [$($account),*] = match $accounts {
+            [$($account),*] => [$($account),*],
+            _ => return Err(solana_program::program_error::ProgramError::NotEnoughAccountKeys),
+        };
+    };
+}
+
+pub(crate) use all_account_infos;
