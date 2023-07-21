@@ -97,7 +97,6 @@ impl MasterEditionV2 {
                 AccountMeta::new_readonly(self.metadata_pubkey, false),
                 AccountMeta::new_readonly(fake_token_program.pubkey(), false),
                 AccountMeta::new_readonly(solana_program::system_program::ID, false),
-                AccountMeta::new_readonly(sysvar::rent::ID, false),
             ],
             data: MetadataInstruction::CreateMasterEditionV3(CreateMasterEditionArgs {
                 max_supply,
