@@ -9,14 +9,13 @@ use mpl_token_metadata::{
 };
 use num_traits::FromPrimitive;
 use rooster::instruction::DelegateArgs as RoosterDelegateArgs;
-use solana_program::{native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey};
+use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
 use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
     transaction::TransactionError,
 };
-use spl_associated_token_account::get_associated_token_address;
 use utils::*;
 
 mod standard_transfer {
@@ -27,12 +26,8 @@ mod standard_transfer {
         state::TokenStandard,
         utils::unpack,
     };
-    use solana_program::{
-        native_token::LAMPORTS_PER_SOL, program_option::COption, program_pack::Pack, pubkey::Pubkey,
-    };
-    use spl_associated_token_account::{
-        get_associated_token_address, get_associated_token_address_with_program_id,
-    };
+    use solana_program::{native_token::LAMPORTS_PER_SOL, program_option::COption, pubkey::Pubkey};
+    use spl_associated_token_account::get_associated_token_address_with_program_id;
     use spl_token_2022::state::Account;
 
     use super::*;
@@ -56,7 +51,11 @@ mod standard_transfer {
         .unwrap();
 
         let destination_owner = Keypair::new().pubkey();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -81,7 +80,7 @@ mod standard_transfer {
 
         da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -117,7 +116,11 @@ mod standard_transfer {
         .unwrap();
 
         let destination_owner = Keypair::new().pubkey();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -142,7 +145,7 @@ mod standard_transfer {
 
         da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -178,7 +181,11 @@ mod standard_transfer {
         .unwrap();
 
         let destination_owner = Pubkey::new_unique();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -203,7 +210,7 @@ mod standard_transfer {
 
         da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -276,9 +283,7 @@ mod standard_transfer {
             &spl_token_program,
         );
         let authority_token_account = get_account(&mut context, &authority_ata).await;
-        let authority_token = unpack::<Account>(&authority_token_account.data)
-            .unwrap()
-            .base;
+        let authority_token = unpack::<Account>(&authority_token_account.data).unwrap();
 
         assert_eq!(authority_token.delegate, COption::Some(delegate.pubkey()));
 
@@ -312,7 +317,7 @@ mod standard_transfer {
 
         da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -379,10 +384,13 @@ mod standard_transfer {
         assert_eq!(delegate_role, None);
 
         // SPL delegate will exist.
-        let authority_ata = get_associated_token_address(&authority_pubkey, &da.mint.pubkey());
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority_pubkey,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         let authority_token_account = get_account(&mut context, &authority_ata).await;
-        let authority_token: spl_token::state::Account =
-            spl_token::state::Account::unpack(&authority_token_account.data).unwrap();
+        let authority_token = unpack::<Account>(&authority_token_account.data).unwrap();
 
         assert_eq!(authority_token.delegate, COption::Some(delegate.pubkey()));
 
@@ -434,11 +442,14 @@ mod auth_rules_transfer {
         instruction::DelegateArgs,
         pda::find_token_record_account,
         state::{ProgrammableConfig, TokenDelegateRole, TokenRecord},
+        utils::unpack,
     };
     use solana_program::borsh::try_from_slice_unchecked;
     use solana_sdk::transaction::Transaction;
-    use spl_associated_token_account::instruction::create_associated_token_account;
-    use spl_token::instruction::approve;
+    use spl_associated_token_account::{
+        get_associated_token_address_with_program_id, instruction::create_associated_token_account,
+    };
+    use spl_token_2022::{instruction::approve, state::Account};
 
     use super::*;
 
@@ -542,10 +553,13 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let destination_token =
-            get_associated_token_address(&destination_owner, &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -634,7 +648,7 @@ mod auth_rules_transfer {
         nft.transfer(params, spl_token_program).await.unwrap();
 
         // Nft.token is updated by transfer to be the new token account where the asset currently
-        let dest_token_account = spl_token::state::Account::unpack(
+        let dest_token_account = unpack::<Account>(
             get_account(&mut context, &nft.token.unwrap())
                 .await
                 .data
@@ -680,12 +694,17 @@ mod auth_rules_transfer {
                 nft.edition.unwrap(),
                 rule_set,
                 payload,
+                spl_token_program,
             )
             .await
             .unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -806,8 +825,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -824,6 +847,8 @@ mod auth_rules_transfer {
             authority: authority.pubkey(),
         };
 
+        context.warp_to_slot(1000).unwrap();
+
         // Create new delegate using Rooster
         rooster_manager
             .delegate(
@@ -833,6 +858,7 @@ mod auth_rules_transfer {
                 nft.metadata,
                 nft.edition.unwrap(),
                 Some(rule_set),
+                spl_token_program,
                 rooster_delegate_args,
             )
             .await
@@ -856,6 +882,8 @@ mod auth_rules_transfer {
             amount: transfer_amount,
         };
 
+        context.warp_to_slot(2000).unwrap();
+
         let params = TransferParams {
             context: &mut context,
             authority: &delegate,
@@ -869,8 +897,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -1093,8 +1125,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1120,6 +1156,7 @@ mod auth_rules_transfer {
                 nft.metadata,
                 nft.edition.unwrap(),
                 Some(rule_set),
+                spl_token_program,
                 rooster_delegate_args,
             )
             .await
@@ -1156,8 +1193,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -1168,9 +1209,12 @@ mod auth_rules_transfer {
         // Destination now has the token.
         assert_eq!(authority_ata_account.amount, 1);
 
-        let rooster_manager_ata =
-            get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_manager_ata_account = spl_token::state::Account::unpack(
+        let rooster_manager_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_manager_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_manager_ata)
                 .await
                 .data
@@ -1283,8 +1327,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1296,8 +1344,12 @@ mod auth_rules_transfer {
         assert_eq!(rooster_ata_account.amount, 1);
 
         // Check that the CloseAuthority is cleared.
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let source_token = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_token = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -1494,8 +1546,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1513,8 +1569,11 @@ mod auth_rules_transfer {
 
         assert_eq!(token_record.rule_set_revision, None);
 
-        let destination_token =
-            get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let (destination_token_record, _bump) =
             find_token_record_account(&nft.mint.pubkey(), &destination_token);
@@ -1610,18 +1669,26 @@ mod auth_rules_transfer {
                 nft.mint.pubkey(),
                 rule_set,
                 auth_data.payload,
+                spl_token_program,
             )
             .await
             .unwrap();
 
-        let source_ata = get_associated_token_address(&source_owner, &nft.mint.pubkey());
-        let source_ata_account = spl_token::state::Account::unpack(
-            get_account(&mut context, &source_ata).await.data.as_slice(),
-        )
-        .unwrap();
+        let source_ata = get_associated_token_address_with_program_id(
+            &source_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_ata_account =
+            unpack::<Account>(get_account(&mut context, &source_ata).await.data.as_slice())
+                .unwrap();
 
-        let destination_ata = get_associated_token_address(&destination_owner, &nft.mint.pubkey());
-        let destination_ata_account = spl_token::state::Account::unpack(
+        let destination_ata = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let destination_ata_account = unpack::<Account>(
             get_account(&mut context, &destination_ata)
                 .await
                 .data
@@ -1667,7 +1734,11 @@ mod auth_rules_transfer {
         // We need a PDA from a program not in the allowlist to be the destination
         // owner.
         let actual_owner = nft.mint.pubkey();
-        let destination_ata = get_associated_token_address(&actual_owner, &nft.mint.pubkey());
+        let destination_ata = get_associated_token_address_with_program_id(
+            &actual_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let payer = context.payer.dirty_clone();
 
@@ -1676,7 +1747,7 @@ mod auth_rules_transfer {
             &payer.dirty_clone().pubkey(),
             &actual_owner,
             &nft.mint.pubkey(),
-            &spl_token::ID,
+            &spl_token_program,
         );
 
         let tx = Transaction::new_signed_with_payer(
@@ -1892,8 +1963,12 @@ mod auth_rules_transfer {
 
         nft.transfer(params, spl_token_program).await.unwrap();
 
-        let destination_ata = get_associated_token_address(&destination_owner, &nft.mint.pubkey());
-        let destination_ata_account = spl_token::state::Account::unpack(
+        let destination_ata = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let destination_ata_account = unpack::<Account>(
             get_account(&mut context, &destination_ata)
                 .await
                 .data
@@ -1904,11 +1979,14 @@ mod auth_rules_transfer {
         // Destination now has the token.
         assert_eq!(destination_ata_account.amount, 1);
 
-        let source_ata = get_associated_token_address(&source_owner, &nft.mint.pubkey());
-        let source_ata_account = spl_token::state::Account::unpack(
-            get_account(&mut context, &source_ata).await.data.as_slice(),
-        )
-        .unwrap();
+        let source_ata = get_associated_token_address_with_program_id(
+            &source_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_ata_account =
+            unpack::<Account>(get_account(&mut context, &source_ata).await.data.as_slice())
+                .unwrap();
 
         // Source delegate should be cleared.
         assert!(source_ata_account.delegate.is_none());
@@ -1942,18 +2020,21 @@ mod auth_rules_transfer {
         let delegate = Pubkey::new_unique();
         let payer = context.payer.dirty_clone();
 
-        let destination_token =
-            get_associated_token_address(&destination_owner.pubkey(), &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let instructions = vec![
             create_associated_token_account(
                 &payer.pubkey(),
                 &destination_owner.pubkey(),
                 &nft.mint.pubkey(),
-                &spl_token::ID,
+                &spl_token_program,
             ),
             approve(
-                &spl_token::ID,
+                &spl_token_program,
                 &destination_token,
                 &delegate,
                 &destination_owner.pubkey(),
