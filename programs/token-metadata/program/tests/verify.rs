@@ -1062,8 +1062,7 @@ mod verify_collection {
             .await
             .unwrap();
 
-        let mut parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
-        parent_master_edition_account.spl_token_program = spl_token_program;
+        let parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
         parent_master_edition_account
             .create_v3(&mut context, Some(0))
             .await
@@ -1088,9 +1087,8 @@ mod verify_collection {
             .await
             .unwrap();
 
-        let mut second_parent_master_edition_account =
+        let second_parent_master_edition_account =
             MasterEditionV2::new(&second_collection_parent_nft);
-        second_parent_master_edition_account.spl_token_program = spl_token_program;
         second_parent_master_edition_account
             .create_v3(&mut context, Some(0))
             .await
@@ -1193,8 +1191,7 @@ mod verify_collection {
             .unwrap();
 
         // Create a parent master edition with a nonzero max supply.
-        let mut parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
-        parent_master_edition_account.spl_token_program = spl_token_program;
+        let parent_master_edition_account = MasterEditionV2::new(&collection_parent_nft);
         parent_master_edition_account
             .create_v3(&mut context, Some(33))
             .await

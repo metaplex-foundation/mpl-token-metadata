@@ -538,6 +538,7 @@ impl EditionMarker {
         &self,
         context: &mut ProgramTestContext,
         args: BurnPrintArgs<'a>,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         let burn_args = BurnArgs::V1 { amount: 1 };
 
@@ -557,7 +558,8 @@ impl EditionMarker {
                     .unwrap_or(self.metadata_token_pubkey),
             )
             .master_edition(args.master_edition.unwrap_or(self.master_edition_pubkey))
-            .edition_marker(args.edition_marker.unwrap_or(self.pubkey));
+            .edition_marker(args.edition_marker.unwrap_or(self.pubkey))
+            .spl_token_program(spl_token_program);
 
         let burn_ix = builder.build(burn_args).unwrap().instruction();
 
@@ -575,6 +577,7 @@ impl EditionMarker {
         &self,
         context: &mut ProgramTestContext,
         args: BurnPrintArgs<'a>,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         let burn_args = BurnArgs::V1 { amount: 1 };
 
@@ -600,7 +603,8 @@ impl EditionMarker {
             )
             .master_edition(args.master_edition.unwrap_or(self.master_edition_pubkey))
             .edition_marker(args.edition_marker.unwrap_or(self.pubkey))
-            .token_record(token_record_pda.0);
+            .token_record(token_record_pda.0)
+            .spl_token_program(spl_token_program);
 
         let burn_ix = builder.build(burn_args).unwrap().instruction();
 

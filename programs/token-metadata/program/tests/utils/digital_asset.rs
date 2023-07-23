@@ -97,6 +97,7 @@ impl DigitalAsset {
         args: BurnArgs,
         parent_asset: Option<DigitalAsset>,
         collection_metadata: Option<Pubkey>,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         let md = self.get_metadata(context).await;
         let token_standard = md.token_standard.unwrap();
@@ -106,7 +107,8 @@ impl DigitalAsset {
             .authority(authority.pubkey())
             .metadata(self.metadata)
             .mint(self.mint.pubkey())
-            .token(self.token.unwrap());
+            .token(self.token.unwrap())
+            .spl_token_program(spl_token_program);
 
         if let Some(parent_asset) = parent_asset {
             builder.master_edition_mint(parent_asset.mint.pubkey());

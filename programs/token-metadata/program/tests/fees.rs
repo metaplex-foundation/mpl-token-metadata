@@ -185,9 +185,16 @@ mod fees {
 
         let args = BurnArgs::V1 { amount: 1 };
 
-        nft.burn(&mut context, nft_authority, args, None, None)
-            .await
-            .unwrap();
+        nft.burn(
+            &mut context,
+            nft_authority,
+            args,
+            None,
+            None,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let ix = collect_fees(recipient.pubkey(), vec![nft.metadata]);
         let tx = Transaction::new_signed_with_payer(

@@ -1935,7 +1935,7 @@ mod unverify_collection {
         let args = BurnArgs::V1 { amount: 1 };
         let payer = context.payer.dirty_clone();
         collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2060,7 +2060,7 @@ mod unverify_collection {
         let args = BurnArgs::V1 { amount: 1 };
         let payer = context.payer.dirty_clone();
         collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2135,7 +2135,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2216,7 +2216,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2272,7 +2272,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2336,6 +2336,7 @@ mod unverify_collection {
             .await;
     }
 
+    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_unverify_burned_pnft_parent_using_item_collection_item_delegate(
@@ -2357,7 +2358,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2560,7 +2561,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 
@@ -2651,7 +2652,14 @@ mod unverify_collection {
         let args = BurnArgs::V1 { amount: 1 };
         test_items
             .collection_parent_da
-            .burn(&mut context, delegate.dirty_clone(), args, None, None)
+            .burn(
+                &mut context,
+                delegate.dirty_clone(),
+                args,
+                None,
+                None,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -2740,7 +2748,7 @@ mod unverify_collection {
         let payer = context.payer.dirty_clone();
         test_items
             .collection_parent_da
-            .burn(&mut context, payer, args, None, None)
+            .burn(&mut context, payer, args, None, None, spl_token_program)
             .await
             .unwrap();
 

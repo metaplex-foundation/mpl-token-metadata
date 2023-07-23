@@ -711,7 +711,7 @@ mod burn_edition_nft {
         context.warp_to_slot(10).unwrap();
 
         let (print_editions, _end_slot) = master_edition
-            .mint_editions(&mut context, &original_nft, 10, 10, spl_token::ID)
+            .mint_editions(&mut context, &original_nft, 10, 10)
             .await
             .unwrap();
 
