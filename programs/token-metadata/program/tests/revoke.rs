@@ -108,7 +108,7 @@ mod revoke {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::None);
@@ -278,7 +278,7 @@ mod revoke {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::None);
@@ -547,7 +547,7 @@ mod revoke {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::None);
@@ -631,7 +631,7 @@ mod revoke {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert!(token_account.delegate.is_none());

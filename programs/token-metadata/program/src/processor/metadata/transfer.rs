@@ -7,12 +7,11 @@ use solana_program::{
     program::invoke,
     program_error::ProgramError,
     program_option::COption,
-    program_pack::Pack,
     pubkey::Pubkey,
     system_program,
     sysvar::{self, instructions::get_instruction_relative},
 };
-use spl_token_2022::state::Account;
+use spl_token_2022::state::{Account, Mint};
 
 use crate::{
     assertions::{
@@ -187,6 +186,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         amount,
     )?;
 
+    let mint = unpack::<Mint>(&ctx.accounts.mint_info.data.borrow())?;
     let token_transfer_params: TokenTransferParams = TokenTransferParams {
         mint: ctx.accounts.mint_info.clone(),
         source: ctx.accounts.token_info.clone(),
@@ -195,10 +195,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         authority: ctx.accounts.authority_info.clone(),
         authority_signer_seeds: None,
         token_program: ctx.accounts.spl_token_program_info.clone(),
+        decimals: mint.decimals,
     };
 
     let token_standard = metadata.token_standard;
-    let token = unpack::<Account>(&ctx.accounts.token_info.try_borrow_data()?)?.base;
+    let token = unpack::<Account>(&ctx.accounts.token_info.try_borrow_data()?)?;
 
     let AuthorityResponse { authority_type, .. } =
         AuthorityType::get_authority_type(AuthorityRequest {
@@ -312,7 +313,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             // we do not allow the transfer to proceed since we do not know the type of the delegate
             // to complete the information on the token record.
             let destination_token =
-                Account::unpack(&ctx.accounts.destination_info.try_borrow_data()?)?;
+                unpack::<Account>(&ctx.accounts.destination_info.data.borrow())?;
 
             if let COption::Some(delegate) = destination_token.delegate {
                 if destination_token_record_info.data_is_empty() {

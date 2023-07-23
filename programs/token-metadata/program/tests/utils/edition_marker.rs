@@ -71,7 +71,12 @@ pub struct EditionMarker {
 }
 
 impl EditionMarker {
-    pub fn new(metadata: &Metadata, master_edition: &MasterEditionV2, edition: u64) -> Self {
+    pub fn new(
+        metadata: &Metadata,
+        master_edition: &MasterEditionV2,
+        edition: u64,
+        spl_token_program: Pubkey,
+    ) -> Self {
         let mint = Keypair::new();
         let mint_pubkey = mint.pubkey();
         let metadata_mint_pubkey = metadata.mint.pubkey();
@@ -112,7 +117,7 @@ impl EditionMarker {
             new_edition_pubkey,
             metadata_token_pubkey: metadata.token.pubkey(),
             token: Keypair::new(),
-            spl_token_program: spl_token::ID,
+            spl_token_program,
         }
     }
 
@@ -120,6 +125,7 @@ impl EditionMarker {
         asset: &DigitalAsset,
         master_edition: &MasterEditionV2,
         edition: u64,
+        spl_token_program: Pubkey,
     ) -> Self {
         let mint = Keypair::new();
         let mint_pubkey = mint.pubkey();
@@ -159,7 +165,7 @@ impl EditionMarker {
             new_edition_pubkey,
             metadata_token_pubkey: asset.token.unwrap(),
             token: Keypair::new(),
-            spl_token_program: spl_token::ID,
+            spl_token_program,
         }
     }
 

@@ -75,7 +75,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     }
 
     let master_metadata = Metadata::from_account_info(master_metadata_account_info)?;
-    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?.base;
+    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?;
 
     assert_signer(owner_account_info)?;
 
@@ -562,7 +562,7 @@ pub fn create_master_edition<'a>(
     max_supply: Option<u64>,
 ) -> ProgramResult {
     let mut metadata = Metadata::from_account_info(metadata_account_info)?;
-    let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?.base;
+    let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
 
     let bump_seed = assert_derivation(
         program_id,

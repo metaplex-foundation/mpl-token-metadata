@@ -149,12 +149,13 @@ impl MasterEditionV2 {
         nft: &Metadata,
         number: u64,
         start_slot: u64,
+        spl_token_program: Pubkey,
     ) -> Result<(Vec<EditionMarker>, u64), BanksClientError> {
         let mut editions = Vec::new();
         let mut slot = start_slot;
 
         for i in 1..=number {
-            let mut print_edition = EditionMarker::new(nft, self, i);
+            let mut print_edition = EditionMarker::new(nft, self, i, spl_token_program);
             print_edition.spl_token_program = self.spl_token_program;
             print_edition.create(context).await?;
             editions.push(print_edition);
@@ -171,12 +172,13 @@ impl MasterEditionV2 {
         nft: &DigitalAsset,
         number: u64,
         start_slot: u64,
+        spl_token_program: Pubkey,
     ) -> Result<(Vec<EditionMarker>, u64), BanksClientError> {
         let mut editions = Vec::new();
         let mut slot = start_slot;
 
         for i in 1..=number {
-            let mut print_edition = EditionMarker::new_from_asset(nft, self, i);
+            let mut print_edition = EditionMarker::new_from_asset(nft, self, i, spl_token_program);
             print_edition.spl_token_program = self.spl_token_program;
             print_edition.create_from_asset(context).await?;
             editions.push(print_edition);

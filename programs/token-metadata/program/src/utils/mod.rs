@@ -46,6 +46,21 @@ use crate::{
     },
 };
 
+#[inline(always)]
+pub fn unpack<S: BaseState>(account_data: &[u8]) -> Result<S, ProgramError> {
+    Ok(StateWithExtensions::<S>::unpack(account_data)?.base)
+}
+
+pub fn unpack_initialized<S: BaseState>(account_data: &[u8]) -> Result<S, ProgramError> {
+    let unpacked = unpack::<S>(account_data)?;
+
+    if unpacked.is_initialized() {
+        Ok(unpacked)
+    } else {
+        Err(MetadataError::Uninitialized.into())
+    }
+}
+
 pub fn check_token_standard(
     mint_info: &AccountInfo,
     edition_account_info: Option<&AccountInfo>,
@@ -232,24 +247,6 @@ pub(crate) fn close_program_account<'a>(
     }
 
     Ok(())
-}
-
-pub fn unpack<S: BaseState>(
-    account_data: &[u8],
-) -> Result<StateWithExtensions<'_, S>, ProgramError> {
-    StateWithExtensions::<S>::unpack(account_data)
-}
-
-pub fn unpack_initialized<S: BaseState>(
-    account_data: &[u8],
-) -> Result<StateWithExtensions<'_, S>, ProgramError> {
-    let unpacked = unpack::<S>(account_data)?;
-
-    if unpacked.base.is_initialized() {
-        Ok(unpacked)
-    } else {
-        Err(MetadataError::Uninitialized.into())
-    }
 }
 
 #[cfg(test)]

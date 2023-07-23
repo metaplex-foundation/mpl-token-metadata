@@ -99,7 +99,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        let token = unpack::<Account>(&token_account.data).unwrap();
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -184,7 +184,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        let token = unpack::<Account>(&token_account.data).unwrap();
         // should not be frozen
         assert!(token.is_frozen());
     }
@@ -213,7 +213,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        let token = unpack::<Account>(&token_account.data).unwrap();
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -246,7 +246,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        let token = unpack::<Account>(&token_account.data).unwrap();
         // should be frozen
         assert!(token.is_frozen());
     }
@@ -415,7 +415,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        let token = unpack::<Account>(&token_account.data).unwrap();
         // should be frozen
         assert!(token.is_frozen());
 

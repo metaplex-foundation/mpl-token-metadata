@@ -1,5 +1,3 @@
-use super::*;
-
 use mpl_utils::assert_signer;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
@@ -9,6 +7,7 @@ use solana_program::{
 };
 use spl_token_2022::state::Account;
 
+use super::*;
 use crate::{
     assertions::assert_owned_by,
     instruction::{Burn, Context},
@@ -48,7 +47,7 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
 
     // Deserialize accounts.
     let metadata = Metadata::from_account_info(metadata_info)?;
-    let token = unpack_initialized::<Account>(&token_info.data.borrow())?.base;
+    let token = unpack_initialized::<Account>(&token_info.data.borrow())?;
 
     // Validate relationships between accounts.
 

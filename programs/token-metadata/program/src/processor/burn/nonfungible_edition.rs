@@ -61,7 +61,7 @@ pub(crate) fn burn_nonfungible_edition(
 
     // Master Edition token account checks.
     let master_edition_token_account =
-        unpack_initialized::<Account>(&master_edition_token_info.data.borrow())?.base;
+        unpack_initialized::<Account>(&master_edition_token_info.data.borrow())?;
 
     if master_edition_token_account.mint != *master_edition_mint_info.key {
         return Err(MetadataError::MintMismatch.into());

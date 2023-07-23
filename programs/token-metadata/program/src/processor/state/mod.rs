@@ -3,7 +3,7 @@ mod unlock;
 
 use borsh::BorshSerialize;
 pub use lock::*;
-use mpl_utils::assert_signer;
+use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
     program_error::ProgramError, pubkey::Pubkey, system_program, sysvar,
@@ -15,9 +15,7 @@ use spl_token_2022::{
 pub use unlock::*;
 
 use crate::{
-    assertions::{
-        assert_keys_equal, assert_owner_in, metadata::assert_state, SPL_TOKEN_PROGRAM_IDS,
-    },
+    assertions::{assert_keys_equal, assert_owner_in, metadata::assert_state},
     error::MetadataError,
     pda::find_token_record_account,
     state::{
@@ -76,7 +74,7 @@ pub(crate) fn toggle_asset_state(
         return Err(MetadataError::MintMismatch.into());
     }
 
-    let token = unpack::<Account>(&accounts.token_info.try_borrow_data()?)?.base;
+    let token = unpack::<Account>(&accounts.token_info.try_borrow_data()?)?;
     // token mint must match mint account key
     if token.mint != *accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -202,7 +200,7 @@ pub(crate) fn toggle_asset_state(
             }
         } else {
             // fungibles: the authority must be the mint freeze authority
-            let mint = unpack_initialized::<Mint>(&accounts.mint_info.data.borrow())?.base;
+            let mint = unpack_initialized::<Mint>(&accounts.mint_info.data.borrow())?;
 
             assert_freeze_authority_matches_mint(&mint.freeze_authority, accounts.authority_info)
                 .map_err(|_| MetadataError::InvalidAuthorityType)?;

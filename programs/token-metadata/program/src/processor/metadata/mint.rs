@@ -73,7 +73,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         ctx.accounts.mint_info,
         ctx.accounts.spl_token_program_info.key,
     )?;
-    let mint = unpack_initialized::<MintAccount>(&ctx.accounts.mint_info.data.borrow())?.base;
+    let mint = unpack_initialized::<MintAccount>(&ctx.accounts.mint_info.data.borrow())?;
 
     // validates the authority:
     // - NonFungible must have a "valid" master edition
@@ -141,7 +141,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         )?;
     }
 
-    let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?.base;
+    let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?;
 
     match metadata.token_standard {
         Some(TokenStandard::NonFungible) | Some(TokenStandard::ProgrammableNonFungible) => {

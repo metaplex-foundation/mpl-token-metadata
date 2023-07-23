@@ -1,5 +1,8 @@
 use borsh::{maybestd::io::Error as BorshError, BorshDeserialize};
-use mpl_utils::{create_or_allocate_account_raw, token::get_mint_authority};
+use mpl_utils::{
+    create_or_allocate_account_raw,
+    token::{get_mint_authority, SPL_TOKEN_PROGRAM_IDS},
+};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
 };
@@ -9,7 +12,7 @@ use crate::{
     assertions::{
         assert_mint_authority_matches_mint, assert_owner_in,
         collection::assert_collection_update_is_valid, metadata::assert_data_valid,
-        uses::assert_valid_use, SPL_TOKEN_PROGRAM_IDS,
+        uses::assert_valid_use,
     },
     state::{
         Collection, CollectionDetails, Data, DataV2, Key, Metadata, ProgrammableConfig,

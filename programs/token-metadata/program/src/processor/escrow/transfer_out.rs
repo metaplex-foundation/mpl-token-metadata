@@ -114,7 +114,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Deserialize the token accounts and perform checks.
-    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?.base;
+    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?;
     if attribute_src.mint != *attribute_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -126,7 +126,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Check that the authority matches based on the authority type.
-    let escrow_account = unpack::<Account>(&escrow_account_info.data.borrow())?.base;
+    let escrow_account = unpack::<Account>(&escrow_account_info.data.borrow())?;
     if escrow_account.mint != *escrow_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -147,7 +147,7 @@ pub fn process_transfer_out_of_escrow(
         }
     }
 
-    let attribute_dst = unpack::<Account>(&attribute_dst_info.data.borrow())?.base;
+    let attribute_dst = unpack::<Account>(&attribute_dst_info.data.borrow())?;
     if attribute_dst.mint != *attribute_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -173,7 +173,7 @@ pub fn process_transfer_out_of_escrow(
         &[&escrow_authority_seeds],
     )?;
 
-    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?.base;
+    let attribute_src = unpack::<Account>(&attribute_src_info.data.borrow())?;
 
     // Close the source ATA and return funds to the user.
     if attribute_src.amount == 0 {

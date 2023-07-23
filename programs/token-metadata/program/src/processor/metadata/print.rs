@@ -115,7 +115,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
     } else {
         // validates the existing mint account
 
-        let mint = unpack_initialized::<Mint>(&edition_mint_info.data.borrow())?.base;
+        let mint = unpack_initialized::<Mint>(&edition_mint_info.data.borrow())?;
         // NonFungible assets must have decimals == 0 and supply no greater than 1
         if mint.decimals > 0 || mint.supply > 1 {
             return Err(MetadataError::InvalidMintForTokenStandard.into());
@@ -150,7 +150,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
     } else {
         assert_owned_by(edition_token_account_info, token_program.key)?;
         let edition_token_account =
-            unpack_initialized::<Account>(&edition_token_account_info.data.borrow())?.base;
+            unpack_initialized::<Account>(&edition_token_account_info.data.borrow())?;
         if edition_token_account.amount < 1 {
             return Err(MetadataError::NotEnoughTokens.into());
         }

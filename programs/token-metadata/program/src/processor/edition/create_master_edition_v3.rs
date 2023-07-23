@@ -38,7 +38,7 @@ pub fn process_create_master_edition(
     let system_account_info = next_account_info(account_info_iter)?;
 
     let metadata = Metadata::from_account_info(metadata_account_info)?;
-    let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?.base;
+    let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
 
     let bump_seed = assert_derivation(
         program_id,

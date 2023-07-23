@@ -9,7 +9,7 @@ use crate::{
 };
 
 pub(crate) fn burn_fungible(ctx: &Context<Burn>, amount: u64) -> ProgramResult {
-    let token = unpack::<Account>(&ctx.accounts.token_info.data.borrow())?.base;
+    let token = unpack::<Account>(&ctx.accounts.token_info.data.borrow())?;
 
     if amount > token.amount {
         return Err(MetadataError::InsufficientTokenBalance.into());

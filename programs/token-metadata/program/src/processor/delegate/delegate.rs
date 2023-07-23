@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use borsh::BorshSerialize;
 use mpl_token_auth_rules::utils::get_latest_revision;
-use mpl_utils::{assert_signer, create_or_allocate_account_raw};
+use mpl_utils::{assert_signer, create_or_allocate_account_raw, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_option::COption,
     pubkey::Pubkey, system_program, sysvar,
@@ -12,7 +12,7 @@ use spl_token_2022::{instruction::AuthorityType as SplAuthorityType, state::Acco
 use crate::{
     assertions::{
         assert_derivation, assert_keys_equal, assert_owned_by, assert_owner_in,
-        metadata::assert_update_authority_is_correct, SPL_TOKEN_PROGRAM_IDS,
+        metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
     instruction::{Context, Delegate, DelegateArgs, MetadataDelegateRole},
@@ -277,7 +277,7 @@ fn create_persistent_delegate_v1(
 
     // authority must be the owner of the token account: spl-token required the
     // token owner to set a delegate
-    let token = unpack::<Account>(&token_info.try_borrow_data()?)?.base;
+    let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
     if token.owner != *ctx.accounts.authority_info.key {
         return Err(MetadataError::IncorrectOwner.into());
     }

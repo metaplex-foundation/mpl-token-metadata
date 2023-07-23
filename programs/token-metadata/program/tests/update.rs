@@ -12,7 +12,7 @@ use mpl_token_metadata::{
     utils::puffed_out_string,
 };
 use num_traits::FromPrimitive;
-use solana_program::{program_pack::Pack, pubkey::Pubkey};
+use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
@@ -20,10 +20,12 @@ use solana_sdk::{
     signature::Signer,
     transaction::{Transaction, TransactionError},
 };
-use spl_token::state::Account;
 use utils::{DigitalAsset, *};
 
 mod update {
+    use mpl_token_metadata::utils::unpack;
+    use spl_token_2022::state::Account;
+
     use super::*;
 
     #[test_case::test_case(spl_token::id() ; "Token Program")]
@@ -548,7 +550,7 @@ mod update {
         // Save old token and transfer to a new holder.
         let old_token_pubkey = da.token.unwrap();
         let token_account = get_account(context, &old_token_pubkey).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap();
         assert_eq!(token.amount, 1);
 
         let holder = Keypair::new();
@@ -577,7 +579,7 @@ mod update {
 
         // Check that old token is empty.
         let token_account = get_account(context, &old_token_pubkey).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap();
         assert_eq!(token.amount, 0);
 
         // Check metadata.

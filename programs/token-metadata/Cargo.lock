@@ -2083,13 +2083,11 @@ dependencies = [
 [[package]]
 name = "mpl-utils"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "822133b6cba8f9a43e5e0e189813be63dd795858f54155c729833be472ffdb51"
 dependencies = [
  "arrayref",
  "borsh",
  "solana-program",
- "spl-token",
+ "spl-token-2022",
 ]
 
 [[package]]
@@ -2907,7 +2905,6 @@ dependencies = [
 [[package]]
 name = "rooster"
 version = "0.1.0"
-source = "git+https://github.com/metaplex-foundation/rooster#ca1221c98fb425096f97277031bfa4dd73fe3f29"
 dependencies = [
  "borsh",
  "mpl-token-metadata 1.10.0",

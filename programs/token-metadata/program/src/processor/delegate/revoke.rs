@@ -1,4 +1,4 @@
-use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys};
+use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_option::COption,
     pubkey::Pubkey, system_program, sysvar,
@@ -8,7 +8,7 @@ use spl_token_2022::state::Account;
 use crate::{
     assertions::{
         assert_keys_equal, assert_owned_by, assert_owner_in,
-        metadata::assert_update_authority_is_correct, SPL_TOKEN_PROGRAM_IDS,
+        metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
     instruction::{Context, MetadataDelegateRole, Revoke, RevokeArgs},
@@ -200,7 +200,7 @@ fn revoke_persistent_delegate_v1(
 
     // authority must be the owner of the token account: spl-token required the
     // token owner to revoke a delegate
-    let token = unpack::<Account>(&token_info.try_borrow_data()?)?.base;
+    let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
     if token.owner != *ctx.accounts.authority_info.key {
         return Err(MetadataError::IncorrectOwner.into());
     }

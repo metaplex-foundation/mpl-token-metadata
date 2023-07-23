@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
 
-use mpl_utils::assert_signer;
+use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
     pubkey::Pubkey, sysvar,
@@ -8,10 +8,7 @@ use solana_program::{
 use spl_token_2022::state::Account;
 
 use crate::{
-    assertions::{
-        assert_owned_by, assert_owner_in, programmable::assert_valid_authorization,
-        SPL_TOKEN_PROGRAM_IDS,
-    },
+    assertions::{assert_owned_by, assert_owner_in, programmable::assert_valid_authorization},
     error::MetadataError,
     instruction::{
         CollectionDetailsToggle, CollectionToggle, Context, MetadataDelegateRole, Update,
@@ -108,7 +105,7 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
 
     // Token
     let (token_pubkey, token) = if let Some(token_info) = ctx.accounts.token_info {
-        let token = unpack::<Account>(&token_info.try_borrow_data()?)?.base;
+        let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
 
         // Token mint must match mint account key.  Token amount must be greater than 0.
         if token.mint != *ctx.accounts.mint_info.key {

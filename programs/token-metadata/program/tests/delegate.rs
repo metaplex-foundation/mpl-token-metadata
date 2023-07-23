@@ -89,7 +89,9 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = mpl_utils::token::unpack::<Account>(&account.data)
+                .unwrap()
+                .base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -124,9 +126,12 @@ mod delegate {
         assert!(master_asset.token.is_some());
 
         let test_master_edition = MasterEditionV2::new_from_asset(&master_asset);
-        let mut test_edition_marker =
-            EditionMarker::new_from_asset(&master_asset, &test_master_edition, 1);
-        test_edition_marker.spl_token_program = spl_token_program;
+        let mut test_edition_marker = EditionMarker::new_from_asset(
+            &master_asset,
+            &test_master_edition,
+            1,
+            spl_token_program,
+        );
 
         test_edition_marker
             .create_from_asset(&mut context)
@@ -171,7 +176,7 @@ mod delegate {
         );
 
         let account = get_account(&mut context, &test_edition_marker.token.pubkey()).await;
-        let token_account = unpack::<Account>(&account.data).unwrap().base;
+        let token_account = unpack::<Account>(&account.data).unwrap();
 
         assert!(token_account.is_frozen());
         assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -295,7 +300,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -361,7 +366,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -585,7 +590,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(rule_set));
@@ -656,7 +661,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap().base;
+            let token_account = unpack::<Account>(&account.data).unwrap();
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));

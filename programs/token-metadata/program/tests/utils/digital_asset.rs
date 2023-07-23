@@ -34,7 +34,7 @@ use solana_sdk::{
     transaction::Transaction,
 };
 use spl_associated_token_account::{
-    get_associated_token_address, instruction::create_associated_token_account,
+    get_associated_token_address_with_program_id, instruction::create_associated_token_account,
 };
 use spl_token_2022::state::Account;
 
@@ -1023,7 +1023,11 @@ impl DigitalAsset {
                 &spl_token_program,
             ));
 
-            get_associated_token_address(&destination_owner, &self.mint.pubkey())
+            get_associated_token_address_with_program_id(
+                &destination_owner,
+                &self.mint.pubkey(),
+                &spl_token_program,
+            )
         };
 
         let mut builder = TransferBuilder::new();
@@ -1275,7 +1279,7 @@ impl DigitalAsset {
         // To simulate the state where the close authority is set delegate instead of
         // the asset's master edition account, we need to inject modified token account state.
         let mut token_account = get_account(context, &self.token.unwrap()).await;
-        let mut token = unpack::<Account>(&token_account.data).unwrap().base;
+        let mut token = unpack::<Account>(&token_account.data).unwrap();
 
         token.close_authority = COption::Some(*close_authority);
         let mut data = vec![0u8; Account::LEN];
