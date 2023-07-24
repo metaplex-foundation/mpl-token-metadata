@@ -5,8 +5,7 @@ use solana_program::{
     program::{invoke, invoke_signed},
     pubkey::Pubkey,
 };
-use spl_token::state::is_initialized_account;
-use spl_token_2022::state::Account;
+use spl_token_2022::{generic_token_account::is_initialized_account, state::Account};
 
 use super::find_escrow_seeds;
 use crate::{
@@ -14,9 +13,10 @@ use crate::{
     error::MetadataError,
     instruction::TransferOutOfEscrowArgs,
     state::{EscrowAuthority, TokenMetadataAccount, TokenOwnedEscrow},
-    utils::unpack,
+    utils::{unpack, SPL_TOKEN_ID},
 };
 
+#[allow(deprecated)]
 pub fn process_transfer_out_of_escrow(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
@@ -36,19 +36,19 @@ pub fn process_transfer_out_of_escrow(
     assert_signer(payer_info)?;
 
     let attribute_mint_info = next_account_info(account_info_iter)?;
-    assert_owned_by(attribute_mint_info, &spl_token::ID)?;
+    assert_owned_by(attribute_mint_info, &SPL_TOKEN_ID)?;
 
     let attribute_src_info = next_account_info(account_info_iter)?;
-    assert_owned_by(attribute_src_info, &spl_token::ID)?;
+    assert_owned_by(attribute_src_info, &SPL_TOKEN_ID)?;
 
     // We don't check attribute destination ownership because it may not be initialized yet.
     let attribute_dst_info = next_account_info(account_info_iter)?;
 
     let escrow_mint_info = next_account_info(account_info_iter)?;
-    assert_owned_by(escrow_mint_info, &spl_token::ID)?;
+    assert_owned_by(escrow_mint_info, &SPL_TOKEN_ID)?;
 
     let escrow_account_info = next_account_info(account_info_iter)?;
-    assert_owned_by(escrow_account_info, &spl_token::ID)?;
+    assert_owned_by(escrow_account_info, &SPL_TOKEN_ID)?;
 
     let system_program_info = next_account_info(account_info_iter)?;
     if system_program_info.key != &solana_program::system_program::ID {
@@ -61,7 +61,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     let token_program_info = next_account_info(account_info_iter)?;
-    if token_program_info.key != &spl_token::ID {
+    if token_program_info.key != &SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 
@@ -97,7 +97,7 @@ pub fn process_transfer_out_of_escrow(
                 payer_info.key,
                 payer_info.key,
                 attribute_mint_info.key,
-                &spl_token::ID,
+                &SPL_TOKEN_ID,
             );
 
         invoke(
@@ -153,8 +153,8 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Transfer the token out of the escrow to the destination ATA.
-    let transfer_ix = spl_token::instruction::transfer(
-        &spl_token::ID,
+    let transfer_ix = spl_token_2022::instruction::transfer(
+        &SPL_TOKEN_ID,
         attribute_src_info.key,
         attribute_dst_info.key,
         escrow_info.key,
@@ -177,8 +177,8 @@ pub fn process_transfer_out_of_escrow(
 
     // Close the source ATA and return funds to the user.
     if attribute_src.amount == 0 {
-        let close_ix = spl_token::instruction::close_account(
-            &spl_token::ID,
+        let close_ix = spl_token_2022::instruction::close_account(
+            &SPL_TOKEN_ID,
             attribute_src_info.key,
             payer_info.key,
             escrow_info.key,

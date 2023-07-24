@@ -12,7 +12,7 @@ use crate::{
     assertions::assert_owned_by,
     instruction::{Burn, Context},
     state::{Metadata, TokenMetadataAccount},
-    utils::unpack_initialized,
+    utils::{unpack_initialized, SPL_TOKEN_ID},
 };
 
 use super::nonfungible::{burn_nonfungible, BurnNonFungibleArgs};
@@ -37,11 +37,11 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
     // Assert program ownership.
     assert_owned_by(metadata_info, program_id)?;
     assert_owned_by(edition_info, program_id)?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
-    assert_owned_by(token_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(token_info, &SPL_TOKEN_ID)?;
 
     // Check program IDs.
-    if spl_token_program_info.key != &spl_token::ID {
+    if spl_token_program_info.key != &SPL_TOKEN_ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 

@@ -7,7 +7,7 @@ use solana_program::{
     system_program,
 };
 
-use crate::{instruction::MetadataInstruction, processor::AuthorizationData};
+use crate::{instruction::MetadataInstruction, processor::AuthorizationData, utils::SPL_TOKEN_ID};
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
@@ -78,7 +78,7 @@ pub fn approve_use_authority(
             AccountMeta::new_readonly(metadata, false),
             AccountMeta::new_readonly(mint, false),
             AccountMeta::new_readonly(burner, false),
-            AccountMeta::new_readonly(spl_token::ID, false),
+            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
             AccountMeta::new_readonly(system_program::ID, false),
         ],
         data: MetadataInstruction::ApproveUseAuthority(ApproveUseAuthorityArgs { number_of_uses })
@@ -122,7 +122,7 @@ pub fn revoke_use_authority(
             AccountMeta::new(owner_token_account, false),
             AccountMeta::new_readonly(mint, false),
             AccountMeta::new_readonly(metadata, false),
-            AccountMeta::new_readonly(spl_token::ID, false),
+            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
             AccountMeta::new_readonly(system_program::ID, false),
         ],
         data: MetadataInstruction::RevokeUseAuthority
@@ -167,7 +167,7 @@ pub fn utilize(
         AccountMeta::new(mint, false),
         AccountMeta::new(use_authority, true),
         AccountMeta::new_readonly(owner, false),
-        AccountMeta::new_readonly(spl_token::ID, false),
+        AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         AccountMeta::new_readonly(spl_associated_token_account::ID, false),
         AccountMeta::new_readonly(system_program::ID, false),
     ];

@@ -20,13 +20,15 @@ pub use mpl_utils::{
 pub use programmable_asset::*;
 use solana_program::{
     account_info::AccountInfo, borsh::try_from_slice_unchecked, entrypoint::ProgramResult,
-    program::invoke_signed, program_error::ProgramError, pubkey::Pubkey, rent::Rent,
+    program::invoke_signed, program_error::ProgramError, pubkey, pubkey::Pubkey, rent::Rent,
     sysvar::Sysvar,
 };
 use spl_token_2022::{
     extension::{BaseState, StateWithExtensions},
     instruction::{set_authority, AuthorityType},
 };
+
+pub const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
 pub use crate::assertions::{
     assert_delegated_tokens, assert_derivation, assert_freeze_authority_matches_mint,

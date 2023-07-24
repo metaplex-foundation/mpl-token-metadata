@@ -5,7 +5,7 @@ use solana_program::{
     program::invoke_signed,
     pubkey::Pubkey,
 };
-use spl_token::{instruction::thaw_account, state::Mint};
+use spl_token_2022::{instruction::thaw_account, state::Mint};
 
 use crate::{
     assertions::{
@@ -14,6 +14,7 @@ use crate::{
     },
     error::MetadataError,
     state::{EDITION, PREFIX},
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_thaw_delegated_account(
@@ -26,7 +27,7 @@ pub fn process_thaw_delegated_account(
     let edition_info = next_account_info(account_info_iter)?;
     let mint_info = next_account_info(account_info_iter)?;
     let token_program_account_info = next_account_info(account_info_iter)?;
-    if *token_program_account_info.key != spl_token::ID {
+    if *token_program_account_info.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 

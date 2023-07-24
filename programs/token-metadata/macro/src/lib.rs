@@ -285,7 +285,7 @@ fn generate_builders(variants: &[Variant]) -> TokenStream {
     );
     default_pubkeys.insert(
         "spl_token_program".to_string(),
-        syn::parse_str::<syn::ExprPath>("spl_token::ID").unwrap(),
+        syn::parse_str::<syn::ExprPath>("crate::utils::SPL_TOKEN_ID").unwrap(),
     );
     default_pubkeys.insert(
         "spl_ata_program".to_string(),

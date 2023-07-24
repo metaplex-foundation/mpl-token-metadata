@@ -6,7 +6,7 @@ use solana_program::{
     program::invoke,
     pubkey::Pubkey,
 };
-use spl_token::instruction::approve;
+use spl_token_2022::instruction::approve;
 
 use crate::{
     assertions::{
@@ -18,6 +18,7 @@ use crate::{
         Key, Metadata, TokenMetadataAccount, UseAuthorityRecord, UseMethod, PREFIX, USER,
         USE_AUTHORITY_RECORD_SIZE,
     },
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_approve_use_authority(
@@ -41,7 +42,7 @@ pub fn process_approve_use_authority(
     if metadata.uses.is_none() {
         return Err(MetadataError::Unusable.into());
     }
-    if *token_program_account_info.key != spl_token::ID {
+    if *token_program_account_info.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
     assert_signer(owner_info)?;

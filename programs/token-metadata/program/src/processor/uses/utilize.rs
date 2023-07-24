@@ -22,6 +22,7 @@ use crate::{
     },
     error::MetadataError,
     state::{Metadata, TokenMetadataAccount, UseAuthorityRecord, UseMethod, Uses, BURN, PREFIX},
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_utilize(
@@ -57,7 +58,7 @@ pub fn process_utilize(
     if metadata.uses.is_none() {
         return Err(MetadataError::Unusable.into());
     }
-    if *token_program_account_info.key != spl_token::ID {
+    if *token_program_account_info.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
     assert_signer(user_info)?;

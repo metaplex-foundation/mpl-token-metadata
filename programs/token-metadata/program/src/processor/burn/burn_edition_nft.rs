@@ -4,14 +4,14 @@ use solana_program::{
     entrypoint::ProgramResult,
     pubkey::Pubkey,
 };
-use spl_token::state::Account as TokenAccount;
+use spl_token_2022::state::Account as TokenAccount;
 
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
     instruction::{Burn, Context},
     state::{Metadata, TokenMetadataAccount, TokenStandard},
-    utils::assert_initialized,
+    utils::{assert_initialized, SPL_TOKEN_ID},
 };
 
 use super::nonfungible_edition::burn_nonfungible_edition;
@@ -44,10 +44,10 @@ pub fn process_burn_edition_nft<'a>(
     assert_owned_by(edition_marker_info, program_id)?;
 
     // Owned by spl-token program.
-    assert_owned_by(master_edition_mint_info, &spl_token::ID)?;
-    assert_owned_by(master_edition_token_info, &spl_token::ID)?;
-    assert_owned_by(print_edition_mint_info, &spl_token::ID)?;
-    assert_owned_by(print_edition_token_info, &spl_token::ID)?;
+    assert_owned_by(master_edition_mint_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(master_edition_token_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(print_edition_mint_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(print_edition_token_info, &SPL_TOKEN_ID)?;
 
     let metadata = Metadata::from_account_info(metadata_info)?;
     let token: TokenAccount = assert_initialized(print_edition_token_info)?;
