@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use mpl_utils::{assert_signer, cmp_pubkeys, token::TokenTransferParams};
+use mpl_utils::{assert_signer, cmp_pubkeys, token::TokenTransferCheckedParams};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
@@ -187,7 +187,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
     )?;
 
     let mint = unpack::<Mint>(&ctx.accounts.mint_info.data.borrow())?;
-    let token_transfer_params: TokenTransferParams = TokenTransferParams {
+    let token_transfer_params = TokenTransferCheckedParams {
         mint: ctx.accounts.mint_info.clone(),
         source: ctx.accounts.token_info.clone(),
         destination: ctx.accounts.destination_info.clone(),
@@ -452,7 +452,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 )?;
             }
         }
-        _ => mpl_utils::token::spl_token_transfer(token_transfer_params).unwrap(),
+        _ => mpl_utils::token::spl_token_transfer_checked(token_transfer_params).unwrap(),
     }
 
     Ok(())

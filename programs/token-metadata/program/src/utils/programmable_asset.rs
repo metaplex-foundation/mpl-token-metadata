@@ -2,7 +2,7 @@ use mpl_token_auth_rules::{
     instruction::{builders::ValidateBuilder, InstructionBuilder, ValidateArgs},
     payload::PayloadType,
 };
-use mpl_utils::{create_or_allocate_account_raw, token::TokenTransferParams};
+use mpl_utils::{create_or_allocate_account_raw, token::TokenTransferCheckedParams};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
     program_error::ProgramError, program_option::COption, pubkey::Pubkey,
@@ -300,7 +300,7 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
 }
 
 pub fn frozen_transfer<'a>(
-    params: TokenTransferParams<'a, '_>,
+    params: TokenTransferCheckedParams<'a, '_>,
     edition_opt_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
     if edition_opt_info.is_none() {
@@ -319,7 +319,7 @@ pub fn frozen_transfer<'a>(
     let dest_info = params.destination.clone();
     let token_program_info = params.token_program.clone();
 
-    mpl_utils::token::spl_token_transfer(params).unwrap();
+    mpl_utils::token::spl_token_transfer_checked(params).unwrap();
 
     freeze(
         mint_info,
