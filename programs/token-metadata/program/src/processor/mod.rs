@@ -344,64 +344,6 @@ fn process_legacy_instruction<'a>(
     }
 }
 
-/// Convenience function for accessing the next item in an [`AccountInfo`]
-/// iterator and validating whether the account is present or not.
-///
-/// This relies on the client setting the `crate::ID` as the pubkey for
-/// accounts that are not set, which effectively allows us to use positional
-/// optional accounts.
-pub fn next_optional_account_info<'a, 'b, I: Iterator<Item = &'a AccountInfo<'b>>>(
-    iter: &mut I,
-) -> Result<Option<I::Item>, ProgramError> {
-    let account_info = iter.next().ok_or(ProgramError::NotEnoughAccountKeys)?;
-
-    Ok(if cmp_pubkeys(account_info.key, &crate::ID) {
-        None
-    } else {
-        Some(account_info)
-    })
-}
-
-/// Convenience function for accessing an [`AccountInfo`] by index
-/// and validating whether the account is present or not.
-///
-/// This relies on the client setting the `crate::ID` as the pubkey for
-/// accounts that are not set, which effectively allows us to use positional
-/// optional accounts.
-pub fn try_get_account_info<'a>(
-    accounts: &'a [AccountInfo<'a>],
-    index: usize,
-) -> Result<&'a AccountInfo<'a>, ProgramError> {
-    let account_info = try_get_optional_account_info(accounts, index)?;
-    // validates that we got an account info
-    if let Some(account_info) = account_info {
-        Ok(account_info)
-    } else {
-        Err(ProgramError::NotEnoughAccountKeys)
-    }
-}
-
-/// Convenience function for accessing an [`AccountInfo`] by index
-/// and validating whether the account is present or not.
-///
-/// This relies on the client setting the `crate::ID` as the pubkey for
-/// accounts that are not set, which effectively allows us to use positional
-/// optional accounts.
-pub fn try_get_optional_account_info<'a>(
-    accounts: &'a [AccountInfo<'a>],
-    index: usize,
-) -> Result<Option<&'a AccountInfo<'a>>, ProgramError> {
-    if index < accounts.len() {
-        Ok(if cmp_pubkeys(accounts[index].key, &crate::ID) {
-            None
-        } else {
-            Some(&accounts[index])
-        })
-    } else {
-        Err(ProgramError::NotEnoughAccountKeys)
-    }
-}
-
 /// Checks if the instruction's accounts contain a pNFT metadata.
 ///
 /// We need to determine if we are dealing with a pNFT metadata or not

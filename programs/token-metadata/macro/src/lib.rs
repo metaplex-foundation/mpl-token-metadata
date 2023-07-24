@@ -217,12 +217,7 @@ fn generate_accounts(variants: &[Variant]) -> TokenStream {
     // build the trait implementation
     let variant_structs = variants.iter().map(|variant| {
         let name = syn::parse_str::<syn::Ident>(&variant.name).unwrap();
-        // accounts names
-        let fields = variant.accounts.iter().map(|account| {
-            let account_name = syn::parse_str::<syn::Ident>(format!("{}_info", &account.name).as_str()).unwrap();
-            quote! { #account_name }
-        });
-        // accounts fields
+        // struct fields
         let struct_fields = variant.accounts.iter().map(|account| {
             let account_name = syn::parse_str::<syn::Ident>(format!("{}_info", &account.name).as_str()).unwrap();
             if account.optional {
@@ -235,37 +230,38 @@ fn generate_accounts(variants: &[Variant]) -> TokenStream {
                 }
             }
         });
-        // accounts initialization for the impl block
-        let impl_fields = variant.accounts.iter().map(|account| {
+        // accounts initialization
+        let account_fields = variant.accounts.iter().enumerate().map(|(index, account)| {
             let account_name = syn::parse_str::<syn::Ident>(format!("{}_info", &account.name).as_str()).unwrap();
+
             if account.optional {
                 quote! {
-                    let #account_name = crate::processor::next_optional_account_info(account_info_iter)?;
+                    #account_name: if accounts[#index].key == &crate::ID { None } else { Some(&accounts[#index]) }
                 }
             } else {
                 quote! {
-                    let #account_name = solana_program::account_info::next_account_info(account_info_iter)?;
+                    #account_name: &accounts[#index]
                 }
             }
         });
+        // number of expected accounts
+        let expected = variant.accounts.len();
 
         quote! {
             pub struct #name<'a> {
                 #(#struct_fields,)*
             }
             impl<'a> #name<'a> {
-                pub fn to_context(accounts: &'a [solana_program::account_info::AccountInfo<'a>]) -> Result<Context<'a, Self>, solana_program::sysvar::slot_history::ProgramError> {
-                    let account_info_iter = &mut accounts.iter();
-
-                    #(#impl_fields)*
-
-                    let accounts = Self {
-                        #(#fields,)*
-                    };
-
+                pub fn to_context(accounts: &'a [solana_program::account_info::AccountInfo<'a>]) -> Result<Context<Self>, solana_program::sysvar::slot_history::ProgramError> {
+                    if accounts.len() < #expected {
+                        return Err(solana_program::sysvar::slot_history::ProgramError::NotEnoughAccountKeys);
+                    }
                     Ok(Context {
-                        accounts,
-                        remaining_accounts: Vec::<&'a AccountInfo<'a>>::from_iter(account_info_iter),
+                        accounts: Self {
+                            #(#account_fields,)*
+                        },
+                        // not currently in use
+                        //remaining_accounts: accounts[#expected..].to_vec(),
                     })
                 }
             }

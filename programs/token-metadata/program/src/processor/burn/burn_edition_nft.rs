@@ -90,10 +90,7 @@ pub fn process_burn_edition_nft<'a>(
         sysvar_instructions_info: spl_token_program_info,
         spl_token_program_info,
     };
-    let context = Context {
-        accounts,
-        remaining_accounts: vec![],
-    };
+    let context = Context { accounts };
 
     burn_nonfungible_edition(&context, false, &TokenStandard::NonFungibleEdition)
 }
