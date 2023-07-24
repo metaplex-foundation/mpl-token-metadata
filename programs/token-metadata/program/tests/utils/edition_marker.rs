@@ -413,6 +413,7 @@ impl EditionMarker {
             AccountMeta::new_readonly(self.metadata_pubkey, false),
             AccountMeta::new_readonly(fake_token_program.pubkey(), false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
+            AccountMeta::new_readonly(sysvar::rent::ID, false),
         ];
 
         let fake_instruction = Instruction {
