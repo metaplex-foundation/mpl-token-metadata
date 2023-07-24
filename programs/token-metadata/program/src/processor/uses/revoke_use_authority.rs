@@ -30,7 +30,8 @@ pub fn process_revoke_use_authority(
         token_account_info,
         mint_info,
         metadata_info,
-        token_program_account_info
+        token_program_account_info,
+        _system_program_info
     );
 
     let metadata = Metadata::from_account_info(metadata_info)?;
