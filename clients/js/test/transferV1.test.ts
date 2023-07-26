@@ -90,6 +90,49 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
   });
 });
 
+test('it needs a tokenRecord after transferring a 0 amount ProgrammableNonFungible', async (t) => {
+  // Given a ProgrammableNonFungible that belongs to owner A.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi);
+  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+    tokenOwner: ownerA.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+  });
+  
+  // When we run transfer with amount 0
+  const ownerB = generateSigner(umi).publicKey;
+
+  await transferV1(umi, {
+    mint,
+    authority: ownerA,
+    tokenOwner: ownerA.publicKey,
+    destinationOwner: ownerB,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    amount: 0,
+  }).sendAndConfirm(umi);
+
+  // Then the token stays with the old owner and they keep the tokenRecord
+  const daOld = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerA.publicKey);
+  t.like(daOld, <DigitalAssetWithToken>{
+    mint: {
+      publicKey: publicKey(mint),
+      supply: 1n,
+    },
+    token: {
+      publicKey: findAssociatedTokenPda(umi, {
+        mint,
+        owner: ownerA.publicKey,
+      })[0],
+      owner: ownerA.publicKey,
+      amount: 1n,
+    },
+    tokenRecord: {
+      state: TokenState.Unlocked,
+    },
+  });
+
+});
+
 FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
   test(`it can transfer a ${tokenStandard}`, async (t) => {
     // Given a fungible such that owner A owns 42 tokens.
