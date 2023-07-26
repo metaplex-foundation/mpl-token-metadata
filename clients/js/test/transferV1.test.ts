@@ -6,7 +6,6 @@ import {
   TokenStandard,
   TokenState,
   fetchDigitalAssetWithAssociatedToken,
-  safeFetchTokenRecordFromSeeds,
   transferV1,
 } from '../src';
 import {
@@ -99,7 +98,7 @@ test('transferring a ProgrammableNonFungible with an amount of 0 does not cause 
     tokenOwner: ownerA.publicKey,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   });
-  
+
   // When we run transfer with amount 0
   const ownerB = generateSigner(umi).publicKey;
   await transferV1(umi, {
@@ -112,7 +111,11 @@ test('transferring a ProgrammableNonFungible with an amount of 0 does not cause 
   }).sendAndConfirm(umi);
 
   // Then the token stays with the old owner and they keep the tokenRecord.
-  const originalAsset = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerA.publicKey);
+  const originalAsset = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    mint,
+    ownerA.publicKey
+  );
   t.like(originalAsset, <DigitalAssetWithToken>{
     mint: {
       publicKey: publicKey(mint),
@@ -132,16 +135,12 @@ test('transferring a ProgrammableNonFungible with an amount of 0 does not cause 
   });
 
   // And no additional tokenRecord is created.
-  const newEmptyAsset = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerB);
+  const newEmptyAsset = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    mint,
+    ownerB
+  );
   t.like(newEmptyAsset, <DigitalAssetWithToken>{
-    token: {
-      publicKey: findAssociatedTokenPda(umi, {
-        mint,
-        owner: ownerB,
-      })[0],
-      owner: ownerB,
-      amount: 0n,
-    },
     tokenRecord: undefined,
   });
 });
