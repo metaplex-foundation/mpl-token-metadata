@@ -6,6 +6,7 @@ import {
   TokenStandard,
   TokenState,
   fetchDigitalAssetWithAssociatedToken,
+  safeFetchTokenRecordFromSeeds,
   transferV1,
 } from '../src';
 import {
@@ -90,7 +91,7 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
   });
 });
 
-test('it needs a tokenRecord after transferring a 0 amount ProgrammableNonFungible', async (t) => {
+test('transferring a ProgrammableNonFungible with an amount of 0 does not cause side-effects', async (t) => {
   // Given a ProgrammableNonFungible that belongs to owner A.
   const umi = await createUmi();
   const ownerA = generateSigner(umi);
@@ -101,7 +102,6 @@ test('it needs a tokenRecord after transferring a 0 amount ProgrammableNonFungib
   
   // When we run transfer with amount 0
   const ownerB = generateSigner(umi).publicKey;
-
   await transferV1(umi, {
     mint,
     authority: ownerA,
@@ -111,9 +111,9 @@ test('it needs a tokenRecord after transferring a 0 amount ProgrammableNonFungib
     amount: 0,
   }).sendAndConfirm(umi);
 
-  // Then the token stays with the old owner and they keep the tokenRecord
-  const daOld = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerA.publicKey);
-  t.like(daOld, <DigitalAssetWithToken>{
+  // Then the token stays with the old owner and they keep the tokenRecord.
+  const originalAsset = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerA.publicKey);
+  t.like(originalAsset, <DigitalAssetWithToken>{
     mint: {
       publicKey: publicKey(mint),
       supply: 1n,
@@ -131,6 +131,19 @@ test('it needs a tokenRecord after transferring a 0 amount ProgrammableNonFungib
     },
   });
 
+  // And no additional tokenRecord is created.
+  const newEmptyAsset = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerB);
+  t.like(newEmptyAsset, <DigitalAssetWithToken>{
+    token: {
+      publicKey: findAssociatedTokenPda(umi, {
+        mint,
+        owner: ownerB,
+      })[0],
+      owner: ownerB,
+      amount: 0n,
+    },
+    tokenRecord: undefined,
+  });
 });
 
 FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
