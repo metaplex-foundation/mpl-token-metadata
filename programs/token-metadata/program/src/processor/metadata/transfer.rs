@@ -92,6 +92,10 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         amount,
     } = args;
 
+    if amount == 0 {
+        return Err(MetadataError::InvalidAmount.into());
+    }
+
     // Check signers
 
     // This authority must always be a signer, regardless of if it's the

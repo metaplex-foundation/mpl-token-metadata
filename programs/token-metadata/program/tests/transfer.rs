@@ -499,6 +499,76 @@ mod auth_rules_transfer {
     }
 
     #[tokio::test]
+    async fn fail_transfer_zero_amount() {
+        let mut program_test = ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None);
+        program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
+        let mut context = program_test.start_with_context().await;
+
+        let payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
+
+        // Create rule-set for the transfer requiring the destination to be program owned
+        // by Token Metadata program. (Token Owned Escrow scenario.)
+        let (rule_set, auth_data) =
+            create_default_metaplex_rule_set(&mut context, payer, false).await;
+
+        // Create NFT for transfer tests.
+        let mut nft = DigitalAsset::new();
+        nft.create_and_mint(
+            &mut context,
+            TokenStandard::ProgrammableNonFungible,
+            Some(rule_set),
+            Some(auth_data.clone()),
+            1,
+        )
+        .await
+        .unwrap();
+
+        let metadata = nft.get_metadata(&mut context).await;
+        assert_eq!(
+            metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+        );
+
+        if let Some(ProgrammableConfig::V1 {
+            rule_set: Some(rule_set),
+        }) = metadata.programmable_config
+        {
+            assert_eq!(rule_set, rule_set);
+        } else {
+            panic!("Missing programmable config");
+        }
+
+        // It should not be possible to transfer zero amount.
+        let transfer_amount = 0;
+        let authority = &Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
+        let destination_owner = Pubkey::new_unique();
+
+        let args = TransferArgs::V1 {
+            authorization_data: None,
+            amount: transfer_amount,
+        };
+
+        let params = TransferParams {
+            context: &mut context,
+            authority,
+            source_owner: &authority.pubkey(),
+            destination_owner,
+            destination_token: None,
+            authorization_rules: Some(rule_set),
+            payer: authority,
+            args,
+        };
+
+        let err = nft.transfer(params).await.unwrap_err();
+
+        assert_custom_error_ix!(
+            2,
+            err,
+            mpl_token_metadata::error::MetadataError::InvalidAmount
+        );
+    }
+
+    #[tokio::test]
     async fn owner_transfer() {
         // Tests an owner transferring from a system wallet to a PDA and vice versa.
         let mut program_test = ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None);
