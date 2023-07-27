@@ -129,7 +129,12 @@ jobs:
           echo "Buffer: $BUFFER"
           solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
-          RUST_LOG=debug themis upgrade-program -s $BUFFER -n "Deploy ${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "${{ inputs.proposal_description }}"
+          RUST_LOG=debug themis upgrade-program \
+            --source-buffer $BUFFER \
+            --name "Deploy ${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}" \
+            --mint-type ${{ env.MINT_TYPE }} \
+            --options ["Approve"] \
+            --description "${{ inputs.proposal_description }}"
 
           rm submitter-key.json
 
