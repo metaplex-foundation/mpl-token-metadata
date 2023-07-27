@@ -134,4 +134,4 @@ jobs:
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "proposal(${{ input.cluster }}): mpl-${{ inputs.program }} program v${{ env.PROGRAM_VERSION }}"
+          commit_message: "proposal(${{ inputs.cluster }}): mpl-${{ inputs.program }} program v${{ env.PROGRAM_VERSION }}"
