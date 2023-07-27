@@ -79,10 +79,10 @@ jobs:
         run: |
           if [ "${{ inputs.cluster }}" == "devnet" ]; then
             echo RPC=${{ secrets.DEVNET_RPC }} >> $GITHUB_ENV
-            echo MINT_TYPE="Council" >> $GITHUB_ENV
+            echo MINT_TYPE="council" >> $GITHUB_ENV
           elif [ "${{ inputs.cluster }}" == "mainnet-beta" ]; then
             echo RPC=${{ secrets.MAINNET_RPC }} >> $GITHUB_ENV
-            echo MINT_TYPE="Members" >> $GITHUB_ENV
+            echo MINT_TYPE="member" >> $GITHUB_ENV
           else
             echo "Invalid cluster"
             exit 1
@@ -120,7 +120,7 @@ jobs:
           echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
           echo "Creating program buffer"
 
-          echo ${{ secrets.SUBMITTER_KEY }} > ./submitter-key.json 
+          echo ${{ secrets.BOT_KEY }} > ./submitter-key.json 
 
           solana config set -k ./submitter-key.json > /dev/null 2>&1
           solana config set --url ${{ env.RPC }} > /dev/null 2>&1
