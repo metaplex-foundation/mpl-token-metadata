@@ -1,21 +1,15 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
+    processor::all_account_infos,
     state::{Metadata, TokenMetadataAccount},
 };
 
 pub fn process_sign_metadata(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-
-    let metadata_info = next_account_info(account_info_iter)?;
-    let creator_info = next_account_info(account_info_iter)?;
+    all_account_infos!(accounts, metadata_info, creator_info);
 
     assert_signer(creator_info)?;
     assert_owned_by(metadata_info, program_id)?;

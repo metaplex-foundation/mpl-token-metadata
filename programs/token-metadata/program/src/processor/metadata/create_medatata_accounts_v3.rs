@@ -1,10 +1,7 @@
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
+    processor::all_account_infos,
     state::{CollectionDetails, DataV2},
     utils::{
         fee::{levy, set_fee_flag, LevyArgs},
@@ -19,13 +16,15 @@ pub fn process_create_metadata_accounts_v3<'a>(
     is_mutable: bool,
     collection_details: Option<CollectionDetails>,
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-    let metadata_account_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let mint_authority_info = next_account_info(account_info_iter)?;
-    let payer_account_info = next_account_info(account_info_iter)?;
-    let update_authority_info = next_account_info(account_info_iter)?;
-    let system_account_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        metadata_account_info,
+        mint_info,
+        mint_authority_info,
+        payer_account_info,
+        update_authority_info,
+        system_account_info
+    );
 
     // Levy fees first, to fund the metadata account with rent + fee amount.
     levy(LevyArgs {

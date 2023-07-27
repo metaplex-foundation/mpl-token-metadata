@@ -821,9 +821,10 @@ pub enum MetadataInstruction {
     Print(PrintArgs),
 }
 
-pub struct Context<'a, T> {
+pub struct Context<T> {
     pub accounts: T,
-    pub remaining_accounts: Vec<&'a AccountInfo<'a>>,
+    // not currently in use
+    //pub remaining_accounts: Vec<AccountInfo<'a>>,
 }
 
 pub trait InstructionBuilder {
