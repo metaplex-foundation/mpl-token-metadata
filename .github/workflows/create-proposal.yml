@@ -79,8 +79,10 @@ jobs:
         run: |
           if [ "${{ inputs.cluster }}" == "devnet" ]; then
             echo RPC=${{ secrets.DEVNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE="Council" >> $GITHUB_ENV
           elif [ "${{ inputs.cluster }}" == "mainnet-beta" ]; then
             echo RPC=${{ secrets.MAINNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE="Members" >> $GITHUB_ENV
           else
             echo "Invalid cluster"
             exit 1
@@ -127,7 +129,7 @@ jobs:
           echo "Buffer: $BUFFER"
           solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
-          RUST_LOG=debug themis propose -s $BUFFER -n "Deploy ${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}" -m "Council" -o ["Approve"] -d "${{ inputs.proposal_description }}"
+          RUST_LOG=debug themis upgrade-program -s $BUFFER -n "Deploy ${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}" -m ${{ env.MINT_TYPE }} -o ["Approve"] -d "${{ inputs.proposal_description }}"
 
           rm submitter-key.json
 
