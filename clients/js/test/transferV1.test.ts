@@ -10,6 +10,7 @@ import {
 } from '../src';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
+  NON_EDITION_NON_FUNGIBLE_STANDARDS,
   createDigitalAssetWithToken,
   createUmi,
 } from './_setup';
@@ -90,58 +91,28 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
   });
 });
 
-test('transferring a ProgrammableNonFungible with an amount of 0 does not cause side-effects', async (t) => {
-  // Given a ProgrammableNonFungible that belongs to owner A.
-  const umi = await createUmi();
-  const ownerA = generateSigner(umi);
-  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
-    tokenOwner: ownerA.publicKey,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-  });
+NON_EDITION_NON_FUNGIBLE_STANDARDS.forEach((tokenStandard) => {
+  test(`it cannot transfer a ${tokenStandard} with an amount of 0`, async (t) => {
+    // Given a NonFungible that is owned by owner A.
+    const umi = await createUmi();
+    const ownerA = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      tokenOwner: ownerA.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
 
-  // When we run transfer with amount 0
-  const ownerB = generateSigner(umi).publicKey;
-  await transferV1(umi, {
-    mint,
-    authority: ownerA,
-    tokenOwner: ownerA.publicKey,
-    destinationOwner: ownerB,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-    amount: 0,
-  }).sendAndConfirm(umi);
-
-  // Then the token stays with the old owner and they keep the tokenRecord.
-  const originalAsset = await fetchDigitalAssetWithAssociatedToken(
-    umi,
-    mint,
-    ownerA.publicKey
-  );
-  t.like(originalAsset, <DigitalAssetWithToken>{
-    mint: {
-      publicKey: publicKey(mint),
-      supply: 1n,
-    },
-    token: {
-      publicKey: findAssociatedTokenPda(umi, {
+    // Then it can not be transferred with an amount of 0.
+    const ownerB = generateSigner(umi).publicKey;
+    await t.throwsAsync(
+      transferV1(umi, {
         mint,
-        owner: ownerA.publicKey,
-      })[0],
-      owner: ownerA.publicKey,
-      amount: 1n,
-    },
-    tokenRecord: {
-      state: TokenState.Unlocked,
-    },
-  });
-
-  // And no additional tokenRecord is created.
-  const newEmptyAsset = await fetchDigitalAssetWithAssociatedToken(
-    umi,
-    mint,
-    ownerB
-  );
-  t.like(newEmptyAsset, <DigitalAssetWithToken>{
-    tokenRecord: undefined,
+        authority: ownerA,
+        tokenOwner: ownerA.publicKey,
+        destinationOwner: ownerB,
+        tokenStandard: TokenStandard[tokenStandard],
+        amount: 0,
+      }).sendAndConfirm(umi)
+    );
   });
 });
 
