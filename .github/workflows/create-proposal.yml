@@ -91,7 +91,7 @@ jobs:
       - name: Determine Program Version
         run: |
           IDL_NAME=`echo "${{ inputs.program }}" | tr - _`
-          VERSION=`jq '.version' ./idls/${IDL_NAME}.json | sed 's/"//g'`
+          VERSION=`jq '.version' ./idls/mpl_${IDL_NAME}.json | sed 's/"//g'`
           MAJOR=`echo ${VERSION} | cut -d. -f1`
           MINOR=`echo ${VERSION} | cut -d. -f2`
           PATCH=`echo ${VERSION} | cut -d. -f3`
