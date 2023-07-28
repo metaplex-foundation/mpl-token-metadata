@@ -10,6 +10,7 @@ import {
 } from '../src';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
+  NON_EDITION_NON_FUNGIBLE_STANDARDS,
   createDigitalAssetWithToken,
   createUmi,
 } from './_setup';
@@ -87,6 +88,32 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
     tokenRecord: {
       state: TokenState.Unlocked,
     },
+  });
+});
+
+NON_EDITION_NON_FUNGIBLE_STANDARDS.forEach((tokenStandard) => {
+  test(`it cannot transfer a ${tokenStandard} with an amount of 0`, async (t) => {
+    // Given a NonFungible that is owned by owner A.
+    const umi = await createUmi();
+    const ownerA = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      tokenOwner: ownerA.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
+
+    // When we try to transfer an amount of 0.
+    const ownerB = generateSigner(umi).publicKey;
+    const promise = transferV1(umi, {
+      mint,
+      authority: ownerA,
+      tokenOwner: ownerA.publicKey,
+      destinationOwner: ownerB,
+      tokenStandard: TokenStandard[tokenStandard],
+      amount: 0,
+    }).sendAndConfirm(umi);
+
+    // Then we expect a program error.
+    await t.throwsAsync(promise, { name: 'InvalidAmount' });
   });
 });
 
