@@ -34,17 +34,17 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
-  #test_programs:
-  #  name: Programs
-  #  needs: build_programs
-  #  uses: ./.github/workflows/test-programs.yml
-  #  secrets: inherit
-  #  with:
-  #    program_matrix: '["${{ inputs.program }}"]'
+  test_programs:
+    name: Programs
+    needs: build_programs
+    uses: ./.github/workflows/test-programs.yml
+    secrets: inherit
+    with:
+      program_matrix: '["${{ inputs.program }}"]'
 
   test_js:
     name: JS client
-    needs: build_programs
+    needs: test_programs
     uses: ./.github/workflows/test-js.yml
     secrets: inherit
 
@@ -138,13 +138,13 @@ jobs:
           git config user.email "${{ env.COMMIT_USER_EMAIL }}"
 
           cargo login ${{ secrets.CRATES_TOKEN }}
-          cargo release ${{ env.PROGRAM_VERSION }} --no-confirm --no-push --no-tag
+          cargo release ${{ env.PROGRAM_VERSION }} --no-confirm --no-push --no-tag --execute
 
           git reset --soft HEAD~1
           git stash pop
 
-      #- name: Commit and tag new version
-      #  uses: stefanzweifel/git-auto-commit-action@v4
-      #  with:
-      #    commit_message: Publish mpl-${{ inputs.program }} crate v${{ env.PROGRAM_VERSION }}
-      #    tagging_message: mpl-${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}
+      - name: Commit and tag new version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Publish mpl-${{ inputs.program }} crate v${{ env.PROGRAM_VERSION }}
+          tagging_message: mpl-${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}
