@@ -21,7 +21,6 @@ pub use escrow::*;
 pub use freeze::*;
 pub use metadata::*;
 use mpl_token_auth_rules::payload::Payload;
-use mpl_utils::cmp_pubkeys;
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
 use solana_program::{

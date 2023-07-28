@@ -26,7 +26,6 @@ use mpl_token_metadata_context_derive::AccountContext;
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
 use shank::ShankInstruction;
-use solana_program::account_info::AccountInfo;
 pub use state::*;
 pub use uses::*;
 pub use verification::*;

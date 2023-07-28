@@ -73,7 +73,7 @@ jobs:
         with:
           version: ${{ env.SOLANA_VERSION }}
           cache: ${{ env.CACHE }}
-          
+
       - name: Install cargo-release
         uses: metaplex-foundation/actions/install-cargo-release@v1
         with:
@@ -83,25 +83,40 @@ jobs:
         run: |
           IDL_NAME="mpl_`echo "${{ inputs.program }}" | tr - _`"
           VERSION=`jq '.version' ./idls/${IDL_NAME}.json | sed 's/"//g'`
+
           MAJOR=`echo ${VERSION} | cut -d. -f1`
           MINOR=`echo ${VERSION} | cut -d. -f2`
-          PATCH=`echo ${VERSION} | cut -d. -f3`
-          
-          if [ "${{ inputs.bump }}" == "major" ]; then
-             MAJOR=$((MAJOR + 1))
-             MINOR=0
-             PATCH=0
-          elif [ "${{ inputs.bump }}" == "minor" ]; then
-             MINOR=$((MINOR + 1))
-             PATCH=0
-          else
-             PATCH=$((PATCH + 1))
+          PATCH=`echo ${VERSION} | cut -d. -f3-4`
+
+          case  "$PATCH" in
+            *"beta"*)
+              PRERELEASE=`echo ${PATCH} | cut -d. -f2`
+              PATCH=`echo ${PATCH} | cut -d- -f1`
+              ;;
+            *)
+              PRERELEASE=0
+              ;;
+          esac
+
+          if [ $PRERELEASE -eq 0 ]; then
+            if [ "${{ inputs.bump }}" == "major" ]; then
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            elif [ "${{ inputs.bump }}" == "minor" ]; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            else
+              PATCH=$((PATCH + 1))
+            fi
           fi
 
           if [ "${{ inputs.pre_release }}" == "true" ]; then
-            PRERELEASE="-beta"
+            PRERELEASE="-beta.$((PRERELEASE + 1))"
+          else
+            PRERELEASE=""
           fi
-          
+
           PROGRAM_VERSION="${MAJOR}.${MINOR}.${PATCH}${PRERELEASE}"
 
           cp ./idls/${IDL_NAME}.json ./idls/${IDL_NAME}-previous.json
@@ -115,21 +130,21 @@ jobs:
         with:
           name: program-builds
 
-      - name: Publish crate
+      - name: Publish Crate
         working-directory: ./programs/${{ inputs.program }}/program
         run: |
           git stash
           git config user.name "${{ env.COMMIT_USER_NAME }}"
           git config user.email "${{ env.COMMIT_USER_EMAIL }}"
-          
+
           cargo login ${{ secrets.CRATES_TOKEN }}
-          cargo release ${{ env.PROGRAM_VERSION }} --no-confirm --no-push --no-tag
+          cargo release ${{ env.PROGRAM_VERSION }} --no-confirm --no-push --no-tag --execute
 
           git reset --soft HEAD~1
           git stash pop
-          
-      #- name: Commit and tag new version
-      #  uses: stefanzweifel/git-auto-commit-action@v4
-      #  with:
-      #    commit_message: Publish mpl-${{ inputs.program }} create v${{ env.PROGRAM_VERSION }}
-      #    tagging_message: mpl-${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}
+
+      - name: Commit and tag new version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Publish mpl-${{ inputs.program }} crate v${{ env.PROGRAM_VERSION }}
+          tagging_message: mpl-${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}
