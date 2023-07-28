@@ -101,18 +101,19 @@ NON_EDITION_NON_FUNGIBLE_STANDARDS.forEach((tokenStandard) => {
       tokenStandard: TokenStandard[tokenStandard],
     });
 
-    // Then it can not be transferred with an amount of 0.
+    // When we try to transfer an amount of 0.
     const ownerB = generateSigner(umi).publicKey;
-    await t.throwsAsync(
-      transferV1(umi, {
-        mint,
-        authority: ownerA,
-        tokenOwner: ownerA.publicKey,
-        destinationOwner: ownerB,
-        tokenStandard: TokenStandard[tokenStandard],
-        amount: 0,
-      }).sendAndConfirm(umi)
-    );
+    const promise = transferV1(umi, {
+      mint,
+      authority: ownerA,
+      tokenOwner: ownerA.publicKey,
+      destinationOwner: ownerB,
+      tokenStandard: TokenStandard[tokenStandard],
+      amount: 0,
+    }).sendAndConfirm(umi);
+
+    // Then we expect a program error.
+    await t.throwsAsync(promise, { name: 'InvalidAmount' });
   });
 });
 
