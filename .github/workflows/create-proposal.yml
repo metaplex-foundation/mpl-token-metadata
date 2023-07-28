@@ -42,13 +42,21 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
+  test_programs:
+    name: Programs
+    needs: build_programs
+    uses: ./.github/workflows/test-programs.yml
+    secrets: inherit
+    with:
+      program_matrix: '["${{ inputs.program }}"]'
+
   test_js:
     name: JS client
-    needs: build_programs
+    needs: test_programs
     uses: ./.github/workflows/test-js.yml
     secrets: inherit
 
-  deploy_program:
+  create_proposal:
     name: Program / Proposal
     runs-on: ubuntu-latest
     needs: test_js
@@ -118,7 +126,7 @@ jobs:
       - name: Create Proposal
         run: |
           echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
-          echo "Creating program buffer"
+          echo "Creating program buffer..."
 
           echo ${{ secrets.BOT_KEY }} > ./submitter-key.json 
 
@@ -137,6 +145,13 @@ jobs:
             --description "${{ inputs.proposal_description }}"
 
           rm submitter-key.json
+
+          GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+          git push --delete origin -d $GIT_TAG 2> /dev/null
+
+          if [ $? -eq 0 ]; then
+            echo "Removed git tag: '$GIT_TAG'"
+          fi
 
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
