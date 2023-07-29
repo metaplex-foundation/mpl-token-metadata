@@ -2020,7 +2020,7 @@ dependencies = [
  "mpl-token-auth-rules",
  "mpl-token-metadata 1.10.0",
  "mpl-token-metadata-context-derive 0.2.1",
- "mpl-utils 0.2.0",
+ "mpl-utils 0.3.0",
  "num-derive",
  "num-traits",
  "rmp-serde",
@@ -2082,7 +2082,9 @@ dependencies = [
 
 [[package]]
 name = "mpl-utils"
-version = "0.2.0"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10cdb901afc76b17d007c1709941dc6a8b977f42ad5e7d51d6193cc9d07ce5d6"
 dependencies = [
  "arrayref",
  "borsh",
