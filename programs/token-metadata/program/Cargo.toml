@@ -32,7 +32,7 @@ thiserror = "1.0"
 [dev-dependencies]
 async-trait = "0.1.64"
 rmp-serde = "1.1.1"
-rooster = { git = "https://github.com/metaplex-foundation/rooster",  features = ["no-entrypoint"] }
+rooster = { git = "https://github.com/metaplex-foundation/rooster", features = ["no-entrypoint"] }
 serde = { version = "1.0.147", features = ["derive"]}
 solana-sdk = "~1.16.5"
 solana-program-test = "~1.16.5"
