@@ -29,9 +29,9 @@ if [ ! -d ${OUTPUT} ]; then
 fi
 
 WORKING_DIR=$(pwd)
-export BPF_OUT_DIR="${WORKING_DIR}/${OUTPUT}"
+export SBF_OUT_DIR="${WORKING_DIR}/${OUTPUT}"
 
 for p in ${PROGRAMS[@]}; do
     cd ${WORKING_DIR}/programs/${p}
-    cargo build-bpf --bpf-out-dir ${WORKING_DIR}/${OUTPUT} $ARGS
+    cargo build-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} $ARGS
 done

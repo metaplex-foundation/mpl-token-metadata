@@ -29,14 +29,14 @@ PROGRAMS=$(echo $PROGRAMS | jq -c '.[]' | sed 's/"//g')
 
 WORKING_DIR=$(pwd)
 SOLFMT="solfmt"
-export BPF_OUT_DIR="${WORKING_DIR}/${OUTPUT}"
+export SBF_OUT_DIR="${WORKING_DIR}/${OUTPUT}"
 
 for p in ${PROGRAMS[@]}; do
     cd ${WORKING_DIR}/programs/${p}
 
     if [ ! "$(command -v $SOLFMT)" = "" ]; then
-        CARGO_TERM_COLOR=always cargo test-bpf --bpf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} 2>&1 | ${SOLFMT}
+        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} 2>&1 | ${SOLFMT}
     else
-        cargo test-bpf --bpf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS}
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS}
     fi
 done
