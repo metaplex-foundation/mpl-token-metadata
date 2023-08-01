@@ -1,4 +1,4 @@
-#![cfg(feature = "test-bpf")]
+#![cfg(feature = "test-sbf")]
 pub mod utils;
 
 use borsh::BorshSerialize;
@@ -13,7 +13,7 @@ use mpl_token_metadata::{
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::*;
 use solana_sdk::{
-    account::{Account, AccountSharedData, WritableAccount},
+    account::{Account, AccountSharedData},
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
@@ -69,7 +69,7 @@ mod bump_seed_migration {
             executable: false,
             rent_epoch: 1,
         };
-        let data_mut = account.data_mut();
+        let data_mut: &mut Vec<u8> = account.data.as_mut();
         use_record_struct.serialize(data_mut).unwrap();
         data_mut.append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
         let shared_data = &AccountSharedData::from(account);

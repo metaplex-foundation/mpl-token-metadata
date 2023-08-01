@@ -73,6 +73,7 @@ impl RoosterManager {
             metadata,
             edition,
             rule_set,
+            spl_token::ID,
             args,
         );
 
@@ -106,6 +107,7 @@ impl RoosterManager {
             metadata,
             edition,
             authorization_rules,
+            spl_token::ID,
             args,
         );
 
@@ -148,6 +150,7 @@ impl RoosterManager {
             destination_token,
             mint,
             rule_set,
+            spl_token::ID,
             args,
         );
 

@@ -1,4 +1,4 @@
-#![cfg(feature = "test-bpf")]
+#![cfg(feature = "test-sbf")]
 pub mod utils;
 
 use solana_program::borsh::try_from_slice_unchecked;

@@ -1,4 +1,5 @@
 use super::*;
+
 use crate::{
     assertions::{
         collection::assert_collection_update_is_valid, metadata::assert_data_valid,
@@ -7,6 +8,7 @@ use crate::{
     instruction::{CollectionDetailsToggle, CollectionToggle, RuleSetToggle, UpdateArgs},
     utils::{clean_write_metadata, puff_out_data_fields},
 };
+use borsh::maybestd::io::Read;
 
 pub const MAX_NAME_LENGTH: usize = 32;
 
@@ -335,8 +337,8 @@ impl TokenMetadataAccount for Metadata {
 // caused by resizing of the Creators array. We use a custom `meta_deser_unchecked` function
 // that has fallback values for corrupted fields.
 impl borsh::de::BorshDeserialize for Metadata {
-    fn deserialize(buf: &mut &[u8]) -> ::core::result::Result<Self, BorshError> {
-        let md = meta_deser_unchecked(buf)?;
+    fn deserialize_reader<R: Read>(reader: &mut R) -> ::core::result::Result<Self, BorshError> {
+        let md = meta_deser_unchecked(reader)?;
         Ok(md)
     }
 }

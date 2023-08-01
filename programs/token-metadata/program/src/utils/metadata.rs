@@ -1,3 +1,4 @@
+use borsh::maybestd::io::Read;
 use borsh::{maybestd::io::Error as BorshError, BorshDeserialize};
 use mpl_utils::{create_or_allocate_account_raw, token::get_mint_authority};
 use solana_program::{
@@ -199,29 +200,30 @@ pub fn process_create_metadata_accounts_logic(
 //
 // It does not check `Key` type or account length and should only be used through the custom functions
 // `from_account_info` and `deserialize` implemented on the Metadata struct.
-pub fn meta_deser_unchecked(buf: &mut &[u8]) -> Result<Metadata, BorshError> {
+pub fn meta_deser_unchecked<R: Read>(reader: &mut R) -> Result<Metadata, BorshError> {
     // Metadata corruption shouldn't appear until after edition_nonce.
-    let key: Key = BorshDeserialize::deserialize(buf)?;
-    let update_authority: Pubkey = BorshDeserialize::deserialize(buf)?;
-    let mint: Pubkey = BorshDeserialize::deserialize(buf)?;
-    let data: Data = BorshDeserialize::deserialize(buf)?;
-    let primary_sale_happened: bool = BorshDeserialize::deserialize(buf)?;
-    let is_mutable: bool = BorshDeserialize::deserialize(buf)?;
-    let edition_nonce: Option<u8> = BorshDeserialize::deserialize(buf)?;
+    let key: Key = BorshDeserialize::deserialize_reader(reader)?;
+    let update_authority: Pubkey = BorshDeserialize::deserialize_reader(reader)?;
+    let mint: Pubkey = BorshDeserialize::deserialize_reader(reader)?;
+    let data: Data = BorshDeserialize::deserialize_reader(reader)?;
+    let primary_sale_happened: bool = BorshDeserialize::deserialize_reader(reader)?;
+    let is_mutable: bool = BorshDeserialize::deserialize_reader(reader)?;
+    let edition_nonce: Option<u8> = BorshDeserialize::deserialize_reader(reader)?;
 
     // V1.2
     let token_standard_res: Result<Option<TokenStandard>, BorshError> =
-        BorshDeserialize::deserialize(buf);
-    let collection_res: Result<Option<Collection>, BorshError> = BorshDeserialize::deserialize(buf);
-    let uses_res: Result<Option<Uses>, BorshError> = BorshDeserialize::deserialize(buf);
+        BorshDeserialize::deserialize_reader(reader);
+    let collection_res: Result<Option<Collection>, BorshError> =
+        BorshDeserialize::deserialize_reader(reader);
+    let uses_res: Result<Option<Uses>, BorshError> = BorshDeserialize::deserialize_reader(reader);
 
     // V1.3
     let collection_details_res: Result<Option<CollectionDetails>, BorshError> =
-        BorshDeserialize::deserialize(buf);
+        BorshDeserialize::deserialize_reader(reader);
 
     // pNFT - Programmable Config
     let programmable_config_res: Result<Option<ProgrammableConfig>, BorshError> =
-        BorshDeserialize::deserialize(buf);
+        BorshDeserialize::deserialize_reader(reader);
 
     // We can have accidentally valid, but corrupted data, particularly on the Collection struct,
     // so to increase probability of catching errors. If any of these deserializations fail, set

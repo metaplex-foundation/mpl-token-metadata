@@ -1,4 +1,4 @@
-#![cfg(feature = "test-bpf")]
+#![cfg(feature = "test-sbf")]
 pub mod utils;
 
 use mpl_token_metadata::{error::MetadataError, instruction, state::Key, ID};

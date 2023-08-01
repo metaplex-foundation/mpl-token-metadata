@@ -10,6 +10,7 @@ pub mod escrow {
     pub use crate::{instruction::escrow::*, processor::escrow::*};
 }
 
+#[cfg(not(feature = "no-entrypoint"))]
 pub mod entrypoint;
 pub mod error;
 pub mod instruction;
