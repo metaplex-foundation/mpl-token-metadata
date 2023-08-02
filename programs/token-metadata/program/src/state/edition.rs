@@ -47,7 +47,6 @@ impl TokenMetadataAccount for Edition {
 
 #[cfg(test)]
 mod tests {
-    use borsh::BorshSerialize;
     use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
@@ -62,7 +61,7 @@ mod tests {
         let expected_data = Edition::default();
 
         let mut buf = Vec::new();
-        expected_data.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_data).unwrap();
         Edition::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();
@@ -91,7 +90,7 @@ mod tests {
         let wrong_type = Metadata::default();
 
         let mut buf = Vec::new();
-        wrong_type.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &wrong_type).unwrap();
         Metadata::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();

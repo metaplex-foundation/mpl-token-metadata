@@ -1,6 +1,5 @@
 use std::fmt::Display;
 
-use borsh::BorshSerialize;
 use mpl_token_auth_rules::utils::get_latest_revision;
 use mpl_utils::{assert_signer, create_or_allocate_account_raw};
 use solana_program::{
@@ -531,7 +530,7 @@ fn create_pda_account<'a>(
         update_authority: *authority_info.key,
         ..Default::default()
     };
-    pda.serialize(&mut *delegate_record_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(&mut delegate_record_info.try_borrow_mut_data()?[..], &pda)?;
 
     Ok(())
 }

@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use mpl_utils::{assert_signer, create_or_allocate_account_raw};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, pubkey::Pubkey,
@@ -108,6 +107,6 @@ pub fn process_approve_use_authority(
     record.key = Key::UseAuthorityRecord;
     record.allowed_uses = number_of_uses;
     record.bump = bump_seed;
-    record.serialize(mutable_data)?;
+    borsh::to_writer(&mut mutable_data[..], &record)?;
     Ok(())
 }

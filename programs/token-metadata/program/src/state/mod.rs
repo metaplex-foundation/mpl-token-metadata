@@ -200,7 +200,7 @@ pub trait Resizable: TokenMetadataAccount + BorshSerialize {
         // passes a slice to borsh so the internal account data array does not get
         // temporarily resized
         let mut storage = &mut account_data[..required_size];
-        BorshSerialize::serialize(self, &mut storage)?;
+        borsh::to_writer(&mut storage, self)?;
 
         Ok(())
     }

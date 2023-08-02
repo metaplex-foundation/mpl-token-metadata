@@ -153,7 +153,10 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
             } else {
                 edition_marker.insert_edition(edition)?
             }
-            edition_marker.serialize(&mut *edition_marker_info.data.borrow_mut())?;
+            borsh::to_writer(
+                &mut edition_marker_info.data.borrow_mut()[..],
+                &edition_marker,
+            )?;
         }
         TokenStandard::ProgrammableNonFungible => {
             let bump = assert_derivation(

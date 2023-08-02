@@ -1,7 +1,6 @@
 mod lock;
 mod unlock;
 
-use borsh::BorshSerialize;
 pub use lock::*;
 use mpl_utils::assert_signer;
 use solana_program::{
@@ -140,9 +139,11 @@ pub(crate) fn toggle_asset_state(
         token_record.state = to;
 
         // save the state
-        token_record
-            .serialize(&mut *token_record_info.try_borrow_mut_data()?)
-            .map_err(|_| MetadataError::BorshSerializationError.into())
+        borsh::to_writer(
+            &mut token_record_info.try_borrow_mut_data()?[..],
+            &token_record,
+        )
+        .map_err(|_| MetadataError::BorshSerializationError.into())
     } else {
         let spl_token_program_info = match accounts.spl_token_program_info {
             Some(spl_token_program_info) => {

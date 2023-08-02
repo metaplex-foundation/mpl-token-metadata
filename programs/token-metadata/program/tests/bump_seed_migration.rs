@@ -1,7 +1,6 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use borsh::BorshSerialize;
 use mpl_token_metadata::{
     pda::{find_program_as_burner_account, find_use_authority_account},
     state::{
@@ -70,8 +69,9 @@ mod bump_seed_migration {
             rent_epoch: 1,
         };
         let data_mut = account.data_mut();
-        use_record_struct.serialize(data_mut).unwrap();
-        data_mut.append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
+        borsh::to_writer(data_mut, &use_record_struct).unwrap();
+        // Get the reference again since it was consumed in the previous call
+        account.data_mut().append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
         let shared_data = &AccountSharedData::from(account);
         context.set_account(&record, shared_data);
         airdrop(&mut context, &use_authority_account.pubkey(), 1113600)
