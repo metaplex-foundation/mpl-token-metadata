@@ -309,6 +309,11 @@ fn create_persistent_delegate_v1(
                 }
             };
 
+            // we cannot replace an existing delegate, it must be revoked first
+            if token_record.delegate.is_some() {
+                return Err(MetadataError::DelegateAlreadyExists.into());
+            }
+
             // if we have a rule set, we need to store its revision; at this point,
             // we will validate that we have the correct auth rules PDA
             if let Some(ProgrammableConfig::V1 {
