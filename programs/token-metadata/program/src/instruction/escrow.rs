@@ -39,6 +39,7 @@ pub fn close_escrow_account(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn create_escrow_account(
     program_id: Pubkey,
     escrow_account: Pubkey,
@@ -82,6 +83,7 @@ pub struct TransferOutOfEscrowArgs {
     pub amount: u64,
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn transfer_out_of_escrow(
     program_id: Pubkey,
     escrow: Pubkey,
