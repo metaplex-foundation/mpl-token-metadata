@@ -71,15 +71,15 @@ This will install the required packages for the tests. Then, run:
 pnpm build && pnpm test
 ```
 
-# Documentation
+## Documentation
 
 Full documentation for Token Metadata can be found [here](https://docs.metaplex.com/programs/token-metadata/).
 
-# Reporting security issues
+## Reporting security issues
 
 To report a security issue, please follow the guidance on our [bug bounty program](https://www.metaplex.com/bounty-program) page.
 
-# License
+## License
 
 The Rust/Cargo programs are licensed under the
 "Apache-style" [Metaplex(TM) NFT Open Source License](https://github.com/metaplex-foundation/mpl-token-metadata/blob/master/LICENSE) and the JS/TS client libraries are licensed
