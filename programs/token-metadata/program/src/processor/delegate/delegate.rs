@@ -221,6 +221,7 @@ fn create_delegate_v1(
 /// spl-token 'approve' delegate.
 ///
 /// Note that `DelegateRole::Sale` is only available for programmable assets.
+#[allow(deprecated)]
 fn create_persistent_delegate_v1(
     program_id: &Pubkey,
     ctx: Context<Delegate>,
@@ -308,11 +309,6 @@ fn create_persistent_delegate_v1(
                 }
             };
 
-            // we cannot replace an existing delegate, it must be revoked first
-            if token_record.delegate.is_some() {
-                return Err(MetadataError::DelegateAlreadyExists.into());
-            }
-
             // if we have a rule set, we need to store its revision; at this point,
             // we will validate that we have the correct auth rules PDA
             if let Some(ProgrammableConfig::V1 {
@@ -371,6 +367,8 @@ fn create_persistent_delegate_v1(
                 TokenState::Unlocked
             };
 
+            // stores the locked transfer address for backwards compatibility, but this is
+            // not enforced by the transfer instruction
             token_record.locked_transfer = if matches!(role, TokenDelegateRole::LockedTransfer) {
                 if let DelegateArgs::LockedTransferV1 { locked_address, .. } = args {
                     Some(*locked_address)
@@ -482,6 +480,7 @@ fn create_persistent_delegate_v1(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn create_pda_account<'a>(
     program_id: &Pubkey,
     delegate_record_info: &'a AccountInfo<'a>,
