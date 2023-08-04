@@ -5,7 +5,7 @@
   Program to attach additional data to Fungible or Non-Fungible tokens on Solana. It achieves this using Program Derived Addresses (PDAs) that are derived from the address of Mint accounts.
 </p>
 <p align="center">
-  <img width="600" alt="Metaplex Token Metadata" src="https://github.com/metaplex-foundation/mpl-token-metadata/assets/729235/626522c6-c5e6-47e6-a798-9370facd5e7c" />
+  <img width="600" alt="Metaplex Token Metadata" src="https://github.com/metaplex-foundation/mpl-token-metadata/assets/729235/3fab5ac4-9c3e-48ea-a45a-26eb5918821a" />
 </p>
 <p align="center">
   <a href="https://github.com/metaplex-foundation/mpl-token-metadata/actions/workflows/main.yml"><img src="https://img.shields.io/github/actions/workflow/status/metaplex-foundation/mpl-token-metadata/main.yml?logo=GitHub" /></a>
