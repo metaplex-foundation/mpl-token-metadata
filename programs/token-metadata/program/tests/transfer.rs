@@ -1325,8 +1325,7 @@ mod auth_rules_transfer {
 
     #[tokio::test]
     async fn locked_transfer_delegate() {
-        // tests a LockedTransfer delegate transferring from a system wallet to an invalid address and
-        // from a system wallet to the the locked PDA address
+        // tests a LockedTransfer delegate, which works similarly to a Transfer delegate
         let mut program_test = ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None);
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
@@ -1388,30 +1387,6 @@ mod auth_rules_transfer {
 
         // tries to make an invalid transfer: the destination address does not match
         // the address at the delegate creation
-
-        let authority = context.payer.dirty_clone();
-
-        let args = TransferArgs::V1 {
-            authorization_data: None,
-            amount: transfer_amount,
-        };
-
-        let params = TransferParams {
-            context: &mut context,
-            authority: &delegate,
-            source_owner: &authority.pubkey(),
-            destination_owner: nft.metadata,
-            destination_token: None,
-            authorization_rules: Some(rule_set),
-            payer: &authority,
-            args: args.clone(),
-        };
-
-        let error = nft.transfer(params).await.unwrap_err();
-
-        assert_custom_error_ix!(2, error, MetadataError::InvalidLockedTransferAddress);
-
-        // makes the correct transfer
 
         let authority = context.payer.dirty_clone();
 

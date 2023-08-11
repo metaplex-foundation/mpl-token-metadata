@@ -49,6 +49,10 @@ pub enum DelegateArgs {
     },
     LockedTransferV1 {
         amount: u64,
+        #[deprecated(
+            since = "1.13.2",
+            note = "The locked address is deprecated and will soon be removed."
+        )]
         /// locked destination pubkey
         locked_address: Pubkey,
         /// Required authorization data to validate the request.
