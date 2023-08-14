@@ -5,10 +5,11 @@ use mpl_token_metadata::{
     state::{Key, MasterEditionV2 as ProgramME, MAX_MASTER_EDITION_LEN},
     utils::try_from_slice_checked,
 };
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::*;
 use utils::*;
 mod serialization {
+
+    use borsh::BorshDeserialize;
 
     use super::*;
 
@@ -34,7 +35,7 @@ mod serialization {
         let mut context = program_test().start_with_context().await;
         let (_nft, master) = setup(&mut context).await;
         let otherbytes = master.clone();
-        let _me: ProgramME = try_from_slice_unchecked(&master).unwrap();
+        let _me: ProgramME = BorshDeserialize::deserialize(&mut &master[..]).unwrap();
         let _me2: ProgramME =
             try_from_slice_checked(&otherbytes, Key::MasterEditionV2, MAX_MASTER_EDITION_LEN)
                 .unwrap();

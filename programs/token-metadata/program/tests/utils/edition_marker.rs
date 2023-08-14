@@ -1,4 +1,4 @@
-use borsh::BorshSerialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{
     instruction::{
         self,
@@ -11,7 +11,6 @@ use mpl_token_metadata::{
     ID,
 };
 use solana_program::{
-    borsh::try_from_slice_unchecked,
     instruction::{AccountMeta, Instruction},
     system_program, sysvar,
 };
@@ -165,7 +164,7 @@ impl EditionMarker {
         context: &mut ProgramTestContext,
     ) -> mpl_token_metadata::state::EditionMarker {
         let account = get_account(context, &self.pubkey).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
 
     pub async fn get_data_v2(
@@ -173,7 +172,7 @@ impl EditionMarker {
         context: &mut ProgramTestContext,
     ) -> mpl_token_metadata::state::EditionMarkerV2 {
         let account = get_account(context, &self.pubkey).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
 
     pub async fn create(&self, context: &mut ProgramTestContext) -> Result<(), BanksClientError> {
@@ -730,7 +729,8 @@ impl EditionMarker {
         // determines if we need to set the rule set
         let metadata_account = get_account(context, &self.metadata_pubkey).await;
         let metadata: mpl_token_metadata::state::Metadata =
-            try_from_slice_unchecked(&metadata_account.data).unwrap();
+            mpl_token_metadata::state::Metadata::deserialize(&mut &metadata_account.data[..])
+                .unwrap();
 
         if let Some(ProgrammableConfig::V1 {
             rule_set: Some(rule_set),

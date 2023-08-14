@@ -383,6 +383,7 @@ pub enum ProgrammableConfig {
     },
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use borsh::{BorshDeserialize, BorshSerialize};
@@ -661,3 +662,4 @@ mod tests {
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 }
+*/

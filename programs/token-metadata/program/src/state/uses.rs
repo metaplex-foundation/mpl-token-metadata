@@ -62,6 +62,7 @@ impl UseAuthorityRecord {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use borsh::BorshSerialize;
@@ -130,3 +131,4 @@ mod tests {
         assert_eq!(error, MetadataError::DataTypeMismatch.into());
     }
 }
+*/

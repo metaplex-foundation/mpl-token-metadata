@@ -13,12 +13,13 @@ use utils::*;
 
 mod process_legacy_instruction {
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::{
         error::MetadataError,
         instruction::{sign_metadata, DelegateArgs},
         state::{Metadata, TokenStandard},
     };
-    use solana_program::{borsh::try_from_slice_unchecked, program_pack::Pack};
+    use solana_program::program_pack::Pack;
     use spl_token::state::Account;
 
     use super::*;
@@ -51,7 +52,7 @@ mod process_legacy_instruction {
         asset.mint(&mut context, None, None, 1).await.unwrap();
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(
             metadata.token_standard,
@@ -99,7 +100,7 @@ mod process_legacy_instruction {
             .unwrap();
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(
             metadata.token_standard,

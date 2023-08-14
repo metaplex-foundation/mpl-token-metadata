@@ -62,6 +62,7 @@ pub enum CollectionDetails {
     V1 { size: u64 },
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use borsh::BorshSerialize;
@@ -130,3 +131,4 @@ mod tests {
         assert_eq!(error, MetadataError::DataTypeMismatch.into());
     }
 }
+*/

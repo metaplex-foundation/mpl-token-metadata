@@ -43,6 +43,7 @@ impl RoosterManager {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn withdraw(
         &self,
         context: &mut ProgramTestContext,
@@ -73,6 +74,7 @@ impl RoosterManager {
             metadata,
             edition,
             rule_set,
+            spl_token::ID,
             args,
         );
 
@@ -86,6 +88,7 @@ impl RoosterManager {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn delegate(
         &self,
         context: &mut ProgramTestContext,
@@ -106,6 +109,7 @@ impl RoosterManager {
             metadata,
             edition,
             authorization_rules,
+            spl_token::ID,
             args,
         );
 
@@ -119,6 +123,7 @@ impl RoosterManager {
         context.banks_client.process_transaction(tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn delegate_transfer(
         self,
         context: &mut ProgramTestContext,
@@ -148,6 +153,7 @@ impl RoosterManager {
             destination_token,
             mint,
             rule_set,
+            spl_token::ID,
             args,
         );
 

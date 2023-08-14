@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use borsh::BorshSerialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{
     pda::{find_program_as_burner_account, find_use_authority_account},
     state::{
@@ -10,10 +10,9 @@ use mpl_token_metadata::{
     },
     utils::puffed_out_string,
 };
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::*;
 use solana_sdk::{
-    account::{Account, AccountSharedData, WritableAccount},
+    account::{Account, AccountSharedData},
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
@@ -69,7 +68,7 @@ mod bump_seed_migration {
             executable: false,
             rent_epoch: 1,
         };
-        let data_mut = account.data_mut();
+        let data_mut = &mut account.data;
         use_record_struct.serialize(data_mut).unwrap();
         data_mut.append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
         let shared_data = &AccountSharedData::from(account);
@@ -104,7 +103,8 @@ mod bump_seed_migration {
             .await
             .unwrap()
             .unwrap();
-        let uar: UseAuthorityRecord = try_from_slice_unchecked(&account_after.data).unwrap();
+        let uar: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account_after.data[..]).unwrap();
         assert_eq!(uar.bump, record_bump);
     }
 }

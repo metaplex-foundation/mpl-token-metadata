@@ -11,6 +11,7 @@ use utils::*;
 
 mod delegate {
 
+    use borsh::BorshDeserialize;
     use mpl_token_auth_rules::error::RuleSetError;
     use mpl_token_metadata::{
         error::MetadataError,
@@ -22,9 +23,7 @@ mod delegate {
         },
     };
     use num_traits::FromPrimitive;
-    use solana_program::{
-        borsh::try_from_slice_unchecked, program_option::COption, program_pack::Pack,
-    };
+    use solana_program::{program_option::COption, program_pack::Pack};
     use spl_token::state::Account;
 
     use super::*;
@@ -73,7 +72,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(user_pubkey));
@@ -151,7 +150,7 @@ mod delegate {
         );
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(user_pubkey));
@@ -189,7 +188,8 @@ mod delegate {
         assert!(asset.token.is_some());
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata =
+            BorshDeserialize::deserialize(&mut &metadata_account.data[..]).unwrap();
         assert_eq!(metadata.update_authority, context.payer.pubkey());
 
         // creates a collection delegate
@@ -269,7 +269,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(user_pubkey));
@@ -331,7 +331,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(user_pubkey));
@@ -493,7 +493,7 @@ mod delegate {
 
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.rule_set_revision, None);
 
@@ -520,7 +520,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(rule_set));
@@ -584,7 +584,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.key, Key::TokenRecord);
         assert_eq!(token_record.delegate, Some(user_pubkey));
@@ -639,7 +639,7 @@ mod delegate {
 
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.rule_set_revision, None);
 
