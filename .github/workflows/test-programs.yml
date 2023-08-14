@@ -56,6 +56,6 @@ jobs:
       - name: Run tests
         shell: bash
         working-directory: configs/program-scripts
-        run: ./test.sh
+        run: RUST_LOG=error ./test.sh
         env:
           PROGRAM: ${{ matrix.program }}
