@@ -1113,12 +1113,12 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "1.13.1"
+version = "1.13.2-beta.1"
 dependencies = [
  "arrayref",
  "borsh 0.9.3",
  "mpl-token-auth-rules",
- "mpl-token-metadata-context-derive 0.3.0",
+ "mpl-token-metadata-context-derive 1.13.2-beta.1",
  "mpl-utils",
  "num-derive",
  "num-traits",
@@ -1127,7 +1127,7 @@ dependencies = [
  "shank",
  "solana-program",
  "spl-associated-token-account",
- "spl-token 4.0.0",
+ "spl-token 3.5.0",
  "thiserror",
 ]
 
@@ -1143,7 +1143,7 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata-context-derive"
-version = "0.3.0"
+version = "1.13.2-beta.1"
 dependencies = [
  "quote",
  "syn 1.0.109",
