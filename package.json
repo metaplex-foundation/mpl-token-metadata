@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "programs:build": "./configs/program-scripts/build.sh",
-    "programs:test": "./configs/program-scripts/test.sh",
+    "programs:test": "RUST_LOG=error ./configs/program-scripts/test.sh",
+    "programs:debug": "./configs/program-scripts/test.sh",
     "programs:clean": "rm -rf ./programs/.bin",
     "generate": "pnpm generate:idls && pnpm generate:clients",
     "generate:idls": "node ./configs/shank.cjs",
