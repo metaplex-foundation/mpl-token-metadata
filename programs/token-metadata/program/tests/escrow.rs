@@ -1,12 +1,12 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::*;
 use solana_sdk::{signer::Signer, transaction::Transaction};
 use utils::*;
 
 mod escrow {
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::{escrow::find_escrow_account, state::EscrowAuthority};
     use solana_program::program_pack::Pack;
 
@@ -71,7 +71,7 @@ mod escrow {
         let _metadata = parent_test_metadata.get_data(&mut context).await;
         let escrow_account = get_account(&mut context, &escrow_address.0).await;
         let escrow: mpl_token_metadata::state::TokenOwnedEscrow =
-            try_from_slice_unchecked(&escrow_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &escrow_account.data[..]).unwrap();
         print!("\n{:#?}\n", escrow);
 
         // Transfer In
@@ -140,7 +140,7 @@ mod escrow {
         let _metadata = attribute_test_metadata.get_data(&mut context).await;
         let escrow_account = get_account(&mut context, &escrow_address.0).await;
         let escrow: mpl_token_metadata::state::TokenOwnedEscrow =
-            try_from_slice_unchecked(&escrow_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &escrow_account.data[..]).unwrap();
 
         print!("\n{:#?}\n", escrow);
         let attribute_src_account =
@@ -200,7 +200,7 @@ mod escrow {
         let _metadata = attribute_test_metadata.get_data(&mut context).await;
         let escrow_account = get_account(&mut context, &escrow_address.0).await;
         let escrow: mpl_token_metadata::state::TokenOwnedEscrow =
-            try_from_slice_unchecked(&escrow_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &escrow_account.data[..]).unwrap();
 
         print!("\n{:#?}\n", escrow);
         println!("attribute_src:{:#?}", attribute_src);
@@ -272,7 +272,7 @@ mod escrow {
         let _metadata = parent_test_metadata.get_data(&mut context).await;
         let escrow_account = get_account(&mut context, &escrow_address.0).await;
         let escrow: mpl_token_metadata::state::TokenOwnedEscrow =
-            try_from_slice_unchecked(&escrow_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &escrow_account.data[..]).unwrap();
         print!("\n{:#?}\n", escrow);
 
         // Transfer In
@@ -333,7 +333,7 @@ mod escrow {
         let _metadata = attribute_test_metadata.get_data(&mut context).await;
         let escrow_account = get_account(&mut context, &escrow_address.0).await;
         let escrow: mpl_token_metadata::state::TokenOwnedEscrow =
-            try_from_slice_unchecked(&escrow_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &escrow_account.data[..]).unwrap();
 
         context.banks_client.process_transaction(tx1).await.unwrap();
 

@@ -22,8 +22,8 @@ use solana_sdk::{
 use utils::*;
 mod verify_sized_collection_item {
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::state::{CollectionAuthorityRecord, COLLECTION_AUTHORITY_RECORD_SIZE};
-    use solana_program::borsh::try_from_slice_unchecked;
     use solana_sdk::transaction::Transaction;
 
     use super::*;
@@ -600,7 +600,7 @@ mod verify_sized_collection_item {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -695,7 +695,7 @@ mod verify_sized_collection_item {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -794,7 +794,7 @@ mod verify_sized_collection_item {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -1030,7 +1030,7 @@ mod verify_sized_collection_item {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata

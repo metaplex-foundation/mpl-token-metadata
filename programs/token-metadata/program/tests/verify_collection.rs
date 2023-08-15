@@ -1,6 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
+use borsh::BorshDeserialize;
 use mpl_token_metadata::{
     error::MetadataError,
     pda::find_collection_authority_account,
@@ -11,7 +12,7 @@ use mpl_token_metadata::{
     utils::puffed_out_string,
 };
 use num_traits::FromPrimitive;
-use solana_program::{borsh::try_from_slice_unchecked, native_token::LAMPORTS_PER_SOL};
+use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program_test::*;
 use solana_sdk::{
     account::{Account, AccountSharedData},
@@ -22,8 +23,8 @@ use solana_sdk::{
 use utils::*;
 mod verify_collection {
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::state::{CollectionAuthorityRecord, COLLECTION_AUTHORITY_RECORD_SIZE};
-    use solana_program::borsh::try_from_slice_unchecked;
     use solana_sdk::transaction::Transaction;
 
     use super::*;
@@ -568,7 +569,7 @@ mod verify_collection {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -652,7 +653,7 @@ mod verify_collection {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -741,7 +742,7 @@ mod verify_collection {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -966,7 +967,7 @@ mod verify_collection {
 
         let record_account = get_account(&mut context, &record).await;
         let record_data: CollectionAuthorityRecord =
-            try_from_slice_unchecked(&record_account.data).unwrap();
+            BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
         assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
 
         test_metadata
@@ -1362,7 +1363,7 @@ async fn success_collection_authority_delegate_revoke() {
 
     let record_account = get_account(&mut context, &record).await;
     let record_data: CollectionAuthorityRecord =
-        try_from_slice_unchecked(&record_account.data).unwrap();
+        BorshDeserialize::deserialize(&mut &record_account.data[..]).unwrap();
     assert_eq!(record_data.key, Key::CollectionAuthorityRecord);
     assert_eq!(record_data.update_authority, Some(payer));
     assert_eq!(record_account.data.len(), COLLECTION_AUTHORITY_RECORD_SIZE);

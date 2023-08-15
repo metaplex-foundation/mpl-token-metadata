@@ -16,8 +16,9 @@ use solana_sdk::{
 use utils::*;
 mod approve_use_authority {
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::{pda::find_program_as_burner_account, state::Key};
-    use solana_program::{borsh::try_from_slice_unchecked, program_pack::Pack};
+    use solana_program::program_pack::Pack;
     use spl_token::state::Account;
 
     use super::*;
@@ -74,7 +75,8 @@ mod approve_use_authority {
         context.banks_client.process_transaction(tx).await.unwrap();
 
         let account = get_account(&mut context, &record).await;
-        let record_acct: UseAuthorityRecord = try_from_slice_unchecked(&account.data).unwrap();
+        let record_acct: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account.data[..]).unwrap();
 
         assert_eq!(record_acct.key, Key::UseAuthorityRecord);
         assert_eq!(record_acct.allowed_uses, 1);
@@ -133,7 +135,8 @@ mod approve_use_authority {
         context.banks_client.process_transaction(tx).await.unwrap();
 
         let account = get_account(&mut context, &record).await;
-        let record_acct: UseAuthorityRecord = try_from_slice_unchecked(&account.data).unwrap();
+        let record_acct: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account.data[..]).unwrap();
         assert_eq!(record_acct.key, Key::UseAuthorityRecord);
         assert_eq!(record_acct.allowed_uses, 1);
     }

@@ -366,6 +366,7 @@ mod standard_transfer {
 }
 
 mod auth_rules_transfer {
+    use borsh::BorshDeserialize;
     use mpl_token_auth_rules::payload::Payload;
     use mpl_token_metadata::{
         error::MetadataError,
@@ -373,7 +374,6 @@ mod auth_rules_transfer {
         pda::find_token_record_account,
         state::{ProgrammableConfig, TokenDelegateRole, TokenRecord},
     };
-    use solana_program::borsh::try_from_slice_unchecked;
     use solana_sdk::transaction::Transaction;
     use spl_associated_token_account::instruction::create_associated_token_account;
     use spl_token::instruction::approve;
@@ -1375,7 +1375,7 @@ mod auth_rules_transfer {
         // asserts (before transfer)
 
         let pda = get_account(&mut context, &nft.token_record.unwrap()).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.rule_set_revision, Some(0));
 
@@ -1437,7 +1437,7 @@ mod auth_rules_transfer {
         // asserts (after transfer)
 
         let pda = get_account(&mut context, &nft.token_record.unwrap()).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.rule_set_revision, None);
 
@@ -1447,7 +1447,7 @@ mod auth_rules_transfer {
         let (destination_token_record, _bump) =
             find_token_record_account(&nft.mint.pubkey(), &destination_token);
         let pda = get_account(&mut context, &destination_token_record).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.rule_set_revision, None);
     }

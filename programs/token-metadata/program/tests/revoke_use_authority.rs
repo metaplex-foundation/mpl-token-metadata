@@ -12,8 +12,8 @@ use solana_sdk::{
 };
 use utils::*;
 mod revoke_use_authority {
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::pda::find_program_as_burner_account;
-    use solana_program::borsh::try_from_slice_unchecked;
 
     use super::*;
     #[tokio::test]
@@ -73,7 +73,8 @@ mod revoke_use_authority {
             .unwrap();
 
         let account = get_account(&mut context, &record).await;
-        let record_acct: UseAuthorityRecord = try_from_slice_unchecked(&account.data).unwrap();
+        let record_acct: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account.data[..]).unwrap();
 
         assert_eq!(record_acct.allowed_uses, 1);
 

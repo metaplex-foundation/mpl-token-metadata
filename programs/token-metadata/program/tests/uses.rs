@@ -12,12 +12,13 @@ use solana_sdk::{
 use utils::*;
 
 mod uses {
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::{
         error::MetadataError,
         pda::{find_program_as_burner_account, find_use_authority_account},
         state::{Key, UseAuthorityRecord},
     };
-    use solana_program::{borsh::try_from_slice_unchecked, program_pack::Pack};
+    use solana_program::program_pack::Pack;
     use solana_sdk::signature::Keypair;
     use spl_token::state::Account;
 
@@ -476,7 +477,8 @@ mod uses {
             .await
             .unwrap();
         let account = get_account(&mut context, &record).await;
-        let record_acct: UseAuthorityRecord = try_from_slice_unchecked(&account.data).unwrap();
+        let record_acct: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account.data[..]).unwrap();
         assert_eq!(record_acct.key, Key::UseAuthorityRecord);
         assert_eq!(record_acct.allowed_uses, 1);
 

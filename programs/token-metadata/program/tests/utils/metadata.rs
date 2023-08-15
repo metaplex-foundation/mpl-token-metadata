@@ -1,3 +1,4 @@
+use borsh::BorshDeserialize;
 use mpl_token_metadata::{
     instruction,
     state::{
@@ -7,7 +8,6 @@ use mpl_token_metadata::{
     },
     ID,
 };
-use solana_program::borsh::try_from_slice_unchecked;
 use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
@@ -66,7 +66,7 @@ impl Metadata {
         context: &mut ProgramTestContext,
     ) -> mpl_token_metadata::state::Metadata {
         let account = get_account(context, &self.pubkey).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
 
     pub async fn is_pnft(&self, context: &mut ProgramTestContext) -> bool {

@@ -1,3 +1,4 @@
+use borsh::BorshDeserialize;
 use mpl_token_metadata::{
     instruction::{
         self,
@@ -22,9 +23,7 @@ use mpl_token_metadata::{
     },
     ID,
 };
-use solana_program::{
-    borsh::try_from_slice_unchecked, program_option::COption, program_pack::Pack, pubkey::Pubkey,
-};
+use solana_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     account::AccountSharedData,
@@ -706,7 +705,7 @@ impl DigitalAsset {
 
         // determines if we need to set the rule set
         let metadata_account = get_account(context, &self.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         if let Some(ProgrammableConfig::V1 {
             rule_set: Some(rule_set),

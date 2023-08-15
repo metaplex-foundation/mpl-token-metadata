@@ -1,6 +1,6 @@
 [package]
 name = "mpl-token-metadata"
-version = "1.13.1"
+version = "1.13.2-beta.1"
 description = "Metaplex Metadata"
 authors = ["Metaplex Developers <dev@metaplex.com>"]
 repository = "https://github.com/metaplex-foundation/metaplex-program-library"
@@ -14,29 +14,28 @@ test-bpf = []
 serde-feature = ["serde", "serde_with"]
 
 [dependencies]
-num-derive = "0.3"
 arrayref = "0.3.6"
-num-traits = "0.2"
-solana-program = "~1.14.13"
-spl-token = { version = "3.2.0", features = ["no-entrypoint"] }
-spl-associated-token-account = { version = "1.1.1", features = ["no-entrypoint"] }
-mpl-token-auth-rules = { version = "1.1", features = ["no-entrypoint"] }
-thiserror = "1.0"
 borsh = "0.9.3"
-shank = { version = "0.0.11" }
+mpl-token-auth-rules = { version = "=1.4.3-beta.1", features = ["no-entrypoint"] }
+mpl-token-metadata-context-derive = { version = "0.3.0", path = "../macro" }
+mpl-utils = { version = "0.3.1" }
+num-derive = "0.3"
+num-traits = "0.2"
 serde = { version = "1.0.149", optional = true }
 serde_with = { version = "1.14.0", optional = true }
-mpl-utils = { version = "0.2.0" }
-mpl-token-metadata-context-derive = { version = "0.3.0", path = "../macro" }
+shank = "0.0.11"
+solana-program = ">= 1.14.13, < 1.17"
+spl-token = { version = ">= 3.5.0, < 5.0", features = ["no-entrypoint"] }
+spl-associated-token-account = { version = ">= 1.1.3, < 3.0", features = ["no-entrypoint"] }
+thiserror = "1.0"
 
 [dev-dependencies]
-rmp-serde = "1.1.1"
-rooster = { git = "https://github.com/metaplex-foundation/rooster", rev = "ca1221c" }
-solana-sdk = "~1.14.13"
-solana-program-test = "~1.14.13"
-serde = { version = "1.0.147", features = ["derive"]}
 async-trait = "0.1.64"
-old-token-metadata = { package = "mpl-token-metadata", version = "=1.10.0", features = ["no-entrypoint"] }
+rmp-serde = "1.1.1"
+rooster = { git = "https://github.com/metaplex-foundation/rooster", features = ["no-entrypoint"] }
+serde = { version = "1.0.147", features = ["derive"] }
+solana-program-test = ">= 1.14.13, < 1.17"
+solana-sdk = ">= 1.14.13, < 1.17"
 
 [lib]
 crate-type = ["cdylib", "lib"]

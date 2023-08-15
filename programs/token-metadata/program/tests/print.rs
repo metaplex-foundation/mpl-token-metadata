@@ -15,8 +15,8 @@ use utils::*;
 
 mod print {
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::state::{PrintSupply, TokenStandard};
-    use solana_program::borsh::try_from_slice_unchecked;
 
     use super::*;
     #[tokio::test]
@@ -57,7 +57,10 @@ mod print {
             .unwrap()
             .unwrap();
         let edition_metadata: mpl_token_metadata::state::Metadata =
-            try_from_slice_unchecked(&edition_metadata_account.data).unwrap();
+            mpl_token_metadata::state::Metadata::deserialize(
+                &mut &edition_metadata_account.data[..],
+            )
+            .unwrap();
         assert_eq!(
             edition_metadata.token_standard,
             Some(TokenStandard::ProgrammableNonFungibleEdition)

@@ -1,11 +1,10 @@
-use borsh::ser::BorshSerialize;
+use borsh::{ser::BorshSerialize, BorshDeserialize};
 use mpl_token_metadata::{
     instruction::{self, CreateMasterEditionArgs, MetadataInstruction},
     state::{MasterEditionV2 as ProgramMasterEdition, TokenMetadataAccount, EDITION, PREFIX},
     ID,
 };
 use solana_program::{
-    borsh::try_from_slice_unchecked,
     instruction::{AccountMeta, Instruction},
     sysvar,
 };
@@ -76,7 +75,7 @@ impl MasterEditionV2 {
         pubkey: &Pubkey,
     ) -> mpl_token_metadata::state::MasterEditionV2 {
         let account = get_account(context, pubkey).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
 
     pub async fn create_with_invalid_token_program(

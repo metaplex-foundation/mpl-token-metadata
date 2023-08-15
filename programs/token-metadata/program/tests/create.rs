@@ -20,6 +20,7 @@ mod create {
 
     use std::str::FromStr;
 
+    use borsh::BorshDeserialize;
     use mpl_token_metadata::{
         error::MetadataError,
         instruction::{builders::CreateBuilder, CreateArgs, InstructionBuilder},
@@ -27,7 +28,6 @@ mod create {
             AssetData, Metadata, PrintSupply, ProgrammableConfig, TokenStandard, EDITION, PREFIX,
         },
     };
-    use solana_program::borsh::try_from_slice_unchecked;
 
     use super::*;
 
@@ -99,7 +99,7 @@ mod create {
         // checks the created metadata values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(metadata.data.name, name);
         assert_eq!(metadata.data.symbol, symbol);
@@ -209,7 +209,7 @@ mod create {
         // checks the created metadata values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(metadata.data.name, name);
         assert_eq!(metadata.data.symbol, symbol);
@@ -331,7 +331,7 @@ mod create {
         // checks the created metadata values
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(
             metadata.data.name,
@@ -375,7 +375,7 @@ mod create {
         // checks the created metadata values
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(
             metadata.data.name,
@@ -419,7 +419,7 @@ mod create {
         // checks the created metadata values
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert_eq!(
             metadata.data.name,
