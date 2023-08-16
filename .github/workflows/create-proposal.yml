@@ -105,7 +105,7 @@ jobs:
           MINOR=`echo ${VERSION} | cut -d. -f2`
           PATCH=`echo ${VERSION} | cut -d. -f3-4`
 
-          case  "$PATCH" in
+          case "$PATCH" in
             *"beta"*)
               PRERELEASE=`echo ${PATCH} | cut -d. -f2`
               PATCH=`echo ${PATCH} | cut -d- -f1`
@@ -162,7 +162,7 @@ jobs:
           GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
           DELETE_TAG=`git tag | grep '${GIT_TAG}' | wc -l | awk '{print $1}'`
 
-          if [ "${DELETE_TAG}"" -gt 1 ]; then
+          if [ ${DELETE_TAG} -gt 1 ]; then
             git push --delete origin -d $GIT_TAG 2> /dev/null
             echo "Removed git tag: '$GIT_TAG'"
           fi
