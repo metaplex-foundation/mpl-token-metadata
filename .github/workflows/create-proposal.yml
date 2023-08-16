@@ -77,7 +77,7 @@ jobs:
       - name: Install Solana
         uses: metaplex-foundation/actions/install-solana@v1
         with:
-          version: ${{ env.SOLANA_VERSION }}
+          version: ${{ env.SOLANA_CLI_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Install Themis
@@ -165,6 +165,10 @@ jobs:
           if [ $? -eq 0 ]; then
             echo "Removed git tag: '$GIT_TAG'"
           fi
+
+          # if we rech this point, the proposal was created successfully even
+          # if the tag was not deleted
+          exit 0
 
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
