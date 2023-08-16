@@ -96,7 +96,7 @@ jobs:
             exit 1
           fi
 
-      - name: Determine Program Version
+      - name: Determine program version
         run: |
           IDL_NAME=`echo "${{ inputs.program }}" | tr - _`
           VERSION=`jq '.version' ./idls/mpl_${IDL_NAME}.json | sed 's/"//g'`
@@ -136,7 +136,7 @@ jobs:
         with:
           name: program-builds
 
-      - name: Create Proposal
+      - name: Create proposal
         run: |
           echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
           echo "Creating program buffer..."
