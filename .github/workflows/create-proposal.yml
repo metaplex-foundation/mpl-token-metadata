@@ -169,9 +169,11 @@ jobs:
             echo "Removed git tag: '$GIT_TAG'"
           fi
 
-      - name: Commit and tag new version
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "chore: proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
-          tagging_message: "proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
-          skip_dirty_check: true
+      - name: Tag the proposal commit
+        run: |
+          echo "Tagging the proposal for ${{ inputs.program }} to ${{ inputs.cluster }}"
+
+          GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+
+          git tag $GIT_TAG
+          git push origin $GIT_TAG
