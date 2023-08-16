@@ -170,4 +170,6 @@ jobs:
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
+          commit_message: "chore: proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
           tagging_message: "proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+          skip_dirty_check: true
