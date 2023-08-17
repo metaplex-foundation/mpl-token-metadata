@@ -745,3 +745,13 @@ kinobi.update(
 const jsDir = path.join(clientDir, "js", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
 kinobi.accept(new k.RenderJavaScriptVisitor(jsDir, { prettier }));
+
+// Render Rust.
+const crateDir = path.join(clientDir, "rust");
+const rustDir = path.join(clientDir, "rust", "src", "generated");
+kinobi.accept(
+  new k.RenderRustVisitor(rustDir, {
+    formatCode: true,
+    crateFolder: crateDir,
+  })
+);
