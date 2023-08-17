@@ -235,6 +235,11 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
                 *collection_metadata.key,
                 false,
             ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
         }
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.system_program.key,

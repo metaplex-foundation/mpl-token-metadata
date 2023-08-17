@@ -373,6 +373,11 @@ impl<'a> BurnV1Cpi<'a> {
                 *edition.key,
                 false,
             ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
         }
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.mint.key,
@@ -385,6 +390,11 @@ impl<'a> BurnV1Cpi<'a> {
         if let Some(master_edition) = self.master_edition {
             accounts.push(solana_program::instruction::AccountMeta::new(
                 *master_edition.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -424,6 +434,11 @@ impl<'a> BurnV1Cpi<'a> {
         if let Some(token_record) = self.token_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
                 *token_record.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }

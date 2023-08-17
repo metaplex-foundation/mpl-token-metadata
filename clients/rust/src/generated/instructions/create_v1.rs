@@ -374,6 +374,11 @@ impl<'a> CreateV1Cpi<'a> {
                 *master_edition.key,
                 false,
             ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
         }
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.mint.0.key,

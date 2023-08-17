@@ -428,6 +428,11 @@ impl<'a> UpdateAsUpdateAuthorityV2Cpi<'a> {
                 *authorization_rules_program.key,
                 false,
             ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
         }
         if let Some(authorization_rules) = self.authorization_rules {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(

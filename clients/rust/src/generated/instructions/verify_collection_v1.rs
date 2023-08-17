@@ -259,10 +259,20 @@ impl<'a> VerifyCollectionV1Cpi<'a> {
                 *collection_metadata.key,
                 false,
             ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
         }
         if let Some(collection_master_edition) = self.collection_master_edition {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
                 *collection_master_edition.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
