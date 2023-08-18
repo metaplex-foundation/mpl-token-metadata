@@ -1,8 +1,4 @@
-import {
-  createMintWithAssociatedToken,
-  findAssociatedTokenPda,
-  mintTokensTo,
-} from '@metaplex-foundation/mpl-toolbox';
+import { createMintWithAssociatedToken } from '@metaplex-foundation/mpl-toolbox';
 import { generateSigner, some } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
@@ -62,21 +58,10 @@ test('it can print a new edition from a NonFungible by initializing the mint bef
   await createMintWithAssociatedToken(umi, {
     mint: editionMint,
     owner: editionOwner.publicKey,
-    mintAuthority: editionMintAuthority.publicKey,
+    mintAuthority: editionMintAuthority,
     freezeAuthority: editionMintAuthority.publicKey,
-  })
-    .add(
-      mintTokensTo(umi, {
-        mintAuthority: editionMintAuthority,
-        mint: editionMint.publicKey,
-        token: findAssociatedTokenPda(umi, {
-          mint: editionMint.publicKey,
-          owner: editionOwner.publicKey,
-        }),
-        amount: 1,
-      })
-    )
-    .sendAndConfirm(umi);
+    amount: 1,
+  }).sendAndConfirm(umi);
 
   // When we update the name of the asset.
   await printV1(umi, {

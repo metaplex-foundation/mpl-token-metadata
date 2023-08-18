@@ -679,8 +679,7 @@ kinobi.update(
       accounts: {
         editionMint: { isSigner: "either" },
         editionMintAuthority: {
-          isSigner: "either",
-          defaultsTo: k.accountDefault("edition"),
+          defaultsTo: k.accountDefault("masterTokenAccountOwner"),
         },
         masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
         editionTokenAccountOwner: { defaultsTo: k.identityDefault() },

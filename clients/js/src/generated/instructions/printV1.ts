@@ -41,7 +41,7 @@ export type PrintV1InstructionAccounts = {
   /** Token account of new token */
   editionTokenAccount?: PublicKey | Pda;
   /** Mint authority of new mint */
-  editionMintAuthority?: PublicKey | Pda | Signer;
+  editionMintAuthority?: Signer;
   /** Token record account */
   editionTokenRecord?: PublicKey | Pda;
   /** Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
@@ -176,10 +176,17 @@ export function printV1(
   );
   addObjectProperty(
     resolvedAccounts,
+    'masterTokenAccountOwner',
+    input.masterTokenAccountOwner
+      ? ([input.masterTokenAccountOwner, false] as const)
+      : ([context.identity, false] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
     'editionMintAuthority',
     input.editionMintAuthority
       ? ([input.editionMintAuthority, false] as const)
-      : ([resolvedAccounts.edition[0], false] as const)
+      : ([resolvedAccounts.masterTokenAccountOwner[0], false] as const)
   );
   addObjectProperty(
     resolvedAccounts,
@@ -217,13 +224,6 @@ export function printV1(
     input.payer
       ? ([input.payer, true] as const)
       : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'masterTokenAccountOwner',
-    input.masterTokenAccountOwner
-      ? ([input.masterTokenAccountOwner, false] as const)
-      : ([context.identity, false] as const)
   );
   addObjectProperty(
     resolvedAccounts,
