@@ -158,13 +158,14 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
                 edition_mint_info.key,
                 edition_token_account_info.key,
                 edition_token_account_owner_info.key,
-                &[],
+                &[edition_mint_authority_info.key],
                 1,
             )?,
             &[
                 edition_mint_info.clone(),
                 edition_token_account_info.clone(),
                 edition_token_account_owner_info.clone(),
+                edition_mint_authority_info.clone(),
             ],
         )?;
     } else {
