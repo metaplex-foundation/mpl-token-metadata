@@ -61,6 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       js_changed: ${{ steps.changes.outputs.js_client }}
+      rust_changed: ${{ steps.changes.outputs.rust_client }}
     permissions:
       contents: write
     steps:
@@ -103,4 +104,18 @@ jobs:
     name: JS Client
     needs: generate_clients
     uses: ./.github/workflows/test-js.yml
+    secrets: inherit
+
+  build_sdk:
+    if: needs.generate_clients.outputs.rust_changed == 'true'
+    name: Rust Client
+    needs: generate_clients
+    uses: ./.github/workflows/build-sdk.yml
+    secrets: inherit
+
+  test_sdk:
+    if: needs.generate_clients.outputs.rust_changed == 'true'
+    name: Rust Client
+    needs: build_sdk
+    uses: ./.github/workflows/test-sdk.yml
     secrets: inherit
