@@ -68,14 +68,20 @@ impl ConvertMasterEditionV1ToV2Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
+    #[inline(always)]
     pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.master_edition = Some(master_edition);
         self
     }
+    /// One time authorization mint
+    #[inline(always)]
     pub fn one_time_auth(&mut self, one_time_auth: solana_program::pubkey::Pubkey) -> &mut Self {
         self.one_time_auth = Some(one_time_auth);
         self
     }
+    /// Printing mint
+    #[inline(always)]
     pub fn printing_mint(&mut self, printing_mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.printing_mint = Some(printing_mint);
         self
@@ -164,6 +170,8 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
+    #[inline(always)]
     pub fn master_edition(
         &mut self,
         master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -171,6 +179,8 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
         self.instruction.master_edition = Some(master_edition);
         self
     }
+    /// One time authorization mint
+    #[inline(always)]
     pub fn one_time_auth(
         &mut self,
         one_time_auth: &'a solana_program::account_info::AccountInfo<'a>,
@@ -178,6 +188,8 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
         self.instruction.one_time_auth = Some(one_time_auth);
         self
     }
+    /// Printing mint
+    #[inline(always)]
     pub fn printing_mint(
         &mut self,
         printing_mint: &'a solana_program::account_info::AccountInfo<'a>,

@@ -120,7 +120,6 @@ export function createMasterEditionV3(
   const resolvedAccounts = {
     mint: [input.mint, true] as const,
     mintAuthority: [input.mintAuthority, false] as const,
-    rent: [input.rent, false] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
@@ -183,6 +182,11 @@ export function createMasterEditionV3(
           false,
         ] as const)
   );
+  addObjectProperty(
+    resolvedAccounts,
+    'rent',
+    input.rent ? ([input.rent, false] as const) : ([programId, false] as const)
+  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.edition, false);
@@ -193,7 +197,7 @@ export function createMasterEditionV3(
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
+  addAccountMeta(keys, signers, resolvedAccounts.rent, false);
 
   // Data.
   const data =

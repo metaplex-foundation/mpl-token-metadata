@@ -105,10 +105,6 @@ export function verifySizedCollectionItem(
       input.collectionMasterEditionAccount,
       false,
     ] as const,
-    collectionAuthorityRecord: [
-      input.collectionAuthorityRecord,
-      false,
-    ] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -116,6 +112,13 @@ export function verifySizedCollectionItem(
     input.payer
       ? ([input.payer, true] as const)
       : ([context.payer, true] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'collectionAuthorityRecord',
+    input.collectionAuthorityRecord
+      ? ([input.collectionAuthorityRecord, false] as const)
+      : ([programId, false] as const)
   );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -133,7 +136,7 @@ export function verifySizedCollectionItem(
     keys,
     signers,
     resolvedAccounts.collectionAuthorityRecord,
-    true
+    false
   );
 
   // Data.

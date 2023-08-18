@@ -155,7 +155,6 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
     ] as const,
     metadata: [input.metadata, false] as const,
     tokenVaultProgram: [input.tokenVaultProgram, false] as const,
-    rent: [input.rent, false] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
@@ -191,6 +190,11 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
           false,
         ] as const)
   );
+  addObjectProperty(
+    resolvedAccounts,
+    'rent',
+    input.rent ? ([input.rent, false] as const) : ([programId, false] as const)
+  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.newMetadata, false);
@@ -214,7 +218,7 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.tokenVaultProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
+  addAccountMeta(keys, signers, resolvedAccounts.rent, false);
 
   // Data.
   const data =

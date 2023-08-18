@@ -114,34 +114,50 @@ impl CreateEscrowAccountBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Escrow account
+    #[inline(always)]
     pub fn escrow(&mut self, escrow: solana_program::pubkey::Pubkey) -> &mut Self {
         self.escrow = Some(escrow);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Token account of the token
+    #[inline(always)]
     pub fn token_account(&mut self, token_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_account = Some(token_account);
         self
     }
+    /// Edition account
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Wallet paying for the transaction and new account
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -149,6 +165,9 @@ impl CreateEscrowAccountBuilder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Authority/creator of the escrow account
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
@@ -304,6 +323,8 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Escrow account
+    #[inline(always)]
     pub fn escrow(
         &mut self,
         escrow: &'a solana_program::account_info::AccountInfo<'a>,
@@ -311,6 +332,8 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.escrow = Some(escrow);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -318,10 +341,14 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Token account of the token
+    #[inline(always)]
     pub fn token_account(
         &mut self,
         token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -329,6 +356,8 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.token_account = Some(token_account);
         self
     }
+    /// Edition account
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -336,10 +365,14 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.edition = Some(edition);
         self
     }
+    /// Wallet paying for the transaction and new account
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -347,6 +380,8 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -354,6 +389,9 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Authority/creator of the escrow account
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,

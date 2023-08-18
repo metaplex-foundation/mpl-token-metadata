@@ -61,10 +61,14 @@ impl SignMetadataBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Creator
+    #[inline(always)]
     pub fn creator(&mut self, creator: solana_program::pubkey::Pubkey) -> &mut Self {
         self.creator = Some(creator);
         self
@@ -144,6 +148,8 @@ impl<'a> SignMetadataCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -151,6 +157,8 @@ impl<'a> SignMetadataCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Creator
+    #[inline(always)]
     pub fn creator(
         &mut self,
         creator: &'a solana_program::account_info::AccountInfo<'a>,

@@ -176,26 +176,39 @@ impl CreateV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Unallocated metadata account with address as pda of ['metadata', program id, mint id]
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition']
+    #[inline(always)]
     pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.master_edition = Some(master_edition);
         self
     }
+    /// Mint of token asset
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey, as_signer: bool) -> &mut Self {
         self.mint = Some((mint, as_signer));
         self
     }
+    /// Mint authority
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// Update authority for the metadata account
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: solana_program::pubkey::Pubkey,
@@ -204,10 +217,14 @@ impl CreateV1Builder {
         self.update_authority = Some((update_authority, as_signer));
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -215,6 +232,8 @@ impl CreateV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: solana_program::pubkey::Pubkey,
@@ -222,58 +241,79 @@ impl CreateV1Builder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    #[inline(always)]
     pub fn name(&mut self, name: String) -> &mut Self {
         self.name = Some(name);
         self
     }
+    #[inline(always)]
     pub fn symbol(&mut self, symbol: String) -> &mut Self {
         self.symbol = Some(symbol);
         self
     }
+    #[inline(always)]
     pub fn uri(&mut self, uri: String) -> &mut Self {
         self.uri = Some(uri);
         self
     }
+    #[inline(always)]
     pub fn seller_fee_basis_points(&mut self, seller_fee_basis_points: u16) -> &mut Self {
         self.seller_fee_basis_points = Some(seller_fee_basis_points);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn creators(&mut self, creators: Vec<Creator>) -> &mut Self {
         self.creators = Some(creators);
         self
     }
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.is_mutable = Some(is_mutable);
         self
     }
+    #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.token_standard = Some(token_standard);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn collection(&mut self, collection: Collection) -> &mut Self {
         self.collection = Some(collection);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn uses(&mut self, uses: Uses) -> &mut Self {
         self.uses = Some(uses);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetails) -> &mut Self {
         self.collection_details = Some(collection_details);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn rule_set(&mut self, rule_set: Pubkey) -> &mut Self {
         self.rule_set = Some(rule_set);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn decimals(&mut self, decimals: u8) -> &mut Self {
         self.decimals = Some(decimals);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn print_supply(&mut self, print_supply: PrintSupply) -> &mut Self {
         self.print_supply = Some(print_supply);
         self
@@ -471,6 +511,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Unallocated metadata account with address as pda of ['metadata', program id, mint id]
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -478,6 +520,9 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition']
+    #[inline(always)]
     pub fn master_edition(
         &mut self,
         master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -485,6 +530,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.master_edition = Some(master_edition);
         self
     }
+    /// Mint of token asset
+    #[inline(always)]
     pub fn mint(
         &mut self,
         mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -493,6 +540,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.mint = Some((mint, as_signer));
         self
     }
+    /// Mint authority
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -500,10 +549,14 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// Update authority for the metadata account
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -512,6 +565,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.update_authority = Some((update_authority, as_signer));
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -519,6 +574,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -526,6 +583,8 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -533,58 +592,79 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    #[inline(always)]
     pub fn name(&mut self, name: String) -> &mut Self {
         self.instruction.name = Some(name);
         self
     }
+    #[inline(always)]
     pub fn symbol(&mut self, symbol: String) -> &mut Self {
         self.instruction.symbol = Some(symbol);
         self
     }
+    #[inline(always)]
     pub fn uri(&mut self, uri: String) -> &mut Self {
         self.instruction.uri = Some(uri);
         self
     }
+    #[inline(always)]
     pub fn seller_fee_basis_points(&mut self, seller_fee_basis_points: u16) -> &mut Self {
         self.instruction.seller_fee_basis_points = Some(seller_fee_basis_points);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn creators(&mut self, creators: Vec<Creator>) -> &mut Self {
         self.instruction.creators = Some(creators);
         self
     }
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.instruction.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.instruction.is_mutable = Some(is_mutable);
         self
     }
+    #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.instruction.token_standard = Some(token_standard);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn collection(&mut self, collection: Collection) -> &mut Self {
         self.instruction.collection = Some(collection);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn uses(&mut self, uses: Uses) -> &mut Self {
         self.instruction.uses = Some(uses);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetails) -> &mut Self {
         self.instruction.collection_details = Some(collection_details);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn rule_set(&mut self, rule_set: Pubkey) -> &mut Self {
         self.instruction.rule_set = Some(rule_set);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn decimals(&mut self, decimals: u8) -> &mut Self {
         self.instruction.decimals = Some(decimals);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn print_supply(&mut self, print_supply: PrintSupply) -> &mut Self {
         self.instruction.print_supply = Some(print_supply);
         self

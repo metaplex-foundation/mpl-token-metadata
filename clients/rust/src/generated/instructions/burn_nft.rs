@@ -101,22 +101,32 @@ impl BurnNftBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// NFT owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.owner = Some(owner);
         self
     }
+    /// Mint of the NFT
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Token account to close
+    #[inline(always)]
     pub fn token_account(&mut self, token_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_account = Some(token_account);
         self
     }
+    /// MasterEdition2 of the NFT
+    #[inline(always)]
     pub fn master_edition_account(
         &mut self,
         master_edition_account: solana_program::pubkey::Pubkey,
@@ -124,6 +134,8 @@ impl BurnNftBuilder {
         self.master_edition_account = Some(master_edition_account);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: solana_program::pubkey::Pubkey,
@@ -131,6 +143,9 @@ impl BurnNftBuilder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account]`
+    /// Metadata of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -271,6 +286,8 @@ impl<'a> BurnNftCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -278,14 +295,20 @@ impl<'a> BurnNftCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// NFT owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
+    /// Mint of the NFT
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Token account to close
+    #[inline(always)]
     pub fn token_account(
         &mut self,
         token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -293,6 +316,8 @@ impl<'a> BurnNftCpiBuilder<'a> {
         self.instruction.token_account = Some(token_account);
         self
     }
+    /// MasterEdition2 of the NFT
+    #[inline(always)]
     pub fn master_edition_account(
         &mut self,
         master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -300,6 +325,8 @@ impl<'a> BurnNftCpiBuilder<'a> {
         self.instruction.master_edition_account = Some(master_edition_account);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -307,6 +334,9 @@ impl<'a> BurnNftCpiBuilder<'a> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account]`
+    /// Metadata of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,

@@ -105,7 +105,6 @@ export function revokeUseAuthority(
     user: [input.user, false] as const,
     ownerTokenAccount: [input.ownerTokenAccount, true] as const,
     mint: [input.mint, false] as const,
-    rent: [input.rent, false] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -143,6 +142,11 @@ export function revokeUseAuthority(
           false,
         ] as const)
   );
+  addObjectProperty(
+    resolvedAccounts,
+    'rent',
+    input.rent ? ([input.rent, false] as const) : ([programId, false] as const)
+  );
 
   addAccountMeta(keys, signers, resolvedAccounts.useAuthorityRecord, false);
   addAccountMeta(keys, signers, resolvedAccounts.owner, false);
@@ -152,7 +156,7 @@ export function revokeUseAuthority(
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
+  addAccountMeta(keys, signers, resolvedAccounts.rent, false);
 
   // Data.
   const data = getRevokeUseAuthorityInstructionDataSerializer().serialize({});

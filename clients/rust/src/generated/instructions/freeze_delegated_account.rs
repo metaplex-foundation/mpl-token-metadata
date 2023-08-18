@@ -81,22 +81,32 @@ impl FreezeDelegatedAccountBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Delegate
+    #[inline(always)]
     pub fn delegate(&mut self, delegate: solana_program::pubkey::Pubkey) -> &mut Self {
         self.delegate = Some(delegate);
         self
     }
+    /// Token account to freeze
+    #[inline(always)]
     pub fn token_account(&mut self, token_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_account = Some(token_account);
         self
     }
+    /// Edition
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Token mint
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Token Program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
@@ -205,6 +215,8 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Delegate
+    #[inline(always)]
     pub fn delegate(
         &mut self,
         delegate: &'a solana_program::account_info::AccountInfo<'a>,
@@ -212,6 +224,8 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
         self.instruction.delegate = Some(delegate);
         self
     }
+    /// Token account to freeze
+    #[inline(always)]
     pub fn token_account(
         &mut self,
         token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -219,6 +233,8 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
         self.instruction.token_account = Some(token_account);
         self
     }
+    /// Edition
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -226,10 +242,14 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
         self.instruction.edition = Some(edition);
         self
     }
+    /// Token mint
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Token Program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,

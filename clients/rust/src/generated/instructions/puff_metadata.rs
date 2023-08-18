@@ -54,6 +54,8 @@ impl PuffMetadataBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
@@ -124,6 +126,8 @@ impl<'a> PuffMetadataCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,

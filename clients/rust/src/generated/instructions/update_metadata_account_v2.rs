@@ -77,10 +77,14 @@ impl UpdateMetadataAccountV2Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Update authority key
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: solana_program::pubkey::Pubkey,
@@ -88,18 +92,26 @@ impl UpdateMetadataAccountV2Builder {
         self.update_authority = Some(update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn data(&mut self, data: DataV2) -> &mut Self {
         self.data = Some(data);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn new_update_authority(&mut self, new_update_authority: Pubkey) -> &mut Self {
         self.new_update_authority = Some(new_update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.is_mutable = Some(is_mutable);
         self
@@ -183,6 +195,8 @@ impl<'a> UpdateMetadataAccountV2CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -190,6 +204,8 @@ impl<'a> UpdateMetadataAccountV2CpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Update authority key
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -197,18 +213,26 @@ impl<'a> UpdateMetadataAccountV2CpiBuilder<'a> {
         self.instruction.update_authority = Some(update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn data(&mut self, data: DataV2) -> &mut Self {
         self.instruction.data = Some(data);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn new_update_authority(&mut self, new_update_authority: Pubkey) -> &mut Self {
         self.instruction.new_update_authority = Some(new_update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.instruction.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.instruction.is_mutable = Some(is_mutable);
         self

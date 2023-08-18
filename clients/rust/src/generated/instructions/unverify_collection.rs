@@ -96,10 +96,14 @@ impl UnverifyCollectionBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Collection Authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: solana_program::pubkey::Pubkey,
@@ -107,6 +111,8 @@ impl UnverifyCollectionBuilder {
         self.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: solana_program::pubkey::Pubkey,
@@ -114,10 +120,14 @@ impl UnverifyCollectionBuilder {
         self.collection_mint = Some(collection_mint);
         self
     }
+    /// Metadata Account of the Collection
+    #[inline(always)]
     pub fn collection(&mut self, collection: solana_program::pubkey::Pubkey) -> &mut Self {
         self.collection = Some(collection);
         self
     }
+    /// MasterEdition2 Account of the Collection Token
+    #[inline(always)]
     pub fn collection_master_edition_account(
         &mut self,
         collection_master_edition_account: solana_program::pubkey::Pubkey,
@@ -125,6 +135,9 @@ impl UnverifyCollectionBuilder {
         self.collection_master_edition_account = Some(collection_master_edition_account);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: solana_program::pubkey::Pubkey,
@@ -256,6 +269,8 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -263,6 +278,8 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Collection Authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -270,6 +287,8 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
         self.instruction.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -277,6 +296,8 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
         self.instruction.collection_mint = Some(collection_mint);
         self
     }
+    /// Metadata Account of the Collection
+    #[inline(always)]
     pub fn collection(
         &mut self,
         collection: &'a solana_program::account_info::AccountInfo<'a>,
@@ -284,6 +305,8 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
         self.instruction.collection = Some(collection);
         self
     }
+    /// MasterEdition2 Account of the Collection Token
+    #[inline(always)]
     pub fn collection_master_edition_account(
         &mut self,
         collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -292,6 +315,9 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
             Some(collection_master_edition_account);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,

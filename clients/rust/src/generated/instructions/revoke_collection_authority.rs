@@ -81,6 +81,8 @@ impl RevokeCollectionAuthorityBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: solana_program::pubkey::Pubkey,
@@ -88,6 +90,8 @@ impl RevokeCollectionAuthorityBuilder {
         self.collection_authority_record = Some(collection_authority_record);
         self
     }
+    /// Delegated Collection Authority
+    #[inline(always)]
     pub fn delegate_authority(
         &mut self,
         delegate_authority: solana_program::pubkey::Pubkey,
@@ -95,6 +99,8 @@ impl RevokeCollectionAuthorityBuilder {
         self.delegate_authority = Some(delegate_authority);
         self
     }
+    /// Update Authority, or Delegated Authority, of Collection NFT
+    #[inline(always)]
     pub fn revoke_authority(
         &mut self,
         revoke_authority: solana_program::pubkey::Pubkey,
@@ -102,10 +108,14 @@ impl RevokeCollectionAuthorityBuilder {
         self.revoke_authority = Some(revoke_authority);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Mint of Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
@@ -216,6 +226,8 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -223,6 +235,8 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
     }
+    /// Delegated Collection Authority
+    #[inline(always)]
     pub fn delegate_authority(
         &mut self,
         delegate_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -230,6 +244,8 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
         self.instruction.delegate_authority = Some(delegate_authority);
         self
     }
+    /// Update Authority, or Delegated Authority, of Collection NFT
+    #[inline(always)]
     pub fn revoke_authority(
         &mut self,
         revoke_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -237,6 +253,8 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
         self.instruction.revoke_authority = Some(revoke_authority);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -244,6 +262,8 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Mint of Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self

@@ -129,7 +129,6 @@ export function transferOutOfEscrow(
     attributeDst: [input.attributeDst, true] as const,
     escrowMint: [input.escrowMint, false] as const,
     escrowAccount: [input.escrowAccount, false] as const,
-    authority: [input.authority, false] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
@@ -188,6 +187,13 @@ export function transferOutOfEscrow(
           false,
         ] as const)
   );
+  addObjectProperty(
+    resolvedAccounts,
+    'authority',
+    input.authority
+      ? ([input.authority, false] as const)
+      : ([programId, false] as const)
+  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.escrow, false);
@@ -202,7 +208,7 @@ export function transferOutOfEscrow(
   addAccountMeta(keys, signers, resolvedAccounts.ataProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(keys, signers, resolvedAccounts.authority, true);
+  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
 
   // Data.
   const data =

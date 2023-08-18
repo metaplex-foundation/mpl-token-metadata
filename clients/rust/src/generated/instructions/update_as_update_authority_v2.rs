@@ -206,10 +206,15 @@ impl UpdateAsUpdateAuthorityV2Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Update authority or delegate
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Delegate record PDA
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: solana_program::pubkey::Pubkey,
@@ -217,30 +222,46 @@ impl UpdateAsUpdateAuthorityV2Builder {
         self.delegate_record = Some(delegate_record);
         self
     }
+    /// `[optional account]`
+    /// Token account
+    #[inline(always)]
     pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token = Some(token);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Edition account
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -248,6 +269,9 @@ impl UpdateAsUpdateAuthorityV2Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules Program
+    #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
         authorization_rules_program: solana_program::pubkey::Pubkey,
@@ -255,6 +279,9 @@ impl UpdateAsUpdateAuthorityV2Builder {
         self.authorization_rules_program = Some(authorization_rules_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules account
+    #[inline(always)]
     pub fn authorization_rules(
         &mut self,
         authorization_rules: solana_program::pubkey::Pubkey,
@@ -262,42 +289,58 @@ impl UpdateAsUpdateAuthorityV2Builder {
         self.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn new_update_authority(&mut self, new_update_authority: Pubkey) -> &mut Self {
         self.new_update_authority = Some(new_update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn data(&mut self, data: UpdateAsUpdateAuthorityV2InstructionDataData) -> &mut Self {
         self.data = Some(data);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.is_mutable = Some(is_mutable);
         self
     }
+    #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.collection = Some(collection);
         self
     }
+    #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetailsToggle) -> &mut Self {
         self.collection_details = Some(collection_details);
         self
     }
+    #[inline(always)]
     pub fn uses(&mut self, uses: UsesToggle) -> &mut Self {
         self.uses = Some(uses);
         self
     }
+    #[inline(always)]
     pub fn rule_set(&mut self, rule_set: RuleSetToggle) -> &mut Self {
         self.rule_set = Some(rule_set);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.token_standard = Some(token_standard);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn authorization_data(&mut self, authorization_data: AuthorizationData) -> &mut Self {
         self.authorization_data = Some(authorization_data);
         self
@@ -516,6 +559,8 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Update authority or delegate
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -523,6 +568,9 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Delegate record PDA
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -530,14 +578,21 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.delegate_record = Some(delegate_record);
         self
     }
+    /// `[optional account]`
+    /// Token account
+    #[inline(always)]
     pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -545,6 +600,9 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Edition account
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -552,10 +610,14 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.edition = Some(edition);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -563,6 +625,8 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -570,6 +634,9 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules Program
+    #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
         authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -577,6 +644,9 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.authorization_rules_program = Some(authorization_rules_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules account
+    #[inline(always)]
     pub fn authorization_rules(
         &mut self,
         authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
@@ -584,42 +654,58 @@ impl<'a> UpdateAsUpdateAuthorityV2CpiBuilder<'a> {
         self.instruction.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn new_update_authority(&mut self, new_update_authority: Pubkey) -> &mut Self {
         self.instruction.new_update_authority = Some(new_update_authority);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn data(&mut self, data: UpdateAsUpdateAuthorityV2InstructionDataData) -> &mut Self {
         self.instruction.data = Some(data);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.instruction.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.instruction.is_mutable = Some(is_mutable);
         self
     }
+    #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.instruction.collection = Some(collection);
         self
     }
+    #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetailsToggle) -> &mut Self {
         self.instruction.collection_details = Some(collection_details);
         self
     }
+    #[inline(always)]
     pub fn uses(&mut self, uses: UsesToggle) -> &mut Self {
         self.instruction.uses = Some(uses);
         self
     }
+    #[inline(always)]
     pub fn rule_set(&mut self, rule_set: RuleSetToggle) -> &mut Self {
         self.instruction.rule_set = Some(rule_set);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.instruction.token_standard = Some(token_standard);
         self
     }
+    /// `[optional argument]`
+    #[inline(always)]
     pub fn authorization_data(&mut self, authorization_data: AuthorizationData) -> &mut Self {
         self.instruction.authorization_data = Some(authorization_data);
         self

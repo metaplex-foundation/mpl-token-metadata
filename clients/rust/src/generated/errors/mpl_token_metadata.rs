@@ -5,9 +5,10 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
+use num_derive::FromPrimitive;
 use thiserror::Error;
 
-#[derive(Clone, Debug, Eq, Error, PartialEq)]
+#[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
 pub enum MplTokenMetadataError {
     /// 0x0 -
     #[error("")]
@@ -39,22 +40,22 @@ pub enum MplTokenMetadataError {
     /// 0x9 - You must be the mint authority and signer on this transaction
     #[error("You must be the mint authority and signer on this transaction")]
     NotMintAuthority,
-    /// 0xa - Mint authority provided does not match the authority on the mint
+    /// 0xA - Mint authority provided does not match the authority on the mint
     #[error("Mint authority provided does not match the authority on the mint")]
     InvalidMintAuthority,
-    /// 0xb - Name too long
+    /// 0xB - Name too long
     #[error("Name too long")]
     NameTooLong,
-    /// 0xc - Symbol too long
+    /// 0xC - Symbol too long
     #[error("Symbol too long")]
     SymbolTooLong,
-    /// 0xd - URI too long
+    /// 0xD - URI too long
     #[error("URI too long")]
     UriTooLong,
-    /// 0xe -
+    /// 0xE -
     #[error("")]
     UpdateAuthorityMustBeEqualToMetadataAuthorityAndSigner,
-    /// 0xf - Mint given does not match mint on Metadata
+    /// 0xF - Mint given does not match mint on Metadata
     #[error("Mint given does not match mint on Metadata")]
     MintMismatch,
     /// 0x10 - Editions must have exactly one token
@@ -87,22 +88,22 @@ pub enum MplTokenMetadataError {
     /// 0x19 -
     #[error("")]
     TokenBurnFailed,
-    /// 0x1a -
+    /// 0x1A -
     #[error("")]
     TokenAccountOneTimeAuthMintMismatch,
-    /// 0x1b - Derived key invalid
+    /// 0x1B - Derived key invalid
     #[error("Derived key invalid")]
     DerivedKeyInvalid,
-    /// 0x1c - The Printing mint does not match that on the master edition!
+    /// 0x1C - The Printing mint does not match that on the master edition!
     #[error("The Printing mint does not match that on the master edition!")]
     PrintingMintMismatch,
-    /// 0x1d - The One Time Printing Auth mint does not match that on the master edition!
+    /// 0x1D - The One Time Printing Auth mint does not match that on the master edition!
     #[error("The One Time Printing Auth mint does not match that on the master edition!")]
     OneTimePrintingAuthMintMismatch,
-    /// 0x1e - The mint of the token account does not match the Printing mint!
+    /// 0x1E - The mint of the token account does not match the Printing mint!
     #[error("The mint of the token account does not match the Printing mint!")]
     TokenAccountMintMismatch,
-    /// 0x1f - The mint of the token account does not match the master metadata mint!
+    /// 0x1F - The mint of the token account does not match the master metadata mint!
     #[error("The mint of the token account does not match the master metadata mint!")]
     TokenAccountMintMismatchV2,
     /// 0x20 - Not enough tokens to mint a limited edition
@@ -135,22 +136,22 @@ pub enum MplTokenMetadataError {
     /// 0x29 - Basis points cannot be more than 10000
     #[error("Basis points cannot be more than 10000")]
     InvalidBasisPoints,
-    /// 0x2a - Primary sale can only be flipped to true and is immutable
+    /// 0x2A - Primary sale can only be flipped to true and is immutable
     #[error("Primary sale can only be flipped to true and is immutable")]
     PrimarySaleCanOnlyBeFlippedToTrue,
-    /// 0x2b - Owner does not match that on the account given
+    /// 0x2B - Owner does not match that on the account given
     #[error("Owner does not match that on the account given")]
     OwnerMismatch,
-    /// 0x2c - This account has no tokens to be used for authorization
+    /// 0x2C - This account has no tokens to be used for authorization
     #[error("This account has no tokens to be used for authorization")]
     NoBalanceInAccountForAuthorization,
-    /// 0x2d - Share total must equal 100 for creator array
+    /// 0x2D - Share total must equal 100 for creator array
     #[error("Share total must equal 100 for creator array")]
     ShareTotalMustBe100,
-    /// 0x2e -
+    /// 0x2E -
     #[error("")]
     ReservationExists,
-    /// 0x2f -
+    /// 0x2F -
     #[error("")]
     ReservationDoesNotExist,
     /// 0x30 -
@@ -183,22 +184,22 @@ pub enum MplTokenMetadataError {
     /// 0x39 - Incorrect account owner
     #[error("Incorrect account owner")]
     IncorrectOwner,
-    /// 0x3a -
+    /// 0x3A -
     #[error("")]
     PrintingWouldBreachMaximumSupply,
-    /// 0x3b - Data is immutable
+    /// 0x3B - Data is immutable
     #[error("Data is immutable")]
     DataIsImmutable,
-    /// 0x3c - No duplicate creator addresses
+    /// 0x3C - No duplicate creator addresses
     #[error("No duplicate creator addresses")]
     DuplicateCreatorAddress,
-    /// 0x3d -
+    /// 0x3D -
     #[error("")]
     ReservationSpotsRemainingShouldMatchTotalSpotsAtStart,
-    /// 0x3e - Invalid token program
+    /// 0x3E - Invalid token program
     #[error("Invalid token program")]
     InvalidTokenProgram,
-    /// 0x3f - Data type mismatch
+    /// 0x3F - Data type mismatch
     #[error("Data type mismatch")]
     DataTypeMismatch,
     /// 0x40 -
@@ -231,22 +232,22 @@ pub enum MplTokenMetadataError {
     /// 0x49 - Is Mutable can only be flipped to false
     #[error("Is Mutable can only be flipped to false")]
     IsMutableCanOnlyBeFlippedToFalse,
-    /// 0x4a - Collection cannot be verified in this instruction
+    /// 0x4A - Collection cannot be verified in this instruction
     #[error("Collection cannot be verified in this instruction")]
     CollectionCannotBeVerifiedInThisInstruction,
-    /// 0x4b - This instruction was deprecated in a previous release and is now removed
+    /// 0x4B - This instruction was deprecated in a previous release and is now removed
     #[error("This instruction was deprecated in a previous release and is now removed")]
     Removed,
-    /// 0x4c -
+    /// 0x4C -
     #[error("")]
     MustBeBurned,
-    /// 0x4d - This use method is invalid
+    /// 0x4D - This use method is invalid
     #[error("This use method is invalid")]
     InvalidUseMethod,
-    /// 0x4e - Cannot Change Use Method after the first use
+    /// 0x4E - Cannot Change Use Method after the first use
     #[error("Cannot Change Use Method after the first use")]
     CannotChangeUseMethodAfterFirstUse,
-    /// 0x4f - Cannot Change Remaining or Available uses after the first use
+    /// 0x4F - Cannot Change Remaining or Available uses after the first use
     #[error("Cannot Change Remaining or Available uses after the first use")]
     CannotChangeUsesAfterFirstUse,
     /// 0x50 - Collection Not Found on Metadata
@@ -279,22 +280,22 @@ pub enum MplTokenMetadataError {
     /// 0x59 - This Use Authority Record is invalid.
     #[error("This Use Authority Record is invalid.")]
     InvalidUseAuthorityRecord,
-    /// 0x5a -
+    /// 0x5A -
     #[error("")]
     InvalidCollectionAuthorityRecord,
-    /// 0x5b - Metadata does not match the freeze authority on the mint
+    /// 0x5B - Metadata does not match the freeze authority on the mint
     #[error("Metadata does not match the freeze authority on the mint")]
     InvalidFreezeAuthority,
-    /// 0x5c - All tokens in this account have not been delegated to this user.
+    /// 0x5C - All tokens in this account have not been delegated to this user.
     #[error("All tokens in this account have not been delegated to this user.")]
     InvalidDelegate,
-    /// 0x5d -
+    /// 0x5D -
     #[error("")]
     CannotAdjustVerifiedCreator,
-    /// 0x5e - Verified creators cannot be removed.
+    /// 0x5E - Verified creators cannot be removed.
     #[error("Verified creators cannot be removed.")]
     CannotRemoveVerifiedCreator,
-    /// 0x5f -
+    /// 0x5F -
     #[error("")]
     CannotWipeVerifiedCreators,
     /// 0x60 -
@@ -327,22 +328,22 @@ pub enum MplTokenMetadataError {
     /// 0x69 - This NFT is not a verified member of the specified collection.
     #[error("This NFT is not a verified member of the specified collection.")]
     NotVerifiedMemberOfCollection,
-    /// 0x6a - This NFT is not a collection parent NFT.
+    /// 0x6A - This NFT is not a collection parent NFT.
     #[error("This NFT is not a collection parent NFT.")]
     NotACollectionParent,
-    /// 0x6b - Could not determine a TokenStandard type.
+    /// 0x6B - Could not determine a TokenStandard type.
     #[error("Could not determine a TokenStandard type.")]
     CouldNotDetermineTokenStandard,
-    /// 0x6c - This mint account has an edition but none was provided.
+    /// 0x6C - This mint account has an edition but none was provided.
     #[error("This mint account has an edition but none was provided.")]
     MissingEditionAccount,
-    /// 0x6d - This edition is not a Master Edition
+    /// 0x6D - This edition is not a Master Edition
     #[error("This edition is not a Master Edition")]
     NotAMasterEdition,
-    /// 0x6e - This Master Edition has existing prints
+    /// 0x6E - This Master Edition has existing prints
     #[error("This Master Edition has existing prints")]
     MasterEditionHasPrints,
-    /// 0x6f -
+    /// 0x6F -
     #[error("")]
     BorshDeserializationError,
     /// 0x70 - Cannot update a verified collection in this command
@@ -375,22 +376,22 @@ pub enum MplTokenMetadataError {
     /// 0x79 - Print Edition does not match Master Edition
     #[error("Print Edition does not match Master Edition")]
     PrintEditionDoesNotMatchMasterEdition,
-    /// 0x7a - Edition Number greater than max supply
+    /// 0x7A - Edition Number greater than max supply
     #[error("Edition Number greater than max supply")]
     EditionNumberGreaterThanMaxSupply,
-    /// 0x7b - Must unverify before migrating collections.
+    /// 0x7B - Must unverify before migrating collections.
     #[error("Must unverify before migrating collections.")]
     MustUnverify,
-    /// 0x7c - Invalid Escrow Account Bump Seed
+    /// 0x7C - Invalid Escrow Account Bump Seed
     #[error("Invalid Escrow Account Bump Seed")]
     InvalidEscrowBumpSeed,
-    /// 0x7d - Must Escrow Authority
+    /// 0x7D - Must Escrow Authority
     #[error("Must Escrow Authority")]
     MustBeEscrowAuthority,
-    /// 0x7e - Invalid System Program
+    /// 0x7E - Invalid System Program
     #[error("Invalid System Program")]
     InvalidSystemProgram,
-    /// 0x7f - Must be a Non Fungible Token
+    /// 0x7F - Must be a Non Fungible Token
     #[error("Must be a Non Fungible Token")]
     MustBeNonFungible,
     /// 0x80 - Insufficient tokens for transfer
@@ -423,22 +424,22 @@ pub enum MplTokenMetadataError {
     /// 0x89 - Invalid authorization rules account
     #[error("Invalid authorization rules account")]
     InvalidAuthorizationRules,
-    /// 0x8a - Missing authorization rules account
+    /// 0x8A - Missing authorization rules account
     #[error("Missing authorization rules account")]
     MissingAuthorizationRules,
-    /// 0x8b - Missing programmable configuration
+    /// 0x8B - Missing programmable configuration
     #[error("Missing programmable configuration")]
     MissingProgrammableConfig,
-    /// 0x8c - Invalid programmable configuration
+    /// 0x8C - Invalid programmable configuration
     #[error("Invalid programmable configuration")]
     InvalidProgrammableConfig,
-    /// 0x8d - Delegate already exists
+    /// 0x8D - Delegate already exists
     #[error("Delegate already exists")]
     DelegateAlreadyExists,
-    /// 0x8e - Delegate not found
+    /// 0x8E - Delegate not found
     #[error("Delegate not found")]
     DelegateNotFound,
-    /// 0x8f - Required account not set in instruction builder
+    /// 0x8F - Required account not set in instruction builder
     #[error("Required account not set in instruction builder")]
     MissingAccountInBuilder,
     /// 0x90 - Required argument not set in instruction builder
@@ -471,121 +472,127 @@ pub enum MplTokenMetadataError {
     /// 0x99 - Instruction not supported for ProgrammableNonFungible assets
     #[error("Instruction not supported for ProgrammableNonFungible assets")]
     InstructionNotSupported,
-    /// 0x9a - Public key does not match expected value
+    /// 0x9A - Public key does not match expected value
     #[error("Public key does not match expected value")]
     KeyMismatch,
-    /// 0x9b - Token is locked
+    /// 0x9B - Token is locked
     #[error("Token is locked")]
     LockedToken,
-    /// 0x9c - Token is unlocked
+    /// 0x9C - Token is unlocked
     #[error("Token is unlocked")]
     UnlockedToken,
-    /// 0x9d - Missing delegate role
+    /// 0x9D - Missing delegate role
     #[error("Missing delegate role")]
     MissingDelegateRole,
-    /// 0x9e - Invalid authority type
+    /// 0x9E - Invalid authority type
     #[error("Invalid authority type")]
     InvalidAuthorityType,
-    /// 0x9f - Missing token record account
+    /// 0x9F - Missing token record account
     #[error("Missing token record account")]
     MissingTokenRecord,
-    /// 0xa0 - Mint supply must be zero for programmable assets
+    /// 0xA0 - Mint supply must be zero for programmable assets
     #[error("Mint supply must be zero for programmable assets")]
     MintSupplyMustBeZero,
-    /// 0xa1 - Data is empty or zeroed
+    /// 0xA1 - Data is empty or zeroed
     #[error("Data is empty or zeroed")]
     DataIsEmptyOrZeroed,
-    /// 0xa2 - Missing token owner
+    /// 0xA2 - Missing token owner
     #[error("Missing token owner")]
     MissingTokenOwnerAccount,
-    /// 0xa3 - Master edition account has an invalid length
+    /// 0xA3 - Master edition account has an invalid length
     #[error("Master edition account has an invalid length")]
     InvalidMasterEditionAccountLength,
-    /// 0xa4 - Incorrect token state
+    /// 0xA4 - Incorrect token state
     #[error("Incorrect token state")]
     IncorrectTokenState,
-    /// 0xa5 - Invalid delegate role
+    /// 0xA5 - Invalid delegate role
     #[error("Invalid delegate role")]
     InvalidDelegateRole,
-    /// 0xa6 - Print supply is required for non-fungibles
+    /// 0xA6 - Print supply is required for non-fungibles
     #[error("Print supply is required for non-fungibles")]
     MissingPrintSupply,
-    /// 0xa7 - Missing master edition account
+    /// 0xA7 - Missing master edition account
     #[error("Missing master edition account")]
     MissingMasterEditionAccount,
-    /// 0xa8 - Amount must be greater than zero
+    /// 0xA8 - Amount must be greater than zero
     #[error("Amount must be greater than zero")]
     AmountMustBeGreaterThanZero,
-    /// 0xa9 - Invalid delegate args
+    /// 0xA9 - Invalid delegate args
     #[error("Invalid delegate args")]
     InvalidDelegateArgs,
-    /// 0xaa - Missing address for locked transfer
+    /// 0xAA - Missing address for locked transfer
     #[error("Missing address for locked transfer")]
     MissingLockedTransferAddress,
-    /// 0xab - Invalid destination address for locked transfer
+    /// 0xAB - Invalid destination address for locked transfer
     #[error("Invalid destination address for locked transfer")]
     InvalidLockedTransferAddress,
-    /// 0xac - Exceeded account realloc increase limit
+    /// 0xAC - Exceeded account realloc increase limit
     #[error("Exceeded account realloc increase limit")]
     DataIncrementLimitExceeded,
-    /// 0xad - Cannot update the rule set of a programmable asset that has a delegate
+    /// 0xAD - Cannot update the rule set of a programmable asset that has a delegate
     #[error("Cannot update the rule set of a programmable asset that has a delegate")]
     CannotUpdateAssetWithDelegate,
-    /// 0xae - Invalid token amount for this operation or token standard
+    /// 0xAE - Invalid token amount for this operation or token standard
     #[error("Invalid token amount for this operation or token standard")]
     InvalidAmount,
-    /// 0xaf - Missing master edition mint account
+    /// 0xAF - Missing master edition mint account
     #[error("Missing master edition mint account")]
     MissingMasterEditionMintAccount,
-    /// 0xb0 - Missing master edition token account
+    /// 0xB0 - Missing master edition token account
     #[error("Missing master edition token account")]
     MissingMasterEditionTokenAccount,
-    /// 0xb1 - Missing edition marker account
+    /// 0xB1 - Missing edition marker account
     #[error("Missing edition marker account")]
     MissingEditionMarkerAccount,
-    /// 0xb2 - Cannot burn while persistent delegate is set
+    /// 0xB2 - Cannot burn while persistent delegate is set
     #[error("Cannot burn while persistent delegate is set")]
     CannotBurnWithDelegate,
-    /// 0xb3 - Missing edition account
+    /// 0xB3 - Missing edition account
     #[error("Missing edition account")]
     MissingEdition,
-    /// 0xb4 - Invalid Associated Token Account Program
+    /// 0xB4 - Invalid Associated Token Account Program
     #[error("Invalid Associated Token Account Program")]
     InvalidAssociatedTokenAccountProgram,
-    /// 0xb5 - Invalid InstructionsSysvar
+    /// 0xB5 - Invalid InstructionsSysvar
     #[error("Invalid InstructionsSysvar")]
     InvalidInstructionsSysvar,
-    /// 0xb6 - Invalid or Unneeded parent accounts
+    /// 0xB6 - Invalid or Unneeded parent accounts
     #[error("Invalid or Unneeded parent accounts")]
     InvalidParentAccounts,
-    /// 0xb7 - Authority cannot apply all update args
+    /// 0xB7 - Authority cannot apply all update args
     #[error("Authority cannot apply all update args")]
     InvalidUpdateArgs,
-    /// 0xb8 - Token account does not have enough tokens
+    /// 0xB8 - Token account does not have enough tokens
     #[error("Token account does not have enough tokens")]
     InsufficientTokenBalance,
-    /// 0xb9 - Missing collection account
+    /// 0xB9 - Missing collection account
     #[error("Missing collection account")]
     MissingCollectionMint,
-    /// 0xba - Missing collection master edition account
+    /// 0xBA - Missing collection master edition account
     #[error("Missing collection master edition account")]
     MissingCollectionMasterEdition,
-    /// 0xbb - Invalid token record account
+    /// 0xBB - Invalid token record account
     #[error("Invalid token record account")]
     InvalidTokenRecord,
-    /// 0xbc - The close authority needs to be revoked by the Utility Delegate
+    /// 0xBC - The close authority needs to be revoked by the Utility Delegate
     #[error("The close authority needs to be revoked by the Utility Delegate")]
     InvalidCloseAuthority,
-    /// 0xbd - Invalid or removed instruction
+    /// 0xBD - Invalid or removed instruction
     #[error("Invalid or removed instruction")]
     InvalidInstruction,
-    /// 0xbe - Missing delegate record
+    /// 0xBE - Missing delegate record
     #[error("Missing delegate record")]
     MissingDelegateRecord,
-    /// 0xbf -
+    /// 0xBF -
     #[error("")]
     InvalidFeeAccount,
-    /// 0xc0 -
+    /// 0xC0 -
     #[error("")]
     InvalidMetadataFlags,
+}
+
+impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {
+    fn print<E>(&self) {
+        solana_program::msg!(&self.to_string());
+    }
 }

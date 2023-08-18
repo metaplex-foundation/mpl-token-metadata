@@ -66,14 +66,20 @@ impl UpdatePrimarySaleHappenedViaTokenBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Owner on the token account
+    #[inline(always)]
     pub fn owner(&mut self, owner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.owner = Some(owner);
         self
     }
+    /// Account containing tokens from the metadata's mint
+    #[inline(always)]
     pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token = Some(token);
         self
@@ -162,6 +168,8 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -169,10 +177,14 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Owner on the token account
+    #[inline(always)]
     pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
+    /// Account containing tokens from the metadata's mint
+    #[inline(always)]
     pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self

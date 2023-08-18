@@ -107,10 +107,6 @@ export function setAndVerifySizedCollectionItem(
       input.collectionMasterEditionAccount,
       true,
     ] as const,
-    collectionAuthorityRecord: [
-      input.collectionAuthorityRecord,
-      false,
-    ] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -125,6 +121,13 @@ export function setAndVerifySizedCollectionItem(
     input.updateAuthority
       ? ([input.updateAuthority, false] as const)
       : ([context.identity.publicKey, false] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'collectionAuthorityRecord',
+    input.collectionAuthorityRecord
+      ? ([input.collectionAuthorityRecord, false] as const)
+      : ([programId, false] as const)
   );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -143,7 +146,7 @@ export function setAndVerifySizedCollectionItem(
     keys,
     signers,
     resolvedAccounts.collectionAuthorityRecord,
-    true
+    false
   );
 
   // Data.

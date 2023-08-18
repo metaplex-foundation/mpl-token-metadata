@@ -61,10 +61,14 @@ impl CollectBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Authority to collect fees
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// PDA to retrieve fees from
+    #[inline(always)]
     pub fn pda_account(&mut self, pda_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.pda_account = Some(pda_account);
         self
@@ -144,6 +148,8 @@ impl<'a> CollectCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Authority to collect fees
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -151,6 +157,8 @@ impl<'a> CollectCpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// PDA to retrieve fees from
+    #[inline(always)]
     pub fn pda_account(
         &mut self,
         pda_account: &'a solana_program::account_info::AccountInfo<'a>,

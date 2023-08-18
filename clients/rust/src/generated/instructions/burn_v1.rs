@@ -198,10 +198,15 @@ impl BurnV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Asset owner or Utility delegate
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Metadata of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -209,26 +214,41 @@ impl BurnV1Builder {
         self.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Edition of the asset
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Mint of token asset
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Token account to close
+    #[inline(always)]
     pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token = Some(token);
         self
     }
+    /// `[optional account]`
+    /// Master edition account
+    #[inline(always)]
     pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.master_edition = Some(master_edition);
         self
     }
+    /// `[optional account]`
+    /// Master edition mint of the asset
+    #[inline(always)]
     pub fn master_edition_mint(
         &mut self,
         master_edition_mint: solana_program::pubkey::Pubkey,
@@ -236,6 +256,9 @@ impl BurnV1Builder {
         self.master_edition_mint = Some(master_edition_mint);
         self
     }
+    /// `[optional account]`
+    /// Master edition token account
+    #[inline(always)]
     pub fn master_edition_token(
         &mut self,
         master_edition_token: solana_program::pubkey::Pubkey,
@@ -243,18 +266,28 @@ impl BurnV1Builder {
         self.master_edition_token = Some(master_edition_token);
         self
     }
+    /// `[optional account]`
+    /// Edition marker account
+    #[inline(always)]
     pub fn edition_marker(&mut self, edition_marker: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition_marker = Some(edition_marker);
         self
     }
+    /// `[optional account]`
+    /// Token record account
+    #[inline(always)]
     pub fn token_record(&mut self, token_record: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_record = Some(token_record);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -262,6 +295,8 @@ impl BurnV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: solana_program::pubkey::Pubkey,
@@ -269,6 +304,7 @@ impl BurnV1Builder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
         self
@@ -526,6 +562,8 @@ impl<'a> BurnV1CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Asset owner or Utility delegate
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -533,6 +571,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Metadata of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -540,6 +581,8 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Metadata (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -547,6 +590,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// `[optional account]`
+    /// Edition of the asset
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -554,14 +600,21 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.edition = Some(edition);
         self
     }
+    /// Mint of token asset
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Token account to close
+    #[inline(always)]
     pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self
     }
+    /// `[optional account]`
+    /// Master edition account
+    #[inline(always)]
     pub fn master_edition(
         &mut self,
         master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -569,6 +622,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.master_edition = Some(master_edition);
         self
     }
+    /// `[optional account]`
+    /// Master edition mint of the asset
+    #[inline(always)]
     pub fn master_edition_mint(
         &mut self,
         master_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -576,6 +632,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.master_edition_mint = Some(master_edition_mint);
         self
     }
+    /// `[optional account]`
+    /// Master edition token account
+    #[inline(always)]
     pub fn master_edition_token(
         &mut self,
         master_edition_token: &'a solana_program::account_info::AccountInfo<'a>,
@@ -583,6 +642,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.master_edition_token = Some(master_edition_token);
         self
     }
+    /// `[optional account]`
+    /// Edition marker account
+    #[inline(always)]
     pub fn edition_marker(
         &mut self,
         edition_marker: &'a solana_program::account_info::AccountInfo<'a>,
@@ -590,6 +652,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.edition_marker = Some(edition_marker);
         self
     }
+    /// `[optional account]`
+    /// Token record account
+    #[inline(always)]
     pub fn token_record(
         &mut self,
         token_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -597,6 +662,8 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.token_record = Some(token_record);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -604,6 +671,8 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -611,6 +680,8 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -618,6 +689,7 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
         self

@@ -107,6 +107,8 @@ impl ApproveCollectionAuthorityBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: solana_program::pubkey::Pubkey,
@@ -114,6 +116,8 @@ impl ApproveCollectionAuthorityBuilder {
         self.collection_authority_record = Some(collection_authority_record);
         self
     }
+    /// A Collection Authority
+    #[inline(always)]
     pub fn new_collection_authority(
         &mut self,
         new_collection_authority: solana_program::pubkey::Pubkey,
@@ -121,6 +125,8 @@ impl ApproveCollectionAuthorityBuilder {
         self.new_collection_authority = Some(new_collection_authority);
         self
     }
+    /// Update Authority of Collection NFT
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: solana_program::pubkey::Pubkey,
@@ -128,22 +134,33 @@ impl ApproveCollectionAuthorityBuilder {
         self.update_authority = Some(update_authority);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Mint of Collection Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
         self.rent = Some(rent);
         self
@@ -291,6 +308,8 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -298,6 +317,8 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
     }
+    /// A Collection Authority
+    #[inline(always)]
     pub fn new_collection_authority(
         &mut self,
         new_collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -305,6 +326,8 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         self.instruction.new_collection_authority = Some(new_collection_authority);
         self
     }
+    /// Update Authority of Collection NFT
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -312,10 +335,14 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         self.instruction.update_authority = Some(update_authority);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -323,10 +350,14 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Mint of Collection Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -334,6 +365,9 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.rent = Some(rent);
         self

@@ -140,42 +140,63 @@ impl UtilizeBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Token Account Of NFT
+    #[inline(always)]
     pub fn token_account(&mut self, token_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_account = Some(token_account);
         self
     }
+    /// Mint of the Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// A Use Authority / Can be the current Owner of the NFT
+    #[inline(always)]
     pub fn use_authority(&mut self, use_authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.use_authority = Some(use_authority);
         self
     }
+    /// Owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.owner = Some(owner);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// Associated Token program
+    #[inline(always)]
     pub fn ata_program(&mut self, ata_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.ata_program = Some(ata_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
         self.rent = Some(rent);
         self
     }
+    /// `[optional account]`
+    /// Use Authority Record PDA If present the program Assumes a delegated use authority
+    #[inline(always)]
     pub fn use_authority_record(
         &mut self,
         use_authority_record: solana_program::pubkey::Pubkey,
@@ -183,10 +204,14 @@ impl UtilizeBuilder {
         self.use_authority_record = Some(use_authority_record);
         self
     }
+    /// `[optional account]`
+    /// Program As Signer (Burner)
+    #[inline(always)]
     pub fn burner(&mut self, burner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.burner = Some(burner);
         self
     }
+    #[inline(always)]
     pub fn number_of_uses(&mut self, number_of_uses: u64) -> &mut Self {
         self.number_of_uses = Some(number_of_uses);
         self
@@ -379,6 +404,8 @@ impl<'a> UtilizeCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -386,6 +413,8 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Token Account Of NFT
+    #[inline(always)]
     pub fn token_account(
         &mut self,
         token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -393,10 +422,14 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.token_account = Some(token_account);
         self
     }
+    /// Mint of the Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// A Use Authority / Can be the current Owner of the NFT
+    #[inline(always)]
     pub fn use_authority(
         &mut self,
         use_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -404,10 +437,14 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.use_authority = Some(use_authority);
         self
     }
+    /// Owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -415,6 +452,8 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.token_program = Some(token_program);
         self
     }
+    /// Associated Token program
+    #[inline(always)]
     pub fn ata_program(
         &mut self,
         ata_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -422,6 +461,8 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.ata_program = Some(ata_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -429,10 +470,15 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.rent = Some(rent);
         self
     }
+    /// `[optional account]`
+    /// Use Authority Record PDA If present the program Assumes a delegated use authority
+    #[inline(always)]
     pub fn use_authority_record(
         &mut self,
         use_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -440,6 +486,9 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.use_authority_record = Some(use_authority_record);
         self
     }
+    /// `[optional account]`
+    /// Program As Signer (Burner)
+    #[inline(always)]
     pub fn burner(
         &mut self,
         burner: &'a solana_program::account_info::AccountInfo<'a>,
@@ -447,6 +496,7 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.burner = Some(burner);
         self
     }
+    #[inline(always)]
     pub fn number_of_uses(&mut self, number_of_uses: u64) -> &mut Self {
         self.instruction.number_of_uses = Some(number_of_uses);
         self

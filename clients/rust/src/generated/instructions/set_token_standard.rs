@@ -80,10 +80,14 @@ impl SetTokenStandardBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Metadata update authority
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: solana_program::pubkey::Pubkey,
@@ -91,10 +95,15 @@ impl SetTokenStandardBuilder {
         self.update_authority = Some(update_authority);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// `[optional account]`
+    /// Edition account
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
@@ -201,6 +210,8 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -208,6 +219,8 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Metadata update authority
+    #[inline(always)]
     pub fn update_authority(
         &mut self,
         update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -215,10 +228,15 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
         self.instruction.update_authority = Some(update_authority);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// `[optional account]`
+    /// Edition account
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,

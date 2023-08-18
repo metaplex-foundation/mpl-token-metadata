@@ -130,7 +130,6 @@ export function createMetadataAccountV3(
   const resolvedAccounts = {
     mint: [input.mint, false] as const,
     mintAuthority: [input.mintAuthority, false] as const,
-    rent: [input.rent, false] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
@@ -170,6 +169,11 @@ export function createMetadataAccountV3(
           false,
         ] as const)
   );
+  addObjectProperty(
+    resolvedAccounts,
+    'rent',
+    input.rent ? ([input.rent, false] as const) : ([programId, false] as const)
+  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -178,7 +182,7 @@ export function createMetadataAccountV3(
   addAccountMeta(keys, signers, resolvedAccounts.payer, false);
   addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
+  addAccountMeta(keys, signers, resolvedAccounts.rent, false);
 
   // Data.
   const data =

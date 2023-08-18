@@ -148,50 +148,74 @@ impl TransferOutOfEscrowBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Escrow account
+    #[inline(always)]
     pub fn escrow(&mut self, escrow: solana_program::pubkey::Pubkey) -> &mut Self {
         self.escrow = Some(escrow);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Wallet paying for the transaction and new account
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// Mint account for the new attribute
+    #[inline(always)]
     pub fn attribute_mint(&mut self, attribute_mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.attribute_mint = Some(attribute_mint);
         self
     }
+    /// Token account source for the new attribute
+    #[inline(always)]
     pub fn attribute_src(&mut self, attribute_src: solana_program::pubkey::Pubkey) -> &mut Self {
         self.attribute_src = Some(attribute_src);
         self
     }
+    /// Token account, owned by TM, destination for the new attribute
+    #[inline(always)]
     pub fn attribute_dst(&mut self, attribute_dst: solana_program::pubkey::Pubkey) -> &mut Self {
         self.attribute_dst = Some(attribute_dst);
         self
     }
+    /// Mint account that the escrow is attached
+    #[inline(always)]
     pub fn escrow_mint(&mut self, escrow_mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.escrow_mint = Some(escrow_mint);
         self
     }
+    /// Token account that holds the token the escrow is attached to
+    #[inline(always)]
     pub fn escrow_account(&mut self, escrow_account: solana_program::pubkey::Pubkey) -> &mut Self {
         self.escrow_account = Some(escrow_account);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Associated Token program
+    #[inline(always)]
     pub fn ata_program(&mut self, ata_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.ata_program = Some(ata_program);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -199,10 +223,14 @@ impl TransferOutOfEscrowBuilder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Authority/creator of the escrow account
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
         self
@@ -399,6 +427,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Escrow account
+    #[inline(always)]
     pub fn escrow(
         &mut self,
         escrow: &'a solana_program::account_info::AccountInfo<'a>,
@@ -406,6 +436,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.escrow = Some(escrow);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -413,10 +445,14 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Wallet paying for the transaction and new account
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// Mint account for the new attribute
+    #[inline(always)]
     pub fn attribute_mint(
         &mut self,
         attribute_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -424,6 +460,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.attribute_mint = Some(attribute_mint);
         self
     }
+    /// Token account source for the new attribute
+    #[inline(always)]
     pub fn attribute_src(
         &mut self,
         attribute_src: &'a solana_program::account_info::AccountInfo<'a>,
@@ -431,6 +469,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.attribute_src = Some(attribute_src);
         self
     }
+    /// Token account, owned by TM, destination for the new attribute
+    #[inline(always)]
     pub fn attribute_dst(
         &mut self,
         attribute_dst: &'a solana_program::account_info::AccountInfo<'a>,
@@ -438,6 +478,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.attribute_dst = Some(attribute_dst);
         self
     }
+    /// Mint account that the escrow is attached
+    #[inline(always)]
     pub fn escrow_mint(
         &mut self,
         escrow_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -445,6 +487,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.escrow_mint = Some(escrow_mint);
         self
     }
+    /// Token account that holds the token the escrow is attached to
+    #[inline(always)]
     pub fn escrow_account(
         &mut self,
         escrow_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -452,6 +496,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.escrow_account = Some(escrow_account);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -459,6 +505,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Associated Token program
+    #[inline(always)]
     pub fn ata_program(
         &mut self,
         ata_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -466,6 +514,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.ata_program = Some(ata_program);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -473,6 +523,8 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.token_program = Some(token_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -480,6 +532,9 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
+    /// Authority/creator of the escrow account
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -487,6 +542,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
         self

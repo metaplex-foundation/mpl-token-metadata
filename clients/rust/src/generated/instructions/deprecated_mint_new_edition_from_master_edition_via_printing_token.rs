@@ -163,30 +163,44 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// New Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// New Edition V1 (pda of ['metadata', program id, mint id, 'edition'])
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
+    #[inline(always)]
     pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.master_edition = Some(master_edition);
         self
     }
+    /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Mint authority of new mint
+    #[inline(always)]
     pub fn mint_authority(&mut self, mint_authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint_authority = Some(mint_authority);
         self
     }
+    /// Printing Mint of master record edition
+    #[inline(always)]
     pub fn printing_mint(&mut self, printing_mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.printing_mint = Some(printing_mint);
         self
     }
+    /// Token account containing Printing mint token to be transferred
+    #[inline(always)]
     pub fn master_token_account(
         &mut self,
         master_token_account: solana_program::pubkey::Pubkey,
@@ -194,18 +208,26 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenBuilder {
         self.master_token_account = Some(master_token_account);
         self
     }
+    /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])
+    #[inline(always)]
     pub fn edition_marker(&mut self, edition_marker: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition_marker = Some(edition_marker);
         self
     }
+    /// Burn authority for this token
+    #[inline(always)]
     pub fn burn_authority(&mut self, burn_authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.burn_authority = Some(burn_authority);
         self
     }
+    /// payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// update authority info for new metadata account
+    #[inline(always)]
     pub fn master_update_authority(
         &mut self,
         master_update_authority: solana_program::pubkey::Pubkey,
@@ -213,6 +235,8 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenBuilder {
         self.master_update_authority = Some(master_update_authority);
         self
     }
+    /// Master record metadata account
+    #[inline(always)]
     pub fn master_metadata(
         &mut self,
         master_metadata: solana_program::pubkey::Pubkey,
@@ -220,18 +244,27 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenBuilder {
         self.master_metadata = Some(master_metadata);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
         self.rent = Some(rent);
         self
     }
+    /// `[optional account]`
+    /// Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.
+    #[inline(always)]
     pub fn reservation_list(
         &mut self,
         reservation_list: solana_program::pubkey::Pubkey,
@@ -462,6 +495,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         );
         Self { instruction }
     }
+    /// New Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -469,6 +504,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// New Edition V1 (pda of ['metadata', program id, mint id, 'edition'])
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -476,6 +513,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.edition = Some(edition);
         self
     }
+    /// Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
+    #[inline(always)]
     pub fn master_edition(
         &mut self,
         master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -483,10 +522,14 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.master_edition = Some(master_edition);
         self
     }
+    /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Mint authority of new mint
+    #[inline(always)]
     pub fn mint_authority(
         &mut self,
         mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -494,6 +537,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.mint_authority = Some(mint_authority);
         self
     }
+    /// Printing Mint of master record edition
+    #[inline(always)]
     pub fn printing_mint(
         &mut self,
         printing_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -501,6 +546,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.printing_mint = Some(printing_mint);
         self
     }
+    /// Token account containing Printing mint token to be transferred
+    #[inline(always)]
     pub fn master_token_account(
         &mut self,
         master_token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -508,6 +555,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.master_token_account = Some(master_token_account);
         self
     }
+    /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])
+    #[inline(always)]
     pub fn edition_marker(
         &mut self,
         edition_marker: &'a solana_program::account_info::AccountInfo<'a>,
@@ -515,6 +564,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.edition_marker = Some(edition_marker);
         self
     }
+    /// Burn authority for this token
+    #[inline(always)]
     pub fn burn_authority(
         &mut self,
         burn_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -522,10 +573,14 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.burn_authority = Some(burn_authority);
         self
     }
+    /// payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// update authority info for new metadata account
+    #[inline(always)]
     pub fn master_update_authority(
         &mut self,
         master_update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -533,6 +588,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.master_update_authority = Some(master_update_authority);
         self
     }
+    /// Master record metadata account
+    #[inline(always)]
     pub fn master_metadata(
         &mut self,
         master_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -540,6 +597,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.master_metadata = Some(master_metadata);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -547,6 +606,8 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.token_program = Some(token_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -554,10 +615,15 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a>
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.rent = Some(rent);
         self
     }
+    /// `[optional account]`
+    /// Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.
+    #[inline(always)]
     pub fn reservation_list(
         &mut self,
         reservation_list: &'a solana_program::account_info::AccountInfo<'a>,

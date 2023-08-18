@@ -14,3 +14,14 @@ pub struct EditionMarkerV2 {
     pub key: Key,
     pub ledger: Vec<u8>,
 }
+
+impl<'a> TryFrom<&'a solana_program::account_info::AccountInfo<'a>> for EditionMarkerV2 {
+    type Error = std::io::Error;
+
+    fn try_from(
+        account_info: &'a solana_program::account_info::AccountInfo<'a>,
+    ) -> Result<Self, Self::Error> {
+        let mut data: &[u8] = &(*account_info.data).borrow();
+        Self::deserialize(&mut data)
+    }
+}

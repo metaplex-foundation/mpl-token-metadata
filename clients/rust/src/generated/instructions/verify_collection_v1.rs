@@ -128,10 +128,15 @@ impl VerifyCollectionV1Builder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Creator to verify, collection update authority or delegate
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Delegate record PDA
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: solana_program::pubkey::Pubkey,
@@ -139,10 +144,14 @@ impl VerifyCollectionV1Builder {
         self.delegate_record = Some(delegate_record);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: solana_program::pubkey::Pubkey,
@@ -150,6 +159,9 @@ impl VerifyCollectionV1Builder {
         self.collection_mint = Some(collection_mint);
         self
     }
+    /// `[optional account]`
+    /// Metadata Account of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -157,6 +169,9 @@ impl VerifyCollectionV1Builder {
         self.collection_metadata = Some(collection_metadata);
         self
     }
+    /// `[optional account]`
+    /// Master Edition Account of the Collection Token
+    #[inline(always)]
     pub fn collection_master_edition(
         &mut self,
         collection_master_edition: solana_program::pubkey::Pubkey,
@@ -164,10 +179,14 @@ impl VerifyCollectionV1Builder {
         self.collection_master_edition = Some(collection_master_edition);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -335,6 +354,8 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Creator to verify, collection update authority or delegate
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -342,6 +363,9 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// `[optional account]`
+    /// Delegate record PDA
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -349,6 +373,8 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.delegate_record = Some(delegate_record);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -356,6 +382,8 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -363,6 +391,9 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.collection_mint = Some(collection_mint);
         self
     }
+    /// `[optional account]`
+    /// Metadata Account of the Collection
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -370,6 +401,9 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.collection_metadata = Some(collection_metadata);
         self
     }
+    /// `[optional account]`
+    /// Master Edition Account of the Collection Token
+    #[inline(always)]
     pub fn collection_master_edition(
         &mut self,
         collection_master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -377,6 +411,8 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.collection_master_edition = Some(collection_master_edition);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -384,6 +420,8 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instructions sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,

@@ -132,6 +132,8 @@ impl ApproveUseAuthorityBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Use Authority Record PDA
+    #[inline(always)]
     pub fn use_authority_record(
         &mut self,
         use_authority_record: solana_program::pubkey::Pubkey,
@@ -139,18 +141,26 @@ impl ApproveUseAuthorityBuilder {
         self.use_authority_record = Some(use_authority_record);
         self
     }
+    /// Owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.owner = Some(owner);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// A Use Authority
+    #[inline(always)]
     pub fn user(&mut self, user: solana_program::pubkey::Pubkey) -> &mut Self {
         self.user = Some(user);
         self
     }
+    /// Owned Token Account Of Mint
+    #[inline(always)]
     pub fn owner_token_account(
         &mut self,
         owner_token_account: solana_program::pubkey::Pubkey,
@@ -158,30 +168,44 @@ impl ApproveUseAuthorityBuilder {
         self.owner_token_account = Some(owner_token_account);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Mint of Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Program As Signer (Burner)
+    #[inline(always)]
     pub fn burner(&mut self, burner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.burner = Some(burner);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
         self.rent = Some(rent);
         self
     }
+    #[inline(always)]
     pub fn number_of_uses(&mut self, number_of_uses: u64) -> &mut Self {
         self.number_of_uses = Some(number_of_uses);
         self
@@ -364,6 +388,8 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Use Authority Record PDA
+    #[inline(always)]
     pub fn use_authority_record(
         &mut self,
         use_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -371,18 +397,26 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.use_authority_record = Some(use_authority_record);
         self
     }
+    /// Owner
+    #[inline(always)]
     pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// A Use Authority
+    #[inline(always)]
     pub fn user(&mut self, user: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.user = Some(user);
         self
     }
+    /// Owned Token Account Of Mint
+    #[inline(always)]
     pub fn owner_token_account(
         &mut self,
         owner_token_account: &'a solana_program::account_info::AccountInfo<'a>,
@@ -390,6 +424,8 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.owner_token_account = Some(owner_token_account);
         self
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -397,10 +433,14 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Mint of Metadata
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Program As Signer (Burner)
+    #[inline(always)]
     pub fn burner(
         &mut self,
         burner: &'a solana_program::account_info::AccountInfo<'a>,
@@ -408,6 +448,8 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.burner = Some(burner);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -415,6 +457,8 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.token_program = Some(token_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -422,10 +466,14 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.rent = Some(rent);
         self
     }
+    #[inline(always)]
     pub fn number_of_uses(&mut self, number_of_uses: u64) -> &mut Self {
         self.instruction.number_of_uses = Some(number_of_uses);
         self

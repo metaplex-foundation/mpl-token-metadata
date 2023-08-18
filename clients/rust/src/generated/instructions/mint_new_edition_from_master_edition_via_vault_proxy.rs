@@ -181,22 +181,32 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// New Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn new_metadata(&mut self, new_metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.new_metadata = Some(new_metadata);
         self
     }
+    /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
+    #[inline(always)]
     pub fn new_edition(&mut self, new_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.new_edition = Some(new_edition);
         self
     }
+    /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']
+    #[inline(always)]
     pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.master_edition = Some(master_edition);
         self
     }
+    /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
+    #[inline(always)]
     pub fn new_mint(&mut self, new_mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.new_mint = Some(new_mint);
         self
     }
+    /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
+    #[inline(always)]
     pub fn edition_mark_pda(
         &mut self,
         edition_mark_pda: solana_program::pubkey::Pubkey,
@@ -204,6 +214,8 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.edition_mark_pda = Some(edition_mark_pda);
         self
     }
+    /// Mint authority of new mint
+    #[inline(always)]
     pub fn new_mint_authority(
         &mut self,
         new_mint_authority: solana_program::pubkey::Pubkey,
@@ -211,10 +223,14 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.new_mint_authority = Some(new_mint_authority);
         self
     }
+    /// payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// Vault authority
+    #[inline(always)]
     pub fn vault_authority(
         &mut self,
         vault_authority: solana_program::pubkey::Pubkey,
@@ -222,6 +238,8 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.vault_authority = Some(vault_authority);
         self
     }
+    /// Safety deposit token store account
+    #[inline(always)]
     pub fn safety_deposit_store(
         &mut self,
         safety_deposit_store: solana_program::pubkey::Pubkey,
@@ -229,6 +247,8 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.safety_deposit_store = Some(safety_deposit_store);
         self
     }
+    /// Safety deposit box
+    #[inline(always)]
     pub fn safety_deposit_box(
         &mut self,
         safety_deposit_box: solana_program::pubkey::Pubkey,
@@ -236,10 +256,14 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.safety_deposit_box = Some(safety_deposit_box);
         self
     }
+    /// Vault
+    #[inline(always)]
     pub fn vault(&mut self, vault: solana_program::pubkey::Pubkey) -> &mut Self {
         self.vault = Some(vault);
         self
     }
+    /// Update authority info for new metadata
+    #[inline(always)]
     pub fn new_metadata_update_authority(
         &mut self,
         new_metadata_update_authority: solana_program::pubkey::Pubkey,
@@ -247,14 +271,20 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.new_metadata_update_authority = Some(new_metadata_update_authority);
         self
     }
+    /// Master record metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// Token vault program
+    #[inline(always)]
     pub fn token_vault_program(
         &mut self,
         token_vault_program: solana_program::pubkey::Pubkey,
@@ -262,14 +292,20 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
         self.token_vault_program = Some(token_vault_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
         self.rent = Some(rent);
         self
     }
+    #[inline(always)]
     pub fn mint_new_edition_from_master_edition_via_token_args(
         &mut self,
         mint_new_edition_from_master_edition_via_token_args: MintNewEditionFromMasterEditionViaTokenArgs,
@@ -518,6 +554,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         );
         Self { instruction }
     }
+    /// New Metadata key (pda of ['metadata', program id, mint id])
+    #[inline(always)]
     pub fn new_metadata(
         &mut self,
         new_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -525,6 +563,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.new_metadata = Some(new_metadata);
         self
     }
+    /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
+    #[inline(always)]
     pub fn new_edition(
         &mut self,
         new_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -532,6 +572,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.new_edition = Some(new_edition);
         self
     }
+    /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']
+    #[inline(always)]
     pub fn master_edition(
         &mut self,
         master_edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -539,6 +581,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.master_edition = Some(master_edition);
         self
     }
+    /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
+    #[inline(always)]
     pub fn new_mint(
         &mut self,
         new_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -546,6 +590,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.new_mint = Some(new_mint);
         self
     }
+    /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
+    #[inline(always)]
     pub fn edition_mark_pda(
         &mut self,
         edition_mark_pda: &'a solana_program::account_info::AccountInfo<'a>,
@@ -553,6 +599,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.edition_mark_pda = Some(edition_mark_pda);
         self
     }
+    /// Mint authority of new mint
+    #[inline(always)]
     pub fn new_mint_authority(
         &mut self,
         new_mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -560,10 +608,14 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.new_mint_authority = Some(new_mint_authority);
         self
     }
+    /// payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// Vault authority
+    #[inline(always)]
     pub fn vault_authority(
         &mut self,
         vault_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -571,6 +623,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.vault_authority = Some(vault_authority);
         self
     }
+    /// Safety deposit token store account
+    #[inline(always)]
     pub fn safety_deposit_store(
         &mut self,
         safety_deposit_store: &'a solana_program::account_info::AccountInfo<'a>,
@@ -578,6 +632,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.safety_deposit_store = Some(safety_deposit_store);
         self
     }
+    /// Safety deposit box
+    #[inline(always)]
     pub fn safety_deposit_box(
         &mut self,
         safety_deposit_box: &'a solana_program::account_info::AccountInfo<'a>,
@@ -585,10 +641,14 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.safety_deposit_box = Some(safety_deposit_box);
         self
     }
+    /// Vault
+    #[inline(always)]
     pub fn vault(&mut self, vault: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.vault = Some(vault);
         self
     }
+    /// Update authority info for new metadata
+    #[inline(always)]
     pub fn new_metadata_update_authority(
         &mut self,
         new_metadata_update_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -596,6 +656,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.new_metadata_update_authority = Some(new_metadata_update_authority);
         self
     }
+    /// Master record metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -603,6 +665,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Token program
+    #[inline(always)]
     pub fn token_program(
         &mut self,
         token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -610,6 +674,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.token_program = Some(token_program);
         self
     }
+    /// Token vault program
+    #[inline(always)]
     pub fn token_vault_program(
         &mut self,
         token_vault_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -617,6 +683,8 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.token_vault_program = Some(token_vault_program);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -624,10 +692,14 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// Rent info
+    #[inline(always)]
     pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.rent = Some(rent);
         self
     }
+    #[inline(always)]
     pub fn mint_new_edition_from_master_edition_via_token_args(
         &mut self,
         mint_new_edition_from_master_edition_via_token_args: MintNewEditionFromMasterEditionViaTokenArgs,

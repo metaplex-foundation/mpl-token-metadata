@@ -96,6 +96,8 @@ impl BubblegumSetCollectionSizeBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -103,6 +105,8 @@ impl BubblegumSetCollectionSizeBuilder {
         self.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Collection Update authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: solana_program::pubkey::Pubkey,
@@ -110,6 +114,8 @@ impl BubblegumSetCollectionSizeBuilder {
         self.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: solana_program::pubkey::Pubkey,
@@ -117,6 +123,8 @@ impl BubblegumSetCollectionSizeBuilder {
         self.collection_mint = Some(collection_mint);
         self
     }
+    /// Signing PDA of Bubblegum program
+    #[inline(always)]
     pub fn bubblegum_signer(
         &mut self,
         bubblegum_signer: solana_program::pubkey::Pubkey,
@@ -124,6 +132,9 @@ impl BubblegumSetCollectionSizeBuilder {
         self.bubblegum_signer = Some(bubblegum_signer);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: solana_program::pubkey::Pubkey,
@@ -131,6 +142,7 @@ impl BubblegumSetCollectionSizeBuilder {
         self.collection_authority_record = Some(collection_authority_record);
         self
     }
+    #[inline(always)]
     pub fn set_collection_size_args(
         &mut self,
         set_collection_size_args: SetCollectionSizeArgs,
@@ -259,6 +271,8 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -266,6 +280,8 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Collection Update authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -273,6 +289,8 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -280,6 +298,8 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_mint = Some(collection_mint);
         self
     }
+    /// Signing PDA of Bubblegum program
+    #[inline(always)]
     pub fn bubblegum_signer(
         &mut self,
         bubblegum_signer: &'a solana_program::account_info::AccountInfo<'a>,
@@ -287,6 +307,9 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         self.instruction.bubblegum_signer = Some(bubblegum_signer);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -294,6 +317,7 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
     }
+    #[inline(always)]
     pub fn set_collection_size_args(
         &mut self,
         set_collection_size_args: SetCollectionSizeArgs,

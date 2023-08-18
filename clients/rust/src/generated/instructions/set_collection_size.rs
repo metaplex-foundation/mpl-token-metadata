@@ -89,6 +89,8 @@ impl SetCollectionSizeBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -96,6 +98,8 @@ impl SetCollectionSizeBuilder {
         self.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Collection Update authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: solana_program::pubkey::Pubkey,
@@ -103,6 +107,8 @@ impl SetCollectionSizeBuilder {
         self.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: solana_program::pubkey::Pubkey,
@@ -110,6 +116,9 @@ impl SetCollectionSizeBuilder {
         self.collection_mint = Some(collection_mint);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: solana_program::pubkey::Pubkey,
@@ -117,6 +126,7 @@ impl SetCollectionSizeBuilder {
         self.collection_authority_record = Some(collection_authority_record);
         self
     }
+    #[inline(always)]
     pub fn set_collection_size_args(
         &mut self,
         set_collection_size_args: SetCollectionSizeArgs,
@@ -236,6 +246,8 @@ impl<'a> SetCollectionSizeCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Collection Metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -243,6 +255,8 @@ impl<'a> SetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Collection Update authority
+    #[inline(always)]
     pub fn collection_authority(
         &mut self,
         collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -250,6 +264,8 @@ impl<'a> SetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_authority = Some(collection_authority);
         self
     }
+    /// Mint of the Collection
+    #[inline(always)]
     pub fn collection_mint(
         &mut self,
         collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
@@ -257,6 +273,9 @@ impl<'a> SetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_mint = Some(collection_mint);
         self
     }
+    /// `[optional account]`
+    /// Collection Authority Record PDA
+    #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
         collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -264,6 +283,7 @@ impl<'a> SetCollectionSizeCpiBuilder<'a> {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
     }
+    #[inline(always)]
     pub fn set_collection_size_args(
         &mut self,
         set_collection_size_args: SetCollectionSizeArgs,

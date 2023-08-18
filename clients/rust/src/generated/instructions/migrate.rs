@@ -163,34 +163,50 @@ impl MigrateBuilder {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(&mut self, metadata: solana_program::pubkey::Pubkey) -> &mut Self {
         self.metadata = Some(metadata);
         self
     }
+    /// Edition account
+    #[inline(always)]
     pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
         self.edition = Some(edition);
         self
     }
+    /// Token account
+    #[inline(always)]
     pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token = Some(token);
         self
     }
+    /// Token account owner
+    #[inline(always)]
     pub fn token_owner(&mut self, token_owner: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_owner = Some(token_owner);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: solana_program::pubkey::Pubkey) -> &mut Self {
         self.mint = Some(mint);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
         self.payer = Some(payer);
         self
     }
+    /// Update authority
+    #[inline(always)]
     pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
         self.authority = Some(authority);
         self
     }
+    /// Collection metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: solana_program::pubkey::Pubkey,
@@ -198,6 +214,8 @@ impl MigrateBuilder {
         self.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Delegate record account
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: solana_program::pubkey::Pubkey,
@@ -205,14 +223,20 @@ impl MigrateBuilder {
         self.delegate_record = Some(delegate_record);
         self
     }
+    /// Token record account
+    #[inline(always)]
     pub fn token_record(&mut self, token_record: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_record = Some(token_record);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// Instruction sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: solana_program::pubkey::Pubkey,
@@ -220,6 +244,8 @@ impl MigrateBuilder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: solana_program::pubkey::Pubkey,
@@ -227,6 +253,9 @@ impl MigrateBuilder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules Program
+    #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
         authorization_rules_program: solana_program::pubkey::Pubkey,
@@ -234,6 +263,9 @@ impl MigrateBuilder {
         self.authorization_rules_program = Some(authorization_rules_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules account
+    #[inline(always)]
     pub fn authorization_rules(
         &mut self,
         authorization_rules: solana_program::pubkey::Pubkey,
@@ -459,6 +491,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         });
         Self { instruction }
     }
+    /// Metadata account
+    #[inline(always)]
     pub fn metadata(
         &mut self,
         metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -466,6 +500,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.metadata = Some(metadata);
         self
     }
+    /// Edition account
+    #[inline(always)]
     pub fn edition(
         &mut self,
         edition: &'a solana_program::account_info::AccountInfo<'a>,
@@ -473,10 +509,14 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.edition = Some(edition);
         self
     }
+    /// Token account
+    #[inline(always)]
     pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self
     }
+    /// Token account owner
+    #[inline(always)]
     pub fn token_owner(
         &mut self,
         token_owner: &'a solana_program::account_info::AccountInfo<'a>,
@@ -484,14 +524,20 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.token_owner = Some(token_owner);
         self
     }
+    /// Mint account
+    #[inline(always)]
     pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Payer
+    #[inline(always)]
     pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
+    /// Update authority
+    #[inline(always)]
     pub fn authority(
         &mut self,
         authority: &'a solana_program::account_info::AccountInfo<'a>,
@@ -499,6 +545,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// Collection metadata account
+    #[inline(always)]
     pub fn collection_metadata(
         &mut self,
         collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
@@ -506,6 +554,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.collection_metadata = Some(collection_metadata);
         self
     }
+    /// Delegate record account
+    #[inline(always)]
     pub fn delegate_record(
         &mut self,
         delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -513,6 +563,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.delegate_record = Some(delegate_record);
         self
     }
+    /// Token record account
+    #[inline(always)]
     pub fn token_record(
         &mut self,
         token_record: &'a solana_program::account_info::AccountInfo<'a>,
@@ -520,6 +572,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.token_record = Some(token_record);
         self
     }
+    /// System program
+    #[inline(always)]
     pub fn system_program(
         &mut self,
         system_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -527,6 +581,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// Instruction sysvar account
+    #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
         sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
@@ -534,6 +590,8 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// SPL Token Program
+    #[inline(always)]
     pub fn spl_token_program(
         &mut self,
         spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -541,6 +599,9 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules Program
+    #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
         authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
@@ -548,6 +609,9 @@ impl<'a> MigrateCpiBuilder<'a> {
         self.instruction.authorization_rules_program = Some(authorization_rules_program);
         self
     }
+    /// `[optional account]`
+    /// Token Authorization Rules account
+    #[inline(always)]
     pub fn authorization_rules(
         &mut self,
         authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
