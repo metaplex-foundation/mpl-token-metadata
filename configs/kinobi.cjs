@@ -675,6 +675,62 @@ kinobi.update(
         },
       },
     },
+    printV1: {
+      accounts: {
+        editionMint: { isSigner: "either" },
+        editionMintAuthority: {
+          isSigner: "either",
+          defaultsTo: k.accountDefault("edition"),
+        },
+        masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        editionTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        editionMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        edition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        editionMarkerPda: {
+          defaultsTo: k.pdaDefault("editionMarkerFromEditionNumber", {
+            importFrom: "hooked",
+            seeds: {
+              mint: k.argDefault("masterEditionMint"),
+              editionNumber: k.argDefault("editionNumber"),
+            },
+          }),
+        },
+        editionTokenAccount: {
+          defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
+        },
+        masterTokenAccount: {
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplToolbox",
+            seeds: {
+              mint: k.argDefault("masterEditionMint"),
+              owner: k.accountDefault("masterTokenAccountOwner"),
+            },
+          }),
+        },
+        masterMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
+          }),
+        },
+        masterEdition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
+          }),
+        },
+      },
+      args: {
+        edition: { name: "editionNumber" },
+        masterEditionMint: { type: k.publicKeyTypeNode() },
+      },
+    },
     // Update.
     updateAsAuthorityItemDelegateV2:
       updateAsMetadataDelegateDefaults("AuthorityItem"),

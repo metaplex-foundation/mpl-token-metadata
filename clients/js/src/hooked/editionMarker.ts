@@ -1,7 +1,7 @@
 import { Pda, PublicKey } from '@metaplex-foundation/umi';
 import { findEditionMarkerPda } from '../generated';
 
-export function findEditionMarkerPdaFromEditionNumber(
+export function findEditionMarkerFromEditionNumberPda(
   context: Parameters<typeof findEditionMarkerPda>[0],
   seeds: {
     /** The address of the mint account */
