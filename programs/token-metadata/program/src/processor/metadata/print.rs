@@ -150,6 +150,23 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
                 edition_token_account_info.clone(),
             ],
         )?;
+
+        // mint one token to the associated token account
+        invoke(
+            &spl_token::instruction::mint_to(
+                &spl_token::id(),
+                edition_mint_info.key,
+                edition_token_account_info.key,
+                edition_token_account_owner_info.key,
+                &[],
+                1,
+            )?,
+            &[
+                edition_mint_info.clone(),
+                edition_token_account_info.clone(),
+                edition_token_account_owner_info.clone(),
+            ],
+        )?;
     } else {
         assert_owned_by(edition_token_account_info, &spl_token::id())?;
         let edition_token_account: spl_token::state::Account =
