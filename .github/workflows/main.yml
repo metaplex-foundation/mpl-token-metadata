@@ -116,6 +116,6 @@ jobs:
   test_sdk:
     if: needs.generate_clients.outputs.rust_changed == 'true'
     name: Rust Client
-    needs: build_sdk
+    needs: generate_clients
     uses: ./.github/workflows/test-sdk.yml
     secrets: inherit
