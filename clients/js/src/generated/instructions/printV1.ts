@@ -24,9 +24,13 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { findEditionMarkerFromEditionNumberPda } from '../../hooked';
+import {
+  resolveEditionMarkerForPrint,
+  resolveTokenRecordForPrint,
+} from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
+import { TokenStandardArgs } from '../types';
 
 // Accounts.
 export type PrintV1InstructionAccounts = {
@@ -102,7 +106,10 @@ export function getPrintV1InstructionDataSerializer(
 }
 
 // Extra Args.
-export type PrintV1InstructionExtraArgs = { masterEditionMint: PublicKey };
+export type PrintV1InstructionExtraArgs = {
+  masterEditionMint: PublicKey;
+  tokenStandard: TokenStandardArgs;
+};
 
 // Args.
 export type PrintV1InstructionArgs = PrintV1InstructionDataArgs &
@@ -193,7 +200,13 @@ export function printV1(
     'editionTokenRecord',
     input.editionTokenRecord
       ? ([input.editionTokenRecord, true] as const)
-      : ([programId, false] as const)
+      : resolveTokenRecordForPrint(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
     resolvedAccounts,
@@ -210,13 +223,13 @@ export function printV1(
     'editionMarkerPda',
     input.editionMarkerPda
       ? ([input.editionMarkerPda, true] as const)
-      : ([
-          findEditionMarkerFromEditionNumberPda(context, {
-            mint: input.masterEditionMint,
-            editionNumber: input.editionNumber,
-          }),
-          true,
-        ] as const)
+      : resolveEditionMarkerForPrint(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
     resolvedAccounts,

@@ -35,6 +35,13 @@ kinobi.update(
         ),
       ],
     },
+    editionMarkerV2: {
+      seeds: [
+        ...metadataSeeds,
+        k.stringConstantSeed("edition"),
+        k.stringConstantSeed("marker"),
+      ],
+    },
     tokenRecord: {
       size: 80,
       seeds: [
@@ -694,13 +701,11 @@ kinobi.update(
           }),
         },
         editionMarkerPda: {
-          defaultsTo: k.pdaDefault("editionMarkerFromEditionNumber", {
-            importFrom: "hooked",
-            seeds: {
-              mint: k.argDefault("masterEditionMint"),
-              editionNumber: k.argDefault("editionNumber"),
-            },
-          }),
+          defaultsTo: k.resolverDefault("resolveEditionMarkerForPrint", [
+            k.dependsOnArg("masterEditionMint"),
+            k.dependsOnArg("editionNumber"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
         },
         editionTokenAccount: {
           defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
@@ -724,10 +729,18 @@ kinobi.update(
             seeds: { mint: k.argDefault("masterEditionMint") },
           }),
         },
+        editionTokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecordForPrint", [
+            k.dependsOnAccount("editionMint"),
+            k.dependsOnAccount("editionTokenAccount"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
       },
       args: {
         edition: { name: "editionNumber" },
         masterEditionMint: { type: k.publicKeyTypeNode() },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
     // Update.
