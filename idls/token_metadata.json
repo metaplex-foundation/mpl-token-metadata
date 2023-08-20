@@ -1,6 +1,6 @@
 {
   "version": "1.13.2",
-  "name": "mpl_token_metadata",
+  "name": "token_metadata",
   "instructions": [
     {
       "name": "CreateMetadataAccount",

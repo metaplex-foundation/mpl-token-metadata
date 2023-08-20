@@ -7,10 +7,10 @@ use utils::*;
 
 mod mint {
 
-    use mpl_token_metadata::{error::MetadataError, state::TokenStandard};
     use num_traits::FromPrimitive;
     use solana_program::program_pack::Pack;
     use spl_token::state::Account;
+    use token_metadata::{error::MetadataError, state::TokenStandard};
 
     use super::*;
 

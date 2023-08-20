@@ -1,7 +1,15 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
+use num_traits::FromPrimitive;
+use solana_program::{pubkey::Pubkey, system_instruction::assign};
+use solana_program_test::*;
+use solana_sdk::{
+    instruction::InstructionError,
+    signature::{Keypair, Signer},
+    transaction::{Transaction, TransactionError},
+};
+use token_metadata::{
     error::MetadataError,
     instruction,
     state::{
@@ -11,19 +19,11 @@ use mpl_token_metadata::{
     utils::{puffed_out_string, BUBBLEGUM_PROGRAM_ADDRESS},
     ID,
 };
-use num_traits::FromPrimitive;
-use solana_program::{pubkey::Pubkey, system_instruction::assign};
-use solana_program_test::*;
-use solana_sdk::{
-    instruction::InstructionError,
-    signature::{Keypair, Signer},
-    transaction::{Transaction, TransactionError},
-};
 use utils::*;
 
 mod create_meta_accounts {
 
-    use mpl_token_metadata::state::TokenStandard;
+    use token_metadata::state::TokenStandard;
 
     use super::*;
     #[tokio::test]

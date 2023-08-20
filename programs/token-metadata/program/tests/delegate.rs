@@ -13,7 +13,10 @@ mod delegate {
 
     use borsh::BorshDeserialize;
     use mpl_token_auth_rules::error::RuleSetError;
-    use mpl_token_metadata::{
+    use num_traits::FromPrimitive;
+    use solana_program::{program_option::COption, program_pack::Pack};
+    use spl_token::state::Account;
+    use token_metadata::{
         error::MetadataError,
         instruction::{DelegateArgs, MetadataDelegateRole},
         pda::{find_metadata_delegate_record_account, find_token_record_account},
@@ -22,9 +25,6 @@ mod delegate {
             TokenStandard,
         },
     };
-    use num_traits::FromPrimitive;
-    use solana_program::{program_option::COption, program_pack::Pack};
-    use spl_token::state::Account;
 
     use super::*;
 
@@ -462,7 +462,7 @@ mod delegate {
 
     #[tokio::test]
     async fn store_rule_set_revision_on_delegate() {
-        let mut program_test = ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None);
+        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;
@@ -608,7 +608,7 @@ mod delegate {
 
     #[tokio::test]
     async fn delegate_not_in_allow_list() {
-        let mut program_test = ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None);
+        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;

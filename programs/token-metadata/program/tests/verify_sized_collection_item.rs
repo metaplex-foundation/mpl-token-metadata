@@ -1,7 +1,14 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
+use num_traits::FromPrimitive;
+use solana_program_test::*;
+use solana_sdk::{
+    instruction::InstructionError,
+    signature::{Keypair, Signer},
+    transaction::{Transaction, TransactionError},
+};
+use token_metadata::{
     error::MetadataError,
     instruction::set_collection_size,
     pda::find_collection_authority_account,
@@ -12,19 +19,12 @@ use mpl_token_metadata::{
     utils::puffed_out_string,
     ID as PROGRAM_ID,
 };
-use num_traits::FromPrimitive;
-use solana_program_test::*;
-use solana_sdk::{
-    instruction::InstructionError,
-    signature::{Keypair, Signer},
-    transaction::{Transaction, TransactionError},
-};
 use utils::*;
 mod verify_sized_collection_item {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::state::{CollectionAuthorityRecord, COLLECTION_AUTHORITY_RECORD_SIZE};
     use solana_sdk::transaction::Transaction;
+    use token_metadata::state::{CollectionAuthorityRecord, COLLECTION_AUTHORITY_RECORD_SIZE};
 
     use super::*;
     #[tokio::test]
@@ -579,8 +579,8 @@ mod verify_sized_collection_item {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             context.payer.pubkey(),
@@ -674,8 +674,8 @@ mod verify_sized_collection_item {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             update_authority,
@@ -773,8 +773,8 @@ mod verify_sized_collection_item {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             update_authority,
@@ -817,8 +817,8 @@ mod verify_sized_collection_item {
         );
         assert!(metadata_after.collection.unwrap().verified);
 
-        let ix_revoke = mpl_token_metadata::instruction::revoke_collection_authority(
-            mpl_token_metadata::ID,
+        let ix_revoke = token_metadata::instruction::revoke_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             new_collection_authority.pubkey(),
@@ -894,8 +894,8 @@ mod verify_sized_collection_item {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             context.payer.pubkey(),
@@ -921,8 +921,8 @@ mod verify_sized_collection_item {
             .unwrap();
         assert_eq!(account_before.data.len(), COLLECTION_AUTHORITY_RECORD_SIZE);
 
-        let ixrevoke = mpl_token_metadata::instruction::revoke_collection_authority(
-            mpl_token_metadata::ID,
+        let ixrevoke = token_metadata::instruction::revoke_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             context.payer.pubkey(),
@@ -1009,8 +1009,8 @@ mod verify_sized_collection_item {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             update_authority,
@@ -1067,8 +1067,8 @@ mod verify_sized_collection_item {
         let metadata_after_unverify = test_metadata.get_data(&mut context).await;
         assert!(!metadata_after_unverify.collection.unwrap().verified);
 
-        let ix_revoke = mpl_token_metadata::instruction::revoke_collection_authority(
-            mpl_token_metadata::ID,
+        let ix_revoke = token_metadata::instruction::revoke_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             incorrect_revoke_authority.pubkey(),

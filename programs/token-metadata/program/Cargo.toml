@@ -1,5 +1,5 @@
 [package]
-name = "mpl-token-metadata"
+name = "token_metadata"
 version = "1.13.2"
 description = "Metaplex Metadata"
 authors = ["Metaplex Developers <dev@metaplex.com>"]

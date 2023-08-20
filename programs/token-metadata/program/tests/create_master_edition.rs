@@ -1,7 +1,6 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{error::MetadataError, instruction, state::Key, ID};
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{
@@ -9,6 +8,7 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::{error::MetadataError, instruction, state::Key, ID};
 use utils::*;
 
 mod create_master_edition {

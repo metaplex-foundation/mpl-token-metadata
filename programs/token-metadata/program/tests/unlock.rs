@@ -7,14 +7,14 @@ use utils::*;
 mod utility {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
+    use solana_program::{program_pack::Pack, pubkey::Pubkey};
+    use solana_sdk::signature::{Keypair, Signer};
+    use spl_token::state::Account;
+    use token_metadata::{
         instruction::DelegateArgs,
         pda::find_token_record_account,
         state::{TokenDelegateRole, TokenRecord, TokenStandard, TokenState},
     };
-    use solana_program::{program_pack::Pack, pubkey::Pubkey};
-    use solana_sdk::signature::{Keypair, Signer};
-    use spl_token::state::Account;
 
     use super::*;
 

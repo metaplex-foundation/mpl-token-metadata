@@ -14,13 +14,13 @@ use utils::*;
 mod process_legacy_instruction {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
+    use solana_program::program_pack::Pack;
+    use spl_token::state::Account;
+    use token_metadata::{
         error::MetadataError,
         instruction::{sign_metadata, DelegateArgs},
         state::{Metadata, TokenStandard},
     };
-    use solana_program::program_pack::Pack;
-    use spl_token::state::Account;
 
     use super::*;
 
@@ -64,7 +64,7 @@ mod process_legacy_instruction {
         // we won't need to use this keypair
         let creator = Keypair::new();
 
-        let sign_ix = sign_metadata(mpl_token_metadata::ID, asset.metadata, creator.pubkey());
+        let sign_ix = sign_metadata(token_metadata::ID, asset.metadata, creator.pubkey());
         let sign_tx = Transaction::new_signed_with_payer(
             &[sign_ix],
             Some(&context.payer.pubkey()),
@@ -137,8 +137,8 @@ mod process_legacy_instruction {
 
         // tries to use a "legacy" thaw instruction with a pNFT
 
-        let thaw_ix = mpl_token_metadata::instruction::thaw_delegated_account(
-            mpl_token_metadata::ID,
+        let thaw_ix = token_metadata::instruction::thaw_delegated_account(
+            token_metadata::ID,
             delegate_pubkey,
             asset.token.unwrap(),
             asset.edition.unwrap(),
@@ -169,8 +169,8 @@ mod process_legacy_instruction {
         // tries to freeze (this would normally fail at the SPL Token level, but we
         // should get our custom error first)
 
-        let freeze_ix = mpl_token_metadata::instruction::freeze_delegated_account(
-            mpl_token_metadata::ID,
+        let freeze_ix = token_metadata::instruction::freeze_delegated_account(
+            token_metadata::ID,
             delegate_pubkey,
             asset.token.unwrap(),
             asset.edition.unwrap(),

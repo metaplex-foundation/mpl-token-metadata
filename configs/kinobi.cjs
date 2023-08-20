@@ -6,7 +6,7 @@ const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 
 // Instanciate Kinobi.
-const kinobi = k.createFromIdls([path.join(idlDir, "mpl_token_metadata.json")]);
+const kinobi = k.createFromIdls([path.join(idlDir, "token_metadata.json")]);
 
 // Update Accounts.
 const metadataSeeds = [

@@ -1,10 +1,10 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::error::MetadataError;
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{instruction::InstructionError, transaction::TransactionError};
+use token_metadata::error::MetadataError;
 use utils::*;
 
 #[tokio::test]

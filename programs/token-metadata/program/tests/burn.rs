@@ -2,14 +2,6 @@
 
 pub mod utils;
 
-use mpl_token_metadata::{
-    error::MetadataError,
-    instruction::{builders::BurnBuilder, BurnArgs, DelegateArgs, InstructionBuilder},
-    state::{
-        Collection, CollectionDetails, Creator, Key, MasterEditionV2 as ProgramMasterEditionV2,
-        Metadata as ProgramMetadata, PrintSupply, TokenMetadataAccount, TokenStandard,
-    },
-};
 use num_traits::FromPrimitive;
 use solana_program::{program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::*;
@@ -21,11 +13,19 @@ use solana_sdk::{
 };
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::state::Account as TokenAccount;
+use token_metadata::{
+    error::MetadataError,
+    instruction::{builders::BurnBuilder, BurnArgs, DelegateArgs, InstructionBuilder},
+    state::{
+        Collection, CollectionDetails, Creator, Key, MasterEditionV2 as ProgramMasterEditionV2,
+        Metadata as ProgramMetadata, PrintSupply, TokenMetadataAccount, TokenStandard,
+    },
+};
 use utils::*;
 
 mod pnft {
-    use mpl_token_metadata::{instruction::TransferArgs, pda::find_token_record_account};
     use solana_program::system_instruction;
+    use token_metadata::{instruction::TransferArgs, pda::find_token_record_account};
 
     use super::*;
 
@@ -559,7 +559,7 @@ mod pnft {
             &fake_token_record.pubkey(),
             100_000_000,
             80,
-            &mpl_token_metadata::ID,
+            &token_metadata::ID,
         );
 
         let args = BurnArgs::V1 { amount: 1 };
@@ -1000,7 +1000,7 @@ mod pnft {
 }
 
 mod pnft_edition {
-    use mpl_token_metadata::pda::find_token_record_account;
+    use token_metadata::pda::find_token_record_account;
 
     use super::*;
 
@@ -3600,8 +3600,8 @@ mod nft_edition {
 }
 
 mod fungible {
-    use mpl_token_metadata::instruction::TransferArgs;
     use solana_program::native_token::LAMPORTS_PER_SOL;
+    use token_metadata::instruction::TransferArgs;
 
     use super::*;
 

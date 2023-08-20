@@ -1,9 +1,4 @@
 use borsh::{ser::BorshSerialize, BorshDeserialize};
-use mpl_token_metadata::{
-    instruction::{self, CreateMasterEditionArgs, MetadataInstruction},
-    state::{MasterEditionV2 as ProgramMasterEdition, TokenMetadataAccount, EDITION, PREFIX},
-    ID,
-};
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     sysvar,
@@ -12,6 +7,11 @@ use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
     transaction::Transaction,
+};
+use token_metadata::{
+    instruction::{self, CreateMasterEditionArgs, MetadataInstruction},
+    state::{MasterEditionV2 as ProgramMasterEdition, TokenMetadataAccount, EDITION, PREFIX},
+    ID,
 };
 
 use crate::*;
@@ -65,7 +65,7 @@ impl MasterEditionV2 {
     pub async fn get_data(
         &self,
         context: &mut ProgramTestContext,
-    ) -> mpl_token_metadata::state::MasterEditionV2 {
+    ) -> token_metadata::state::MasterEditionV2 {
         let account = get_account(context, &self.pubkey).await;
         ProgramMasterEdition::safe_deserialize(&account.data).unwrap()
     }
@@ -73,7 +73,7 @@ impl MasterEditionV2 {
     pub async fn get_data_from_account(
         context: &mut ProgramTestContext,
         pubkey: &Pubkey,
-    ) -> mpl_token_metadata::state::MasterEditionV2 {
+    ) -> token_metadata::state::MasterEditionV2 {
         let account = get_account(context, pubkey).await;
         BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
@@ -86,7 +86,7 @@ impl MasterEditionV2 {
         let fake_token_program = Keypair::new();
 
         let fake_instruction = Instruction {
-            program_id: mpl_token_metadata::ID,
+            program_id: token_metadata::ID,
             accounts: vec![
                 AccountMeta::new(self.pubkey, false),
                 AccountMeta::new(self.mint_pubkey, false),

@@ -5,15 +5,15 @@ use solana_program_test::*;
 use utils::*;
 
 mod fees {
-    use mpl_token_metadata::{
-        instruction::{collect_fees, BurnArgs, UpdateArgs},
-        state::{CREATE_FEE, FEE_FLAG_CLEARED, METADATA_FEE_FLAG_INDEX},
-    };
     use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
     use solana_sdk::{
         signature::{read_keypair_file, Keypair},
         signer::Signer,
         transaction::Transaction,
+    };
+    use token_metadata::{
+        instruction::{collect_fees, BurnArgs, UpdateArgs},
+        state::{CREATE_FEE, FEE_FLAG_CLEARED, METADATA_FEE_FLAG_INDEX},
     };
 
     use super::*;
@@ -36,7 +36,7 @@ mod fees {
         let mut nft = DigitalAsset::new();
         nft.create(
             &mut context,
-            mpl_token_metadata::state::TokenStandard::NonFungible,
+            token_metadata::state::TokenStandard::NonFungible,
             None,
         )
         .await
@@ -55,7 +55,7 @@ mod fees {
         let mut nft = DigitalAsset::new();
         nft.create(
             &mut context,
-            mpl_token_metadata::state::TokenStandard::NonFungible,
+            token_metadata::state::TokenStandard::NonFungible,
             None,
         )
         .await
@@ -103,7 +103,7 @@ mod fees {
             let mut nft = DigitalAsset::new();
             nft.create(
                 &mut context,
-                mpl_token_metadata::state::TokenStandard::NonFungible,
+                token_metadata::state::TokenStandard::NonFungible,
                 None,
             )
             .await
@@ -163,7 +163,7 @@ mod fees {
         let mut nft = DigitalAsset::new();
         nft.create_and_mint(
             &mut context,
-            mpl_token_metadata::state::TokenStandard::NonFungible,
+            token_metadata::state::TokenStandard::NonFungible,
             None,
             None,
             1,
