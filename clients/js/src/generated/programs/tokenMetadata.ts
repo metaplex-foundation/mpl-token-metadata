@@ -13,22 +13,22 @@ import {
   PublicKey,
 } from '@metaplex-foundation/umi';
 import {
-  getMplTokenMetadataErrorFromCode,
-  getMplTokenMetadataErrorFromName,
+  getTokenMetadataErrorFromCode,
+  getTokenMetadataErrorFromName,
 } from '../errors';
 
-export const MPL_TOKEN_METADATA_PROGRAM_ID =
+export const TOKEN_METADATA_PROGRAM_ID =
   'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s' as PublicKey<'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'>;
 
-export function createMplTokenMetadataProgram(): Program {
+export function createTokenMetadataProgram(): Program {
   return {
-    name: 'mplTokenMetadata',
-    publicKey: MPL_TOKEN_METADATA_PROGRAM_ID,
+    name: 'tokenMetadata',
+    publicKey: TOKEN_METADATA_PROGRAM_ID,
     getErrorFromCode(code: number, cause?: Error) {
-      return getMplTokenMetadataErrorFromCode(code, this, cause);
+      return getTokenMetadataErrorFromCode(code, this, cause);
     },
     getErrorFromName(name: string, cause?: Error) {
-      return getMplTokenMetadataErrorFromName(name, this, cause);
+      return getTokenMetadataErrorFromName(name, this, cause);
     },
     isOnCluster() {
       return true;
@@ -36,20 +36,20 @@ export function createMplTokenMetadataProgram(): Program {
   };
 }
 
-export function getMplTokenMetadataProgram<T extends Program = Program>(
+export function getTokenMetadataProgram<T extends Program = Program>(
   context: Pick<Context, 'programs'>,
   clusterFilter?: ClusterFilter
 ): T {
-  return context.programs.get<T>('mplTokenMetadata', clusterFilter);
+  return context.programs.get<T>('tokenMetadata', clusterFilter);
 }
 
-export function getMplTokenMetadataProgramId(
+export function getTokenMetadataProgramId(
   context: Pick<Context, 'programs'>,
   clusterFilter?: ClusterFilter
 ): PublicKey {
   return context.programs.getPublicKey(
-    'mplTokenMetadata',
-    MPL_TOKEN_METADATA_PROGRAM_ID,
+    'tokenMetadata',
+    TOKEN_METADATA_PROGRAM_ID,
     clusterFilter
   );
 }

@@ -23,12 +23,12 @@ impl EditionMarker {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                crate::TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "edition".as_bytes(),
                 edition_marker.to_string().as_ref(),
             ],
-            &crate::MPL_TOKEN_METADATA_ID,
+            &crate::TOKEN_METADATA_ID,
         )
     }
     pub fn create_pda(
@@ -39,13 +39,13 @@ impl EditionMarker {
         solana_program::pubkey::Pubkey::create_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                crate::TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "edition".as_bytes(),
                 edition_marker.to_string().as_ref(),
                 &[bump],
             ],
-            &crate::MPL_TOKEN_METADATA_ID,
+            &crate::TOKEN_METADATA_ID,
         )
     }
 }

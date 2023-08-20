@@ -94,7 +94,7 @@ export function createEscrowAccount(
 
   // Program ID.
   const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
+    'tokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 

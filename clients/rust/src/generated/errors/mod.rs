@@ -5,6 +5,6 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-mod mpl_token_metadata;
+mod token_metadata;
 
-pub use mpl_token_metadata::MplTokenMetadataError;
+pub use token_metadata::TokenMetadataError;

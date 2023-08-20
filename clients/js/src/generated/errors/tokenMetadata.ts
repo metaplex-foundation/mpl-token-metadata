@@ -2841,7 +2841,7 @@ nameToErrorMap.set('InvalidMetadataFlags', InvalidMetadataFlagsError);
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  */
-export function getMplTokenMetadataErrorFromCode(
+export function getTokenMetadataErrorFromCode(
   code: number,
   program: Program,
   cause?: Error
@@ -2854,7 +2854,7 @@ export function getMplTokenMetadataErrorFromCode(
  * Attempts to resolve a custom program error from the provided error name, i.e. 'Unauthorized'.
  * @category Errors
  */
-export function getMplTokenMetadataErrorFromName(
+export function getTokenMetadataErrorFromName(
   name: string,
   program: Program,
   cause?: Error

@@ -149,7 +149,7 @@ export function getMasterEditionGpaBuilder(
   context: Pick<Context, 'rpc' | 'programs'>
 ) {
   const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
+    'tokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
   return gpaBuilder(context, programId)
@@ -180,7 +180,7 @@ export function findMasterEditionPda(
   }
 ): Pda {
   const programId = context.programs.getPublicKey(
-    'mplTokenMetadata',
+    'tokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
   return context.eddsa.findPda(programId, [

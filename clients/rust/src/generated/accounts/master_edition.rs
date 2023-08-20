@@ -24,11 +24,11 @@ impl MasterEdition {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                crate::TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "edition".as_bytes(),
             ],
-            &crate::MPL_TOKEN_METADATA_ID,
+            &crate::TOKEN_METADATA_ID,
         )
     }
     pub fn create_pda(
@@ -38,12 +38,12 @@ impl MasterEdition {
         solana_program::pubkey::Pubkey::create_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                crate::TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "edition".as_bytes(),
                 &[bump],
             ],
-            &crate::MPL_TOKEN_METADATA_ID,
+            &crate::TOKEN_METADATA_ID,
         )
     }
 }

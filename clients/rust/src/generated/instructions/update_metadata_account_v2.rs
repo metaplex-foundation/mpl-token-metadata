@@ -34,7 +34,7 @@ impl UpdateMetadataAccountV2 {
         ));
 
         solana_program::instruction::Instruction {
-            program_id: crate::MPL_TOKEN_METADATA_ID,
+            program_id: crate::TOKEN_METADATA_ID,
             accounts,
             data: args.try_to_vec().unwrap(),
         }
@@ -160,7 +160,7 @@ impl<'a> UpdateMetadataAccountV2Cpi<'a> {
         ));
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::MPL_TOKEN_METADATA_ID,
+            program_id: crate::TOKEN_METADATA_ID,
             accounts,
             data: args.try_to_vec().unwrap(),
         };

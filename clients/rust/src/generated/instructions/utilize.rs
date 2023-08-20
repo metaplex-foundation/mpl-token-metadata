@@ -81,7 +81,7 @@ impl Utilize {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
+                crate::TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -91,13 +91,13 @@ impl Utilize {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
+                crate::TOKEN_METADATA_ID,
                 false,
             ));
         }
 
         solana_program::instruction::Instruction {
-            program_id: crate::MPL_TOKEN_METADATA_ID,
+            program_id: crate::TOKEN_METADATA_ID,
             accounts,
             data: args.try_to_vec().unwrap(),
         }
@@ -333,7 +333,7 @@ impl<'a> UtilizeCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
+                crate::TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -344,13 +344,13 @@ impl<'a> UtilizeCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
+                crate::TOKEN_METADATA_ID,
                 false,
             ));
         }
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::MPL_TOKEN_METADATA_ID,
+            program_id: crate::TOKEN_METADATA_ID,
             accounts,
             data: self.__args.try_to_vec().unwrap(),
         };
