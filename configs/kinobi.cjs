@@ -35,6 +35,13 @@ kinobi.update(
         ),
       ],
     },
+    editionMarkerV2: {
+      seeds: [
+        ...metadataSeeds,
+        k.stringConstantSeed("edition"),
+        k.stringConstantSeed("marker"),
+      ],
+    },
     tokenRecord: {
       size: 80,
       seeds: [
@@ -673,6 +680,67 @@ kinobi.update(
             k.dependsOnAccount("authority"),
           ]),
         },
+      },
+    },
+    printV1: {
+      accounts: {
+        editionMint: { isSigner: "either" },
+        editionMintAuthority: {
+          defaultsTo: k.accountDefault("masterTokenAccountOwner"),
+        },
+        masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        editionTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        editionMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        edition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        editionMarkerPda: {
+          defaultsTo: k.resolverDefault("resolveEditionMarkerForPrint", [
+            k.dependsOnArg("masterEditionMint"),
+            k.dependsOnArg("editionNumber"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+        editionTokenAccount: {
+          defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
+        },
+        masterTokenAccount: {
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplToolbox",
+            seeds: {
+              mint: k.argDefault("masterEditionMint"),
+              owner: k.accountDefault("masterTokenAccountOwner"),
+            },
+          }),
+        },
+        masterMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
+          }),
+        },
+        masterEdition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
+          }),
+        },
+        editionTokenRecord: {
+          defaultsTo: k.resolverDefault("resolveTokenRecordForPrint", [
+            k.dependsOnAccount("editionMint"),
+            k.dependsOnAccount("editionTokenAccount"),
+            k.dependsOnArg("tokenStandard"),
+          ]),
+        },
+      },
+      args: {
+        edition: { name: "editionNumber" },
+        masterEditionMint: { type: k.publicKeyTypeNode() },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
       },
     },
     // Update.
