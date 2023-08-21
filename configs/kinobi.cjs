@@ -8,6 +8,14 @@ const idlDir = path.join(__dirname, "..", "idls");
 // Instanciate Kinobi.
 const kinobi = k.createFromIdls([path.join(idlDir, "token_metadata.json")]);
 
+kinobi.update(
+  new k.UpdateProgramsVisitor({
+    tokenMetadata: {
+      name: "mplTokenMetadata",
+    },
+  })
+);
+
 // Update Accounts.
 const metadataSeeds = [
   k.stringConstantSeed("metadata"),

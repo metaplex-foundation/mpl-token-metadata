@@ -81,7 +81,7 @@ impl Utilize {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -91,32 +91,36 @@ impl Utilize {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UtilizeInstructionData {
+    discriminator: u8,
+}
+
+impl UtilizeInstructionData {
+    fn new() -> Self {
+        Self { discriminator: 19 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct UtilizeInstructionArgs {
-    discriminator: u8,
     pub number_of_uses: u64,
-}
-
-impl UtilizeInstructionArgs {
-    pub fn new(number_of_uses: u64) -> Self {
-        Self {
-            discriminator: 19,
-            number_of_uses,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -239,11 +243,12 @@ impl UtilizeBuilder {
             use_authority_record: self.use_authority_record,
             burner: self.burner,
         };
-        let args = UtilizeInstructionArgs::new(
-            self.number_of_uses
+        let args = UtilizeInstructionArgs {
+            number_of_uses: self
+                .number_of_uses
                 .clone()
                 .expect("number_of_uses is not set"),
-        );
+        };
 
         accounts.instruction(args)
     }
@@ -333,7 +338,7 @@ impl<'a> UtilizeCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -344,15 +349,18 @@ impl<'a> UtilizeCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(11 + 1);
         account_infos.push(self.__program.clone());
@@ -503,12 +511,13 @@ impl<'a> UtilizeCpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> UtilizeCpi<'a> {
-        let args = UtilizeInstructionArgs::new(
-            self.instruction
+        let args = UtilizeInstructionArgs {
+            number_of_uses: self
+                .instruction
                 .number_of_uses
                 .clone()
                 .expect("number_of_uses is not set"),
-        );
+        };
 
         UtilizeCpi {
             __program: self.instruction.__program,

@@ -9,7 +9,7 @@ use num_derive::FromPrimitive;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
-pub enum TokenMetadataError {
+pub enum MplTokenMetadataError {
     /// 0x0 -
     #[error("")]
     InstructionUnpackError,
@@ -591,7 +591,7 @@ pub enum TokenMetadataError {
     InvalidMetadataFlags,
 }
 
-impl solana_program::program_error::PrintProgramError for TokenMetadataError {
+impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {
     fn print<E>(&self) {
         solana_program::msg!(&self.to_string());
     }

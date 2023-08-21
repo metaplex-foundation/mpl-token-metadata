@@ -21,8 +21,6 @@ pub struct UpdatePrimarySaleHappenedViaToken {
 impl UpdatePrimarySaleHappenedViaToken {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UpdatePrimarySaleHappenedViaTokenInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(3);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -34,22 +32,25 @@ impl UpdatePrimarySaleHappenedViaToken {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.token, false,
         ));
+        let data = UpdatePrimarySaleHappenedViaTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UpdatePrimarySaleHappenedViaTokenInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UpdatePrimarySaleHappenedViaTokenInstructionData {
     discriminator: u8,
 }
 
-impl UpdatePrimarySaleHappenedViaTokenInstructionArgs {
-    pub fn new() -> Self {
+impl UpdatePrimarySaleHappenedViaTokenInstructionData {
+    fn new() -> Self {
         Self { discriminator: 4 }
     }
 }
@@ -118,8 +119,6 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UpdatePrimarySaleHappenedViaTokenInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(3);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -133,11 +132,14 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
             *self.token.key,
             false,
         ));
+        let data = UpdatePrimarySaleHappenedViaTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(3 + 1);
         account_infos.push(self.__program.clone());

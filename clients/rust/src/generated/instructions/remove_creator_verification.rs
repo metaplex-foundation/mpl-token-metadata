@@ -19,8 +19,6 @@ pub struct RemoveCreatorVerification {
 impl RemoveCreatorVerification {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = RemoveCreatorVerificationInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(2);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -30,22 +28,25 @@ impl RemoveCreatorVerification {
             self.creator,
             true,
         ));
+        let data = RemoveCreatorVerificationInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct RemoveCreatorVerificationInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct RemoveCreatorVerificationInstructionData {
     discriminator: u8,
 }
 
-impl RemoveCreatorVerificationInstructionArgs {
-    pub fn new() -> Self {
+impl RemoveCreatorVerificationInstructionData {
+    fn new() -> Self {
         Self { discriminator: 28 }
     }
 }
@@ -104,8 +105,6 @@ impl<'a> RemoveCreatorVerificationCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = RemoveCreatorVerificationInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(2);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -115,11 +114,14 @@ impl<'a> RemoveCreatorVerificationCpi<'a> {
             *self.creator.key,
             true,
         ));
+        let data = RemoveCreatorVerificationInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(2 + 1);
         account_infos.push(self.__program.clone());

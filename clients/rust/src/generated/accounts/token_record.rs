@@ -30,12 +30,12 @@ impl TokenRecord {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::TOKEN_METADATA_ID.as_ref(),
+                crate::MPL_TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "token_record".as_bytes(),
                 token.as_ref(),
             ],
-            &crate::TOKEN_METADATA_ID,
+            &crate::MPL_TOKEN_METADATA_ID,
         )
     }
     pub fn create_pda(
@@ -46,13 +46,13 @@ impl TokenRecord {
         solana_program::pubkey::Pubkey::create_program_address(
             &[
                 "metadata".as_bytes(),
-                crate::TOKEN_METADATA_ID.as_ref(),
+                crate::MPL_TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
                 "token_record".as_bytes(),
                 token.as_ref(),
                 &[bump],
             ],
-            &crate::TOKEN_METADATA_ID,
+            &crate::MPL_TOKEN_METADATA_ID,
         )
     }
 }

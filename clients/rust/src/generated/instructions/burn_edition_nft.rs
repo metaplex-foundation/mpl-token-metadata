@@ -35,8 +35,6 @@ pub struct BurnEditionNft {
 impl BurnEditionNft {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = BurnEditionNftInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(10);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -77,22 +75,23 @@ impl BurnEditionNft {
             self.spl_token_program,
             false,
         ));
+        let data = BurnEditionNftInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct BurnEditionNftInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct BurnEditionNftInstructionData {
     discriminator: u8,
 }
 
-impl BurnEditionNftInstructionArgs {
-    pub fn new() -> Self {
+impl BurnEditionNftInstructionData {
+    fn new() -> Self {
         Self { discriminator: 37 }
     }
 }
@@ -271,8 +270,6 @@ impl<'a> BurnEditionNftCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = BurnEditionNftInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(10);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -314,11 +311,12 @@ impl<'a> BurnEditionNftCpi<'a> {
             *self.spl_token_program.key,
             false,
         ));
+        let data = BurnEditionNftInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(10 + 1);
         account_infos.push(self.__program.clone());

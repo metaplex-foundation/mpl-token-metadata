@@ -43,8 +43,6 @@ pub struct RevokeDataItemV1 {
 impl RevokeDataItemV1 {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = RevokeDataItemV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(14);
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -53,7 +51,7 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -72,7 +70,7 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -83,7 +81,7 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -94,7 +92,7 @@ impl RevokeDataItemV1 {
             accounts.push(solana_program::instruction::AccountMeta::new(token, false));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -120,7 +118,7 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -131,7 +129,7 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -142,27 +140,28 @@ impl RevokeDataItemV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = RevokeDataItemV1InstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct RevokeDataItemV1InstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct RevokeDataItemV1InstructionData {
     discriminator: u8,
     revoke_data_item_v1_discriminator: u8,
 }
 
-impl RevokeDataItemV1InstructionArgs {
-    pub fn new() -> Self {
+impl RevokeDataItemV1InstructionData {
+    fn new() -> Self {
         Self {
             discriminator: 45,
             revoke_data_item_v1_discriminator: 11,
@@ -370,8 +369,6 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = RevokeDataItemV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(14);
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -380,7 +377,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -399,7 +396,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -410,7 +407,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -424,7 +421,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -451,7 +448,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -462,7 +459,7 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -473,15 +470,16 @@ impl<'a> RevokeDataItemV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = RevokeDataItemV1InstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(14 + 1);
         account_infos.push(self.__program.clone());

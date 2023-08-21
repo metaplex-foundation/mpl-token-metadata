@@ -23,8 +23,6 @@ pub struct SetTokenStandard {
 impl SetTokenStandard {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = SetTokenStandardInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(4);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -43,26 +41,27 @@ impl SetTokenStandard {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = SetTokenStandardInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct SetTokenStandardInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct SetTokenStandardInstructionData {
     discriminator: u8,
 }
 
-impl SetTokenStandardInstructionArgs {
-    pub fn new() -> Self {
+impl SetTokenStandardInstructionData {
+    fn new() -> Self {
         Self { discriminator: 35 }
     }
 }
@@ -145,8 +144,6 @@ impl<'a> SetTokenStandardCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = SetTokenStandardInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(4);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -167,15 +164,16 @@ impl<'a> SetTokenStandardCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = SetTokenStandardInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(4 + 1);
         account_infos.push(self.__program.clone());

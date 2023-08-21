@@ -83,32 +83,38 @@ impl ApproveUseAuthority {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = ApproveUseAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct ApproveUseAuthorityInstructionData {
+    discriminator: u8,
+}
+
+impl ApproveUseAuthorityInstructionData {
+    fn new() -> Self {
+        Self { discriminator: 20 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct ApproveUseAuthorityInstructionArgs {
-    discriminator: u8,
     pub number_of_uses: u64,
-}
-
-impl ApproveUseAuthorityInstructionArgs {
-    pub fn new(number_of_uses: u64) -> Self {
-        Self {
-            discriminator: 20,
-            number_of_uses,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -233,11 +239,12 @@ impl ApproveUseAuthorityBuilder {
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
             rent: self.rent,
         };
-        let args = ApproveUseAuthorityInstructionArgs::new(
-            self.number_of_uses
+        let args = ApproveUseAuthorityInstructionArgs {
+            number_of_uses: self
+                .number_of_uses
                 .clone()
                 .expect("number_of_uses is not set"),
-        );
+        };
 
         accounts.instruction(args)
     }
@@ -330,15 +337,20 @@ impl<'a> ApproveUseAuthorityCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = ApproveUseAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(11 + 1);
         account_infos.push(self.__program.clone());
@@ -480,12 +492,13 @@ impl<'a> ApproveUseAuthorityCpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> ApproveUseAuthorityCpi<'a> {
-        let args = ApproveUseAuthorityInstructionArgs::new(
-            self.instruction
+        let args = ApproveUseAuthorityInstructionArgs {
+            number_of_uses: self
+                .instruction
                 .number_of_uses
                 .clone()
                 .expect("number_of_uses is not set"),
-        );
+        };
 
         ApproveUseAuthorityCpi {
             __program: self.instruction.__program,

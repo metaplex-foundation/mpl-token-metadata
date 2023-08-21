@@ -43,9 +43,10 @@ pub struct DelegateSaleV1 {
 
 impl DelegateSaleV1 {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = DelegateSaleV1InstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: DelegateSaleV1InstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(14);
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -54,7 +55,7 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -73,7 +74,7 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -84,7 +85,7 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -116,7 +117,7 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -127,7 +128,7 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -138,36 +139,41 @@ impl DelegateSaleV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = DelegateSaleV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct DelegateSaleV1InstructionData {
+    discriminator: u8,
+    delegate_sale_v1_discriminator: u8,
+}
+
+impl DelegateSaleV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 44,
+            delegate_sale_v1_discriminator: 1,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct DelegateSaleV1InstructionArgs {
-    discriminator: u8,
-    delegate_sale_v1_discriminator: u8,
+pub struct DelegateSaleV1InstructionArgs {
     pub amount: u64,
     pub authorization_data: Option<AuthorizationData>,
-}
-
-impl DelegateSaleV1InstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 44,
-            delegate_sale_v1_discriminator: 1,
-            amount: 1,
-            authorization_data: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -300,6 +306,7 @@ impl DelegateSaleV1Builder {
         self.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
@@ -333,8 +340,12 @@ impl DelegateSaleV1Builder {
             authorization_rules_program: self.authorization_rules_program,
             authorization_rules: self.authorization_rules,
         };
+        let args = DelegateSaleV1InstructionArgs {
+            amount: self.amount.clone().unwrap_or(1),
+            authorization_data: self.authorization_data.clone(),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -370,6 +381,8 @@ pub struct DelegateSaleV1Cpi<'a> {
     pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
     pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// The arguments for the instruction.
+    pub __args: DelegateSaleV1InstructionArgs,
 }
 
 impl<'a> DelegateSaleV1Cpi<'a> {
@@ -382,8 +395,6 @@ impl<'a> DelegateSaleV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = DelegateSaleV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(14);
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -392,7 +403,7 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -411,7 +422,7 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -422,7 +433,7 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -457,7 +468,7 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -468,7 +479,7 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -479,15 +490,18 @@ impl<'a> DelegateSaleV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = DelegateSaleV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(14 + 1);
         account_infos.push(self.__program.clone());
@@ -677,6 +691,7 @@ impl<'a> DelegateSaleV1CpiBuilder<'a> {
         self.instruction.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
@@ -690,6 +705,11 @@ impl<'a> DelegateSaleV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> DelegateSaleV1Cpi<'a> {
+        let args = DelegateSaleV1InstructionArgs {
+            amount: self.instruction.amount.clone().unwrap_or(1),
+            authorization_data: self.instruction.authorization_data.clone(),
+        };
+
         DelegateSaleV1Cpi {
             __program: self.instruction.__program,
 
@@ -726,6 +746,7 @@ impl<'a> DelegateSaleV1CpiBuilder<'a> {
             authorization_rules_program: self.instruction.authorization_rules_program,
 
             authorization_rules: self.instruction.authorization_rules,
+            __args: args,
         }
     }
 }

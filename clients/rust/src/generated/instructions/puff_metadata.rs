@@ -17,29 +17,28 @@ pub struct PuffMetadata {
 impl PuffMetadata {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = PuffMetadataInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(1);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
             false,
         ));
+        let data = PuffMetadataInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct PuffMetadataInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct PuffMetadataInstructionData {
     discriminator: u8,
 }
 
-impl PuffMetadataInstructionArgs {
-    pub fn new() -> Self {
+impl PuffMetadataInstructionData {
+    fn new() -> Self {
         Self { discriminator: 14 }
     }
 }
@@ -88,18 +87,17 @@ impl<'a> PuffMetadataCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = PuffMetadataInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(1);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
             false,
         ));
+        let data = PuffMetadataInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(1 + 1);
         account_infos.push(self.__program.clone());

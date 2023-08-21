@@ -40,9 +40,10 @@ pub struct TransferOutOfEscrow {
 
 impl TransferOutOfEscrow {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = TransferOutOfEscrowInstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: TransferOutOfEscrowInstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(13);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.escrow,
@@ -97,32 +98,38 @@ impl TransferOutOfEscrow {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = TransferOutOfEscrowInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct TransferOutOfEscrowInstructionData {
+    discriminator: u8,
+}
+
+impl TransferOutOfEscrowInstructionData {
+    fn new() -> Self {
+        Self { discriminator: 40 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct TransferOutOfEscrowInstructionArgs {
-    discriminator: u8,
+pub struct TransferOutOfEscrowInstructionArgs {
     pub amount: u64,
-}
-
-impl TransferOutOfEscrowInstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 40,
-            amount: 1,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -230,6 +237,7 @@ impl TransferOutOfEscrowBuilder {
         self.authority = Some(authority);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
@@ -260,8 +268,11 @@ impl TransferOutOfEscrowBuilder {
             )),
             authority: self.authority,
         };
+        let args = TransferOutOfEscrowInstructionArgs {
+            amount: self.amount.clone().unwrap_or(1),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -295,6 +306,8 @@ pub struct TransferOutOfEscrowCpi<'a> {
     pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
     /// Authority/creator of the escrow account
     pub authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// The arguments for the instruction.
+    pub __args: TransferOutOfEscrowInstructionArgs,
 }
 
 impl<'a> TransferOutOfEscrowCpi<'a> {
@@ -307,8 +320,6 @@ impl<'a> TransferOutOfEscrowCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = TransferOutOfEscrowInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(13);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.escrow.key,
@@ -365,15 +376,20 @@ impl<'a> TransferOutOfEscrowCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = TransferOutOfEscrowInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(13 + 1);
         account_infos.push(self.__program.clone());
@@ -542,6 +558,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
         self.instruction.authority = Some(authority);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
@@ -549,6 +566,10 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> TransferOutOfEscrowCpi<'a> {
+        let args = TransferOutOfEscrowInstructionArgs {
+            amount: self.instruction.amount.clone().unwrap_or(1),
+        };
+
         TransferOutOfEscrowCpi {
             __program: self.instruction.__program,
 
@@ -604,6 +625,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
                 .expect("sysvar_instructions is not set"),
 
             authority: self.instruction.authority,
+            __args: args,
         }
     }
 }

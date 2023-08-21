@@ -86,7 +86,7 @@ impl PrintV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -133,30 +133,36 @@ impl PrintV1 {
             self.system_program,
             false,
         ));
+        let mut data = PrintV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct PrintV1InstructionData {
+    discriminator: u8,
+    print_v1_discriminator: u8,
+}
+
+impl PrintV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 55,
+            print_v1_discriminator: 0,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct PrintV1InstructionArgs {
-    discriminator: u8,
-    print_v1_discriminator: u8,
     pub edition_arg: u64,
-}
-
-impl PrintV1InstructionArgs {
-    pub fn new(edition_arg: u64) -> Self {
-        Self {
-            discriminator: 55,
-            print_v1_discriminator: 0,
-            edition_arg,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -382,8 +388,9 @@ impl PrintV1Builder {
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args =
-            PrintV1InstructionArgs::new(self.edition_arg.clone().expect("edition_arg is not set"));
+        let args = PrintV1InstructionArgs {
+            edition_arg: self.edition_arg.clone().expect("edition_arg is not set"),
+        };
 
         accounts.instruction(args)
     }
@@ -475,7 +482,7 @@ impl<'a> PrintV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -523,11 +530,14 @@ impl<'a> PrintV1Cpi<'a> {
             *self.system_program.key,
             false,
         ));
+        let mut data = PrintV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(18 + 1);
         account_infos.push(self.__program.clone());
@@ -758,12 +768,13 @@ impl<'a> PrintV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> PrintV1Cpi<'a> {
-        let args = PrintV1InstructionArgs::new(
-            self.instruction
+        let args = PrintV1InstructionArgs {
+            edition_arg: self
+                .instruction
                 .edition_arg
                 .clone()
                 .expect("edition_arg is not set"),
-        );
+        };
 
         PrintV1Cpi {
             __program: self.instruction.__program,

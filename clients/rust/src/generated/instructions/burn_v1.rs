@@ -42,9 +42,10 @@ pub struct BurnV1 {
 
 impl BurnV1 {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = BurnV1InstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: BurnV1InstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(14);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.authority,
@@ -57,7 +58,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -71,7 +72,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -88,7 +89,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -99,7 +100,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -110,7 +111,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -121,7 +122,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -132,7 +133,7 @@ impl BurnV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -148,30 +149,36 @@ impl BurnV1 {
             self.spl_token_program,
             false,
         ));
+        let mut data = BurnV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct BurnV1InstructionData {
+    discriminator: u8,
+    burn_v1_discriminator: u8,
+}
+
+impl BurnV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 41,
+            burn_v1_discriminator: 0,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct BurnV1InstructionArgs {
-    discriminator: u8,
-    burn_v1_discriminator: u8,
+pub struct BurnV1InstructionArgs {
     pub amount: u64,
-}
-
-impl BurnV1InstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 41,
-            burn_v1_discriminator: 0,
-            amount: 1,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -304,6 +311,7 @@ impl BurnV1Builder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
@@ -333,8 +341,11 @@ impl BurnV1Builder {
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             )),
         };
+        let args = BurnV1InstructionArgs {
+            amount: self.amount.clone().unwrap_or(1),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -370,6 +381,8 @@ pub struct BurnV1Cpi<'a> {
     pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
     /// SPL Token Program
     pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// The arguments for the instruction.
+    pub __args: BurnV1InstructionArgs,
 }
 
 impl<'a> BurnV1Cpi<'a> {
@@ -382,8 +395,6 @@ impl<'a> BurnV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = BurnV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(14);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.authority.key,
@@ -396,7 +407,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -411,7 +422,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -430,7 +441,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -441,7 +452,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -452,7 +463,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -463,7 +474,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -474,7 +485,7 @@ impl<'a> BurnV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -490,11 +501,14 @@ impl<'a> BurnV1Cpi<'a> {
             *self.spl_token_program.key,
             false,
         ));
+        let mut data = BurnV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(14 + 1);
         account_infos.push(self.__program.clone());
@@ -689,6 +703,7 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
@@ -696,6 +711,10 @@ impl<'a> BurnV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> BurnV1Cpi<'a> {
+        let args = BurnV1InstructionArgs {
+            amount: self.instruction.amount.clone().unwrap_or(1),
+        };
+
         BurnV1Cpi {
             __program: self.instruction.__program,
 
@@ -735,6 +754,7 @@ impl<'a> BurnV1CpiBuilder<'a> {
                 .instruction
                 .spl_token_program
                 .expect("spl_token_program is not set"),
+            __args: args,
         }
     }
 }

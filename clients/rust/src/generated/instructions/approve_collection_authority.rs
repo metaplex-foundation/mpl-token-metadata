@@ -31,8 +31,6 @@ pub struct ApproveCollectionAuthority {
 impl ApproveCollectionAuthority {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = ApproveCollectionAuthorityInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(8);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.collection_authority_record,
@@ -66,26 +64,29 @@ impl ApproveCollectionAuthority {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = ApproveCollectionAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct ApproveCollectionAuthorityInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct ApproveCollectionAuthorityInstructionData {
     discriminator: u8,
 }
 
-impl ApproveCollectionAuthorityInstructionArgs {
-    pub fn new() -> Self {
+impl ApproveCollectionAuthorityInstructionData {
+    fn new() -> Self {
         Self { discriminator: 23 }
     }
 }
@@ -220,8 +221,6 @@ impl<'a> ApproveCollectionAuthorityCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = ApproveCollectionAuthorityInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(8);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.collection_authority_record.key,
@@ -257,15 +256,18 @@ impl<'a> ApproveCollectionAuthorityCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = ApproveCollectionAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(8 + 1);
         account_infos.push(self.__program.clone());

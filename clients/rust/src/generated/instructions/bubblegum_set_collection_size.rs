@@ -53,32 +53,38 @@ impl BubblegumSetCollectionSize {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = BubblegumSetCollectionSizeInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct BubblegumSetCollectionSizeInstructionData {
+    discriminator: u8,
+}
+
+impl BubblegumSetCollectionSizeInstructionData {
+    fn new() -> Self {
+        Self { discriminator: 36 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct BubblegumSetCollectionSizeInstructionArgs {
-    discriminator: u8,
     pub set_collection_size_args: SetCollectionSizeArgs,
-}
-
-impl BubblegumSetCollectionSizeInstructionArgs {
-    pub fn new(set_collection_size_args: SetCollectionSizeArgs) -> Self {
-        Self {
-            discriminator: 36,
-            set_collection_size_args,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -163,11 +169,12 @@ impl BubblegumSetCollectionSizeBuilder {
             bubblegum_signer: self.bubblegum_signer.expect("bubblegum_signer is not set"),
             collection_authority_record: self.collection_authority_record,
         };
-        let args = BubblegumSetCollectionSizeInstructionArgs::new(
-            self.set_collection_size_args
+        let args = BubblegumSetCollectionSizeInstructionArgs {
+            set_collection_size_args: self
+                .set_collection_size_args
                 .clone()
                 .expect("set_collection_size_args is not set"),
-        );
+        };
 
         accounts.instruction(args)
     }
@@ -225,15 +232,20 @@ impl<'a> BubblegumSetCollectionSizeCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = BubblegumSetCollectionSizeInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(5 + 1);
         account_infos.push(self.__program.clone());
@@ -327,12 +339,13 @@ impl<'a> BubblegumSetCollectionSizeCpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> BubblegumSetCollectionSizeCpi<'a> {
-        let args = BubblegumSetCollectionSizeInstructionArgs::new(
-            self.instruction
+        let args = BubblegumSetCollectionSizeInstructionArgs {
+            set_collection_size_args: self
+                .instruction
                 .set_collection_size_args
                 .clone()
                 .expect("set_collection_size_args is not set"),
-        );
+        };
 
         BubblegumSetCollectionSizeCpi {
             __program: self.instruction.__program,

@@ -8,9 +8,9 @@ use solana_sdk::signature::{Keypair, Signer};
 use solana_sdk::transaction::Transaction;
 use spl_token::state::Account;
 
-use mpl_token_metadata_sdk::instructions::DelegateStandardV1Builder;
-use mpl_token_metadata_sdk::instructions::LockV1Builder;
-use mpl_token_metadata_sdk::types::TokenStandard;
+use mpl_token_metadata::instructions::DelegateStandardV1Builder;
+use mpl_token_metadata::instructions::LockV1Builder;
+use mpl_token_metadata::types::TokenStandard;
 
 mod lock {
 

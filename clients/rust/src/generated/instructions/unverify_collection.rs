@@ -27,8 +27,6 @@ pub struct UnverifyCollection {
 impl UnverifyCollection {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UnverifyCollectionInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(6);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -57,26 +55,29 @@ impl UnverifyCollection {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = UnverifyCollectionInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UnverifyCollectionInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UnverifyCollectionInstructionData {
     discriminator: u8,
 }
 
-impl UnverifyCollectionInstructionArgs {
-    pub fn new() -> Self {
+impl UnverifyCollectionInstructionData {
+    fn new() -> Self {
         Self { discriminator: 22 }
     }
 }
@@ -192,8 +193,6 @@ impl<'a> UnverifyCollectionCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UnverifyCollectionInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(6);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -222,15 +221,18 @@ impl<'a> UnverifyCollectionCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = UnverifyCollectionInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(6 + 1);
         account_infos.push(self.__program.clone());

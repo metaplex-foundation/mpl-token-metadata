@@ -11,16 +11,16 @@ use solana_sdk::{
     transaction::Transaction,
 };
 
-use mpl_token_metadata_sdk::accounts::MasterEdition;
-use mpl_token_metadata_sdk::{
+use mpl_token_metadata::accounts::MasterEdition;
+use mpl_token_metadata::{
     accounts::Metadata,
     types::{Key, PrintSupply},
 };
-use mpl_token_metadata_sdk::{
+use mpl_token_metadata::{
     clean,
     instructions::{CreateV1, CreateV1InstructionArgs},
 };
-use mpl_token_metadata_sdk::{instructions::CreateV1Builder, types::TokenStandard};
+use mpl_token_metadata::{instructions::CreateV1Builder, types::TokenStandard};
 
 mod create {
 
@@ -109,14 +109,22 @@ mod create {
 
         // when we create a programmable non-fungible metadata
 
-        let mut args = CreateV1InstructionArgs::new(
-            String::from("pNFT"),
-            String::from("http://my.pnft"),
-            500,
-            None,
-            TokenStandard::ProgrammableNonFungible,
-        );
-        args.print_supply = Some(PrintSupply::Zero);
+        let args = CreateV1InstructionArgs {
+            name: String::from("pNFT"),
+            uri: String::from("http://my.pnft"),
+            symbol: String::from(""),
+            seller_fee_basis_points: 500,
+            primary_sale_happened: false,
+            is_mutable: true,
+            creators: None,
+            token_standard: TokenStandard::ProgrammableNonFungible,
+            collection: None,
+            collection_details: None,
+            decimals: Some(0),
+            print_supply: Some(PrintSupply::Zero),
+            rule_set: None,
+            uses: None,
+        };
 
         let create_ix = CreateV1 {
             metadata,

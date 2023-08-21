@@ -1,4 +1,4 @@
-use mpl_token_metadata_sdk::{
+use mpl_token_metadata::{
     accounts::{MasterEdition, Metadata},
     instructions::{CreateV1Builder, MintV1Builder},
     types::{PrintSupply, TokenStandard},

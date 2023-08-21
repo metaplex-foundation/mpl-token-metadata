@@ -55,7 +55,7 @@ impl CreateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -86,19 +86,35 @@ impl CreateV1 {
             self.spl_token_program,
             false,
         ));
+        let mut data = CreateV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct CreateV1InstructionData {
+    discriminator: u8,
+    create_v1_discriminator: u8,
+}
+
+impl CreateV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 42,
+            create_v1_discriminator: 0,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct CreateV1InstructionArgs {
-    discriminator: u8,
-    create_v1_discriminator: u8,
     pub name: String,
     pub symbol: String,
     pub uri: String,
@@ -113,35 +129,6 @@ pub struct CreateV1InstructionArgs {
     pub rule_set: Option<Pubkey>,
     pub decimals: Option<u8>,
     pub print_supply: Option<PrintSupply>,
-}
-
-impl CreateV1InstructionArgs {
-    pub fn new(
-        name: String,
-        uri: String,
-        seller_fee_basis_points: u16,
-        creators: Option<Vec<Creator>>,
-        token_standard: TokenStandard,
-    ) -> Self {
-        Self {
-            discriminator: 42,
-            create_v1_discriminator: 0,
-            name,
-            symbol: String::from(""),
-            uri,
-            seller_fee_basis_points,
-            creators,
-            primary_sale_happened: false,
-            is_mutable: true,
-            token_standard,
-            collection: None,
-            uses: None,
-            collection_details: None,
-            rule_set: None,
-            decimals: None,
-            print_supply: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -246,6 +233,7 @@ impl CreateV1Builder {
         self.name = Some(name);
         self
     }
+    /// `[optional argument, defaults to 'String::from("")']`
     #[inline(always)]
     pub fn symbol(&mut self, symbol: String) -> &mut Self {
         self.symbol = Some(symbol);
@@ -267,11 +255,13 @@ impl CreateV1Builder {
         self.creators = Some(creators);
         self
     }
+    /// `[optional argument, defaults to 'false']`
     #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument, defaults to 'true']`
     #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.is_mutable = Some(is_mutable);
@@ -337,32 +327,28 @@ impl CreateV1Builder {
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             )),
         };
-        let mut args = CreateV1InstructionArgs::new(
-            self.name.clone().expect("name is not set"),
-            self.uri.clone().expect("uri is not set"),
-            self.seller_fee_basis_points
+        let args = CreateV1InstructionArgs {
+            name: self.name.clone().expect("name is not set"),
+            symbol: self.symbol.clone().unwrap_or(String::from("")),
+            uri: self.uri.clone().expect("uri is not set"),
+            seller_fee_basis_points: self
+                .seller_fee_basis_points
                 .clone()
                 .expect("seller_fee_basis_points is not set"),
-            self.creators.clone(),
-            self.token_standard
+            creators: self.creators.clone(),
+            primary_sale_happened: self.primary_sale_happened.clone().unwrap_or(false),
+            is_mutable: self.is_mutable.clone().unwrap_or(true),
+            token_standard: self
+                .token_standard
                 .clone()
                 .expect("token_standard is not set"),
-        );
-        if let Some(symbol) = &self.symbol {
-            args.symbol = symbol.clone();
-        }
-        if let Some(primary_sale_happened) = &self.primary_sale_happened {
-            args.primary_sale_happened = primary_sale_happened.clone();
-        }
-        if let Some(is_mutable) = &self.is_mutable {
-            args.is_mutable = is_mutable.clone();
-        }
-        args.collection = self.collection.clone();
-        args.uses = self.uses.clone();
-        args.collection_details = self.collection_details.clone();
-        args.rule_set = self.rule_set.clone();
-        args.decimals = self.decimals.clone();
-        args.print_supply = self.print_supply.clone();
+            collection: self.collection.clone(),
+            uses: self.uses.clone(),
+            collection_details: self.collection_details.clone(),
+            rule_set: self.rule_set.clone(),
+            decimals: self.decimals.clone(),
+            print_supply: self.print_supply.clone(),
+        };
 
         accounts.instruction(args)
     }
@@ -416,7 +402,7 @@ impl<'a> CreateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -448,11 +434,14 @@ impl<'a> CreateV1Cpi<'a> {
             *self.spl_token_program.key,
             false,
         ));
+        let mut data = CreateV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(9 + 1);
         account_infos.push(self.__program.clone());
@@ -597,6 +586,7 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.name = Some(name);
         self
     }
+    /// `[optional argument, defaults to 'String::from("")']`
     #[inline(always)]
     pub fn symbol(&mut self, symbol: String) -> &mut Self {
         self.instruction.symbol = Some(symbol);
@@ -618,11 +608,13 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.creators = Some(creators);
         self
     }
+    /// `[optional argument, defaults to 'false']`
     #[inline(always)]
     pub fn primary_sale_happened(&mut self, primary_sale_happened: bool) -> &mut Self {
         self.instruction.primary_sale_happened = Some(primary_sale_happened);
         self
     }
+    /// `[optional argument, defaults to 'true']`
     #[inline(always)]
     pub fn is_mutable(&mut self, is_mutable: bool) -> &mut Self {
         self.instruction.is_mutable = Some(is_mutable);
@@ -671,34 +663,34 @@ impl<'a> CreateV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> CreateV1Cpi<'a> {
-        let mut args = CreateV1InstructionArgs::new(
-            self.instruction.name.clone().expect("name is not set"),
-            self.instruction.uri.clone().expect("uri is not set"),
-            self.instruction
+        let args = CreateV1InstructionArgs {
+            name: self.instruction.name.clone().expect("name is not set"),
+            symbol: self.instruction.symbol.clone().unwrap_or(String::from("")),
+            uri: self.instruction.uri.clone().expect("uri is not set"),
+            seller_fee_basis_points: self
+                .instruction
                 .seller_fee_basis_points
                 .clone()
                 .expect("seller_fee_basis_points is not set"),
-            self.instruction.creators.clone(),
-            self.instruction
+            creators: self.instruction.creators.clone(),
+            primary_sale_happened: self
+                .instruction
+                .primary_sale_happened
+                .clone()
+                .unwrap_or(false),
+            is_mutable: self.instruction.is_mutable.clone().unwrap_or(true),
+            token_standard: self
+                .instruction
                 .token_standard
                 .clone()
                 .expect("token_standard is not set"),
-        );
-        if let Some(symbol) = &self.instruction.symbol {
-            args.symbol = symbol.clone();
-        }
-        if let Some(primary_sale_happened) = &self.instruction.primary_sale_happened {
-            args.primary_sale_happened = primary_sale_happened.clone();
-        }
-        if let Some(is_mutable) = &self.instruction.is_mutable {
-            args.is_mutable = is_mutable.clone();
-        }
-        args.collection = self.instruction.collection.clone();
-        args.uses = self.instruction.uses.clone();
-        args.collection_details = self.instruction.collection_details.clone();
-        args.rule_set = self.instruction.rule_set.clone();
-        args.decimals = self.instruction.decimals.clone();
-        args.print_supply = self.instruction.print_supply.clone();
+            collection: self.instruction.collection.clone(),
+            uses: self.instruction.uses.clone(),
+            collection_details: self.instruction.collection_details.clone(),
+            rule_set: self.instruction.rule_set.clone(),
+            decimals: self.instruction.decimals.clone(),
+            print_supply: self.instruction.print_supply.clone(),
+        };
 
         CreateV1Cpi {
             __program: self.instruction.__program,

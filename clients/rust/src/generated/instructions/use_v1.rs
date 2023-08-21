@@ -39,9 +39,10 @@ pub struct UseV1 {
 
 impl UseV1 {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UseV1InstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: UseV1InstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(12);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
@@ -54,7 +55,7 @@ impl UseV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -62,7 +63,7 @@ impl UseV1 {
             accounts.push(solana_program::instruction::AccountMeta::new(token, false));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -79,7 +80,7 @@ impl UseV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -101,7 +102,7 @@ impl UseV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -112,7 +113,7 @@ impl UseV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -123,34 +124,40 @@ impl UseV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UseV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UseV1InstructionData {
+    discriminator: u8,
+    use_v1_discriminator: u8,
+}
+
+impl UseV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 51,
+            use_v1_discriminator: 0,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UseV1InstructionArgs {
-    discriminator: u8,
-    use_v1_discriminator: u8,
+pub struct UseV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
-}
-
-impl UseV1InstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 51,
-            use_v1_discriminator: 0,
-            authorization_data: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -294,8 +301,11 @@ impl UseV1Builder {
             authorization_rules_program: self.authorization_rules_program,
             authorization_rules: self.authorization_rules,
         };
+        let args = UseV1InstructionArgs {
+            authorization_data: self.authorization_data.clone(),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -327,6 +337,8 @@ pub struct UseV1Cpi<'a> {
     pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
     pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// The arguments for the instruction.
+    pub __args: UseV1InstructionArgs,
 }
 
 impl<'a> UseV1Cpi<'a> {
@@ -339,8 +351,6 @@ impl<'a> UseV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UseV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(12);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
@@ -353,7 +363,7 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -363,7 +373,7 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -382,7 +392,7 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -405,7 +415,7 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -416,7 +426,7 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -427,15 +437,18 @@ impl<'a> UseV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UseV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(12 + 1);
         account_infos.push(self.__program.clone());
@@ -610,6 +623,10 @@ impl<'a> UseV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> UseV1Cpi<'a> {
+        let args = UseV1InstructionArgs {
+            authorization_data: self.instruction.authorization_data.clone(),
+        };
+
         UseV1Cpi {
             __program: self.instruction.__program,
 
@@ -642,6 +659,7 @@ impl<'a> UseV1CpiBuilder<'a> {
             authorization_rules_program: self.instruction.authorization_rules_program,
 
             authorization_rules: self.instruction.authorization_rules,
+            __args: args,
         }
     }
 }

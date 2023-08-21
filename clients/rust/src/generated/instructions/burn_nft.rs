@@ -29,8 +29,6 @@ pub struct BurnNft {
 impl BurnNft {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = BurnNftInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -61,26 +59,27 @@ impl BurnNft {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = BurnNftInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct BurnNftInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct BurnNftInstructionData {
     discriminator: u8,
 }
 
-impl BurnNftInstructionArgs {
-    pub fn new() -> Self {
+impl BurnNftInstructionData {
+    fn new() -> Self {
         Self { discriminator: 29 }
     }
 }
@@ -203,8 +202,6 @@ impl<'a> BurnNftCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = BurnNftInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -237,15 +234,16 @@ impl<'a> BurnNftCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = BurnNftInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(7 + 1);
         account_infos.push(self.__program.clone());

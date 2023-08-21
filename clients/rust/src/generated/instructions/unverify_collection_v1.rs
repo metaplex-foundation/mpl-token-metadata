@@ -29,8 +29,6 @@ pub struct UnverifyCollectionV1 {
 impl UnverifyCollectionV1 {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UnverifyCollectionV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
@@ -43,7 +41,7 @@ impl UnverifyCollectionV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -62,7 +60,7 @@ impl UnverifyCollectionV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -74,23 +72,26 @@ impl UnverifyCollectionV1 {
             self.sysvar_instructions,
             false,
         ));
+        let data = UnverifyCollectionV1InstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UnverifyCollectionV1InstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UnverifyCollectionV1InstructionData {
     discriminator: u8,
     unverify_collection_v1_discriminator: u8,
 }
 
-impl UnverifyCollectionV1InstructionArgs {
-    pub fn new() -> Self {
+impl UnverifyCollectionV1InstructionData {
+    fn new() -> Self {
         Self {
             discriminator: 53,
             unverify_collection_v1_discriminator: 1,
@@ -220,8 +221,6 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UnverifyCollectionV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
@@ -234,7 +233,7 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -253,7 +252,7 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -265,11 +264,14 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
             *self.sysvar_instructions.key,
             false,
         ));
+        let data = UnverifyCollectionV1InstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(7 + 1);
         account_infos.push(self.__program.clone());

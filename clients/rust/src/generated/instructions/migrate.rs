@@ -45,8 +45,6 @@ pub struct Migrate {
 impl Migrate {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = MigrateInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(15);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -104,7 +102,7 @@ impl Migrate {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -115,26 +113,27 @@ impl Migrate {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = MigrateInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct MigrateInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct MigrateInstructionData {
     discriminator: u8,
 }
 
-impl MigrateInstructionArgs {
-    pub fn new() -> Self {
+impl MigrateInstructionData {
+    fn new() -> Self {
         Self { discriminator: 48 }
     }
 }
@@ -351,8 +350,6 @@ impl<'a> MigrateCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = MigrateInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(15);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -413,7 +410,7 @@ impl<'a> MigrateCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -424,15 +421,16 @@ impl<'a> MigrateCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = MigrateInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(15 + 1);
         account_infos.push(self.__program.clone());

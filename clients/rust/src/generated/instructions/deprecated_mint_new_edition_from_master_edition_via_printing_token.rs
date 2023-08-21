@@ -47,8 +47,6 @@ pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
 impl DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(16);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -114,26 +112,29 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData {
     discriminator: u8,
 }
 
-impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionArgs {
-    pub fn new() -> Self {
+impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData {
+    fn new() -> Self {
         Self { discriminator: 3 }
     }
 }
@@ -355,8 +356,6 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(16);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -425,15 +424,18 @@ impl<'a> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(16 + 1);
         account_infos.push(self.__program.clone());

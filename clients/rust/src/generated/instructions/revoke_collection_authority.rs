@@ -25,8 +25,6 @@ pub struct RevokeCollectionAuthority {
 impl RevokeCollectionAuthority {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = RevokeCollectionAuthorityInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(5);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.collection_authority_record,
@@ -47,22 +45,25 @@ impl RevokeCollectionAuthority {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.mint, false,
         ));
+        let data = RevokeCollectionAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct RevokeCollectionAuthorityInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct RevokeCollectionAuthorityInstructionData {
     discriminator: u8,
 }
 
-impl RevokeCollectionAuthorityInstructionArgs {
-    pub fn new() -> Self {
+impl RevokeCollectionAuthorityInstructionData {
+    fn new() -> Self {
         Self { discriminator: 24 }
     }
 }
@@ -164,8 +165,6 @@ impl<'a> RevokeCollectionAuthorityCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = RevokeCollectionAuthorityInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(5);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.collection_authority_record.key,
@@ -187,11 +186,14 @@ impl<'a> RevokeCollectionAuthorityCpi<'a> {
             *self.mint.key,
             false,
         ));
+        let data = RevokeCollectionAuthorityInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(5 + 1);
         account_infos.push(self.__program.clone());

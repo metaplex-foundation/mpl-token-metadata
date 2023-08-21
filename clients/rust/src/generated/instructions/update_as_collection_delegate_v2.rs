@@ -38,9 +38,10 @@ pub struct UpdateAsCollectionDelegateV2 {
 
 impl UpdateAsCollectionDelegateV2 {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UpdateAsCollectionDelegateV2InstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: UpdateAsCollectionDelegateV2InstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(11);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
@@ -53,7 +54,7 @@ impl UpdateAsCollectionDelegateV2 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -63,7 +64,7 @@ impl UpdateAsCollectionDelegateV2 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -80,7 +81,7 @@ impl UpdateAsCollectionDelegateV2 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -102,7 +103,7 @@ impl UpdateAsCollectionDelegateV2 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -113,36 +114,43 @@ impl UpdateAsCollectionDelegateV2 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UpdateAsCollectionDelegateV2InstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UpdateAsCollectionDelegateV2InstructionData {
+    discriminator: u8,
+    update_as_collection_delegate_v2_discriminator: u8,
+}
+
+impl UpdateAsCollectionDelegateV2InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 50,
+            update_as_collection_delegate_v2_discriminator: 3,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UpdateAsCollectionDelegateV2InstructionArgs {
-    discriminator: u8,
-    update_as_collection_delegate_v2_discriminator: u8,
+pub struct UpdateAsCollectionDelegateV2InstructionArgs {
     pub collection: CollectionToggle,
     pub authorization_data: Option<AuthorizationData>,
-}
-
-impl UpdateAsCollectionDelegateV2InstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 50,
-            update_as_collection_delegate_v2_discriminator: 3,
-            collection: CollectionToggle::None,
-            authorization_data: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -250,6 +258,7 @@ impl UpdateAsCollectionDelegateV2Builder {
         self.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to 'CollectionToggle::None']`
     #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.collection = Some(collection);
@@ -280,8 +289,12 @@ impl UpdateAsCollectionDelegateV2Builder {
             authorization_rules_program: self.authorization_rules_program,
             authorization_rules: self.authorization_rules,
         };
+        let args = UpdateAsCollectionDelegateV2InstructionArgs {
+            collection: self.collection.clone().unwrap_or(CollectionToggle::None),
+            authorization_data: self.authorization_data.clone(),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -311,6 +324,8 @@ pub struct UpdateAsCollectionDelegateV2Cpi<'a> {
     pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
     pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// The arguments for the instruction.
+    pub __args: UpdateAsCollectionDelegateV2InstructionArgs,
 }
 
 impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
@@ -323,8 +338,6 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UpdateAsCollectionDelegateV2InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(11);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
@@ -337,7 +350,7 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -347,7 +360,7 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -366,7 +379,7 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -389,7 +402,7 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -400,15 +413,20 @@ impl<'a> UpdateAsCollectionDelegateV2Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UpdateAsCollectionDelegateV2InstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(11 + 1);
         account_infos.push(self.__program.clone());
@@ -562,6 +580,7 @@ impl<'a> UpdateAsCollectionDelegateV2CpiBuilder<'a> {
         self.instruction.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to 'CollectionToggle::None']`
     #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.instruction.collection = Some(collection);
@@ -575,6 +594,15 @@ impl<'a> UpdateAsCollectionDelegateV2CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> UpdateAsCollectionDelegateV2Cpi<'a> {
+        let args = UpdateAsCollectionDelegateV2InstructionArgs {
+            collection: self
+                .instruction
+                .collection
+                .clone()
+                .unwrap_or(CollectionToggle::None),
+            authorization_data: self.instruction.authorization_data.clone(),
+        };
+
         UpdateAsCollectionDelegateV2Cpi {
             __program: self.instruction.__program,
 
@@ -605,6 +633,7 @@ impl<'a> UpdateAsCollectionDelegateV2CpiBuilder<'a> {
             authorization_rules_program: self.instruction.authorization_rules_program,
 
             authorization_rules: self.instruction.authorization_rules,
+            __args: args,
         }
     }
 }

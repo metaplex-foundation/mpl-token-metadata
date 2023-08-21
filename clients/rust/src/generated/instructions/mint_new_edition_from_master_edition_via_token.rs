@@ -105,35 +105,39 @@ impl MintNewEditionFromMasterEditionViaToken {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = MintNewEditionFromMasterEditionViaTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct MintNewEditionFromMasterEditionViaTokenInstructionData {
+    discriminator: u8,
+}
+
+impl MintNewEditionFromMasterEditionViaTokenInstructionData {
+    fn new() -> Self {
+        Self { discriminator: 11 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct MintNewEditionFromMasterEditionViaTokenInstructionArgs {
-    discriminator: u8,
     pub mint_new_edition_from_master_edition_via_token_args:
         MintNewEditionFromMasterEditionViaTokenArgs,
-}
-
-impl MintNewEditionFromMasterEditionViaTokenInstructionArgs {
-    pub fn new(
-        mint_new_edition_from_master_edition_via_token_args: MintNewEditionFromMasterEditionViaTokenArgs,
-    ) -> Self {
-        Self {
-            discriminator: 11,
-            mint_new_edition_from_master_edition_via_token_args,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -295,11 +299,12 @@ impl MintNewEditionFromMasterEditionViaTokenBuilder {
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
             rent: self.rent,
         };
-        let args = MintNewEditionFromMasterEditionViaTokenInstructionArgs::new(
-            self.mint_new_edition_from_master_edition_via_token_args
+        let args = MintNewEditionFromMasterEditionViaTokenInstructionArgs {
+            mint_new_edition_from_master_edition_via_token_args: self
+                .mint_new_edition_from_master_edition_via_token_args
                 .clone()
                 .expect("mint_new_edition_from_master_edition_via_token_args is not set"),
-        );
+        };
 
         accounts.instruction(args)
     }
@@ -410,15 +415,20 @@ impl<'a> MintNewEditionFromMasterEditionViaTokenCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = MintNewEditionFromMasterEditionViaTokenInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(14 + 1);
         account_infos.push(self.__program.clone());
@@ -609,12 +619,13 @@ impl<'a> MintNewEditionFromMasterEditionViaTokenCpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> MintNewEditionFromMasterEditionViaTokenCpi<'a> {
-        let args = MintNewEditionFromMasterEditionViaTokenInstructionArgs::new(
-            self.instruction
+        let args = MintNewEditionFromMasterEditionViaTokenInstructionArgs {
+            mint_new_edition_from_master_edition_via_token_args: self
+                .instruction
                 .mint_new_edition_from_master_edition_via_token_args
                 .clone()
                 .expect("mint_new_edition_from_master_edition_via_token_args is not set"),
-        );
+        };
 
         MintNewEditionFromMasterEditionViaTokenCpi {
             __program: self.instruction.__program,

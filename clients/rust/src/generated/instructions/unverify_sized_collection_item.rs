@@ -29,8 +29,6 @@ pub struct UnverifySizedCollectionItem {
 impl UnverifySizedCollectionItem {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UnverifySizedCollectionItemInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
@@ -62,26 +60,29 @@ impl UnverifySizedCollectionItem {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = UnverifySizedCollectionItemInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UnverifySizedCollectionItemInstructionArgs {
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UnverifySizedCollectionItemInstructionData {
     discriminator: u8,
 }
 
-impl UnverifySizedCollectionItemInstructionArgs {
-    pub fn new() -> Self {
+impl UnverifySizedCollectionItemInstructionData {
+    fn new() -> Self {
         Self { discriminator: 31 }
     }
 }
@@ -207,8 +208,6 @@ impl<'a> UnverifySizedCollectionItemCpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UnverifySizedCollectionItemInstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(7);
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
@@ -241,15 +240,18 @@ impl<'a> UnverifySizedCollectionItemCpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let data = UnverifySizedCollectionItemInstructionData::new()
+            .try_to_vec()
+            .unwrap();
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(7 + 1);
         account_infos.push(self.__program.clone());

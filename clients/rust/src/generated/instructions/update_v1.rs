@@ -43,9 +43,10 @@ pub struct UpdateV1 {
 
 impl UpdateV1 {
     #[allow(clippy::vec_init_then_push)]
-    pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let args = UpdateV1InstructionArgs::new();
-
+    pub fn instruction(
+        &self,
+        args: UpdateV1InstructionArgs,
+    ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(11);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
@@ -58,7 +59,7 @@ impl UpdateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -68,7 +69,7 @@ impl UpdateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -85,7 +86,7 @@ impl UpdateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -107,7 +108,7 @@ impl UpdateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -118,23 +119,39 @@ impl UpdateV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UpdateV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct UpdateV1InstructionData {
+    discriminator: u8,
+    update_v1_discriminator: u8,
+}
+
+impl UpdateV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 50,
+            update_v1_discriminator: 0,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-struct UpdateV1InstructionArgs {
-    discriminator: u8,
-    update_v1_discriminator: u8,
+pub struct UpdateV1InstructionArgs {
     pub new_update_authority: Option<Pubkey>,
     pub data: Option<UpdateV1InstructionDataData>,
     pub primary_sale_happened: Option<bool>,
@@ -153,24 +170,6 @@ pub struct UpdateV1InstructionDataData {
     pub uri: String,
     pub seller_fee_basis_points: u16,
     pub creators: Option<Vec<Creator>>,
-}
-
-impl UpdateV1InstructionArgs {
-    pub fn new() -> Self {
-        Self {
-            discriminator: 50,
-            update_v1_discriminator: 0,
-            new_update_authority: None,
-            data: None,
-            primary_sale_happened: None,
-            is_mutable: None,
-            collection: CollectionToggle::None,
-            collection_details: CollectionDetailsToggle::None,
-            uses: UsesToggle::None,
-            rule_set: RuleSetToggle::None,
-            authorization_data: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -309,21 +308,25 @@ impl UpdateV1Builder {
         self.is_mutable = Some(is_mutable);
         self
     }
+    /// `[optional argument, defaults to 'CollectionToggle::None']`
     #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.collection = Some(collection);
         self
     }
+    /// `[optional argument, defaults to 'CollectionDetailsToggle::None']`
     #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetailsToggle) -> &mut Self {
         self.collection_details = Some(collection_details);
         self
     }
+    /// `[optional argument, defaults to 'UsesToggle::None']`
     #[inline(always)]
     pub fn uses(&mut self, uses: UsesToggle) -> &mut Self {
         self.uses = Some(uses);
         self
     }
+    /// `[optional argument, defaults to 'RuleSetToggle::None']`
     #[inline(always)]
     pub fn rule_set(&mut self, rule_set: RuleSetToggle) -> &mut Self {
         self.rule_set = Some(rule_set);
@@ -354,8 +357,22 @@ impl UpdateV1Builder {
             authorization_rules_program: self.authorization_rules_program,
             authorization_rules: self.authorization_rules,
         };
+        let args = UpdateV1InstructionArgs {
+            new_update_authority: self.new_update_authority.clone(),
+            data: self.data.clone(),
+            primary_sale_happened: self.primary_sale_happened.clone(),
+            is_mutable: self.is_mutable.clone(),
+            collection: self.collection.clone().unwrap_or(CollectionToggle::None),
+            collection_details: self
+                .collection_details
+                .clone()
+                .unwrap_or(CollectionDetailsToggle::None),
+            uses: self.uses.clone().unwrap_or(UsesToggle::None),
+            rule_set: self.rule_set.clone().unwrap_or(RuleSetToggle::None),
+            authorization_data: self.authorization_data.clone(),
+        };
 
-        accounts.instruction()
+        accounts.instruction(args)
     }
 }
 
@@ -385,6 +402,8 @@ pub struct UpdateV1Cpi<'a> {
     pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
     pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// The arguments for the instruction.
+    pub __args: UpdateV1InstructionArgs,
 }
 
 impl<'a> UpdateV1Cpi<'a> {
@@ -397,8 +416,6 @@ impl<'a> UpdateV1Cpi<'a> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = UpdateV1InstructionArgs::new();
-
         let mut accounts = Vec::with_capacity(11);
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
@@ -411,7 +428,7 @@ impl<'a> UpdateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -421,7 +438,7 @@ impl<'a> UpdateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -440,7 +457,7 @@ impl<'a> UpdateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -463,7 +480,7 @@ impl<'a> UpdateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -474,15 +491,18 @@ impl<'a> UpdateV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = UpdateV1InstructionData::new().try_to_vec().unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(11 + 1);
         account_infos.push(self.__program.clone());
@@ -667,21 +687,25 @@ impl<'a> UpdateV1CpiBuilder<'a> {
         self.instruction.is_mutable = Some(is_mutable);
         self
     }
+    /// `[optional argument, defaults to 'CollectionToggle::None']`
     #[inline(always)]
     pub fn collection(&mut self, collection: CollectionToggle) -> &mut Self {
         self.instruction.collection = Some(collection);
         self
     }
+    /// `[optional argument, defaults to 'CollectionDetailsToggle::None']`
     #[inline(always)]
     pub fn collection_details(&mut self, collection_details: CollectionDetailsToggle) -> &mut Self {
         self.instruction.collection_details = Some(collection_details);
         self
     }
+    /// `[optional argument, defaults to 'UsesToggle::None']`
     #[inline(always)]
     pub fn uses(&mut self, uses: UsesToggle) -> &mut Self {
         self.instruction.uses = Some(uses);
         self
     }
+    /// `[optional argument, defaults to 'RuleSetToggle::None']`
     #[inline(always)]
     pub fn rule_set(&mut self, rule_set: RuleSetToggle) -> &mut Self {
         self.instruction.rule_set = Some(rule_set);
@@ -695,6 +719,30 @@ impl<'a> UpdateV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> UpdateV1Cpi<'a> {
+        let args = UpdateV1InstructionArgs {
+            new_update_authority: self.instruction.new_update_authority.clone(),
+            data: self.instruction.data.clone(),
+            primary_sale_happened: self.instruction.primary_sale_happened.clone(),
+            is_mutable: self.instruction.is_mutable.clone(),
+            collection: self
+                .instruction
+                .collection
+                .clone()
+                .unwrap_or(CollectionToggle::None),
+            collection_details: self
+                .instruction
+                .collection_details
+                .clone()
+                .unwrap_or(CollectionDetailsToggle::None),
+            uses: self.instruction.uses.clone().unwrap_or(UsesToggle::None),
+            rule_set: self
+                .instruction
+                .rule_set
+                .clone()
+                .unwrap_or(RuleSetToggle::None),
+            authorization_data: self.instruction.authorization_data.clone(),
+        };
+
         UpdateV1Cpi {
             __program: self.instruction.__program,
 
@@ -725,6 +773,7 @@ impl<'a> UpdateV1CpiBuilder<'a> {
             authorization_rules_program: self.instruction.authorization_rules_program,
 
             authorization_rules: self.instruction.authorization_rules,
+            __args: args,
         }
     }
 }

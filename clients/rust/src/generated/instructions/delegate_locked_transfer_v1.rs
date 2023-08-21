@@ -56,7 +56,7 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -75,7 +75,7 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -86,7 +86,7 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -118,7 +118,7 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -129,7 +129,7 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -140,38 +140,44 @@ impl DelegateLockedTransferV1 {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = DelegateLockedTransferV1InstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: args.try_to_vec().unwrap(),
+            data,
+        }
+    }
+}
+
+#[derive(BorshDeserialize, BorshSerialize)]
+struct DelegateLockedTransferV1InstructionData {
+    discriminator: u8,
+    delegate_locked_transfer_v1_discriminator: u8,
+}
+
+impl DelegateLockedTransferV1InstructionData {
+    fn new() -> Self {
+        Self {
+            discriminator: 44,
+            delegate_locked_transfer_v1_discriminator: 7,
         }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct DelegateLockedTransferV1InstructionArgs {
-    discriminator: u8,
-    delegate_locked_transfer_v1_discriminator: u8,
     pub amount: u64,
     pub locked_address: Pubkey,
     pub authorization_data: Option<AuthorizationData>,
-}
-
-impl DelegateLockedTransferV1InstructionArgs {
-    pub fn new(locked_address: Pubkey) -> Self {
-        Self {
-            discriminator: 44,
-            delegate_locked_transfer_v1_discriminator: 7,
-            amount: 1,
-            locked_address,
-            authorization_data: None,
-        }
-    }
 }
 
 /// Instruction builder.
@@ -305,6 +311,7 @@ impl DelegateLockedTransferV1Builder {
         self.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.amount = Some(amount);
@@ -343,15 +350,14 @@ impl DelegateLockedTransferV1Builder {
             authorization_rules_program: self.authorization_rules_program,
             authorization_rules: self.authorization_rules,
         };
-        let mut args = DelegateLockedTransferV1InstructionArgs::new(
-            self.locked_address
+        let args = DelegateLockedTransferV1InstructionArgs {
+            amount: self.amount.clone().unwrap_or(1),
+            locked_address: self
+                .locked_address
                 .clone()
                 .expect("locked_address is not set"),
-        );
-        if let Some(amount) = &self.amount {
-            args.amount = amount.clone();
-        }
-        args.authorization_data = self.authorization_data.clone();
+            authorization_data: self.authorization_data.clone(),
+        };
 
         accounts.instruction(args)
     }
@@ -411,7 +417,7 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -430,7 +436,7 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -441,7 +447,7 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -476,7 +482,7 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -487,7 +493,7 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
@@ -498,15 +504,20 @@ impl<'a> DelegateLockedTransferV1Cpi<'a> {
             ));
         } else {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::TOKEN_METADATA_ID,
+                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }
+        let mut data = DelegateLockedTransferV1InstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
-            program_id: crate::TOKEN_METADATA_ID,
+            program_id: crate::MPL_TOKEN_METADATA_ID,
             accounts,
-            data: self.__args.try_to_vec().unwrap(),
+            data,
         };
         let mut account_infos = Vec::with_capacity(14 + 1);
         account_infos.push(self.__program.clone());
@@ -697,6 +708,7 @@ impl<'a> DelegateLockedTransferV1CpiBuilder<'a> {
         self.instruction.authorization_rules = Some(authorization_rules);
         self
     }
+    /// `[optional argument, defaults to '1']`
     #[inline(always)]
     pub fn amount(&mut self, amount: u64) -> &mut Self {
         self.instruction.amount = Some(amount);
@@ -715,16 +727,15 @@ impl<'a> DelegateLockedTransferV1CpiBuilder<'a> {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> DelegateLockedTransferV1Cpi<'a> {
-        let mut args = DelegateLockedTransferV1InstructionArgs::new(
-            self.instruction
+        let args = DelegateLockedTransferV1InstructionArgs {
+            amount: self.instruction.amount.clone().unwrap_or(1),
+            locked_address: self
+                .instruction
                 .locked_address
                 .clone()
                 .expect("locked_address is not set"),
-        );
-        if let Some(amount) = &self.instruction.amount {
-            args.amount = amount.clone();
-        }
-        args.authorization_data = self.instruction.authorization_data.clone();
+            authorization_data: self.instruction.authorization_data.clone(),
+        };
 
         DelegateLockedTransferV1Cpi {
             __program: self.instruction.__program,
