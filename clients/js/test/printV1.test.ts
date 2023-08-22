@@ -1,4 +1,7 @@
-import { createMintWithAssociatedToken } from '@metaplex-foundation/mpl-toolbox';
+import {
+  createMintWithAssociatedToken,
+  setComputeUnitLimit,
+} from '@metaplex-foundation/mpl-toolbox';
 import {
   generateSigner,
   percentAmount,
@@ -17,7 +20,6 @@ import {
   printV1,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
-import { ComputeBudgetProgram } from '@solana/web3.js';
 
 test('it can print a new edition from a NonFungible', async (t) => {
   // Given an existing master edition asset.
@@ -95,11 +97,7 @@ test('it can print a new edition from a ProgrammableNonFungible', async (t) => {
   const editionMint = generateSigner(umi);
   const editionOwner = generateSigner(umi);
   await transactionBuilder()
-    .add(
-      ComputeBudgetProgram.setComputeUnitLimit({
-        units: 400_000,
-      })
-    )
+    .add(setComputeUnitLimit(umi, { units: 400_000 }))
     .add(
       printV1(umi, {
         masterTokenAccountOwner: originalOwner,
