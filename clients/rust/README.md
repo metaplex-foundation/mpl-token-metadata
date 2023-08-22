@@ -27,7 +27,7 @@ From your project folder:
 
 ## Instruction Builders
 
-One of the main features of the client SDK is to facilitate the creation of instructions. There are two "types" of instruction builders automatically generated – both support passing accounts by name and optional positional accounts.
+One of the main features of the client SDK is to facilitate the creation of instructions. There are two "types" of instruction builders automatically generated – both support passing accounts by name and optional positional 
 
 ### _Client_ instruction builders
 
@@ -89,7 +89,7 @@ let create_ix = CreateV1 {
 };
 
 // creates the instruction
-let create_ix = create_accounts.instruction(args);
+let create_ix = create_instruction(args);
 ```
 
 Alternatively, you can use the `CreateV1Builder` to create the appropriate instruction:
@@ -113,7 +113,7 @@ let create_ix = CreateV1Builder::new()
 
 ### _CPI_ instruction builders
 
-These are builders to be used by on-chain code, which will CPI into Token Metadata. Similarly to "off-chain" builders, each instruction has a CPI struct to facilitate invoke CPI instructions – e.g., `TransferV1Cpi`:
+These are builders to be used by on-chain code, which will CPI into Token Metadata. Similarly to "off-chain" builders, each instruction has a struct to invoke CPI instructions – e.g., `TransferV1Cpi`:
 ```rust
 pub struct TransferV1Cpi<'a> {
     /// The program to invoke.
@@ -167,25 +167,25 @@ let mut args = TransferV1InstructionArgs {
 
 // instruction accounts
 let cpi_transfer = TransferV1Cpi {
-    __program: ctx.accounts.metadata_program,
+    __program: metadata_program_info,
     __args: args,
-    token: ctx.accounts.owner_token,
-    token_owner: ctx.accounts.owner,
-    destination_token: ctx.accounts.destination_token,
-    destination_owner: ctx.accounts.destination,
-    mint: ctx.accounts.mint,
-    metadata: ctx.accounts.metadata,
-    authority: ctx.accounts.vault,
-    payer: ctx.accounts.payer,
-    system_program: ctx.accounts.system_program,
-    sysvar_instructions: ctx.accounts.sysvar_instructions,
-    spl_token_program: ctx.accounts.spl_token_program,
-    spl_ata_program: ctx.accounts.spl_ata_program,
-    edition: ctx.accounts.edition,
-    token_record: ctx.accounts.owner_token_record,
-    destination_token_record: ctx.accounts.destination_token_record,
-    authorization_rules: ctx.accounts.authorization_rules,
-    authorization_rules_program: ctx.accounts.authorization_rules_program,
+    token: owner_token_info,
+    token_owner: owner_info,
+    destination_token: destination_token_info,
+    destination_owner: destination_info,
+    mint: mint_info,
+    metadata: metadata_info,
+    authority: vault_info,
+    payer: payer_info,
+    system_program: system_program_info,
+    sysvar_instructions: sysvar_instructions_info,
+    spl_token_program: spl_token_program_info,
+    spl_ata_program: spl_ata_program_info,
+    edition: edition_info,
+    token_record: None,
+    destination_token_record: None,
+    authorization_rules: None,
+    authorization_rules_program: None,
 };
 
 // performs the CPI
@@ -194,30 +194,29 @@ cpi_transfer.invoke_signed(&[&signer_seeds])
 
 You can also use the `TransferV1CpiBuilder` to simplify the process:
 ```rust
-let cpi_transfer = TransferV1CpiBuilder::new(ctx.accounts.metadata_program)
-    .token(ctx.accounts.owner_token)
-    .token_owner(ctx.accounts.owner)
-    .destination_token(ctx.accounts.destination_token)
-    .destination_owner(ctx.accounts.destination)
-    .mint(ctx.accounts.mint)
-    .metadata(ctx.accounts.metadata)
-    .edition(edition)
-    .token_record(token_record)
-    .destination_token_record(token_record)
-    .authority(ctx.accounts.vault)
-    .payer(ctx.accounts.payer)
-    .system_program(ctx.accounts.system_program)
-    .sysvar_instructions(ctx.accounts.sysvar_instructions)
-    .spl_token_program(ctx.accounts.spl_token_program)
-    .spl_ata_program(ctx.accounts.spl_ata_program)
-    .authorization_rules(authorization_rules)
-    .authorization_rules_program(authorization_rules_program)
+let cpi_transfer = TransferV1CpiBuilder::new(metadata_program_info)
+    .token(owner_token_info)
+    .token_owner(owner_info)
+    .destination_token(destination_token_info)
+    .destination_owner(destination_info)
+    .mint(mint_info)
+    .metadata(metadata_info)
+    .edition(edition_info)
+    .authority(vault_info)
+    .payer(payer_info)
+    .system_program(system_program_info)
+    .sysvar_instructions(sysvar_instructions_info)
+    .spl_token_program(spl_token_program_info)
+    .spl_ata_program(spl_ata_program_info)
     .amount(amount)
     .build();
 
 // performs the CPI
 cpi_transfer.invoke_signed(&[&signer_seeds])
 ```
+
+> **Note**
+> `*Builder` provide a simplified way to create the required structs, since they take advantage of any default value set on the Kinobi config and do not require to set a `None` value to optional fields.
 
 ## PDA helpers
 
