@@ -18,12 +18,14 @@ import {
   TokenStandard,
   WithWritable,
   collectionDetails,
+  findEditionMarkerV2Pda,
   findMasterEditionPda,
   findTokenRecordPda,
   getMasterEditionSize,
   getMetadataSize,
   printSupply,
 } from '../generated';
+import { findEditionMarkerFromEditionNumberPda } from './editionMarker';
 
 export const resolveCollectionDetails = (
   context: any,
@@ -138,6 +140,50 @@ export const resolveTokenRecord = (
         isWritable,
       ]
     : [programId, false];
+
+export const resolveTokenRecordForPrint = (
+  context: Pick<Context, 'eddsa' | 'programs'>,
+  accounts: {
+    editionMint: WithWritable<PublicKey | Pda | Signer>;
+    editionTokenAccount: WithWritable<PublicKey | Pda | undefined>;
+  },
+  args: { tokenStandard: TokenStandard },
+  programId: PublicKey,
+  isWritable: boolean
+): WithWritable<PublicKey | Pda> =>
+  isProgrammable(args.tokenStandard) && accounts.editionTokenAccount[0]
+    ? [
+        findTokenRecordPda(context, {
+          mint: publicKey(accounts.editionMint[0], false),
+          token: publicKey(accounts.editionTokenAccount[0], false),
+        }),
+        isWritable,
+      ]
+    : [programId, false];
+
+export const resolveEditionMarkerForPrint = (
+  context: Pick<Context, 'eddsa' | 'programs'>,
+  accounts: any,
+  args: {
+    tokenStandard: TokenStandard;
+    masterEditionMint: PublicKey;
+    editionNumber: number | bigint;
+  },
+  programId: PublicKey,
+  isWritable: boolean
+): WithWritable<PublicKey | Pda> =>
+  isProgrammable(args.tokenStandard)
+    ? [
+        findEditionMarkerV2Pda(context, { mint: args.masterEditionMint }),
+        isWritable,
+      ]
+    : [
+        findEditionMarkerFromEditionNumberPda(context, {
+          mint: args.masterEditionMint,
+          editionNumber: args.editionNumber,
+        }),
+        isWritable,
+      ];
 
 export const resolveDestinationTokenRecord = (
   context: Pick<Context, 'eddsa' | 'programs'>,

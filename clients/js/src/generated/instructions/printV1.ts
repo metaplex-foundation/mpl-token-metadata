@@ -6,6 +6,7 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
+import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   AccountMeta,
   Context,
@@ -23,36 +24,42 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
+import {
+  resolveEditionMarkerForPrint,
+  resolveTokenRecordForPrint,
+} from '../../hooked';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import { addAccountMeta, addObjectProperty } from '../shared';
+import { TokenStandardArgs } from '../types';
 
 // Accounts.
 export type PrintV1InstructionAccounts = {
   /** New Metadata key (pda of ['metadata', program id, mint id]) */
-  editionMetadata: PublicKey | Pda;
+  editionMetadata?: PublicKey | Pda;
   /** New Edition (pda of ['metadata', program id, mint id, 'edition']) */
-  edition: PublicKey | Pda;
+  edition?: PublicKey | Pda;
   /** Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
-  editionMint: PublicKey | Pda;
+  editionMint: PublicKey | Pda | Signer;
   /** Owner of the token account of new token */
-  editionTokenAccountOwner: PublicKey | Pda;
+  editionTokenAccountOwner?: PublicKey | Pda;
   /** Token account of new token */
-  editionTokenAccount: PublicKey | Pda;
+  editionTokenAccount?: PublicKey | Pda;
   /** Mint authority of new mint */
-  editionMintAuthority: Signer;
+  editionMintAuthority?: Signer;
   /** Token record account */
   editionTokenRecord?: PublicKey | Pda;
   /** Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
-  masterEdition: PublicKey | Pda;
+  masterEdition?: PublicKey | Pda;
   /** Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE). */
-  editionMarkerPda: PublicKey | Pda;
+  editionMarkerPda?: PublicKey | Pda;
   /** payer */
   payer?: Signer;
   /** owner of token account containing master token */
-  masterTokenAccountOwner: Signer;
+  masterTokenAccountOwner?: Signer;
   /** token account containing token from master metadata mint */
-  masterTokenAccount: PublicKey | Pda;
+  masterTokenAccount?: PublicKey | Pda;
   /** Master record metadata account */
-  masterMetadata: PublicKey | Pda;
+  masterMetadata?: PublicKey | Pda;
   /** The update authority of the master edition. */
   updateAuthority?: PublicKey | Pda;
   /** Token program */
@@ -69,10 +76,10 @@ export type PrintV1InstructionAccounts = {
 export type PrintV1InstructionData = {
   discriminator: number;
   printV1Discriminator: number;
-  edition: bigint;
+  editionNumber: bigint;
 };
 
-export type PrintV1InstructionDataArgs = { edition: number | bigint };
+export type PrintV1InstructionDataArgs = { editionNumber: number | bigint };
 
 /** @deprecated Use `getPrintV1InstructionDataSerializer()` without any argument instead. */
 export function getPrintV1InstructionDataSerializer(
@@ -90,7 +97,7 @@ export function getPrintV1InstructionDataSerializer(
       [
         ['discriminator', u8()],
         ['printV1Discriminator', u8()],
-        ['edition', u64()],
+        ['editionNumber', u64()],
       ],
       { description: 'PrintV1InstructionData' }
     ),
@@ -98,14 +105,20 @@ export function getPrintV1InstructionDataSerializer(
   ) as Serializer<PrintV1InstructionDataArgs, PrintV1InstructionData>;
 }
 
+// Extra Args.
+export type PrintV1InstructionExtraArgs = {
+  masterEditionMint: PublicKey;
+  tokenStandard: TokenStandardArgs;
+};
+
 // Args.
-export type PrintV1InstructionArgs = PrintV1InstructionDataArgs;
+export type PrintV1InstructionArgs = PrintV1InstructionDataArgs &
+  PrintV1InstructionExtraArgs;
 
 // Instruction.
 export function printV1(
-  context: Pick<Context, 'programs' | 'identity' | 'payer'>,
-  accounts: PrintV1InstructionAccounts,
-  args: PrintV1InstructionArgs
+  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  input: PrintV1InstructionAccounts & PrintV1InstructionArgs
 ): TransactionBuilder {
   const signers: Signer[] = [];
   const keys: AccountMeta[] = [];
@@ -118,48 +131,151 @@ export function printV1(
 
   // Resolved inputs.
   const resolvedAccounts = {
-    editionMetadata: [accounts.editionMetadata, true] as const,
-    edition: [accounts.edition, true] as const,
-    editionMint: [accounts.editionMint, true] as const,
-    editionTokenAccountOwner: [
-      accounts.editionTokenAccountOwner,
-      false,
-    ] as const,
-    editionTokenAccount: [accounts.editionTokenAccount, true] as const,
-    editionMintAuthority: [accounts.editionMintAuthority, false] as const,
-    masterEdition: [accounts.masterEdition, true] as const,
-    editionMarkerPda: [accounts.editionMarkerPda, true] as const,
-    masterTokenAccountOwner: [accounts.masterTokenAccountOwner, false] as const,
-    masterTokenAccount: [accounts.masterTokenAccount, false] as const,
-    masterMetadata: [accounts.masterMetadata, false] as const,
+    editionMint: [input.editionMint, true] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
     resolvedAccounts,
+    'editionMetadata',
+    input.editionMetadata
+      ? ([input.editionMetadata, true] as const)
+      : ([
+          findMetadataPda(context, {
+            mint: publicKey(input.editionMint, false),
+          }),
+          true,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'edition',
+    input.edition
+      ? ([input.edition, true] as const)
+      : ([
+          findMasterEditionPda(context, {
+            mint: publicKey(input.editionMint, false),
+          }),
+          true,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'editionTokenAccountOwner',
+    input.editionTokenAccountOwner
+      ? ([input.editionTokenAccountOwner, false] as const)
+      : ([context.identity.publicKey, false] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'editionTokenAccount',
+    input.editionTokenAccount
+      ? ([input.editionTokenAccount, true] as const)
+      : ([
+          findAssociatedTokenPda(context, {
+            mint: publicKey(input.editionMint, false),
+            owner: publicKey(
+              resolvedAccounts.editionTokenAccountOwner[0],
+              false
+            ),
+          }),
+          true,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'masterTokenAccountOwner',
+    input.masterTokenAccountOwner
+      ? ([input.masterTokenAccountOwner, false] as const)
+      : ([context.identity, false] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'editionMintAuthority',
+    input.editionMintAuthority
+      ? ([input.editionMintAuthority, false] as const)
+      : ([resolvedAccounts.masterTokenAccountOwner[0], false] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
     'editionTokenRecord',
-    accounts.editionTokenRecord
-      ? ([accounts.editionTokenRecord, true] as const)
-      : ([programId, false] as const)
+    input.editionTokenRecord
+      ? ([input.editionTokenRecord, true] as const)
+      : resolveTokenRecordForPrint(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'masterEdition',
+    input.masterEdition
+      ? ([input.masterEdition, true] as const)
+      : ([
+          findMasterEditionPda(context, { mint: input.masterEditionMint }),
+          true,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'editionMarkerPda',
+    input.editionMarkerPda
+      ? ([input.editionMarkerPda, true] as const)
+      : resolveEditionMarkerForPrint(
+          context,
+          { ...input, ...resolvedAccounts },
+          { ...input, ...resolvingArgs },
+          programId,
+          true
+        )
   );
   addObjectProperty(
     resolvedAccounts,
     'payer',
-    accounts.payer
-      ? ([accounts.payer, true] as const)
+    input.payer
+      ? ([input.payer, true] as const)
       : ([context.payer, true] as const)
   );
   addObjectProperty(
     resolvedAccounts,
+    'masterTokenAccount',
+    input.masterTokenAccount
+      ? ([input.masterTokenAccount, false] as const)
+      : ([
+          findAssociatedTokenPda(context, {
+            mint: input.masterEditionMint,
+            owner: publicKey(
+              resolvedAccounts.masterTokenAccountOwner[0],
+              false
+            ),
+          }),
+          false,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
+    'masterMetadata',
+    input.masterMetadata
+      ? ([input.masterMetadata, false] as const)
+      : ([
+          findMetadataPda(context, { mint: input.masterEditionMint }),
+          false,
+        ] as const)
+  );
+  addObjectProperty(
+    resolvedAccounts,
     'updateAuthority',
-    accounts.updateAuthority
-      ? ([accounts.updateAuthority, false] as const)
+    input.updateAuthority
+      ? ([input.updateAuthority, false] as const)
       : ([context.identity.publicKey, false] as const)
   );
   addObjectProperty(
     resolvedAccounts,
     'splTokenProgram',
-    accounts.splTokenProgram
-      ? ([accounts.splTokenProgram, false] as const)
+    input.splTokenProgram
+      ? ([input.splTokenProgram, false] as const)
       : ([
           context.programs.getPublicKey(
             'splToken',
@@ -171,8 +287,8 @@ export function printV1(
   addObjectProperty(
     resolvedAccounts,
     'splAtaProgram',
-    accounts.splAtaProgram
-      ? ([accounts.splAtaProgram, false] as const)
+    input.splAtaProgram
+      ? ([input.splAtaProgram, false] as const)
       : ([
           context.programs.getPublicKey(
             'splAssociatedToken',
@@ -184,8 +300,8 @@ export function printV1(
   addObjectProperty(
     resolvedAccounts,
     'sysvarInstructions',
-    accounts.sysvarInstructions
-      ? ([accounts.sysvarInstructions, false] as const)
+    input.sysvarInstructions
+      ? ([input.sysvarInstructions, false] as const)
       : ([
           publicKey('Sysvar1nstructions1111111111111111111111111'),
           false,
@@ -194,8 +310,8 @@ export function printV1(
   addObjectProperty(
     resolvedAccounts,
     'systemProgram',
-    accounts.systemProgram
-      ? ([accounts.systemProgram, false] as const)
+    input.systemProgram
+      ? ([input.systemProgram, false] as const)
       : ([
           context.programs.getPublicKey(
             'splSystem',
@@ -204,7 +320,7 @@ export function printV1(
           false,
         ] as const)
   );
-  const resolvedArgs = { ...args, ...resolvingArgs };
+  const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.editionMetadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.edition, false);
