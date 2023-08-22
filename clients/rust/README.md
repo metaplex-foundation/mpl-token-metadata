@@ -2,7 +2,7 @@
   Metaplex Token Metadata SDK
 </h1>
 <p>
-  Rust library for interacting with <a href="https://github.com/metaplex-foundation/mpl-token-metadata">Token Metadata</a> program.
+  Rust library for interacting with <a href="https://github.com/metaplex-foundation/mpl-token-metadata">Metaplex Token Metadata</a> program.
 </p>
 <p>
   <a href="https://github.com/metaplex-foundation/mpl-token-metadata/actions/workflows/build-sdk.yml"><img src="https://img.shields.io/github/actions/workflow/status/metaplex-foundation/mpl-token-metadata/main.yml?logo=GitHub" /></a>
@@ -58,20 +58,34 @@ pub struct CreateV1 {
 After filling in the instruction account fields, you can use the `instruction(...)` method to generate the corresponding `solana_program::instruction::Instruction`:
 ```rust
 // instruction args
-let mut args = CreateV1InstructionArgs::new(
-    String::from("pNFT"),
-    String::from("http://my.pnft"),
-    500,
-    None,
-    TokenStandard::ProgrammableNonFungible,
-);
-args.print_supply = Some(PrintSupply::Zero);
+let args = CreateV1InstructionArgs {
+    name: String::from("pNFT"),
+    symbol: String::from(""),
+    uri: String::from("http://my.pnft"),
+    seller_fee_basis_points: 500,
+    primary_sale_happened: false,
+    is_mutable: true,
+    token_standard: TokenStandard::ProgrammableNonFungible,
+    collection: None,
+    uses: None,
+    collection_details: None,
+    creators: None,
+    rule_set: None,
+    decimals: Some(0),
+    print_supply: Some(PrintSupply::Zero),
+};
 
 // instruction accounts
-let create_accounts = CreateV1 {
+let create_ix = CreateV1 {
     metadata,
     master_edition: Some(master_edition),
-    ...
+    mint: (mint_pubkey, true),
+    authority: payer_pubkey,
+    payer: payer_pubkey,
+    update_authority: (payer_pubkey, true),
+    system_program: system_program::ID,
+    sysvar_instructions: solana_program::sysvar::instructions::ID,
+    spl_token_program: spl_token::ID,
 };
 
 // creates the instruction
@@ -99,80 +113,110 @@ let create_ix = CreateV1Builder::new()
 
 ### _CPI_ instruction builders
 
-These are builders to be used by on-chain code, which will CPI into Token Metadata. Following the same example as above, we have a `CreateV1Cpi` struct:
+These are builders to be used by on-chain code, which will CPI into Token Metadata. Similarly to "off-chain" builders, each instruction has a CPI struct to facilitate invoke CPI instructions – e.g., `TransferV1Cpi`:
 ```rust
-pub struct CreateV1Cpi<'a> {
+pub struct TransferV1Cpi<'a> {
     /// The program to invoke.
     pub __program: &'a solana_program::account_info::AccountInfo<'a>,
-    /// Unallocated metadata account with address as pda of ['metadata', program id, mint id]
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
-    /// Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition']
-    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token account
+    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token account owner
+    pub token_owner: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Destination token account
+    pub destination_token: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Destination token account owner
+    pub destination_owner: &'a solana_program::account_info::AccountInfo<'a>,
     /// Mint of token asset
-    pub mint: (&'a solana_program::account_info::AccountInfo<'a>, bool),
-    /// Mint authority
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata (pda of ['metadata', program id, mint id])
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Edition of token asset
+    pub edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Owner token record account
+    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Destination token record account
+    pub destination_token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Transfer authority (token owner or delegate)
     pub authority: &'a solana_program::account_info::AccountInfo<'a>,
     /// Payer
     pub payer: &'a solana_program::account_info::AccountInfo<'a>,
-    /// Update authority for the metadata account
-    pub update_authority: (&'a solana_program::account_info::AccountInfo<'a>, bool),
-    /// System program
+    /// System Program
     pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
     pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
-    /// SPL Token program
+    /// SPL Token Program
     pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Associated Token Account program
+    pub spl_ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token Authorization Rules Program
+    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules account
+    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
-    pub __args: CreateV1InstructionArgs,
+    pub __args: TransferV1InstructionArgs,
 }
 ```
 
 After filling in the instruction account info and argument fields, you can use the `invoke()` or `invoke_signed(...)` method to perform the CPI:
 ```rust
 // instruction args
-let mut args = CreateV1InstructionArgs::new(
-    String::from("pNFT"),
-    String::from("http://my.pnft"),
-    500,
-    None,
-    TokenStandard::ProgrammableNonFungible,
-);
-args.print_supply = Some(PrintSupply::Zero);
+let mut args = TransferV1InstructionArgs {
+    amount,
+    authorization_data: None,
+};
 
 // instruction accounts
-let cpi_create = CreateV1Cpi {
-    __program: ctx.accounts.token_metadata_program,
-    metadata: ctx.accounts.metadata,
-    master_edition: Some(ctx.accounts.master_edition),
-    ...
+let cpi_transfer = TransferV1Cpi {
+    __program: ctx.accounts.metadata_program,
     __args: args,
+    token: ctx.accounts.owner_token,
+    token_owner: ctx.accounts.owner,
+    destination_token: ctx.accounts.destination_token,
+    destination_owner: ctx.accounts.destination,
+    mint: ctx.accounts.mint,
+    metadata: ctx.accounts.metadata,
+    authority: ctx.accounts.vault,
+    payer: ctx.accounts.payer,
+    system_program: ctx.accounts.system_program,
+    sysvar_instructions: ctx.accounts.sysvar_instructions,
+    spl_token_program: ctx.accounts.spl_token_program,
+    spl_ata_program: ctx.accounts.spl_ata_program,
+    edition: ctx.accounts.edition,
+    token_record: ctx.accounts.owner_token_record,
+    destination_token_record: ctx.accounts.destination_token_record,
+    authorization_rules: ctx.accounts.authorization_rules,
+    authorization_rules_program: ctx.accounts.authorization_rules_program,
 };
 
 // performs the CPI
-cpi_create.invoke()?;
+cpi_transfer.invoke_signed(&[&signer_seeds])
 ```
 
-You can also use the `CreateV1CpiBuilder` to simplify the process:
+You can also use the `TransferV1CpiBuilder` to simplify the process:
 ```rust
-let cpi_create = CreateV1CpiBuilder::new(ctx.accounts.token_metadata_program)
+let cpi_transfer = TransferV1CpiBuilder::new(ctx.accounts.metadata_program)
+    .token(ctx.accounts.owner_token)
+    .token_owner(ctx.accounts.owner)
+    .destination_token(ctx.accounts.destination_token)
+    .destination_owner(ctx.accounts.destination)
+    .mint(ctx.accounts.mint)
     .metadata(ctx.accounts.metadata)
-    .master_edition(ctx.accounts.master_edition)
-    .mint(ctx.accounts.mint_pubkey, true)
-    .authority(ctx.accounts.payer_pubkey)
-    .payer(ctx.accounts.payer_pubkey)
-    .update_authority(ctx.accounts.payer_pubkey, true)
+    .edition(edition)
+    .token_record(token_record)
+    .destination_token_record(token_record)
+    .authority(ctx.accounts.vault)
+    .payer(ctx.accounts.payer)
     .system_program(ctx.accounts.system_program)
     .sysvar_instructions(ctx.accounts.sysvar_instructions)
     .spl_token_program(ctx.accounts.spl_token_program)
-    .is_mutable(true)
-    .primary_sale_happened(false)
-    .name(String::from("pNFT"))
-    .uri(String::from("http://my.pnft"))
-    .seller_fee_basis_points(500)
-    .token_standard(TokenStandard::ProgrammableNonFungible)
-    .print_supply(PrintSupply::Zero)
+    .spl_ata_program(ctx.accounts.spl_ata_program)
+    .authorization_rules(authorization_rules)
+    .authorization_rules_program(authorization_rules_program)
+    .amount(amount)
     .build();
-cpi_create.invoke()?;
+
+// performs the CPI
+cpi_transfer.invoke_signed(&[&signer_seeds])
 ```
 
 ## PDA helpers
