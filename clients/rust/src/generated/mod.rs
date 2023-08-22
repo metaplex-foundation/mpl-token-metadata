@@ -11,4 +11,4 @@ pub mod instructions;
 pub mod programs;
 pub mod types;
 
-pub use programs::*;
+pub(crate) use programs::*;

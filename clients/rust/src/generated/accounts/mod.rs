@@ -5,24 +5,24 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-mod collection_authority_record;
-mod edition;
-mod edition_marker;
-mod edition_marker_v2;
-mod master_edition;
-mod metadata;
-mod metadata_delegate_record;
-mod token_owned_escrow;
-mod token_record;
-mod use_authority_record;
+pub mod collection_authority_record;
+pub mod edition;
+pub mod edition_marker;
+pub mod edition_marker_v2;
+pub mod master_edition;
+pub mod metadata;
+pub mod metadata_delegate_record;
+pub mod token_owned_escrow;
+pub mod token_record;
+pub mod use_authority_record;
 
-pub use collection_authority_record::*;
-pub use edition::*;
-pub use edition_marker::*;
-pub use edition_marker_v2::*;
-pub use master_edition::*;
-pub use metadata::*;
-pub use metadata_delegate_record::*;
-pub use token_owned_escrow::*;
-pub use token_record::*;
-pub use use_authority_record::*;
+pub use self::collection_authority_record::*;
+pub use self::edition::*;
+pub use self::edition_marker::*;
+pub use self::edition_marker_v2::*;
+pub use self::master_edition::*;
+pub use self::metadata::*;
+pub use self::metadata_delegate_record::*;
+pub use self::token_owned_escrow::*;
+pub use self::token_record::*;
+pub use self::use_authority_record::*;
