@@ -1,5 +1,10 @@
 import { createMintWithAssociatedToken } from '@metaplex-foundation/mpl-toolbox';
-import { generateSigner, percentAmount, some } from '@metaplex-foundation/umi';
+import {
+  generateSigner,
+  percentAmount,
+  some,
+  transactionBuilder,
+} from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   DigitalAsset,
@@ -12,6 +17,7 @@ import {
   printV1,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
+import { ComputeBudgetProgram } from '@solana/web3.js';
 
 test('it can print a new edition from a NonFungible', async (t) => {
   // Given an existing master edition asset.
@@ -88,14 +94,23 @@ test('it can print a new edition from a ProgrammableNonFungible', async (t) => {
   // When we print a new edition of the asset.
   const editionMint = generateSigner(umi);
   const editionOwner = generateSigner(umi);
-  await printV1(umi, {
-    masterTokenAccountOwner: originalOwner,
-    masterEditionMint: originalMint.publicKey,
-    editionMint,
-    editionTokenAccountOwner: editionOwner.publicKey,
-    editionNumber: 1,
-    tokenStandard: TokenStandard.ProgrammableNonFungible,
-  }).sendAndConfirm(umi);
+  await transactionBuilder()
+    .add(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 400_000,
+      })
+    )
+    .add(
+      printV1(umi, {
+        masterTokenAccountOwner: originalOwner,
+        masterEditionMint: originalMint.publicKey,
+        editionMint,
+        editionTokenAccountOwner: editionOwner.publicKey,
+        editionNumber: 1,
+        tokenStandard: TokenStandard.ProgrammableNonFungible,
+      })
+    )
+    .sendAndConfirm(umi);
 
   // Then the original NFT was updated.
   const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);
