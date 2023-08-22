@@ -15,7 +15,7 @@ pub struct PrintV1 {
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
     pub edition: solana_program::pubkey::Pubkey,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub edition_mint: solana_program::pubkey::Pubkey,
+    pub edition_mint: (solana_program::pubkey::Pubkey, bool),
     /// Owner of the token account of new token
     pub edition_token_account_owner: solana_program::pubkey::Pubkey,
     /// Token account of new token
@@ -64,8 +64,8 @@ impl PrintV1 {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.edition_mint,
-            false,
+            self.edition_mint.0,
+            self.edition_mint.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.edition_token_account_owner,
@@ -162,7 +162,7 @@ impl PrintV1InstructionData {
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct PrintV1InstructionArgs {
-    pub edition_arg: u64,
+    pub edition_number: u64,
 }
 
 /// Instruction builder.
@@ -170,7 +170,7 @@ pub struct PrintV1InstructionArgs {
 pub struct PrintV1Builder {
     edition_metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
-    edition_mint: Option<solana_program::pubkey::Pubkey>,
+    edition_mint: Option<(solana_program::pubkey::Pubkey, bool)>,
     edition_token_account_owner: Option<solana_program::pubkey::Pubkey>,
     edition_token_account: Option<solana_program::pubkey::Pubkey>,
     edition_mint_authority: Option<solana_program::pubkey::Pubkey>,
@@ -186,7 +186,7 @@ pub struct PrintV1Builder {
     spl_ata_program: Option<solana_program::pubkey::Pubkey>,
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    edition_arg: Option<u64>,
+    edition_number: Option<u64>,
 }
 
 impl PrintV1Builder {
@@ -210,8 +210,12 @@ impl PrintV1Builder {
     }
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
     #[inline(always)]
-    pub fn edition_mint(&mut self, edition_mint: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.edition_mint = Some(edition_mint);
+    pub fn edition_mint(
+        &mut self,
+        edition_mint: solana_program::pubkey::Pubkey,
+        as_signer: bool,
+    ) -> &mut Self {
+        self.edition_mint = Some((edition_mint, as_signer));
         self
     }
     /// Owner of the token account of new token
@@ -342,8 +346,8 @@ impl PrintV1Builder {
         self
     }
     #[inline(always)]
-    pub fn edition_arg(&mut self, edition_arg: u64) -> &mut Self {
-        self.edition_arg = Some(edition_arg);
+    pub fn edition_number(&mut self, edition_number: u64) -> &mut Self {
+        self.edition_number = Some(edition_number);
         self
     }
     #[allow(clippy::clone_on_copy)]
@@ -389,7 +393,10 @@ impl PrintV1Builder {
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
         let args = PrintV1InstructionArgs {
-            edition_arg: self.edition_arg.clone().expect("edition_arg is not set"),
+            edition_number: self
+                .edition_number
+                .clone()
+                .expect("edition_number is not set"),
         };
 
         accounts.instruction(args)
@@ -405,7 +412,7 @@ pub struct PrintV1Cpi<'a> {
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
     pub edition: &'a solana_program::account_info::AccountInfo<'a>,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint: (&'a solana_program::account_info::AccountInfo<'a>, bool),
     /// Owner of the token account of new token
     pub edition_token_account_owner: &'a solana_program::account_info::AccountInfo<'a>,
     /// Token account of new token
@@ -460,8 +467,8 @@ impl<'a> PrintV1Cpi<'a> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.edition_mint.key,
-            false,
+            *self.edition_mint.0.key,
+            self.edition_mint.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.edition_token_account_owner.key,
@@ -543,7 +550,7 @@ impl<'a> PrintV1Cpi<'a> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.edition_metadata.clone());
         account_infos.push(self.edition.clone());
-        account_infos.push(self.edition_mint.clone());
+        account_infos.push(self.edition_mint.0.clone());
         account_infos.push(self.edition_token_account_owner.clone());
         account_infos.push(self.edition_token_account.clone());
         account_infos.push(self.edition_mint_authority.clone());
@@ -597,7 +604,7 @@ impl<'a> PrintV1CpiBuilder<'a> {
             spl_ata_program: None,
             sysvar_instructions: None,
             system_program: None,
-            edition_arg: None,
+            edition_number: None,
         });
         Self { instruction }
     }
@@ -624,8 +631,9 @@ impl<'a> PrintV1CpiBuilder<'a> {
     pub fn edition_mint(
         &mut self,
         edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.edition_mint = Some(edition_mint);
+        self.instruction.edition_mint = Some((edition_mint, as_signer));
         self
     }
     /// Owner of the token account of new token
@@ -762,18 +770,18 @@ impl<'a> PrintV1CpiBuilder<'a> {
         self
     }
     #[inline(always)]
-    pub fn edition_arg(&mut self, edition_arg: u64) -> &mut Self {
-        self.instruction.edition_arg = Some(edition_arg);
+    pub fn edition_number(&mut self, edition_number: u64) -> &mut Self {
+        self.instruction.edition_number = Some(edition_number);
         self
     }
     #[allow(clippy::clone_on_copy)]
     pub fn build(&self) -> PrintV1Cpi<'a> {
         let args = PrintV1InstructionArgs {
-            edition_arg: self
+            edition_number: self
                 .instruction
-                .edition_arg
+                .edition_number
                 .clone()
-                .expect("edition_arg is not set"),
+                .expect("edition_number is not set"),
         };
 
         PrintV1Cpi {
@@ -868,7 +876,7 @@ struct PrintV1CpiBuilderInstruction<'a> {
     __program: &'a solana_program::account_info::AccountInfo<'a>,
     edition_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    edition_mint: Option<(&'a solana_program::account_info::AccountInfo<'a>, bool)>,
     edition_token_account_owner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     edition_token_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     edition_mint_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
@@ -884,5 +892,5 @@ struct PrintV1CpiBuilderInstruction<'a> {
     spl_ata_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition_arg: Option<u64>,
+    edition_number: Option<u64>,
 }
