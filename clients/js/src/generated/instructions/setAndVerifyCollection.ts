@@ -104,6 +104,10 @@ export function setAndVerifyCollection(
       input.collectionMasterEditionAccount,
       false,
     ] as const,
+    collectionAuthorityRecord: [
+      input.collectionAuthorityRecord,
+      false,
+    ] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -118,13 +122,6 @@ export function setAndVerifyCollection(
     input.updateAuthority
       ? ([input.updateAuthority, false] as const)
       : ([context.identity.publicKey, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'collectionAuthorityRecord',
-    input.collectionAuthorityRecord
-      ? ([input.collectionAuthorityRecord, false] as const)
-      : ([programId, false] as const)
   );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -143,7 +140,7 @@ export function setAndVerifyCollection(
     keys,
     signers,
     resolvedAccounts.collectionAuthorityRecord,
-    false
+    true
   );
 
   // Data.

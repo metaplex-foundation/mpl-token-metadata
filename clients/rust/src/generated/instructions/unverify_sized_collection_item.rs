@@ -58,11 +58,6 @@ impl UnverifySizedCollectionItem {
                 collection_authority_record,
                 false,
             ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
-                false,
-            ));
         }
         let data = UnverifySizedCollectionItemInstructionData::new()
             .try_to_vec()
@@ -236,11 +231,6 @@ impl<'a> UnverifySizedCollectionItemCpi<'a> {
         if let Some(collection_authority_record) = self.collection_authority_record {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
                 *collection_authority_record.key,
-                false,
-            ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
                 false,
             ));
         }

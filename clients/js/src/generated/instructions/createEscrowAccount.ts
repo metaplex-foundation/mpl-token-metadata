@@ -103,6 +103,7 @@ export function createEscrowAccount(
     escrow: [input.escrow, true] as const,
     mint: [input.mint, false] as const,
     tokenAccount: [input.tokenAccount, false] as const,
+    authority: [input.authority, false] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -154,13 +155,6 @@ export function createEscrowAccount(
           false,
         ] as const)
   );
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([programId, false] as const)
-  );
 
   addAccountMeta(keys, signers, resolvedAccounts.escrow, false);
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -170,7 +164,7 @@ export function createEscrowAccount(
   addAccountMeta(keys, signers, resolvedAccounts.payer, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
+  addAccountMeta(keys, signers, resolvedAccounts.authority, true);
 
   // Data.
   const data = getCreateEscrowAccountInstructionDataSerializer().serialize({});

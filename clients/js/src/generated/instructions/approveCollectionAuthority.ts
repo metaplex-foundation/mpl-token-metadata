@@ -104,6 +104,7 @@ export function approveCollectionAuthority(
     collectionAuthorityRecord: [input.collectionAuthorityRecord, true] as const,
     newCollectionAuthority: [input.newCollectionAuthority, false] as const,
     mint: [input.mint, false] as const,
+    rent: [input.rent, false] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -142,11 +143,6 @@ export function approveCollectionAuthority(
           false,
         ] as const)
   );
-  addObjectProperty(
-    resolvedAccounts,
-    'rent',
-    input.rent ? ([input.rent, false] as const) : ([programId, false] as const)
-  );
 
   addAccountMeta(
     keys,
@@ -160,7 +156,7 @@ export function approveCollectionAuthority(
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.mint, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, false);
+  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
 
   // Data.
   const data =

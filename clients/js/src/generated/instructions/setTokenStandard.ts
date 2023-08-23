@@ -91,6 +91,7 @@ export function setTokenStandard(
   // Resolved inputs.
   const resolvedAccounts = {
     mint: [input.mint, false] as const,
+    edition: [input.edition, false] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -109,18 +110,11 @@ export function setTokenStandard(
       ? ([input.updateAuthority, false] as const)
       : ([context.identity, false] as const)
   );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : ([programId, false] as const)
-  );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
   addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
+  addAccountMeta(keys, signers, resolvedAccounts.edition, true);
 
   // Data.
   const data = getSetTokenStandardInstructionDataSerializer().serialize({});

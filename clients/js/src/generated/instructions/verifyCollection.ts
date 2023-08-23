@@ -102,6 +102,10 @@ export function verifyCollection(
       input.collectionMasterEditionAccount,
       false,
     ] as const,
+    collectionAuthorityRecord: [
+      input.collectionAuthorityRecord,
+      false,
+    ] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -109,13 +113,6 @@ export function verifyCollection(
     input.payer
       ? ([input.payer, true] as const)
       : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'collectionAuthorityRecord',
-    input.collectionAuthorityRecord
-      ? ([input.collectionAuthorityRecord, false] as const)
-      : ([programId, false] as const)
   );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -133,7 +130,7 @@ export function verifyCollection(
     keys,
     signers,
     resolvedAccounts.collectionAuthorityRecord,
-    false
+    true
   );
 
   // Data.

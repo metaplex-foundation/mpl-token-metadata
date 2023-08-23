@@ -106,6 +106,8 @@ export function utilize(
     mint: [input.mint, true] as const,
     useAuthority: [input.useAuthority, true] as const,
     owner: [input.owner, false] as const,
+    useAuthorityRecord: [input.useAuthorityRecord, true] as const,
+    burner: [input.burner, false] as const,
   };
   const resolvingArgs = {};
   addObjectProperty(
@@ -167,20 +169,6 @@ export function utilize(
           false,
         ] as const)
   );
-  addObjectProperty(
-    resolvedAccounts,
-    'useAuthorityRecord',
-    input.useAuthorityRecord
-      ? ([input.useAuthorityRecord, true] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'burner',
-    input.burner
-      ? ([input.burner, false] as const)
-      : ([programId, false] as const)
-  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
@@ -192,8 +180,8 @@ export function utilize(
   addAccountMeta(keys, signers, resolvedAccounts.ataProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.rent, false);
-  addAccountMeta(keys, signers, resolvedAccounts.useAuthorityRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.burner, false);
+  addAccountMeta(keys, signers, resolvedAccounts.useAuthorityRecord, true);
+  addAccountMeta(keys, signers, resolvedAccounts.burner, true);
 
   // Data.
   const data = getUtilizeInstructionDataSerializer().serialize(resolvedArgs);

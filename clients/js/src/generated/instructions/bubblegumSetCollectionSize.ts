@@ -21,7 +21,7 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import { addAccountMeta } from '../shared';
 import {
   SetCollectionSizeArgs,
   SetCollectionSizeArgsArgs,
@@ -113,15 +113,12 @@ export function bubblegumSetCollectionSize(
     collectionAuthority: [input.collectionAuthority, true] as const,
     collectionMint: [input.collectionMint, false] as const,
     bubblegumSigner: [input.bubblegumSigner, false] as const,
+    collectionAuthorityRecord: [
+      input.collectionAuthorityRecord,
+      false,
+    ] as const,
   };
   const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'collectionAuthorityRecord',
-    input.collectionAuthorityRecord
-      ? ([input.collectionAuthorityRecord, false] as const)
-      : ([programId, false] as const)
-  );
   const resolvedArgs = { ...input, ...resolvingArgs };
 
   addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
@@ -132,7 +129,7 @@ export function bubblegumSetCollectionSize(
     keys,
     signers,
     resolvedAccounts.collectionAuthorityRecord,
-    false
+    true
   );
 
   // Data.

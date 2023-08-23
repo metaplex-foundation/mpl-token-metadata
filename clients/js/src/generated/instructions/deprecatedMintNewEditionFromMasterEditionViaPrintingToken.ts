@@ -128,6 +128,7 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
     burnAuthority: [input.burnAuthority, false] as const,
     masterUpdateAuthority: [input.masterUpdateAuthority, false] as const,
     masterMetadata: [input.masterMetadata, false] as const,
+    reservationList: [input.reservationList, true] as const,
   };
   addObjectProperty(
     resolvedAccounts,
@@ -212,13 +213,6 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
           false,
         ] as const)
   );
-  addObjectProperty(
-    resolvedAccounts,
-    'reservationList',
-    input.reservationList
-      ? ([input.reservationList, true] as const)
-      : ([programId, false] as const)
-  );
 
   addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
   addAccountMeta(keys, signers, resolvedAccounts.edition, false);
@@ -235,7 +229,7 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
   addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
   addAccountMeta(keys, signers, resolvedAccounts.rent, false);
-  addAccountMeta(keys, signers, resolvedAccounts.reservationList, false);
+  addAccountMeta(keys, signers, resolvedAccounts.reservationList, true);
 
   // Data.
   const data =
