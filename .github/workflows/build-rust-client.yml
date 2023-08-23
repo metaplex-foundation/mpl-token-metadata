@@ -1,4 +1,4 @@
-name: Build Programs
+name: Build Rust Client
 
 on:
   workflow_call:

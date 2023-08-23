@@ -1,4 +1,4 @@
-name: Test Programs
+name: Test Rust Client
 
 on:
   workflow_call:
