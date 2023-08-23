@@ -51,7 +51,15 @@ jobs:
           command: clippy
           args: --all-targets --all-features --no-deps --manifest-path ./clients/rust/Cargo.toml
 
-      - name: Build SDK
+      - name: Build Rust client
         shell: bash
         working-directory: clients/rust
-        run: cargo build
+        run: cargo build --release
+
+      - name: Upload Rust client builds
+        uses: actions/upload-artifact@v3
+        with:
+          name: rust-client-builds
+          # First wildcard ensures exported paths are consistently under the clients folder.
+          path: ./client*/rust/target/release/*mpl_token_metadata*
+          if-no-files-found: error

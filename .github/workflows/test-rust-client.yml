@@ -38,5 +38,5 @@ jobs:
 
       - name: Run tests
         shell: bash
-        working-directory: configs/program-scripts
-        run: RUST_LOG=error ./sdk.sh
+        working-directory: configs/client-scripts
+        run: RUST_LOG=error ./test-rust-client.sh

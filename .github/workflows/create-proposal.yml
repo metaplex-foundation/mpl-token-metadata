@@ -101,33 +101,21 @@ jobs:
       - name: Determine program version
         run: |
           IDL_NAME=`echo "${{ inputs.program }}" | tr - _`
-          VERSION=`jq '.version' ./idls/mpl_${IDL_NAME}.json | sed 's/"//g'`
+          VERSION=`jq '.version' ./idls/${IDL_NAME}.json | sed 's/"//g'`
 
           MAJOR=`echo ${VERSION} | cut -d. -f1`
           MINOR=`echo ${VERSION} | cut -d. -f2`
-          PATCH=`echo ${VERSION} | cut -d. -f3-4`
+          PATCH=`echo ${VERSION} | cut -d. -f3`
 
-          case "$PATCH" in
-            *"beta"*)
-              PRERELEASE=`echo ${PATCH} | cut -d. -f2`
-              PATCH=`echo ${PATCH} | cut -d- -f1`
-              ;;
-            *)
-              PRERELEASE=0
-              ;;
-          esac
-
-          if [ $PRERELEASE -eq 0 ]; then
-            if [ "${{ inputs.bump }}" == "major" ]; then
-              MAJOR=$((MAJOR + 1))
-              MINOR=0
-              PATCH=0
-            elif [ "${{ inputs.bump }}" == "minor" ]; then
-              MINOR=$((MINOR + 1))
-              PATCH=0
-            else
-              PATCH=$((PATCH + 1))
-            fi
+          if [ "${{ inputs.bump }}" == "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "${{ inputs.bump }}" == "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
           fi
 
           echo PROGRAM_VERSION="${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV

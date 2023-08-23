@@ -23,9 +23,9 @@ programs: &programs
 
 client_common: &client_common
   - *programs
-  - ".github/workflows/test-js.yml"
-  - ".github/workflows/test-sdk.yml"
-  - ".github/workflows/build-sdk.yml"
+  - ".github/workflows/test-js-client.yml"
+  - ".github/workflows/test-rust-client.yml"
+  - ".github/workflows/build-rust-client.yml"
   - ".github/workflows/main.yml"
   - ".github/file-filters.yml"
   - ".github/.env"
