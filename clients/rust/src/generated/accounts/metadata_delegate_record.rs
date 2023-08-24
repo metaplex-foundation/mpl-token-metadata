@@ -21,6 +21,8 @@ pub struct MetadataDelegateRecord {
 }
 
 impl MetadataDelegateRecord {
+    pub const LEN: usize = 98;
+
     pub fn find_pda(
         mint: &Pubkey,
         delegate_role: MetadataDelegateRoleSeed,

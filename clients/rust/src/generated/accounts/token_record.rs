@@ -24,6 +24,8 @@ pub struct TokenRecord {
 }
 
 impl TokenRecord {
+    pub const LEN: usize = 80;
+
     pub fn find_pda(mint: &Pubkey, token: &Pubkey) -> (solana_program::pubkey::Pubkey, u8) {
         solana_program::pubkey::Pubkey::find_program_address(
             &[

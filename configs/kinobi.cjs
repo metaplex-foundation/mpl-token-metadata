@@ -51,7 +51,7 @@ kinobi.update(
       ],
     },
     tokenRecord: {
-      size: undefined,
+      size: 80,
       seeds: [
         ...metadataSeeds,
         k.stringConstantSeed("token_record"),
@@ -62,7 +62,7 @@ kinobi.update(
       ],
     },
     metadataDelegateRecord: {
-      size: undefined,
+      size: 98,
       seeds: [
         ...metadataSeeds,
         k.variableSeed(

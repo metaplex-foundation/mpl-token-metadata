@@ -184,6 +184,10 @@ export function getMetadataDelegateRecordGpaBuilder(
     );
 }
 
+export function getMetadataDelegateRecordSize(): number {
+  return 98;
+}
+
 export function findMetadataDelegateRecordPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {

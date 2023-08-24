@@ -191,6 +191,10 @@ export function getTokenRecordGpaBuilder(
     .whereField('key', Key.TokenRecord);
 }
 
+export function getTokenRecordSize(): number {
+  return 80;
+}
+
 export function findTokenRecordPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {
