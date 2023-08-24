@@ -11,6 +11,4 @@ ARGS=$*
 # js client tests folder
 cd ${WORKING_DIR}/clients/js
 
-for t in `ls test/${ARGS}*`; do
-  pnpm build && pnpm test ${t}
-done
+pnpm install && pnpm build && pnpm test ${ARGS}
