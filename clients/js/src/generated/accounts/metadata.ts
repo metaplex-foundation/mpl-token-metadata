@@ -250,10 +250,6 @@ export function getMetadataGpaBuilder(
     .whereField('key', Key.MetadataV1);
 }
 
-export function getMetadataSize(): number {
-  return 679;
-}
-
 export function findMetadataPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {

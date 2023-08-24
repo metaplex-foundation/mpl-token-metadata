@@ -18,8 +18,6 @@ pub struct MasterEdition {
 }
 
 impl MasterEdition {
-    pub const LEN: usize = 282;
-
     pub fn find_pda(mint: &Pubkey) -> (solana_program::pubkey::Pubkey, u8) {
         solana_program::pubkey::Pubkey::find_program_address(
             &[

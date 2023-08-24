@@ -168,10 +168,6 @@ export function getMasterEditionGpaBuilder(
     .whereField('key', Key.MasterEditionV2);
 }
 
-export function getMasterEditionSize(): number {
-  return 282;
-}
-
 export function findMasterEditionPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   seeds: {

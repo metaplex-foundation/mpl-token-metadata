@@ -25,11 +25,11 @@ const metadataSeeds = [
 kinobi.update(
   new k.UpdateAccountsVisitor({
     metadata: {
-      size: 679,
+      size: undefined,
       seeds: metadataSeeds,
     },
     masterEditionV2: {
-      size: 282,
+      size: undefined,
       name: "masterEdition",
       seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
     },
@@ -51,7 +51,7 @@ kinobi.update(
       ],
     },
     tokenRecord: {
-      size: 80,
+      size: undefined,
       seeds: [
         ...metadataSeeds,
         k.stringConstantSeed("token_record"),
@@ -62,7 +62,7 @@ kinobi.update(
       ],
     },
     metadataDelegateRecord: {
-      size: 98,
+      size: undefined,
       seeds: [
         ...metadataSeeds,
         k.variableSeed(
