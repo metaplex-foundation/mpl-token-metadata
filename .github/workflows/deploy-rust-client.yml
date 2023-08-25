@@ -77,6 +77,7 @@ jobs:
         uses: metaplex-foundation/actions/install-cargo-release@v1
         with:
           cache: ${{ env.CACHE }}
+          version: "0.23.1"
 
       - name: Publish Crate
         working-directory: ./clients/rust
