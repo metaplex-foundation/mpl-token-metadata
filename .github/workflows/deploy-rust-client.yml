@@ -65,7 +65,7 @@ jobs:
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
         with:
-          toolchain: ${{ env.RUST_VERSION }}
+          toolchain: "1.70.0"
 
       - name: Install Solana
         uses: metaplex-foundation/actions/install-solana@v1
@@ -77,7 +77,6 @@ jobs:
         uses: metaplex-foundation/actions/install-cargo-release@v1
         with:
           cache: ${{ env.CACHE }}
-          version: "0.23.1"
 
       - name: Publish Crate
         working-directory: ./clients/rust
