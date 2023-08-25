@@ -1,5 +1,8 @@
 use borsh::BorshDeserialize;
-use mpl_token_metadata::{
+use solana_sdk::{
+    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
+};
+use token_metadata::{
     instruction,
     state::{
         Collection, CollectionDetails, Creator, DataV2, Metadata as TmMetadata,
@@ -7,9 +10,6 @@ use mpl_token_metadata::{
         METADATA_FEE_FLAG_INDEX, PREFIX,
     },
     ID,
-};
-use solana_sdk::{
-    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
 
 use crate::*;
@@ -64,7 +64,7 @@ impl Metadata {
     pub async fn get_data(
         &self,
         context: &mut ProgramTestContext,
-    ) -> mpl_token_metadata::state::Metadata {
+    ) -> token_metadata::state::Metadata {
         let account = get_account(context, &self.pubkey).await;
         BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
@@ -631,7 +631,7 @@ impl Metadata {
 
         let tx = Transaction::new_signed_with_payer(
             &[instruction::update_metadata_accounts_v2(
-                mpl_token_metadata::ID,
+                token_metadata::ID,
                 self.pubkey,
                 context.payer.pubkey(),
                 Some(new_update_authority),

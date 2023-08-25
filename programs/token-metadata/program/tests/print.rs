@@ -2,21 +2,21 @@
 pub mod utils;
 
 use borsh::BorshSerialize;
-use mpl_token_metadata::{
-    error::MetadataError,
-    state::{Key, MAX_MASTER_EDITION_LEN},
-};
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{
     account::AccountSharedData, instruction::InstructionError, transaction::TransactionError,
+};
+use token_metadata::{
+    error::MetadataError,
+    state::{Key, MAX_MASTER_EDITION_LEN},
 };
 use utils::*;
 
 mod print {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::state::{PrintSupply, TokenStandard};
+    use token_metadata::state::{PrintSupply, TokenStandard};
 
     use super::*;
     #[tokio::test]
@@ -56,11 +56,9 @@ mod print {
             .await
             .unwrap()
             .unwrap();
-        let edition_metadata: mpl_token_metadata::state::Metadata =
-            mpl_token_metadata::state::Metadata::deserialize(
-                &mut &edition_metadata_account.data[..],
-            )
-            .unwrap();
+        let edition_metadata: token_metadata::state::Metadata =
+            token_metadata::state::Metadata::deserialize(&mut &edition_metadata_account.data[..])
+                .unwrap();
         assert_eq!(
             edition_metadata.token_standard,
             Some(TokenStandard::ProgrammableNonFungibleEdition)

@@ -6,7 +6,15 @@ const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 
 // Instanciate Kinobi.
-const kinobi = k.createFromIdls([path.join(idlDir, "mpl_token_metadata.json")]);
+const kinobi = k.createFromIdls([path.join(idlDir, "token_metadata.json")]);
+
+kinobi.update(
+  new k.UpdateProgramsVisitor({
+    tokenMetadata: {
+      name: "mplTokenMetadata",
+    },
+  })
+);
 
 // Update Accounts.
 const metadataSeeds = [
@@ -17,11 +25,11 @@ const metadataSeeds = [
 kinobi.update(
   new k.UpdateAccountsVisitor({
     metadata: {
-      size: 679,
+      size: undefined,
       seeds: metadataSeeds,
     },
     masterEditionV2: {
-      size: 282,
+      size: undefined,
       name: "masterEdition",
       seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
     },
@@ -813,3 +821,13 @@ kinobi.update(
 const jsDir = path.join(clientDir, "js", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
 kinobi.accept(new k.RenderJavaScriptVisitor(jsDir, { prettier }));
+
+// Render Rust.
+const crateDir = path.join(clientDir, "rust");
+const rustDir = path.join(clientDir, "rust", "src", "generated");
+kinobi.accept(
+  new k.RenderRustVisitor(rustDir, {
+    formatCode: true,
+    crateFolder: crateDir,
+  })
+);

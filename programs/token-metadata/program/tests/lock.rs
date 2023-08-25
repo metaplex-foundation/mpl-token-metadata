@@ -8,12 +8,6 @@ use utils::*;
 mod lock {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
-        error::MetadataError,
-        instruction::DelegateArgs,
-        pda::find_token_record_account,
-        state::{TokenRecord, TokenStandard, TokenState},
-    };
     use solana_program::{program_pack::Pack, pubkey::Pubkey};
     use solana_sdk::{
         instruction::InstructionError,
@@ -21,6 +15,12 @@ mod lock {
         transaction::TransactionError,
     };
     use spl_token::state::Account;
+    use token_metadata::{
+        error::MetadataError,
+        instruction::DelegateArgs,
+        pda::find_token_record_account,
+        state::{TokenRecord, TokenStandard, TokenState},
+    };
 
     use super::*;
 

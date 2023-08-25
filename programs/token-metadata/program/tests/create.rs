@@ -1,11 +1,6 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
-    state::{Key, MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH},
-    utils::puffed_out_string,
-    ID,
-};
 use num_traits::FromPrimitive;
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
@@ -14,6 +9,11 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::{
+    state::{Key, MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH},
+    utils::puffed_out_string,
+    ID,
+};
 use utils::*;
 
 mod create {
@@ -21,7 +21,7 @@ mod create {
     use std::str::FromStr;
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
+    use token_metadata::{
         error::MetadataError,
         instruction::{builders::CreateBuilder, CreateArgs, InstructionBuilder},
         state::{

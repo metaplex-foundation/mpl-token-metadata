@@ -1,7 +1,14 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
+use num_traits::FromPrimitive;
+use solana_program_test::*;
+use solana_sdk::{
+    instruction::InstructionError,
+    signature::{Keypair, Signer},
+    transaction::{Transaction, TransactionError},
+};
+use token_metadata::{
     error::MetadataError,
     instruction,
     state::{
@@ -11,17 +18,10 @@ use mpl_token_metadata::{
     utils::puffed_out_string,
     ID,
 };
-use num_traits::FromPrimitive;
-use solana_program_test::*;
-use solana_sdk::{
-    instruction::InstructionError,
-    signature::{Keypair, Signer},
-    transaction::{Transaction, TransactionError},
-};
 use utils::*;
 
 mod update_metadata_account_v2 {
-    use mpl_token_metadata::pda::find_collection_authority_account;
+    use token_metadata::pda::find_collection_authority_account;
 
     use super::*;
 
@@ -173,8 +173,8 @@ mod update_metadata_account_v2 {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             update_authority,
@@ -493,8 +493,8 @@ mod update_metadata_account_v2 {
             &test_collection.mint.pubkey(),
             &new_collection_authority.pubkey(),
         );
-        let ix = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             new_collection_authority.pubkey(),
             update_authority,

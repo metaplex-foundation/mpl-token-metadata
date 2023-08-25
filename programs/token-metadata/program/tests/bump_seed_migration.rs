@@ -2,19 +2,19 @@
 pub mod utils;
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::{
+use solana_program_test::*;
+use solana_sdk::{
+    account::{Account, AccountSharedData},
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+};
+use token_metadata::{
     pda::{find_program_as_burner_account, find_use_authority_account},
     state::{
         Key as MetadataKey, UseAuthorityRecord, UseMethod, Uses, MAX_NAME_LENGTH,
         MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
     },
     utils::puffed_out_string,
-};
-use solana_program_test::*;
-use solana_sdk::{
-    account::{Account, AccountSharedData},
-    signature::{Keypair, Signer},
-    transaction::Transaction,
 };
 use utils::*;
 mod bump_seed_migration {
@@ -64,7 +64,7 @@ mod bump_seed_migration {
         let mut account = Account {
             lamports: 1113600,
             data: vec![],
-            owner: mpl_token_metadata::ID,
+            owner: token_metadata::ID,
             executable: false,
             rent_epoch: 1,
         };
@@ -77,8 +77,8 @@ mod bump_seed_migration {
             .await
             .unwrap();
         let (burner, _) = find_program_as_burner_account();
-        let utilize_with_use_authority = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_with_use_authority = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),

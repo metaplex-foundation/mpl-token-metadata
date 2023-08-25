@@ -1,11 +1,6 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
-    error::MetadataError,
-    pda::find_use_authority_account,
-    state::{UseAuthorityRecord, UseMethod, Uses},
-};
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{
@@ -13,13 +8,18 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::{
+    error::MetadataError,
+    pda::find_use_authority_account,
+    state::{UseAuthorityRecord, UseMethod, Uses},
+};
 use utils::*;
 mod approve_use_authority {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{pda::find_program_as_burner_account, state::Key};
     use solana_program::program_pack::Pack;
     use spl_token::state::Account;
+    use token_metadata::{pda::find_program_as_burner_account, state::Key};
 
     use super::*;
     #[tokio::test]
@@ -52,8 +52,8 @@ mod approve_use_authority {
             find_use_authority_account(&test_meta.mint.pubkey(), &use_authority.pubkey());
         let (burner, _) = find_program_as_burner_account();
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -112,8 +112,8 @@ mod approve_use_authority {
             find_use_authority_account(&test_meta.mint.pubkey(), &use_authority.pubkey());
         let (burner, _) = find_program_as_burner_account();
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -176,8 +176,8 @@ mod approve_use_authority {
 
         println!("{:?}", Account::unpack_from_slice(&thing.data).unwrap());
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -245,8 +245,8 @@ mod approve_use_authority {
 
         println!("{:?}", Account::unpack_from_slice(&thing.data).unwrap());
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -266,8 +266,8 @@ mod approve_use_authority {
         );
         context.banks_client.process_transaction(tx).await.unwrap();
 
-        let ix2 = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix2 = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -335,8 +335,8 @@ mod approve_use_authority {
 
         println!("{:?}", Account::unpack_from_slice(&thing.data).unwrap());
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -395,8 +395,8 @@ mod approve_use_authority {
 
         let (burner, _) = find_program_as_burner_account();
 
-        let ix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             wrong_owner.pubkey(),

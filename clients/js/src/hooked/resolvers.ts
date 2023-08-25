@@ -21,11 +21,13 @@ import {
   findEditionMarkerV2Pda,
   findMasterEditionPda,
   findTokenRecordPda,
-  getMasterEditionSize,
-  getMetadataSize,
   printSupply,
 } from '../generated';
 import { findEditionMarkerFromEditionNumberPda } from './editionMarker';
+
+const METADATA_SIZE: number = 679;
+
+const MASTER_EDITION_SIZE: number = 282;
 
 export const resolveCollectionDetails = (
   context: any,
@@ -103,9 +105,9 @@ export const resolveCreateV1Bytes = (
   programId: any,
   isWritable?: boolean
 ): number => {
-  const base = getMintSize() + getMetadataSize() + 2 * ACCOUNT_HEADER_SIZE;
+  const base = getMintSize() + METADATA_SIZE + 2 * ACCOUNT_HEADER_SIZE;
   if (isNonFungible(args.tokenStandard)) {
-    return base + getMasterEditionSize() + ACCOUNT_HEADER_SIZE;
+    return base + MASTER_EDITION_SIZE + ACCOUNT_HEADER_SIZE;
   }
   return base;
 };

@@ -1,15 +1,4 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::{
-    instruction::{
-        self,
-        builders::{BurnBuilder, DelegateBuilder, PrintBuilder, TransferBuilder},
-        BurnArgs, DelegateArgs, InstructionBuilder, MetadataDelegateRole, MetadataInstruction,
-        MintNewEditionFromMasterEditionViaTokenArgs, PrintArgs, TransferArgs,
-    },
-    pda::{find_metadata_delegate_record_account, find_token_record_account, MARKER},
-    state::{ProgrammableConfig, TokenMetadataAccount, EDITION, EDITION_MARKER_BIT_SIZE, PREFIX},
-    ID,
-};
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     system_program, sysvar,
@@ -21,6 +10,17 @@ use solana_sdk::{
 };
 use spl_associated_token_account::{
     get_associated_token_address, instruction::create_associated_token_account,
+};
+use token_metadata::{
+    instruction::{
+        self,
+        builders::{BurnBuilder, DelegateBuilder, PrintBuilder, TransferBuilder},
+        BurnArgs, DelegateArgs, InstructionBuilder, MetadataDelegateRole, MetadataInstruction,
+        MintNewEditionFromMasterEditionViaTokenArgs, PrintArgs, TransferArgs,
+    },
+    pda::{find_metadata_delegate_record_account, find_token_record_account, MARKER},
+    state::{ProgrammableConfig, TokenMetadataAccount, EDITION, EDITION_MARKER_BIT_SIZE, PREFIX},
+    ID,
 };
 
 use crate::*;
@@ -162,7 +162,7 @@ impl EditionMarker {
     pub async fn get_data(
         &self,
         context: &mut ProgramTestContext,
-    ) -> mpl_token_metadata::state::EditionMarker {
+    ) -> token_metadata::state::EditionMarker {
         let account = get_account(context, &self.pubkey).await;
         BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
@@ -170,7 +170,7 @@ impl EditionMarker {
     pub async fn get_data_v2(
         &self,
         context: &mut ProgramTestContext,
-    ) -> mpl_token_metadata::state::EditionMarkerV2 {
+    ) -> token_metadata::state::EditionMarkerV2 {
         let account = get_account(context, &self.pubkey).await;
         BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
@@ -263,16 +263,16 @@ impl EditionMarker {
         let edition_marker_pda = Pubkey::find_program_address(
             &[
                 PREFIX.as_bytes(),
-                mpl_token_metadata::ID.as_ref(),
+                token_metadata::ID.as_ref(),
                 self.metadata_mint_pubkey.as_ref(),
                 EDITION.as_bytes(),
                 MARKER.as_bytes(),
             ],
-            &mpl_token_metadata::ID,
+            &token_metadata::ID,
         );
 
         let token_record_pda = find_token_record_account(&self.mint.pubkey(), &self.token.pubkey());
-        let master_metadata = mpl_token_metadata::state::Metadata::safe_deserialize(
+        let master_metadata = token_metadata::state::Metadata::safe_deserialize(
             &get_account(context, &self.metadata_pubkey).await.data,
         )
         .unwrap();
@@ -327,12 +327,12 @@ impl EditionMarker {
         let edition_marker_pda = Pubkey::find_program_address(
             &[
                 PREFIX.as_bytes(),
-                mpl_token_metadata::ID.as_ref(),
+                token_metadata::ID.as_ref(),
                 self.metadata_mint_pubkey.as_ref(),
                 EDITION.as_bytes(),
                 MARKER.as_bytes(),
             ],
-            &mpl_token_metadata::ID,
+            &token_metadata::ID,
         );
 
         let edition_ata =
@@ -383,7 +383,7 @@ impl EditionMarker {
         context: &mut ProgramTestContext,
     ) -> Result<(), BanksClientError> {
         let fake_token_program = Keypair::new();
-        let program_id = mpl_token_metadata::ID;
+        let program_id = token_metadata::ID;
 
         let edition_number = self.edition.checked_div(EDITION_MARKER_BIT_SIZE).unwrap();
         let as_string = edition_number.to_string();
@@ -728,9 +728,8 @@ impl EditionMarker {
 
         // determines if we need to set the rule set
         let metadata_account = get_account(context, &self.metadata_pubkey).await;
-        let metadata: mpl_token_metadata::state::Metadata =
-            mpl_token_metadata::state::Metadata::deserialize(&mut &metadata_account.data[..])
-                .unwrap();
+        let metadata: token_metadata::state::Metadata =
+            token_metadata::state::Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         if let Some(ProgrammableConfig::V1 {
             rule_set: Some(rule_set),

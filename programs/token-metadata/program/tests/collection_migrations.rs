@@ -16,12 +16,12 @@ use utils::*;
 // * Unsized -> Sized
 // * Unsized -> Unsized
 mod collection_migrations {
-    use mpl_token_metadata::{
+    use solana_sdk::transaction::Transaction;
+    use token_metadata::{
         error::MetadataError,
         pda::find_collection_authority_account,
         state::{Metadata as TmMetadata, TokenMetadataAccount},
     };
-    use solana_sdk::transaction::Transaction;
 
     use super::*;
 
@@ -1185,8 +1185,8 @@ mod collection_migrations {
             &delegate_keypair.pubkey(),
         );
 
-        let ix1 = mpl_token_metadata::instruction::approve_collection_authority(
-            mpl_token_metadata::ID,
+        let ix1 = token_metadata::instruction::approve_collection_authority(
+            token_metadata::ID,
             record,
             delegate_keypair.pubkey(),
             update_authority,

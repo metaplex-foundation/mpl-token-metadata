@@ -5,6 +5,8 @@
     "programs:test": "RUST_LOG=error ./configs/program-scripts/test.sh",
     "programs:debug": "./configs/program-scripts/test.sh",
     "programs:clean": "rm -rf ./programs/.bin",
+    "clients:rust:test": "./configs/client-scripts/test-rust-client.sh",
+    "clients:js:test": "./configs/client-scripts/test-js-client.sh",
     "generate": "pnpm generate:idls && pnpm generate:clients",
     "generate:idls": "node ./configs/shank.cjs",
     "generate:clients": "node ./configs/kinobi.cjs",
@@ -14,9 +16,9 @@
     "validator:stop": "amman stop"
   },
   "devDependencies": {
-    "@metaplex-foundation/kinobi": "^0.11.1",
-    "@metaplex-foundation/shank-js": "^0.1.0",
     "@metaplex-foundation/amman": "^0.12.1",
+    "@metaplex-foundation/kinobi": "^0.13.2",
+    "@metaplex-foundation/shank-js": "^0.1.0",
     "typescript": "^4.9.4"
   },
   "packageManager": "pnpm@8.2.0"

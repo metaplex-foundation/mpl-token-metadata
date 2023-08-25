@@ -25,6 +25,7 @@ import {
   publicKey as publicKeySerializer,
   string,
   struct,
+  u32,
 } from '@metaplex-foundation/umi/serializers';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
@@ -51,7 +52,7 @@ export function getEditionMarkerV2AccountDataSerializer(
   return struct<EditionMarkerV2AccountData>(
     [
       ['key', getKeySerializer()],
-      ['ledger', bytes()],
+      ['ledger', bytes({ size: u32() })],
     ],
     { description: 'EditionMarkerV2AccountData' }
   ) as Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData>;
@@ -141,7 +142,7 @@ export function getEditionMarkerV2GpaBuilder(
   return gpaBuilder(context, programId)
     .registerFields<{ key: KeyArgs; ledger: Uint8Array }>({
       key: [0, getKeySerializer()],
-      ledger: [1, bytes()],
+      ledger: [1, bytes({ size: u32() })],
     })
     .deserializeUsing<EditionMarkerV2>((account) =>
       deserializeEditionMarkerV2(account)

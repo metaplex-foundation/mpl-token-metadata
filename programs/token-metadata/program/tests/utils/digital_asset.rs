@@ -1,5 +1,17 @@
 use borsh::BorshDeserialize;
-use mpl_token_metadata::{
+use solana_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
+use solana_program_test::{BanksClientError, ProgramTestContext};
+use solana_sdk::{
+    account::AccountSharedData,
+    compute_budget::ComputeBudgetInstruction,
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+};
+use spl_associated_token_account::{
+    get_associated_token_address, instruction::create_associated_token_account,
+};
+use spl_token::state::Account;
+use token_metadata::{
     instruction::{
         self,
         builders::{
@@ -23,18 +35,6 @@ use mpl_token_metadata::{
     },
     ID,
 };
-use solana_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
-use solana_program_test::{BanksClientError, ProgramTestContext};
-use solana_sdk::{
-    account::AccountSharedData,
-    compute_budget::ComputeBudgetInstruction,
-    signature::{Keypair, Signer},
-    transaction::Transaction,
-};
-use spl_associated_token_account::{
-    get_associated_token_address, instruction::create_associated_token_account,
-};
-use spl_token::state::Account;
 
 use super::{airdrop, create_mint, create_token_account, get_account, mint_tokens};
 
@@ -118,12 +118,12 @@ impl DigitalAsset {
             let (edition_marker, _) = Pubkey::find_program_address(
                 &[
                     PREFIX.as_bytes(),
-                    mpl_token_metadata::ID.as_ref(),
+                    token_metadata::ID.as_ref(),
                     parent_asset.mint.pubkey().as_ref(),
                     EDITION.as_bytes(),
                     marker_num.to_string().as_bytes(),
                 ],
-                &mpl_token_metadata::ID,
+                &token_metadata::ID,
             );
             builder.edition_marker(edition_marker);
         }

@@ -1,7 +1,6 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::state::{UseMethod, Uses};
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{
@@ -9,18 +8,19 @@ use solana_sdk::{
     signature::Signer,
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::state::{UseMethod, Uses};
 use utils::*;
 
 mod uses {
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
+    use solana_program::program_pack::Pack;
+    use solana_sdk::signature::Keypair;
+    use spl_token::state::Account;
+    use token_metadata::{
         error::MetadataError,
         pda::{find_program_as_burner_account, find_use_authority_account},
         state::{Key, UseAuthorityRecord},
     };
-    use solana_program::program_pack::Pack;
-    use solana_sdk::signature::Keypair;
-    use spl_token::state::Account;
 
     use super::*;
 
@@ -52,8 +52,8 @@ mod uses {
             .await
             .unwrap();
 
-        let ix = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -112,8 +112,8 @@ mod uses {
             .await
             .unwrap();
 
-        let ix = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -168,8 +168,8 @@ mod uses {
             .await
             .unwrap();
 
-        let ix = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let ix = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -229,8 +229,8 @@ mod uses {
             find_use_authority_account(&test_metadata.mint.pubkey(), &use_authority.pubkey());
         let (burner, _) = find_program_as_burner_account();
 
-        let add_use_authority = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let add_use_authority = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -255,8 +255,8 @@ mod uses {
             .await
             .unwrap();
 
-        let utilize_with_use_authority = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_with_use_authority = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -315,8 +315,8 @@ mod uses {
             find_use_authority_account(&test_metadata.mint.pubkey(), &use_authority.pubkey());
         let (burner, _) = find_program_as_burner_account();
 
-        let add_use_authority = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let add_use_authority = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -341,8 +341,8 @@ mod uses {
             .await
             .unwrap();
 
-        let utilize_with_use_authority = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_with_use_authority = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -366,8 +366,8 @@ mod uses {
             .await
             .unwrap();
 
-        let revoke_use_authority = mpl_token_metadata::instruction::revoke_use_authority(
-            mpl_token_metadata::ID,
+        let revoke_use_authority = token_metadata::instruction::revoke_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -390,8 +390,8 @@ mod uses {
             .unwrap();
 
         context.warp_to_slot(100).unwrap();
-        let utilize_with_use_authority_fail = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_with_use_authority_fail = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -453,8 +453,8 @@ mod uses {
         let (record, _) =
             find_use_authority_account(&test_meta.mint.pubkey(), &use_authority.pubkey());
         let (burner, _) = find_program_as_burner_account();
-        let approveix = mpl_token_metadata::instruction::approve_use_authority(
-            mpl_token_metadata::ID,
+        let approveix = token_metadata::instruction::approve_use_authority(
+            token_metadata::ID,
             record,
             use_authority.pubkey(),
             context.payer.pubkey(),
@@ -482,8 +482,8 @@ mod uses {
         assert_eq!(record_acct.key, Key::UseAuthorityRecord);
         assert_eq!(record_acct.allowed_uses, 1);
 
-        let utilize_ix = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_ix = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_meta.pubkey,
             test_meta.token.pubkey(),
             test_meta.mint.pubkey(),
@@ -540,8 +540,8 @@ mod uses {
             .await
             .unwrap();
 
-        let utilize_ix = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_ix = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_meta.pubkey,
             test_meta.token.pubkey(),
             test_meta.mint.pubkey(),
