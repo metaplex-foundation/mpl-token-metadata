@@ -31,6 +31,11 @@ env:
   CACHE: true
 
 jobs:
+  build_programs:
+    name: Programs
+    uses: ./.github/workflows/build-programs.yml
+    secrets: inherit
+
   build_rust_client:
     name: Rust Client
     uses: ./.github/workflows/build-rust-client.yml
@@ -38,7 +43,7 @@ jobs:
 
   test_rust_client:
     name: Rust Client
-    needs: build_rust_client
+    needs: [build_programs, build_rust_client]
     uses: ./.github/workflows/test-rust-client.yml
     secrets: inherit
 
@@ -85,8 +90,6 @@ jobs:
           if [ "${{ inputs.dry_run }}" == "false" ]; then
             OPTIONS="--no-confirm --execute"
           fi
-
-          if [ "${{ inputs.level }}" == "version" ]; then
 
           cargo login ${{ secrets.CRATES_TOKEN }}
           cargo release $BUMP $OPTIONS
