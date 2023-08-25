@@ -67,12 +67,6 @@ jobs:
         with:
           toolchain: "1.70.0"
 
-      - name: Install Solana
-        uses: metaplex-foundation/actions/install-solana@v1
-        with:
-          version: ${{ env.SOLANA_VERSION }}
-          cache: ${{ env.CACHE }}
-
       - name: Install cargo-release
         uses: metaplex-foundation/actions/install-cargo-release@v1
         with:
