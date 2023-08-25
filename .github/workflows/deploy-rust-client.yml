@@ -83,6 +83,8 @@ jobs:
 
           if [ "${{ inputs.dry_run }}" == "false" ]; then
             OPTIONS="--no-confirm --execute"
+            git config user.name "${{ env.COMMIT_USER_NAME }}"
+            git config user.email "${{ env.COMMIT_USER_EMAIL }}"
           fi
 
           cargo login ${{ secrets.CRATES_TOKEN }}
