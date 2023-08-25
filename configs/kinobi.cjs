@@ -25,11 +25,11 @@ const metadataSeeds = [
 kinobi.update(
   new k.UpdateAccountsVisitor({
     metadata: {
-      size: undefined,
+      size: null,
       seeds: metadataSeeds,
     },
     masterEditionV2: {
-      size: undefined,
+      size: null,
       name: "masterEdition",
       seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
     },
