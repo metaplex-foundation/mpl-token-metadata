@@ -36,16 +36,16 @@ jobs:
     uses: ./.github/workflows/build-programs.yml
     secrets: inherit
 
-  test_js:
+  test_js_client:
     name: JS client
     needs: build_programs
-    uses: ./.github/workflows/test-js.yml
+    uses: ./.github/workflows/test-js-client.yml
     secrets: inherit
 
-  deploy_js:
+  deploy_js_client:
     name: JS client / Deploy
     runs-on: ubuntu-latest
-    needs: test_js
+    needs: test_js_client
     permissions:
       contents: write
     steps:
@@ -107,7 +107,7 @@ jobs:
   deploy_js_docs:
     name: JS client / Deploy docs
     runs-on: ubuntu-latest
-    needs: deploy_js
+    needs: deploy_js_client
     environment:
       name: js-client-documentation
       url: ${{ steps.deploy.outputs.url }}
