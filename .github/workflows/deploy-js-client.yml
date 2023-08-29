@@ -51,6 +51,8 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SVC_TOKEN }}
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
