@@ -757,7 +757,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = TokenRecord::deserialize(&mut &pda.data[..]).unwrap();
         assert_eq!(token_record.delegate, Some(transfer_delegate_pubkey));
         assert_eq!(
             token_record.delegate_role,
@@ -799,7 +799,7 @@ mod delegate {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = TokenRecord::deserialize(&mut &pda.data[..]).unwrap();
         assert_eq!(token_record.delegate, Some(staking_delegate_pubkey));
         assert_eq!(token_record.delegate_role, Some(TokenDelegateRole::Staking));
 
