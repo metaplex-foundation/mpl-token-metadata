@@ -799,12 +799,12 @@ kinobi.update(
           defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
             value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
             ifTrue: k.pdaDefault("editionMarkerV2", {
-              seeds: { mint: k.accountDefault("masterEditionMint") },
+              seeds: { mint: k.argDefault("masterEditionMint") },
             }),
             ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
               importFrom: "hooked",
               seeds: {
-                mint: k.accountDefault("masterEditionMint"),
+                mint: k.argDefault("masterEditionMint"),
                 editionNumber: k.argDefault("editionNumber"),
               },
             }),

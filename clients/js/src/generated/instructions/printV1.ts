@@ -264,12 +264,12 @@ export function printV1(
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       resolvedAccounts.editionMarkerPda.value = findEditionMarkerV2Pda(
         context,
-        { mint: expectPublicKey(resolvedAccounts.masterEditionMint.value) }
+        { mint: expectSome(resolvedArgs.masterEditionMint) }
       );
     } else {
       resolvedAccounts.editionMarkerPda.value =
         findEditionMarkerFromEditionNumberPda(context, {
-          mint: expectPublicKey(resolvedAccounts.masterEditionMint.value),
+          mint: expectSome(resolvedArgs.masterEditionMint),
           editionNumber: expectSome(resolvedArgs.editionNumber),
         });
     }

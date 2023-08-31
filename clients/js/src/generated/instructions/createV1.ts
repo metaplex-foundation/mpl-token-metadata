@@ -182,8 +182,8 @@ export type CreateV1InstructionExtraArgs = { isCollection: boolean };
 // Args.
 export type CreateV1InstructionArgs = PickPartial<
   CreateV1InstructionDataArgs & CreateV1InstructionExtraArgs,
-  | 'isCollection'
   | 'tokenStandard'
+  | 'isCollection'
   | 'collectionDetails'
   | 'decimals'
   | 'printSupply'
@@ -243,6 +243,9 @@ export function createV1(
       mint: expectPublicKey(resolvedAccounts.mint.value),
     });
   }
+  if (!resolvedArgs.tokenStandard) {
+    resolvedArgs.tokenStandard = TokenStandard.NonFungible;
+  }
   if (!resolvedAccounts.masterEdition.value) {
     if (
       resolveIsNonFungible(
@@ -290,9 +293,6 @@ export function createV1(
   }
   if (!resolvedArgs.isCollection) {
     resolvedArgs.isCollection = false;
-  }
-  if (!resolvedArgs.tokenStandard) {
-    resolvedArgs.tokenStandard = TokenStandard.NonFungible;
   }
   if (!resolvedArgs.collectionDetails) {
     resolvedArgs.collectionDetails = resolveCollectionDetails(
