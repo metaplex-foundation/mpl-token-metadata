@@ -207,23 +207,6 @@ export const resolveDestinationTokenRecord = (
       ]
     : [programId, false];
 
-export const resolveAuthorizationRulesProgram = (
-  context: Pick<Context, 'programs'>,
-  accounts: { authorizationRules: WithWritable<PublicKey | Pda | undefined> },
-  args: any,
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey> =>
-  accounts.authorizationRules[0]
-    ? [
-        context.programs.getPublicKey(
-          'mplTokenAuthRules',
-          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
-        ),
-        false,
-      ]
-    : [programId, false];
-
 export const resolveTokenProgramForNonProgrammables = (
   context: Pick<Context, 'programs'>,
   accounts: any,

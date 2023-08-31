@@ -22,11 +22,7 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import {
-  resolveAuthorizationRulesProgram,
-  resolveMasterEdition,
-  resolveTokenRecord,
-} from '../../hooked';
+import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import {
   PickPartial,
@@ -252,16 +248,14 @@ export function revokeTransferV1(
     resolvedAccounts.splTokenProgram.isWritable = false;
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
-    resolvedAccounts.authorizationRulesProgram = {
-      ...resolvedAccounts.authorizationRulesProgram,
-      ...resolveAuthorizationRulesProgram(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        false
-      ),
-    };
+    if (resolvedAccounts.authorizationRules.value) {
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
+    }
   }
 
   // Accounts in order.

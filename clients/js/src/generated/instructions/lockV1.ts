@@ -27,7 +27,6 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import {
-  resolveAuthorizationRulesProgram,
   resolveMasterEdition,
   resolveOptionalTokenOwner,
   resolveTokenProgramForNonProgrammables,
@@ -255,16 +254,14 @@ export function lockV1(
     };
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
-    resolvedAccounts.authorizationRulesProgram = {
-      ...resolvedAccounts.authorizationRulesProgram,
-      ...resolveAuthorizationRulesProgram(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        false
-      ),
-    };
+    if (resolvedAccounts.authorizationRules.value) {
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
+    }
   }
 
   // Accounts in order.

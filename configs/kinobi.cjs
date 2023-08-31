@@ -126,9 +126,12 @@ kinobi.update(
     },
     {
       account: "authorizationRulesProgram",
-      ...k.resolverDefault("resolveAuthorizationRulesProgram", [
-        k.dependsOnAccount("authorizationRules"),
-      ]),
+      ...k.conditionalDefault("account", "authorizationRules", {
+        ifTrue: k.programDefault(
+          "mplTokenAuthRules",
+          "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg"
+        ),
+      }),
     },
   ])
 );
