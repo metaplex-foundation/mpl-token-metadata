@@ -30,8 +30,7 @@ export const resolveCollectionDetails = (
   context: any,
   accounts: any,
   args: { isCollection: boolean },
-  programId: any,
-  isWritable: boolean
+  ...rest: any[]
 ): Option<CollectionDetailsArgs> =>
   args.isCollection ? some(collectionDetails('V1', { size: 0 })) : none();
 
@@ -53,25 +52,21 @@ export const resolveDecimals = (
   context: any,
   accounts: any,
   args: { tokenStandard: TokenStandard },
-  programId: any,
-  isWritable: boolean
+  ...rest: any[]
 ): Option<number> => (isNonFungible(args.tokenStandard) ? none() : some(0));
 
 export const resolvePrintSupply = (
   context: any,
   accounts: any,
   args: { tokenStandard: TokenStandard },
-  programId: any,
-  isWritable: boolean
+  ...rest: any[]
 ): Option<PrintSupplyArgs> =>
   isNonFungible(args.tokenStandard) ? some(printSupply('Zero')) : none();
 
 export const resolveCreators = (
   context: any,
   accounts: { authority: WithWritable<Signer> },
-  args: any,
-  programId: any,
-  isWritable: boolean
+  ...rest: any[]
 ): Option<CreatorArgs[]> =>
   some([
     {
@@ -85,8 +80,7 @@ export const resolveCreateV1Bytes = (
   context: any,
   accounts: any,
   args: { tokenStandard: TokenStandard },
-  programId: any,
-  isWritable?: boolean
+  ...rest: any[]
 ): number => {
   const base = getMintSize() + METADATA_SIZE + 2 * ACCOUNT_HEADER_SIZE;
   if (isNonFungible(args.tokenStandard)) {
