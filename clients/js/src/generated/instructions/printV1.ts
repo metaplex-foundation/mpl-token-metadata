@@ -23,14 +23,12 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import {
-  findEditionMarkerFromEditionNumberPda,
-  resolveTokenRecordForPrint,
-} from '../../hooked';
+import { findEditionMarkerFromEditionNumberPda } from '../../hooked';
 import {
   findEditionMarkerV2Pda,
   findMasterEditionPda,
   findMetadataPda,
+  findTokenRecordPda,
 } from '../accounts';
 import {
   ResolvedAccount,
@@ -250,16 +248,12 @@ export function printV1(
     );
   }
   if (!resolvedAccounts.editionTokenRecord.value) {
-    resolvedAccounts.editionTokenRecord = {
-      ...resolvedAccounts.editionTokenRecord,
-      ...resolveTokenRecordForPrint(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.editionTokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.editionMint.value),
+        token: expectPublicKey(resolvedAccounts.editionTokenAccount.value),
+      });
+    }
   }
   if (!resolvedAccounts.masterEdition.value) {
     resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {

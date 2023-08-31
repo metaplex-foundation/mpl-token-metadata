@@ -759,11 +759,15 @@ kinobi.update(
           }),
         },
         editionTokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecordForPrint", [
-            k.dependsOnAccount("editionMint"),
-            k.dependsOnAccount("editionTokenAccount"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("editionMint"),
+                token: k.accountDefault("editionTokenAccount"),
+              },
+            }),
+          }),
         },
       },
       args: {
