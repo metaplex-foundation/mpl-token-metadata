@@ -3,11 +3,7 @@ import {
   ACCOUNT_HEADER_SIZE,
   Context,
   Option,
-  Pda,
-  PublicKey,
-  Signer,
   none,
-  publicKey,
   some,
 } from '@metaplex-foundation/umi';
 import { isNonFungible } from '../digitalAsset';
@@ -15,10 +11,12 @@ import {
   CollectionDetailsArgs,
   CreatorArgs,
   PrintSupplyArgs,
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
   TokenStandard,
-  WithWritable,
   collectionDetails,
-  findMasterEditionPda,
+  expectPublicKey,
+  expectSome,
   printSupply,
 } from '../generated';
 
@@ -34,19 +32,12 @@ export const resolveCollectionDetails = (
 ): Option<CollectionDetailsArgs> =>
   args.isCollection ? some(collectionDetails('V1', { size: 0 })) : none();
 
-export const resolveMasterEdition = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: { mint: WithWritable<PublicKey | Pda | Signer> },
-  args: { tokenStandard: TokenStandard },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  isNonFungible(args.tokenStandard)
-    ? [
-        findMasterEditionPda(context, { mint: publicKey(accounts.mint[0]) }),
-        isWritable,
-      ]
-    : [programId, false];
+export const resolveIsNonFungible = (
+  context: any,
+  accounts: any,
+  args: { tokenStandard?: TokenStandard },
+  ...rest: any[]
+): boolean => isNonFungible(expectSome(args.tokenStandard));
 
 export const resolveDecimals = (
   context: any,
@@ -65,12 +56,12 @@ export const resolvePrintSupply = (
 
 export const resolveCreators = (
   context: any,
-  accounts: { authority: WithWritable<Signer> },
+  accounts: ResolvedAccountsWithIndices,
   ...rest: any[]
 ): Option<CreatorArgs[]> =>
   some([
     {
-      address: publicKey(accounts.authority[0], false),
+      address: expectPublicKey(accounts.authority.value),
       share: 100,
       verified: true,
     },
@@ -91,11 +82,9 @@ export const resolveCreateV1Bytes = (
 
 export const resolveOptionalTokenOwner = (
   context: Pick<Context, 'identity'>,
-  accounts: { token?: PublicKey | Pda | undefined },
-  args: any,
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey> =>
-  accounts.token
-    ? [programId, false]
-    : [context.identity.publicKey, isWritable];
+  accounts: ResolvedAccountsWithIndices,
+  ...rest: any[]
+): Partial<ResolvedAccount> =>
+  accounts.token.value
+    ? { value: null }
+    : { value: context.identity.publicKey };

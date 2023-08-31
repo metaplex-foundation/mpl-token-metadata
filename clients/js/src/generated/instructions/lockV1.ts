@@ -26,8 +26,12 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition, resolveOptionalTokenOwner } from '../../hooked';
-import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { resolveIsNonFungible, resolveOptionalTokenOwner } from '../../hooked';
+import {
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
@@ -199,16 +203,19 @@ export function lockV1(
     });
   }
   if (!resolvedAccounts.edition.value) {
-    resolvedAccounts.edition = {
-      ...resolvedAccounts.edition,
-      ...resolveMasterEdition(
+    if (
+      resolveIsNonFungible(
         context,
         resolvedAccounts,
         resolvedArgs,
         programId,
         false
-      ),
-    };
+      )
+    ) {
+      resolvedAccounts.edition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
   }
   if (!resolvedAccounts.tokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {

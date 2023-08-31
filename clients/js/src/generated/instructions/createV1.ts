@@ -37,10 +37,10 @@ import {
   resolveCreateV1Bytes,
   resolveCreators,
   resolveDecimals,
-  resolveMasterEdition,
+  resolveIsNonFungible,
   resolvePrintSupply,
 } from '../../hooked';
-import { findMetadataPda } from '../accounts';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   PickPartial,
   ResolvedAccount,
@@ -182,8 +182,8 @@ export type CreateV1InstructionExtraArgs = { isCollection: boolean };
 // Args.
 export type CreateV1InstructionArgs = PickPartial<
   CreateV1InstructionDataArgs & CreateV1InstructionExtraArgs,
-  | 'tokenStandard'
   | 'isCollection'
+  | 'tokenStandard'
   | 'collectionDetails'
   | 'decimals'
   | 'printSupply'
@@ -243,20 +243,20 @@ export function createV1(
       mint: expectPublicKey(resolvedAccounts.mint.value),
     });
   }
-  if (!resolvedArgs.tokenStandard) {
-    resolvedArgs.tokenStandard = TokenStandard.NonFungible;
-  }
   if (!resolvedAccounts.masterEdition.value) {
-    resolvedAccounts.masterEdition = {
-      ...resolvedAccounts.masterEdition,
-      ...resolveMasterEdition(
+    if (
+      resolveIsNonFungible(
         context,
         resolvedAccounts,
         resolvedArgs,
         programId,
         true
-      ),
-    };
+      )
+    ) {
+      resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
   }
   if (!resolvedAccounts.authority.value) {
     resolvedAccounts.authority.value = context.identity;
@@ -290,6 +290,9 @@ export function createV1(
   }
   if (!resolvedArgs.isCollection) {
     resolvedArgs.isCollection = false;
+  }
+  if (!resolvedArgs.tokenStandard) {
+    resolvedArgs.tokenStandard = TokenStandard.NonFungible;
   }
   if (!resolvedArgs.collectionDetails) {
     resolvedArgs.collectionDetails = resolveCollectionDetails(

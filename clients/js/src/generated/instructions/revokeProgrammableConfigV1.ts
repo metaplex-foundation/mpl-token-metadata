@@ -21,8 +21,9 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition } from '../../hooked';
+import { resolveIsNonFungible } from '../../hooked';
 import {
+  findMasterEditionPda,
   findMetadataDelegateRecordPda,
   findMetadataPda,
   findTokenRecordPda,
@@ -211,16 +212,19 @@ export function revokeProgrammableConfigV1(
     });
   }
   if (!resolvedAccounts.masterEdition.value) {
-    resolvedAccounts.masterEdition = {
-      ...resolvedAccounts.masterEdition,
-      ...resolveMasterEdition(
+    if (
+      resolveIsNonFungible(
         context,
         resolvedAccounts,
         resolvedArgs,
         programId,
         false
-      ),
-    };
+      )
+    ) {
+      resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
   }
   if (!resolvedAccounts.tokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {

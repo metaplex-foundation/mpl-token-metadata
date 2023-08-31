@@ -28,8 +28,12 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition } from '../../hooked';
-import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { resolveIsNonFungible } from '../../hooked';
+import {
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import {
   PickPartial,
   ResolvedAccount,
@@ -225,16 +229,19 @@ export function delegateLockedTransferV1(
     });
   }
   if (!resolvedAccounts.masterEdition.value) {
-    resolvedAccounts.masterEdition = {
-      ...resolvedAccounts.masterEdition,
-      ...resolveMasterEdition(
+    if (
+      resolveIsNonFungible(
         context,
         resolvedAccounts,
         resolvedArgs,
         programId,
         false
-      ),
-    };
+      )
+    ) {
+      resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
   }
   if (!resolvedAccounts.tokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
