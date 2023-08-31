@@ -23,9 +23,11 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveTokenRecordForPrint } from '../../hooked';
 import {
   findEditionMarkerFromEditionNumberPda,
+  resolveTokenRecordForPrint,
+} from '../../hooked';
+import {
   findEditionMarkerV2Pda,
   findMasterEditionPda,
   findMetadataPda,
@@ -274,7 +276,7 @@ export function printV1(
       resolvedAccounts.editionMarkerPda.value =
         findEditionMarkerFromEditionNumberPda(context, {
           mint: expectPublicKey(resolvedAccounts.masterEditionMint.value),
-          editionNumber: expectPublicKey(resolvedAccounts.editionNumber.value),
+          editionNumber: expectSome(resolvedArgs.editionNumber),
         });
     }
   }

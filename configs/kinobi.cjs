@@ -728,9 +728,10 @@ kinobi.update(
               seeds: { mint: k.accountDefault("masterEditionMint") },
             }),
             ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
+              importFrom: "hooked",
               seeds: {
                 mint: k.accountDefault("masterEditionMint"),
-                editionNumber: k.accountDefault("editionNumber"),
+                editionNumber: k.argDefault("editionNumber"),
               },
             }),
           }),
