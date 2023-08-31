@@ -10,7 +10,7 @@ import {
   publicKey,
   some,
 } from '@metaplex-foundation/umi';
-import { isNonFungible, isProgrammable } from '../digitalAsset';
+import { isNonFungible } from '../digitalAsset';
 import {
   CollectionDetailsArgs,
   CreatorArgs,
@@ -18,12 +18,9 @@ import {
   TokenStandard,
   WithWritable,
   collectionDetails,
-  findEditionMarkerV2Pda,
   findMasterEditionPda,
-  findTokenRecordPda,
   printSupply,
 } from '../generated';
-import { findEditionMarkerFromEditionNumberPda } from './editionMarker';
 
 const METADATA_SIZE: number = 679;
 
@@ -46,20 +43,6 @@ export const resolveMasterEdition = (
   isWritable: boolean
 ): WithWritable<PublicKey | Pda> =>
   isNonFungible(args.tokenStandard)
-    ? [
-        findMasterEditionPda(context, { mint: publicKey(accounts.mint[0]) }),
-        isWritable,
-      ]
-    : [programId, false];
-
-export const resolveMasterEditionForProgrammables = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: { mint: WithWritable<PublicKey | Pda | Signer> },
-  args: { tokenStandard: TokenStandard },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  isNonFungible(args.tokenStandard) && isProgrammable(args.tokenStandard)
     ? [
         findMasterEditionPda(context, { mint: publicKey(accounts.mint[0]) }),
         isWritable,

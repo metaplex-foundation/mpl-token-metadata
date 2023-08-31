@@ -27,8 +27,11 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEditionForProgrammables } from '../../hooked';
-import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import {
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
@@ -232,16 +235,11 @@ export function transferV1(
     });
   }
   if (!resolvedAccounts.edition.value) {
-    resolvedAccounts.edition = {
-      ...resolvedAccounts.edition,
-      ...resolveMasterEditionForProgrammables(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        false
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.edition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
   }
   if (!resolvedAccounts.tokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {

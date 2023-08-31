@@ -205,10 +205,12 @@ kinobi.update(
           defaultsTo: k.identityDefault(),
         },
         edition: {
-          defaultsTo: k.resolverDefault(
-            "resolveMasterEditionForProgrammables",
-            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("masterEdition", {
+              seeds: { mint: k.accountDefault("mint") },
+            }),
+          }),
         },
         ownerTokenRecord: {
           name: "tokenRecord",
