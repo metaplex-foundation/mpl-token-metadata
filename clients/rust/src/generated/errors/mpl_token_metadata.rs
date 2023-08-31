@@ -588,4 +588,7 @@ pub enum MplTokenMetadataError {
     /// 0xC0 -
     #[error("")]
     InvalidMetadataFlags,
+    /// 0xC1 - Cannot change the update authority with a delegate
+    #[error("Cannot change the update authority with a delegate")]
+    CannotChangeUpdateAuthorityWithDelegate,
 }
