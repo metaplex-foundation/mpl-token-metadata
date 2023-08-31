@@ -63,8 +63,10 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
       authority: authorityItemDelegate,
       newUpdateAuthority: some(newUpdateAuthority),
     }).sendAndConfirm(umi);
-    
+
     // Then we expect a program error.
-    await t.throwsAsync(promise, { name: 'CannotChangeUpdateAuthorityWithDelegate' });
+    await t.throwsAsync(promise, {
+      name: 'CannotChangeUpdateAuthorityWithDelegate',
+    });
   });
 });
