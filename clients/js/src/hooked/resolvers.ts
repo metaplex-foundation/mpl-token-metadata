@@ -163,30 +163,6 @@ export const resolveTokenRecordForPrint = (
       ]
     : [programId, false];
 
-export const resolveEditionMarkerForPrint = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: any,
-  args: {
-    tokenStandard: TokenStandard;
-    masterEditionMint: PublicKey;
-    editionNumber: number | bigint;
-  },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  isProgrammable(args.tokenStandard)
-    ? [
-        findEditionMarkerV2Pda(context, { mint: args.masterEditionMint }),
-        isWritable,
-      ]
-    : [
-        findEditionMarkerFromEditionNumberPda(context, {
-          mint: args.masterEditionMint,
-          editionNumber: args.editionNumber,
-        }),
-        isWritable,
-      ];
-
 export const resolveBurnMasterEdition = (
   context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },

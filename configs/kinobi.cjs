@@ -722,11 +722,18 @@ kinobi.update(
           }),
         },
         editionMarkerPda: {
-          defaultsTo: k.resolverDefault("resolveEditionMarkerForPrint", [
-            k.dependsOnArg("masterEditionMint"),
-            k.dependsOnArg("editionNumber"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("editionMarkerV2", {
+              seeds: { mint: k.accountDefault("masterEditionMint") },
+            }),
+            ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
+              seeds: {
+                mint: k.accountDefault("masterEditionMint"),
+                editionNumber: k.accountDefault("editionNumber"),
+              },
+            }),
+          }),
         },
         editionTokenAccount: {
           defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),

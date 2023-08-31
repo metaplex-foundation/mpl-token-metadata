@@ -23,11 +23,13 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
+import { resolveTokenRecordForPrint } from '../../hooked';
 import {
-  resolveEditionMarkerForPrint,
-  resolveTokenRecordForPrint,
-} from '../../hooked';
-import { findMasterEditionPda, findMetadataPda } from '../accounts';
+  findEditionMarkerFromEditionNumberPda,
+  findEditionMarkerV2Pda,
+  findMasterEditionPda,
+  findMetadataPda,
+} from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
@@ -35,7 +37,7 @@ import {
   expectSome,
   getAccountMetasAndSigners,
 } from '../shared';
-import { TokenStandardArgs } from '../types';
+import { TokenStandard, TokenStandardArgs } from '../types';
 
 // Accounts.
 export type PrintV1InstructionAccounts = {
@@ -263,16 +265,18 @@ export function printV1(
     });
   }
   if (!resolvedAccounts.editionMarkerPda.value) {
-    resolvedAccounts.editionMarkerPda = {
-      ...resolvedAccounts.editionMarkerPda,
-      ...resolveEditionMarkerForPrint(
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.editionMarkerPda.value = findEditionMarkerV2Pda(
         context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+        { mint: expectPublicKey(resolvedAccounts.masterEditionMint.value) }
+      );
+    } else {
+      resolvedAccounts.editionMarkerPda.value =
+        findEditionMarkerFromEditionNumberPda(context, {
+          mint: expectPublicKey(resolvedAccounts.masterEditionMint.value),
+          editionNumber: expectPublicKey(resolvedAccounts.editionNumber.value),
+        });
+    }
   }
   if (!resolvedAccounts.payer.value) {
     resolvedAccounts.payer.value = context.payer;
