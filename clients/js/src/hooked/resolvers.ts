@@ -187,26 +187,6 @@ export const resolveEditionMarkerForPrint = (
         isWritable,
       ];
 
-export const resolveDestinationTokenRecord = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: {
-    mint: WithWritable<PublicKey | Pda | Signer>;
-    destinationToken: WithWritable<PublicKey | Pda>;
-  },
-  args: { tokenStandard: TokenStandard },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  isProgrammable(args.tokenStandard)
-    ? [
-        findTokenRecordPda(context, {
-          mint: publicKey(accounts.mint[0], false),
-          token: publicKey(accounts.destinationToken[0], false),
-        }),
-        isWritable,
-      ]
-    : [programId, false];
-
 export const resolveBurnMasterEdition = (
   context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },

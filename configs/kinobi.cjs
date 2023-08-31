@@ -219,11 +219,15 @@ kinobi.update(
           defaultsTo: ataPdaDefault("mint", "destinationOwner"),
         },
         destinationTokenRecord: {
-          defaultsTo: k.resolverDefault("resolveDestinationTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("destinationToken"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("destinationToken"),
+              },
+            }),
+          }),
         },
       },
       args: {
