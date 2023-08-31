@@ -26,7 +26,6 @@ import {
   findMasterEditionPda,
   findMetadataDelegateRecordPda,
   findMetadataPda,
-  findTokenRecordPda,
 } from '../accounts';
 import {
   PickPartial,
@@ -36,11 +35,7 @@ import {
   expectSome,
   getAccountMetasAndSigners,
 } from '../shared';
-import {
-  MetadataDelegateRole,
-  TokenStandard,
-  TokenStandardArgs,
-} from '../types';
+import { MetadataDelegateRole, TokenStandardArgs } from '../types';
 
 // Accounts.
 export type RevokeCollectionItemV1InstructionAccounts = {
@@ -223,14 +218,6 @@ export function revokeCollectionItemV1(
     ) {
       resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
         mint: expectPublicKey(resolvedAccounts.mint.value),
-      });
-    }
-  }
-  if (!resolvedAccounts.tokenRecord.value) {
-    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
-      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
-        mint: expectPublicKey(resolvedAccounts.mint.value),
-        token: expectPublicKey(resolvedAccounts.token.value),
       });
     }
   }

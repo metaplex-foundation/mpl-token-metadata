@@ -30,7 +30,6 @@ import {
   findMasterEditionPda,
   findMetadataDelegateRecordPda,
   findMetadataPda,
-  findTokenRecordPda,
 } from '../accounts';
 import {
   PickPartial,
@@ -44,7 +43,6 @@ import {
   AuthorizationData,
   AuthorizationDataArgs,
   MetadataDelegateRole,
-  TokenStandard,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -236,14 +234,6 @@ export function delegateCollectionItemV1(
     ) {
       resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
         mint: expectPublicKey(resolvedAccounts.mint.value),
-      });
-    }
-  }
-  if (!resolvedAccounts.tokenRecord.value) {
-    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
-      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
-        mint: expectPublicKey(resolvedAccounts.mint.value),
-        token: expectPublicKey(resolvedAccounts.token.value),
       });
     }
   }

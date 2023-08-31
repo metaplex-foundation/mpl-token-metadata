@@ -264,17 +264,6 @@ kinobi.update(
             }
           ),
         },
-        tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
-          }),
-        },
       },
       args: {
         tokenStandard: {
@@ -295,17 +284,6 @@ kinobi.update(
               }),
             }
           ),
-        },
-        tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
-          }),
         },
       },
       args: {
@@ -625,6 +603,17 @@ const tokenDelegateDefaults = {
           mint: k.accountDefault("mint"),
           owner: k.argDefault("tokenOwner"),
         },
+      }),
+    },
+    tokenRecord: {
+      defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+        value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+        ifTrue: k.pdaDefault("tokenRecord", {
+          seeds: {
+            mint: k.accountDefault("mint"),
+            token: k.accountDefault("token"),
+          },
+        }),
       }),
     },
     delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
