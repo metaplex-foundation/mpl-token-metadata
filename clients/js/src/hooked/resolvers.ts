@@ -105,19 +105,3 @@ export const resolveOptionalTokenOwner = (
   accounts.token
     ? [programId, false]
     : [context.identity.publicKey, isWritable];
-
-export const resolveBurnMasterEdition = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },
-  args: any,
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  accounts.masterEditionMint[0] === programId
-    ? [programId, false]
-    : [
-        findMasterEditionPda(context, {
-          mint: publicKey(accounts.masterEditionMint[0]),
-        }),
-        false,
-      ];

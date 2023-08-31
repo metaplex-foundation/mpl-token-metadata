@@ -23,8 +23,12 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveBurnMasterEdition, resolveMasterEdition } from '../../hooked';
-import { findMetadataPda, findTokenRecordPda } from '../accounts';
+import { resolveMasterEdition } from '../../hooked';
+import {
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import {
   PickPartial,
   ResolvedAccount,
@@ -209,16 +213,11 @@ export function burnV1(
     });
   }
   if (!resolvedAccounts.masterEdition.value) {
-    resolvedAccounts.masterEdition = {
-      ...resolvedAccounts.masterEdition,
-      ...resolveBurnMasterEdition(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedAccounts.masterEditionMint.value) {
+      resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.masterEditionMint.value),
+      });
+    }
   }
   if (!resolvedAccounts.tokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {

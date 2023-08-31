@@ -393,9 +393,11 @@ kinobi.update(
           ]),
         },
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveBurnMasterEdition", [
-            k.dependsOnAccount("masterEditionMint"),
-          ]),
+          defaultsTo: k.conditionalDefault("account", "masterEditionMint", {
+            ifTrue: k.pdaDefault("masterEdition", {
+              seeds: { mint: k.accountDefault("masterEditionMint") },
+            }),
+          }),
         },
         tokenRecord: {
           defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
