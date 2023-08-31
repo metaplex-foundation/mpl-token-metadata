@@ -296,10 +296,13 @@ kinobi.update(
           ]),
         },
         splTokenProgram: {
-          defaultsTo: k.resolverDefault(
-            "resolveTokenProgramForNonProgrammables",
-            [k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.programDefault(
+              "splToken",
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            ),
+          }),
         },
       },
       args: {
@@ -328,10 +331,13 @@ kinobi.update(
           ]),
         },
         splTokenProgram: {
-          defaultsTo: k.resolverDefault(
-            "resolveTokenProgramForNonProgrammables",
-            [k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.programDefault(
+              "splToken",
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            ),
+          }),
         },
       },
       args: {

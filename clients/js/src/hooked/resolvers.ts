@@ -207,23 +207,6 @@ export const resolveDestinationTokenRecord = (
       ]
     : [programId, false];
 
-export const resolveTokenProgramForNonProgrammables = (
-  context: Pick<Context, 'programs'>,
-  accounts: any,
-  args: { tokenStandard: TokenStandard },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey> =>
-  !isProgrammable(args.tokenStandard)
-    ? [
-        context.programs.getPublicKey(
-          'splToken',
-          'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-        ),
-        false,
-      ]
-    : [programId, false];
-
 export const resolveBurnMasterEdition = (
   context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },

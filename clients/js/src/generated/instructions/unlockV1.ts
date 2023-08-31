@@ -29,7 +29,6 @@ import {
 import {
   resolveMasterEdition,
   resolveOptionalTokenOwner,
-  resolveTokenProgramForNonProgrammables,
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
@@ -42,6 +41,7 @@ import {
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandard,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -246,16 +246,13 @@ export function unlockV1(
     );
   }
   if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram = {
-      ...resolvedAccounts.splTokenProgram,
-      ...resolveTokenProgramForNonProgrammables(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        false
-      ),
-    };
+    if (resolvedArgs.tokenStandard !== TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      );
+      resolvedAccounts.splTokenProgram.isWritable = false;
+    }
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
     if (resolvedAccounts.authorizationRules.value) {
