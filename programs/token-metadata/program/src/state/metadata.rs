@@ -168,27 +168,20 @@ impl Metadata {
         // Update Authority or Authority Item Delegate can update this section.
         match &args {
             UpdateArgs::V1 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             }
             | UpdateArgs::AsUpdateAuthorityV2 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             }
             | UpdateArgs::AsAuthorityItemDelegateV2 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             } => {
-                if let Some(authority) = new_update_authority {
-                    self.update_authority = *authority;
-                }
-
                 if let Some(primary_sale) = primary_sale_happened {
                     // If received primary_sale is true, flip to true.
                     if *primary_sale || !self.primary_sale_happened {
@@ -209,6 +202,32 @@ impl Metadata {
             }
             _ => (),
         }
+
+        // Update Authority can update this section.
+        match &args {
+            UpdateArgs::V1 {
+                new_update_authority,
+                ..
+            }
+            | UpdateArgs::AsUpdateAuthorityV2 {
+                new_update_authority,
+                ..
+            } => {
+                if let Some(authority) = new_update_authority {
+                    self.update_authority = *authority;
+                }
+            }
+            _ => (),
+        }
+
+        // Update authority by Authority Item Delegate is deprecated.
+        if let UpdateArgs::AsAuthorityItemDelegateV2 {
+            new_update_authority: Some(_authority),
+            ..
+        } = &args
+        {
+            return Err(MetadataError::CannotChangeUpdateAuthorityWithDelegate.into());
+        };
 
         // Update Authority or Collection Delegates can update this section.
         match &args {
