@@ -22,7 +22,7 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
+import { resolveMasterEdition } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import {
   PickPartial,
@@ -32,7 +32,7 @@ import {
   expectSome,
   getAccountMetasAndSigners,
 } from '../shared';
-import { TokenStandardArgs } from '../types';
+import { TokenStandard, TokenStandardArgs } from '../types';
 
 // Accounts.
 export type RevokeLockedTransferV1InstructionAccounts = {
@@ -212,16 +212,12 @@ export function revokeLockedTransferV1(
     };
   }
   if (!resolvedAccounts.tokenRecord.value) {
-    resolvedAccounts.tokenRecord = {
-      ...resolvedAccounts.tokenRecord,
-      ...resolveTokenRecord(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
   }
   if (!resolvedAccounts.authority.value) {
     resolvedAccounts.authority.value = context.identity;

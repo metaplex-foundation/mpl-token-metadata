@@ -25,8 +25,12 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
-import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
+import { resolveMasterEdition } from '../../hooked';
+import {
+  findMetadataDelegateRecordPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
 import {
   PickPartial,
   ResolvedAccount,
@@ -39,6 +43,7 @@ import {
   AuthorizationData,
   AuthorizationDataArgs,
   MetadataDelegateRole,
+  TokenStandard,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -231,16 +236,12 @@ export function delegateDataItemV1(
     };
   }
   if (!resolvedAccounts.tokenRecord.value) {
-    resolvedAccounts.tokenRecord = {
-      ...resolvedAccounts.tokenRecord,
-      ...resolveTokenRecord(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
   }
   if (!resolvedAccounts.payer.value) {
     resolvedAccounts.payer.value = context.payer;

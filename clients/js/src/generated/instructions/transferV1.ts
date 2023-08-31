@@ -27,10 +27,7 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import {
-  resolveMasterEditionForProgrammables,
-  resolveTokenRecord,
-} from '../../hooked';
+import { resolveMasterEditionForProgrammables } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import {
   ResolvedAccount,
@@ -247,16 +244,12 @@ export function transferV1(
     };
   }
   if (!resolvedAccounts.tokenRecord.value) {
-    resolvedAccounts.tokenRecord = {
-      ...resolvedAccounts.tokenRecord,
-      ...resolveTokenRecord(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
   }
   if (!resolvedAccounts.destinationTokenRecord.value) {
     if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {

@@ -27,7 +27,7 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveMasterEdition, resolveTokenRecord } from '../../hooked';
+import { resolveMasterEdition } from '../../hooked';
 import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import {
   PickPartial,
@@ -40,6 +40,7 @@ import {
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandard,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -232,16 +233,12 @@ export function delegateTransferV1(
     };
   }
   if (!resolvedAccounts.tokenRecord.value) {
-    resolvedAccounts.tokenRecord = {
-      ...resolvedAccounts.tokenRecord,
-      ...resolveTokenRecord(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
   }
   if (!resolvedAccounts.authority.value) {
     resolvedAccounts.authority.value = context.identity;

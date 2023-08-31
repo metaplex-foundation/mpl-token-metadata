@@ -123,26 +123,6 @@ export const resolveOptionalTokenOwner = (
     ? [programId, false]
     : [context.identity.publicKey, isWritable];
 
-export const resolveTokenRecord = (
-  context: Pick<Context, 'eddsa' | 'programs'>,
-  accounts: {
-    mint: WithWritable<PublicKey | Pda | Signer>;
-    token: WithWritable<PublicKey | Pda | undefined>;
-  },
-  args: { tokenStandard: TokenStandard },
-  programId: PublicKey,
-  isWritable: boolean
-): WithWritable<PublicKey | Pda> =>
-  isProgrammable(args.tokenStandard) && accounts.token[0]
-    ? [
-        findTokenRecordPda(context, {
-          mint: publicKey(accounts.mint[0], false),
-          token: publicKey(accounts.token[0], false),
-        }),
-        isWritable,
-      ]
-    : [programId, false];
-
 export const resolveBurnMasterEdition = (
   context: Pick<Context, 'eddsa' | 'programs'>,
   accounts: { masterEditionMint: WithWritable<PublicKey | Pda> },

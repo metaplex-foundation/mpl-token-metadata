@@ -23,12 +23,8 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import {
-  resolveBurnMasterEdition,
-  resolveMasterEdition,
-  resolveTokenRecord,
-} from '../../hooked';
-import { findMetadataPda } from '../accounts';
+import { resolveBurnMasterEdition, resolveMasterEdition } from '../../hooked';
+import { findMetadataPda, findTokenRecordPda } from '../accounts';
 import {
   PickPartial,
   ResolvedAccount,
@@ -37,7 +33,7 @@ import {
   expectSome,
   getAccountMetasAndSigners,
 } from '../shared';
-import { TokenStandardArgs } from '../types';
+import { TokenStandard, TokenStandardArgs } from '../types';
 
 // Accounts.
 export type BurnV1InstructionAccounts = {
@@ -225,16 +221,12 @@ export function burnV1(
     };
   }
   if (!resolvedAccounts.tokenRecord.value) {
-    resolvedAccounts.tokenRecord = {
-      ...resolvedAccounts.tokenRecord,
-      ...resolveTokenRecord(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        true
-      ),
-    };
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
   }
   if (!resolvedAccounts.systemProgram.value) {
     resolvedAccounts.systemProgram.value = context.programs.getPublicKey(

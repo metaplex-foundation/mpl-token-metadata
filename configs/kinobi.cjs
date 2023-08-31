@@ -181,11 +181,15 @@ kinobi.update(
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -208,11 +212,15 @@ kinobi.update(
         },
         ownerTokenRecord: {
           name: "tokenRecord",
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         destination: {
           name: "destinationToken",
@@ -243,11 +251,15 @@ kinobi.update(
           ]),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -265,11 +277,15 @@ kinobi.update(
           ]),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -293,11 +309,15 @@ kinobi.update(
           ]),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         splTokenProgram: {
           defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
@@ -328,11 +348,15 @@ kinobi.update(
           ]),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         splTokenProgram: {
           defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
@@ -372,11 +396,15 @@ kinobi.update(
           ]),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
