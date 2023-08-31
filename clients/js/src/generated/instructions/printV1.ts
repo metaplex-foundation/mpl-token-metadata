@@ -8,7 +8,6 @@
 
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -29,7 +28,13 @@ import {
   resolveTokenRecordForPrint,
 } from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  expectSome,
+  getAccountMetasAndSigners,
+} from '../shared';
 import { TokenStandardArgs } from '../types';
 
 // Accounts.
@@ -81,17 +86,10 @@ export type PrintV1InstructionData = {
 
 export type PrintV1InstructionDataArgs = { editionNumber: number | bigint };
 
-/** @deprecated Use `getPrintV1InstructionDataSerializer()` without any argument instead. */
-export function getPrintV1InstructionDataSerializer(
-  _context: object
-): Serializer<PrintV1InstructionDataArgs, PrintV1InstructionData>;
 export function getPrintV1InstructionDataSerializer(): Serializer<
   PrintV1InstructionDataArgs,
   PrintV1InstructionData
->;
-export function getPrintV1InstructionDataSerializer(
-  _context: object = {}
-): Serializer<PrintV1InstructionDataArgs, PrintV1InstructionData> {
+> {
   return mapSerializer<PrintV1InstructionDataArgs, any, PrintV1InstructionData>(
     struct<PrintV1InstructionData>(
       [
@@ -117,242 +115,228 @@ export type PrintV1InstructionArgs = PrintV1InstructionDataArgs &
 
 // Instruction.
 export function printV1(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: PrintV1InstructionAccounts & PrintV1InstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    editionMint: [input.editionMint, true] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    editionMetadata: {
+      index: 0,
+      isWritable: true,
+      value: input.editionMetadata ?? null,
+    },
+    edition: { index: 1, isWritable: true, value: input.edition ?? null },
+    editionMint: {
+      index: 2,
+      isWritable: true,
+      value: input.editionMint ?? null,
+    },
+    editionTokenAccountOwner: {
+      index: 3,
+      isWritable: false,
+      value: input.editionTokenAccountOwner ?? null,
+    },
+    editionTokenAccount: {
+      index: 4,
+      isWritable: true,
+      value: input.editionTokenAccount ?? null,
+    },
+    editionMintAuthority: {
+      index: 5,
+      isWritable: false,
+      value: input.editionMintAuthority ?? null,
+    },
+    editionTokenRecord: {
+      index: 6,
+      isWritable: true,
+      value: input.editionTokenRecord ?? null,
+    },
+    masterEdition: {
+      index: 7,
+      isWritable: true,
+      value: input.masterEdition ?? null,
+    },
+    editionMarkerPda: {
+      index: 8,
+      isWritable: true,
+      value: input.editionMarkerPda ?? null,
+    },
+    payer: { index: 9, isWritable: true, value: input.payer ?? null },
+    masterTokenAccountOwner: {
+      index: 10,
+      isWritable: false,
+      value: input.masterTokenAccountOwner ?? null,
+    },
+    masterTokenAccount: {
+      index: 11,
+      isWritable: false,
+      value: input.masterTokenAccount ?? null,
+    },
+    masterMetadata: {
+      index: 12,
+      isWritable: false,
+      value: input.masterMetadata ?? null,
+    },
+    updateAuthority: {
+      index: 13,
+      isWritable: false,
+      value: input.updateAuthority ?? null,
+    },
+    splTokenProgram: {
+      index: 14,
+      isWritable: false,
+      value: input.splTokenProgram ?? null,
+    },
+    splAtaProgram: {
+      index: 15,
+      isWritable: false,
+      value: input.splAtaProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 16,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
+    systemProgram: {
+      index: 17,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'editionMetadata',
-    input.editionMetadata
-      ? ([input.editionMetadata, true] as const)
-      : ([
-          findMetadataPda(context, {
-            mint: publicKey(input.editionMint, false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, true] as const)
-      : ([
-          findMasterEditionPda(context, {
-            mint: publicKey(input.editionMint, false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'editionTokenAccountOwner',
-    input.editionTokenAccountOwner
-      ? ([input.editionTokenAccountOwner, false] as const)
-      : ([context.identity.publicKey, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'editionTokenAccount',
-    input.editionTokenAccount
-      ? ([input.editionTokenAccount, true] as const)
-      : ([
-          findAssociatedTokenPda(context, {
-            mint: publicKey(input.editionMint, false),
-            owner: publicKey(
-              resolvedAccounts.editionTokenAccountOwner[0],
-              false
-            ),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'masterTokenAccountOwner',
-    input.masterTokenAccountOwner
-      ? ([input.masterTokenAccountOwner, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'editionMintAuthority',
-    input.editionMintAuthority
-      ? ([input.editionMintAuthority, false] as const)
-      : ([resolvedAccounts.masterTokenAccountOwner[0], false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'editionTokenRecord',
-    input.editionTokenRecord
-      ? ([input.editionTokenRecord, true] as const)
-      : resolveTokenRecordForPrint(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          true
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'masterEdition',
-    input.masterEdition
-      ? ([input.masterEdition, true] as const)
-      : ([
-          findMasterEditionPda(context, { mint: input.masterEditionMint }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'editionMarkerPda',
-    input.editionMarkerPda
-      ? ([input.editionMarkerPda, true] as const)
-      : resolveEditionMarkerForPrint(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          true
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'masterTokenAccount',
-    input.masterTokenAccount
-      ? ([input.masterTokenAccount, false] as const)
-      : ([
-          findAssociatedTokenPda(context, {
-            mint: input.masterEditionMint,
-            owner: publicKey(
-              resolvedAccounts.masterTokenAccountOwner[0],
-              false
-            ),
-          }),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'masterMetadata',
-    input.masterMetadata
-      ? ([input.masterMetadata, false] as const)
-      : ([
-          findMetadataPda(context, { mint: input.masterEditionMint }),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'updateAuthority',
-    input.updateAuthority
-      ? ([input.updateAuthority, false] as const)
-      : ([context.identity.publicKey, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splTokenProgram',
-    input.splTokenProgram
-      ? ([input.splTokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splAtaProgram',
-    input.splAtaProgram
-      ? ([input.splAtaProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splAssociatedToken',
-            'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.editionMetadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionMint, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.editionTokenAccountOwner,
-    false
+  // Arguments.
+  const resolvedArgs: PrintV1InstructionArgs = { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.editionMetadata.value) {
+    resolvedAccounts.editionMetadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.editionMint.value),
+    });
+  }
+  if (!resolvedAccounts.edition.value) {
+    resolvedAccounts.edition.value = findMasterEditionPda(context, {
+      mint: expectPublicKey(resolvedAccounts.editionMint.value),
+    });
+  }
+  if (!resolvedAccounts.editionTokenAccountOwner.value) {
+    resolvedAccounts.editionTokenAccountOwner.value =
+      context.identity.publicKey;
+  }
+  if (!resolvedAccounts.editionTokenAccount.value) {
+    resolvedAccounts.editionTokenAccount.value = findAssociatedTokenPda(
+      context,
+      {
+        mint: expectPublicKey(resolvedAccounts.editionMint.value),
+        owner: expectPublicKey(resolvedAccounts.editionTokenAccountOwner.value),
+      }
+    );
+  }
+  if (!resolvedAccounts.masterTokenAccountOwner.value) {
+    resolvedAccounts.masterTokenAccountOwner.value = context.identity;
+  }
+  if (!resolvedAccounts.editionMintAuthority.value) {
+    resolvedAccounts.editionMintAuthority.value = expectSome(
+      resolvedAccounts.masterTokenAccountOwner.value
+    );
+  }
+  if (!resolvedAccounts.editionTokenRecord.value) {
+    resolvedAccounts.editionTokenRecord = {
+      ...resolvedAccounts.editionTokenRecord,
+      ...resolveTokenRecordForPrint(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        true
+      ),
+    };
+  }
+  if (!resolvedAccounts.masterEdition.value) {
+    resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
+      mint: expectSome(resolvedArgs.masterEditionMint),
+    });
+  }
+  if (!resolvedAccounts.editionMarkerPda.value) {
+    resolvedAccounts.editionMarkerPda = {
+      ...resolvedAccounts.editionMarkerPda,
+      ...resolveEditionMarkerForPrint(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        true
+      ),
+    };
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.masterTokenAccount.value) {
+    resolvedAccounts.masterTokenAccount.value = findAssociatedTokenPda(
+      context,
+      {
+        mint: expectSome(resolvedArgs.masterEditionMint),
+        owner: expectPublicKey(resolvedAccounts.masterTokenAccountOwner.value),
+      }
+    );
+  }
+  if (!resolvedAccounts.masterMetadata.value) {
+    resolvedAccounts.masterMetadata.value = findMetadataPda(context, {
+      mint: expectSome(resolvedArgs.masterEditionMint),
+    });
+  }
+  if (!resolvedAccounts.updateAuthority.value) {
+    resolvedAccounts.updateAuthority.value = context.identity.publicKey;
+  }
+  if (!resolvedAccounts.splTokenProgram.value) {
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.splTokenProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.splAtaProgram.value) {
+    resolvedAccounts.splAtaProgram.value = context.programs.getPublicKey(
+      'splAssociatedToken',
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+    );
+    resolvedAccounts.splAtaProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.editionTokenAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionMintAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionTokenRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.masterEdition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionMarkerPda, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.masterTokenAccountOwner,
-    false
-  );
-  addAccountMeta(keys, signers, resolvedAccounts.masterTokenAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.masterMetadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splAtaProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
 
   // Data.
-  const data = getPrintV1InstructionDataSerializer().serialize(resolvedArgs);
+  const data = getPrintV1InstructionDataSerializer().serialize(
+    resolvedArgs as PrintV1InstructionDataArgs
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

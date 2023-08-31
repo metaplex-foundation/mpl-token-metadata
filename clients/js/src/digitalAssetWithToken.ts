@@ -140,7 +140,7 @@ export async function fetchAllDigitalAssetWithTokenByOwner(
             ),
             token,
             tokenRecord: tokenRecordAccount.exists
-              ? deserializeTokenRecord(context, tokenRecordAccount)
+              ? deserializeTokenRecord(tokenRecordAccount)
               : undefined,
           },
         ];

@@ -38,17 +38,10 @@ export type EditionMarkerV2AccountDataArgs = {
   ledger: Uint8Array;
 };
 
-/** @deprecated Use `getEditionMarkerV2AccountDataSerializer()` without any argument instead. */
-export function getEditionMarkerV2AccountDataSerializer(
-  _context: object
-): Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData>;
 export function getEditionMarkerV2AccountDataSerializer(): Serializer<
   EditionMarkerV2AccountDataArgs,
   EditionMarkerV2AccountData
->;
-export function getEditionMarkerV2AccountDataSerializer(
-  _context: object = {}
-): Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData> {
+> {
   return struct<EditionMarkerV2AccountData>(
     [
       ['key', getKeySerializer()],
@@ -58,20 +51,11 @@ export function getEditionMarkerV2AccountDataSerializer(
   ) as Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData>;
 }
 
-/** @deprecated Use `deserializeEditionMarkerV2(rawAccount)` without any context instead. */
-export function deserializeEditionMarkerV2(
-  context: object,
-  rawAccount: RpcAccount
-): EditionMarkerV2;
 export function deserializeEditionMarkerV2(
   rawAccount: RpcAccount
-): EditionMarkerV2;
-export function deserializeEditionMarkerV2(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): EditionMarkerV2 {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getEditionMarkerV2AccountDataSerializer()
   );
 }

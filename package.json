@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.12.1",
-    "@metaplex-foundation/kinobi": "^0.13.3",
+    "@metaplex-foundation/kinobi": "link:../kinobi",
     "@metaplex-foundation/shank-js": "^0.1.0",
     "typescript": "^4.9.4"
   },

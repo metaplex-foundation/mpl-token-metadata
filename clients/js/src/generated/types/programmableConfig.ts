@@ -24,17 +24,10 @@ export type ProgrammableConfigArgs = {
   ruleSet: OptionOrNullable<PublicKey>;
 };
 
-/** @deprecated Use `getProgrammableConfigSerializer()` without any argument instead. */
-export function getProgrammableConfigSerializer(
-  _context: object
-): Serializer<ProgrammableConfigArgs, ProgrammableConfig>;
 export function getProgrammableConfigSerializer(): Serializer<
   ProgrammableConfigArgs,
   ProgrammableConfig
->;
-export function getProgrammableConfigSerializer(
-  _context: object = {}
-): Serializer<ProgrammableConfigArgs, ProgrammableConfig> {
+> {
   return dataEnum<ProgrammableConfig>(
     [
       [

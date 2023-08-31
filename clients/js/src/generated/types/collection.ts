@@ -18,17 +18,10 @@ export type Collection = { verified: boolean; key: PublicKey };
 
 export type CollectionArgs = Collection;
 
-/** @deprecated Use `getCollectionSerializer()` without any argument instead. */
-export function getCollectionSerializer(
-  _context: object
-): Serializer<CollectionArgs, Collection>;
 export function getCollectionSerializer(): Serializer<
   CollectionArgs,
   Collection
->;
-export function getCollectionSerializer(
-  _context: object = {}
-): Serializer<CollectionArgs, Collection> {
+> {
   return struct<Collection>(
     [
       ['verified', bool()],

@@ -15,17 +15,10 @@ export enum MigrationType {
 
 export type MigrationTypeArgs = MigrationType;
 
-/** @deprecated Use `getMigrationTypeSerializer()` without any argument instead. */
-export function getMigrationTypeSerializer(
-  _context: object
-): Serializer<MigrationTypeArgs, MigrationType>;
 export function getMigrationTypeSerializer(): Serializer<
   MigrationTypeArgs,
   MigrationType
->;
-export function getMigrationTypeSerializer(
-  _context: object = {}
-): Serializer<MigrationTypeArgs, MigrationType> {
+> {
   return scalarEnum<MigrationType>(MigrationType, {
     description: 'MigrationType',
   }) as Serializer<MigrationTypeArgs, MigrationType>;

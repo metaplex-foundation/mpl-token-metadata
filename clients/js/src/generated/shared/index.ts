@@ -13,6 +13,7 @@ import {
   publicKey,
   PublicKey,
   Signer,
+  isPda,
 } from '@metaplex-foundation/umi';
 
 /**
@@ -23,59 +24,94 @@ export type PickPartial<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
 
 /**
- * Defines an instruction account that keeps track of whether it is writable or not.
+ * Asserts that the given value is not null or undefined.
  * @internal
  */
-export type WithWritable<T extends PublicKey | Pda | Signer | undefined> =
-  readonly [T, boolean];
-
-/**
- * Helper function that dynamically updates the type of
- * an object as we add more properties to the object.
- * @internal
- */
-export function addObjectProperty<T extends object, U extends string, V>(
-  obj: T,
-  key: U,
-  value: V
-): asserts obj is T & { [K in U]: V } {
-  (obj as any)[key] = value;
+export function expectSome<T>(value: T | null | undefined): T {
+  if (value == null) {
+    throw new Error('Expected a value but received null or undefined.');
+  }
+  return value;
 }
 
 /**
- * Adds an instruction account to the given list of keys and signers.
+ * Asserts that the given value is a PublicKey.
  * @internal
  */
-export function addAccountMeta(
-  keys: AccountMeta[],
-  signers: Signer[],
-  account: WithWritable<PublicKey | Pda | Signer>,
-  isOptional: false
-): void;
-export function addAccountMeta(
-  keys: AccountMeta[],
-  signers: Signer[],
-  account: WithWritable<PublicKey | Pda | Signer | undefined>,
-  isOptional: true
-): void;
-export function addAccountMeta(
-  keys: AccountMeta[],
-  signers: Signer[],
-  account: WithWritable<PublicKey | Pda | Signer | undefined>,
-  isOptional: boolean
-): void {
-  if (isOptional && !account[0]) {
-    return;
+export function expectPublicKey(
+  value: PublicKey | Pda | Signer | null | undefined
+): PublicKey {
+  if (!value) {
+    throw new Error('Expected a PublicKey.');
   }
-  if (!account[0]) {
-    throw new Error('Expected instruction account to be defined');
+  return publicKey(value, false);
+}
+
+/**
+ * Asserts that the given value is a PDA.
+ * @internal
+ */
+export function expectPda(
+  value: PublicKey | Pda | Signer | null | undefined
+): Pda {
+  if (!value || !Array.isArray(value) || !isPda(value)) {
+    throw new Error('Expected a PDA.');
   }
-  if (isSigner(account[0])) {
-    signers.push(account[0]);
-  }
-  keys.push({
-    pubkey: publicKey(account[0], false),
-    isSigner: isSigner(account[0]),
-    isWritable: account[1],
+  return value;
+}
+
+/**
+ * Defines an instruction account to resolve.
+ * @internal
+ */
+export type ResolvedAccount<T = PublicKey | Pda | Signer | null> = {
+  isWritable: boolean;
+  value: T;
+};
+
+/**
+ * Defines a set of instruction account to resolve.
+ * @internal
+ */
+export type ResolvedAccounts = Record<string, ResolvedAccount>;
+
+/**
+ * Defines a set of instruction account to resolve with their indices.
+ * @internal
+ */
+export type ResolvedAccountsWithIndices = Record<
+  string,
+  ResolvedAccount & { index: number }
+>;
+
+/**
+ * Get account metas and signers from resolved accounts.
+ * @internal
+ */
+export function getAccountMetasAndSigners(
+  accounts: ResolvedAccount[],
+  optionalAccountStrategy: 'omitted' | 'programId',
+  programId: PublicKey
+): [AccountMeta[], Signer[]] {
+  const keys: AccountMeta[] = [];
+  const signers: Signer[] = [];
+
+  accounts.forEach((account) => {
+    if (!account.value) {
+      if (optionalAccountStrategy === 'omitted') return;
+      keys.push({ pubkey: programId, isSigner: false, isWritable: false });
+      return;
+    }
+
+    if (isSigner(account.value)) {
+      signers.push(account.value);
+    }
+    keys.push({
+      pubkey: publicKey(account.value, false),
+      isSigner: isSigner(account.value),
+      isWritable: account.isWritable,
+    });
   });
+
+  return [keys, signers];
 }

@@ -7,13 +7,11 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
   Signer,
   TransactionBuilder,
-  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -23,7 +21,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type ApproveCollectionAuthorityInstructionAccounts = {
@@ -52,20 +55,7 @@ export type ApproveCollectionAuthorityInstructionData = {
 
 export type ApproveCollectionAuthorityInstructionDataArgs = {};
 
-/** @deprecated Use `getApproveCollectionAuthorityInstructionDataSerializer()` without any argument instead. */
-export function getApproveCollectionAuthorityInstructionDataSerializer(
-  _context: object
-): Serializer<
-  ApproveCollectionAuthorityInstructionDataArgs,
-  ApproveCollectionAuthorityInstructionData
->;
 export function getApproveCollectionAuthorityInstructionDataSerializer(): Serializer<
-  ApproveCollectionAuthorityInstructionDataArgs,
-  ApproveCollectionAuthorityInstructionData
->;
-export function getApproveCollectionAuthorityInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   ApproveCollectionAuthorityInstructionDataArgs,
   ApproveCollectionAuthorityInstructionData
 > {
@@ -87,76 +77,74 @@ export function getApproveCollectionAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function approveCollectionAuthority(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: ApproveCollectionAuthorityInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    collectionAuthorityRecord: [input.collectionAuthorityRecord, true] as const,
-    newCollectionAuthority: [input.newCollectionAuthority, false] as const,
-    mint: [input.mint, false] as const,
-    rent: [input.rent, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    collectionAuthorityRecord: {
+      index: 0,
+      isWritable: true,
+      value: input.collectionAuthorityRecord ?? null,
+    },
+    newCollectionAuthority: {
+      index: 1,
+      isWritable: false,
+      value: input.newCollectionAuthority ?? null,
+    },
+    updateAuthority: {
+      index: 2,
+      isWritable: true,
+      value: input.updateAuthority ?? null,
+    },
+    payer: { index: 3, isWritable: true, value: input.payer ?? null },
+    metadata: { index: 4, isWritable: false, value: input.metadata ?? null },
+    mint: { index: 5, isWritable: false, value: input.mint ?? null },
+    systemProgram: {
+      index: 6,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    rent: { index: 7, isWritable: false, value: input.rent ?? null },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'updateAuthority',
-    input.updateAuthority
-      ? ([input.updateAuthority, true] as const)
-      : ([context.identity, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, false] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionAuthorityRecord,
-    false
+  // Default values.
+  if (!resolvedAccounts.updateAuthority.value) {
+    resolvedAccounts.updateAuthority.value = context.identity;
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.newCollectionAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
 
   // Data.
   const data =

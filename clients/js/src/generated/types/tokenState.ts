@@ -16,17 +16,10 @@ export enum TokenState {
 
 export type TokenStateArgs = TokenState;
 
-/** @deprecated Use `getTokenStateSerializer()` without any argument instead. */
-export function getTokenStateSerializer(
-  _context: object
-): Serializer<TokenStateArgs, TokenState>;
 export function getTokenStateSerializer(): Serializer<
   TokenStateArgs,
   TokenState
->;
-export function getTokenStateSerializer(
-  _context: object = {}
-): Serializer<TokenStateArgs, TokenState> {
+> {
   return scalarEnum<TokenState>(TokenState, {
     description: 'TokenState',
   }) as Serializer<TokenStateArgs, TokenState>;
