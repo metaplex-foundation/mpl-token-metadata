@@ -50,9 +50,15 @@ jobs:
     with:
       program_matrix: '["${{ inputs.program }}"]'
 
+  test_rust_client:
+    name: Rust Client
+    needs: build_programs
+    uses: ./.github/workflows/test-rust-client.yml
+    secrets: inherit
+
   test_js_client:
     name: JS client
-    needs: test_programs
+    needs: [test_programs, test_rust_client]
     uses: ./.github/workflows/test-js-client.yml
     secrets: inherit
 
@@ -119,7 +125,7 @@ jobs:
           fi
 
           echo PROGRAM_VERSION="${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV
-          echo PROGRAM_NAME="mpl_token_metadata" >> $GITHUB_ENV
+          echo PROGRAM_NAME="token_metadata" >> $GITHUB_ENV
 
       - name: Download program builds
         uses: actions/download-artifact@v3
