@@ -140,12 +140,10 @@ mod update {
 
         match &mut args {
             UpdateArgs::AsAuthorityItemDelegateV2 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             } => {
-                *new_update_authority = Some(delegate.pubkey());
                 *primary_sale_happened = Some(true);
                 *is_mutable = Some(false);
             }
@@ -177,10 +175,94 @@ mod update {
 
         // checks the created metadata values
         let metadata = da.get_metadata(context).await;
+        let original_update_authority = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
-        assert_eq!(metadata.update_authority, delegate.pubkey());
+        assert_eq!(
+            metadata.update_authority,
+            original_update_authority.pubkey()
+        );
         assert!(metadata.primary_sale_happened);
         assert!(!metadata.is_mutable);
+    }
+
+    #[tokio::test]
+    #[allow(deprecated)]
+    async fn fail_change_update_authority_by_authority_item_delegate() {
+        let context = &mut program_test().start_with_context().await;
+
+        let update_authority = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
+
+        let mut da = DigitalAsset::new();
+        da.create(context, TokenStandard::NonFungible, None)
+            .await
+            .unwrap();
+
+        let metadata = da.get_metadata(context).await;
+        assert_eq!(metadata.update_authority, update_authority.pubkey());
+        assert!(!metadata.primary_sale_happened);
+        assert!(metadata.is_mutable);
+
+        // Create metadata delegate.
+        let delegate = Keypair::new();
+        delegate.airdrop(context, 1_000_000_000).await.unwrap();
+        let delegate_record = da
+            .delegate(
+                context,
+                update_authority,
+                delegate.pubkey(),
+                DelegateArgs::AuthorityItemV1 {
+                    authorization_data: None,
+                },
+            )
+            .await
+            .unwrap()
+            .unwrap();
+
+        // Change a few values that this delegate is allowed to change.
+        let mut args = UpdateArgs::default_as_authority_item_delegate();
+
+        match &mut args {
+            UpdateArgs::AsAuthorityItemDelegateV2 {
+                new_update_authority,
+                ..
+            } => {
+                *new_update_authority = Some(delegate.pubkey());
+            }
+            _ => panic!("Unexpected enum variant"),
+        }
+
+        let mut builder = UpdateBuilder::new();
+        builder
+            .authority(delegate.pubkey())
+            .delegate_record(delegate_record)
+            .metadata(da.metadata)
+            .mint(da.mint.pubkey())
+            .payer(delegate.pubkey());
+
+        if let Some(edition) = da.edition {
+            builder.edition(edition);
+        }
+
+        let update_ix = builder.build(args).unwrap().instruction();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[update_ix],
+            Some(&delegate.pubkey()),
+            &[&delegate],
+            context.last_blockhash,
+        );
+
+        let error = context
+            .banks_client
+            .process_transaction(tx)
+            .await
+            .unwrap_err();
+
+        // there should be an error.
+        assert_custom_error!(
+            error,
+            MetadataError::CannotChangeUpdateAuthorityWithDelegate
+        );
     }
 
     #[tokio::test]

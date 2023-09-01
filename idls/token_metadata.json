@@ -7721,6 +7721,11 @@
       "code": 192,
       "name": "InvalidMetadataFlags",
       "msg": ""
+    },
+    {
+      "code": 193,
+      "name": "CannotChangeUpdateAuthorityWithDelegate",
+      "msg": "Cannot change the update authority with a delegate"
     }
   ],
   "metadata": {
