@@ -111,15 +111,21 @@ impl Metadata {
         // Only the Update Authority can update this section.
         match &args {
             UpdateArgs::V1 {
+                new_update_authority,
                 uses,
                 collection_details,
                 ..
             }
             | UpdateArgs::AsUpdateAuthorityV2 {
+                new_update_authority,
                 uses,
                 collection_details,
                 ..
             } => {
+                if let Some(authority) = new_update_authority {
+                    self.update_authority = *authority;
+                }
+
                 if uses.is_some() {
                     let uses_option = uses.clone().to_option();
                     // If already None leave it as None.
@@ -198,23 +204,6 @@ impl Metadata {
                     } else {
                         return Err(MetadataError::IsMutableCanOnlyBeFlippedToFalse.into());
                     }
-                }
-            }
-            _ => (),
-        }
-
-        // Update Authority can update this section.
-        match &args {
-            UpdateArgs::V1 {
-                new_update_authority,
-                ..
-            }
-            | UpdateArgs::AsUpdateAuthorityV2 {
-                new_update_authority,
-                ..
-            } => {
-                if let Some(authority) = new_update_authority {
-                    self.update_authority = *authority;
                 }
             }
             _ => (),
