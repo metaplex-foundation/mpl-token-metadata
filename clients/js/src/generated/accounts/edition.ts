@@ -41,17 +41,10 @@ export type EditionAccountDataArgs = {
   edition: number | bigint;
 };
 
-/** @deprecated Use `getEditionAccountDataSerializer()` without any argument instead. */
-export function getEditionAccountDataSerializer(
-  _context: object
-): Serializer<EditionAccountDataArgs, EditionAccountData>;
 export function getEditionAccountDataSerializer(): Serializer<
   EditionAccountDataArgs,
   EditionAccountData
->;
-export function getEditionAccountDataSerializer(
-  _context: object = {}
-): Serializer<EditionAccountDataArgs, EditionAccountData> {
+> {
   return mapSerializer<EditionAccountDataArgs, any, EditionAccountData>(
     struct<EditionAccountData>(
       [
@@ -65,20 +58,8 @@ export function getEditionAccountDataSerializer(
   ) as Serializer<EditionAccountDataArgs, EditionAccountData>;
 }
 
-/** @deprecated Use `deserializeEdition(rawAccount)` without any context instead. */
-export function deserializeEdition(
-  context: object,
-  rawAccount: RpcAccount
-): Edition;
-export function deserializeEdition(rawAccount: RpcAccount): Edition;
-export function deserializeEdition(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
-): Edition {
-  return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
-    getEditionAccountDataSerializer()
-  );
+export function deserializeEdition(rawAccount: RpcAccount): Edition {
+  return deserializeAccount(rawAccount, getEditionAccountDataSerializer());
 }
 
 export async function fetchEdition(

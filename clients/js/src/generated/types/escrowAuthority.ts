@@ -24,17 +24,10 @@ export type EscrowAuthority =
 
 export type EscrowAuthorityArgs = EscrowAuthority;
 
-/** @deprecated Use `getEscrowAuthoritySerializer()` without any argument instead. */
-export function getEscrowAuthoritySerializer(
-  _context: object
-): Serializer<EscrowAuthorityArgs, EscrowAuthority>;
 export function getEscrowAuthoritySerializer(): Serializer<
   EscrowAuthorityArgs,
   EscrowAuthority
->;
-export function getEscrowAuthoritySerializer(
-  _context: object = {}
-): Serializer<EscrowAuthorityArgs, EscrowAuthority> {
+> {
   return dataEnum<EscrowAuthority>(
     [
       ['TokenOwner', unit()],

@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type SetAndVerifySizedCollectionItemInstructionAccounts = {
@@ -50,20 +53,7 @@ export type SetAndVerifySizedCollectionItemInstructionData = {
 
 export type SetAndVerifySizedCollectionItemInstructionDataArgs = {};
 
-/** @deprecated Use `getSetAndVerifySizedCollectionItemInstructionDataSerializer()` without any argument instead. */
-export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(
-  _context: object
-): Serializer<
-  SetAndVerifySizedCollectionItemInstructionDataArgs,
-  SetAndVerifySizedCollectionItemInstructionData
->;
 export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(): Serializer<
-  SetAndVerifySizedCollectionItemInstructionDataArgs,
-  SetAndVerifySizedCollectionItemInstructionData
->;
-export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   SetAndVerifySizedCollectionItemInstructionDataArgs,
   SetAndVerifySizedCollectionItemInstructionData
 > {
@@ -85,65 +75,65 @@ export function getSetAndVerifySizedCollectionItemInstructionDataSerializer(
 
 // Instruction.
 export function setAndVerifySizedCollectionItem(
-  context: Pick<Context, 'programs' | 'identity' | 'payer'>,
+  context: Pick<Context, 'identity' | 'payer' | 'programs'>,
   input: SetAndVerifySizedCollectionItemInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    collectionAuthority: [input.collectionAuthority, false] as const,
-    collectionMint: [input.collectionMint, false] as const,
-    collection: [input.collection, true] as const,
-    collectionMasterEditionAccount: [
-      input.collectionMasterEditionAccount,
-      true,
-    ] as const,
-    collectionAuthorityRecord: [
-      input.collectionAuthorityRecord,
-      false,
-    ] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    collectionAuthority: {
+      index: 1,
+      isWritable: false,
+      value: input.collectionAuthority ?? null,
+    },
+    payer: { index: 2, isWritable: true, value: input.payer ?? null },
+    updateAuthority: {
+      index: 3,
+      isWritable: false,
+      value: input.updateAuthority ?? null,
+    },
+    collectionMint: {
+      index: 4,
+      isWritable: false,
+      value: input.collectionMint ?? null,
+    },
+    collection: { index: 5, isWritable: true, value: input.collection ?? null },
+    collectionMasterEditionAccount: {
+      index: 6,
+      isWritable: true,
+      value: input.collectionMasterEditionAccount ?? null,
+    },
+    collectionAuthorityRecord: {
+      index: 7,
+      isWritable: false,
+      value: input.collectionAuthorityRecord ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'updateAuthority',
-    input.updateAuthority
-      ? ([input.updateAuthority, false] as const)
-      : ([context.identity.publicKey, false] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collection, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionMasterEditionAccount,
-    false
-  );
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionAuthorityRecord,
-    true
+  // Default values.
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.updateAuthority.value) {
+    resolvedAccounts.updateAuthority.value = context.identity.publicKey;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
   );
 
   // Data.

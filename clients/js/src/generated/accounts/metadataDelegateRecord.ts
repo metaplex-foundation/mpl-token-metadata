@@ -50,20 +50,7 @@ export type MetadataDelegateRecordAccountDataArgs = {
   updateAuthority: PublicKey;
 };
 
-/** @deprecated Use `getMetadataDelegateRecordAccountDataSerializer()` without any argument instead. */
-export function getMetadataDelegateRecordAccountDataSerializer(
-  _context: object
-): Serializer<
-  MetadataDelegateRecordAccountDataArgs,
-  MetadataDelegateRecordAccountData
->;
 export function getMetadataDelegateRecordAccountDataSerializer(): Serializer<
-  MetadataDelegateRecordAccountDataArgs,
-  MetadataDelegateRecordAccountData
->;
-export function getMetadataDelegateRecordAccountDataSerializer(
-  _context: object = {}
-): Serializer<
   MetadataDelegateRecordAccountDataArgs,
   MetadataDelegateRecordAccountData
 > {
@@ -82,20 +69,11 @@ export function getMetadataDelegateRecordAccountDataSerializer(
   >;
 }
 
-/** @deprecated Use `deserializeMetadataDelegateRecord(rawAccount)` without any context instead. */
-export function deserializeMetadataDelegateRecord(
-  context: object,
-  rawAccount: RpcAccount
-): MetadataDelegateRecord;
 export function deserializeMetadataDelegateRecord(
   rawAccount: RpcAccount
-): MetadataDelegateRecord;
-export function deserializeMetadataDelegateRecord(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): MetadataDelegateRecord {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getMetadataDelegateRecordAccountDataSerializer()
   );
 }

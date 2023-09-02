@@ -7,13 +7,11 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
   Signer,
   TransactionBuilder,
-  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -23,7 +21,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMasterEditionPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type ThawDelegatedAccountInstructionAccounts = {
@@ -44,20 +47,7 @@ export type ThawDelegatedAccountInstructionData = { discriminator: number };
 
 export type ThawDelegatedAccountInstructionDataArgs = {};
 
-/** @deprecated Use `getThawDelegatedAccountInstructionDataSerializer()` without any argument instead. */
-export function getThawDelegatedAccountInstructionDataSerializer(
-  _context: object
-): Serializer<
-  ThawDelegatedAccountInstructionDataArgs,
-  ThawDelegatedAccountInstructionData
->;
 export function getThawDelegatedAccountInstructionDataSerializer(): Serializer<
-  ThawDelegatedAccountInstructionDataArgs,
-  ThawDelegatedAccountInstructionData
->;
-export function getThawDelegatedAccountInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   ThawDelegatedAccountInstructionDataArgs,
   ThawDelegatedAccountInstructionData
 > {
@@ -78,53 +68,57 @@ export function getThawDelegatedAccountInstructionDataSerializer(
 
 // Instruction.
 export function thawDelegatedAccount(
-  context: Pick<Context, 'programs' | 'eddsa'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   input: ThawDelegatedAccountInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    delegate: [input.delegate, true] as const,
-    tokenAccount: [input.tokenAccount, true] as const,
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    delegate: { index: 0, isWritable: true, value: input.delegate ?? null },
+    tokenAccount: {
+      index: 1,
+      isWritable: true,
+      value: input.tokenAccount ?? null,
+    },
+    edition: { index: 2, isWritable: false, value: input.edition ?? null },
+    mint: { index: 3, isWritable: false, value: input.mint ?? null },
+    tokenProgram: {
+      index: 4,
+      isWritable: false,
+      value: input.tokenProgram ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : ([
-          findMasterEditionPda(context, { mint: publicKey(input.mint, false) }),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenProgram',
-    input.tokenProgram
-      ? ([input.tokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.delegate, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
+  // Default values.
+  if (!resolvedAccounts.edition.value) {
+    resolvedAccounts.edition.value = findMasterEditionPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.tokenProgram.value) {
+    resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.tokenProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data = getThawDelegatedAccountInstructionDataSerializer().serialize({});

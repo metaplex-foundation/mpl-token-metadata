@@ -232,17 +232,10 @@ export type UpdateArgsArgs =
       authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     };
 
-/** @deprecated Use `getUpdateArgsSerializer()` without any argument instead. */
-export function getUpdateArgsSerializer(
-  _context: object
-): Serializer<UpdateArgsArgs, UpdateArgs>;
 export function getUpdateArgsSerializer(): Serializer<
   UpdateArgsArgs,
   UpdateArgs
->;
-export function getUpdateArgsSerializer(
-  _context: object = {}
-): Serializer<UpdateArgsArgs, UpdateArgs> {
+> {
   return dataEnum<UpdateArgs>(
     [
       [

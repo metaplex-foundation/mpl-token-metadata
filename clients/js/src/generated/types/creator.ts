@@ -19,14 +19,7 @@ export type Creator = { address: PublicKey; verified: boolean; share: number };
 
 export type CreatorArgs = Creator;
 
-/** @deprecated Use `getCreatorSerializer()` without any argument instead. */
-export function getCreatorSerializer(
-  _context: object
-): Serializer<CreatorArgs, Creator>;
-export function getCreatorSerializer(): Serializer<CreatorArgs, Creator>;
-export function getCreatorSerializer(
-  _context: object = {}
-): Serializer<CreatorArgs, Creator> {
+export function getCreatorSerializer(): Serializer<CreatorArgs, Creator> {
   return struct<Creator>(
     [
       ['address', publicKeySerializer()],

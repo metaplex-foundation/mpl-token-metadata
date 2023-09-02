@@ -8,7 +8,6 @@
 
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
-  AccountMeta,
   Context,
   Option,
   OptionOrNullable,
@@ -35,7 +34,12 @@ import {
   resolveTokenRecord,
 } from '../../hooked';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -84,17 +88,10 @@ export type LockV1InstructionDataArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getLockV1InstructionDataSerializer()` without any argument instead. */
-export function getLockV1InstructionDataSerializer(
-  _context: object
-): Serializer<LockV1InstructionDataArgs, LockV1InstructionData>;
 export function getLockV1InstructionDataSerializer(): Serializer<
   LockV1InstructionDataArgs,
   LockV1InstructionData
->;
-export function getLockV1InstructionDataSerializer(
-  _context: object = {}
-): Serializer<LockV1InstructionDataArgs, LockV1InstructionData> {
+> {
   return mapSerializer<LockV1InstructionDataArgs, any, LockV1InstructionData>(
     struct<LockV1InstructionData>(
       [
@@ -122,178 +119,170 @@ export type LockV1InstructionArgs = LockV1InstructionDataArgs &
 
 // Instruction.
 export function lockV1(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: LockV1InstructionAccounts & LockV1InstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    tokenOwner: {
+      index: 1,
+      isWritable: false,
+      value: input.tokenOwner ?? null,
+    },
+    token: { index: 2, isWritable: true, value: input.token ?? null },
+    mint: { index: 3, isWritable: false, value: input.mint ?? null },
+    metadata: { index: 4, isWritable: true, value: input.metadata ?? null },
+    edition: { index: 5, isWritable: false, value: input.edition ?? null },
+    tokenRecord: {
+      index: 6,
+      isWritable: true,
+      value: input.tokenRecord ?? null,
+    },
+    payer: { index: 7, isWritable: true, value: input.payer ?? null },
+    systemProgram: {
+      index: 8,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 9,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
+    splTokenProgram: {
+      index: 10,
+      isWritable: false,
+      value: input.splTokenProgram ?? null,
+    },
+    authorizationRulesProgram: {
+      index: 11,
+      isWritable: false,
+      value: input.authorizationRulesProgram ?? null,
+    },
+    authorizationRules: {
+      index: 12,
+      isWritable: false,
+      value: input.authorizationRules ?? null,
+    },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenOwner',
-    input.tokenOwner
-      ? ([input.tokenOwner, false] as const)
-      : resolveOptionalTokenOwner(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'token',
-    input.token
-      ? ([input.token, true] as const)
-      : ([
-          findAssociatedTokenPda(context, {
-            mint: publicKey(input.mint, false),
-            owner: publicKey(resolvedAccounts.tokenOwner[0], false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : resolveMasterEdition(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenRecord',
-    input.tokenRecord
-      ? ([input.tokenRecord, true] as const)
-      : resolveTokenRecord(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          true
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splTokenProgram',
-    input.splTokenProgram
-      ? ([input.splTokenProgram, false] as const)
-      : resolveTokenProgramForNonProgrammables(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRules',
-    input.authorizationRules
-      ? ([input.authorizationRules, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram
-      ? ([input.authorizationRulesProgram, false] as const)
-      : resolveAuthorizationRulesProgram(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenOwner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.token, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.authorizationRulesProgram,
-    false
+  // Arguments.
+  const resolvedArgs: LockV1InstructionArgs = { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+  if (!resolvedAccounts.tokenOwner.value) {
+    resolvedAccounts.tokenOwner = {
+      ...resolvedAccounts.tokenOwner,
+      ...resolveOptionalTokenOwner(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      ),
+    };
+  }
+  if (!resolvedAccounts.token.value) {
+    resolvedAccounts.token.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+      owner: expectPublicKey(resolvedAccounts.tokenOwner.value),
+    });
+  }
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.edition.value) {
+    resolvedAccounts.edition = {
+      ...resolvedAccounts.edition,
+      ...resolveMasterEdition(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      ),
+    };
+  }
+  if (!resolvedAccounts.tokenRecord.value) {
+    resolvedAccounts.tokenRecord = {
+      ...resolvedAccounts.tokenRecord,
+      ...resolveTokenRecord(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        true
+      ),
+    };
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+  if (!resolvedAccounts.splTokenProgram.value) {
+    resolvedAccounts.splTokenProgram = {
+      ...resolvedAccounts.splTokenProgram,
+      ...resolveTokenProgramForNonProgrammables(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      ),
+    };
+  }
+  if (!resolvedAccounts.authorizationRulesProgram.value) {
+    resolvedAccounts.authorizationRulesProgram = {
+      ...resolvedAccounts.authorizationRulesProgram,
+      ...resolveAuthorizationRulesProgram(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      ),
+    };
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getLockV1InstructionDataSerializer().serialize(resolvedArgs);
+  const data = getLockV1InstructionDataSerializer().serialize(
+    resolvedArgs as LockV1InstructionDataArgs
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

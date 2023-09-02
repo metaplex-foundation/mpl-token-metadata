@@ -17,12 +17,7 @@ export type UsesArgs = {
   total: number | bigint;
 };
 
-/** @deprecated Use `getUsesSerializer()` without any argument instead. */
-export function getUsesSerializer(_context: object): Serializer<UsesArgs, Uses>;
-export function getUsesSerializer(): Serializer<UsesArgs, Uses>;
-export function getUsesSerializer(
-  _context: object = {}
-): Serializer<UsesArgs, Uses> {
+export function getUsesSerializer(): Serializer<UsesArgs, Uses> {
   return struct<Uses>(
     [
       ['useMethod', getUseMethodSerializer()],

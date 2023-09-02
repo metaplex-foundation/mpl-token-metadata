@@ -35,14 +35,7 @@ export type MintArgsArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getMintArgsSerializer()` without any argument instead. */
-export function getMintArgsSerializer(
-  _context: object
-): Serializer<MintArgsArgs, MintArgs>;
-export function getMintArgsSerializer(): Serializer<MintArgsArgs, MintArgs>;
-export function getMintArgsSerializer(
-  _context: object = {}
-): Serializer<MintArgsArgs, MintArgs> {
+export function getMintArgsSerializer(): Serializer<MintArgsArgs, MintArgs> {
   return dataEnum<MintArgs>(
     [
       [
