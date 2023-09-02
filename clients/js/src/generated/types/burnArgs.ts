@@ -20,14 +20,7 @@ export type BurnArgs = { __kind: 'V1'; amount: bigint };
 
 export type BurnArgsArgs = { __kind: 'V1'; amount?: number | bigint };
 
-/** @deprecated Use `getBurnArgsSerializer()` without any argument instead. */
-export function getBurnArgsSerializer(
-  _context: object
-): Serializer<BurnArgsArgs, BurnArgs>;
-export function getBurnArgsSerializer(): Serializer<BurnArgsArgs, BurnArgs>;
-export function getBurnArgsSerializer(
-  _context: object = {}
-): Serializer<BurnArgsArgs, BurnArgs> {
+export function getBurnArgsSerializer(): Serializer<BurnArgsArgs, BurnArgs> {
   return dataEnum<BurnArgs>(
     [
       [

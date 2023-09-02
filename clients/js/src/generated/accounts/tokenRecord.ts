@@ -64,17 +64,10 @@ export type TokenRecordAccountDataArgs = {
   lockedTransfer: OptionOrNullable<PublicKey>;
 };
 
-/** @deprecated Use `getTokenRecordAccountDataSerializer()` without any argument instead. */
-export function getTokenRecordAccountDataSerializer(
-  _context: object
-): Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData>;
 export function getTokenRecordAccountDataSerializer(): Serializer<
   TokenRecordAccountDataArgs,
   TokenRecordAccountData
->;
-export function getTokenRecordAccountDataSerializer(
-  _context: object = {}
-): Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData> {
+> {
   return mapSerializer<TokenRecordAccountDataArgs, any, TokenRecordAccountData>(
     struct<TokenRecordAccountData>(
       [
@@ -92,20 +85,8 @@ export function getTokenRecordAccountDataSerializer(
   ) as Serializer<TokenRecordAccountDataArgs, TokenRecordAccountData>;
 }
 
-/** @deprecated Use `deserializeTokenRecord(rawAccount)` without any context instead. */
-export function deserializeTokenRecord(
-  context: object,
-  rawAccount: RpcAccount
-): TokenRecord;
-export function deserializeTokenRecord(rawAccount: RpcAccount): TokenRecord;
-export function deserializeTokenRecord(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
-): TokenRecord {
-  return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
-    getTokenRecordAccountDataSerializer()
-  );
+export function deserializeTokenRecord(rawAccount: RpcAccount): TokenRecord {
+  return deserializeAccount(rawAccount, getTokenRecordAccountDataSerializer());
 }
 
 export async function fetchTokenRecord(

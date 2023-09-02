@@ -173,7 +173,8 @@ impl DelegateLockedTransferV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DelegateLockedTransferV1InstructionArgs {
     pub amount: u64,
     pub locked_address: Pubkey,

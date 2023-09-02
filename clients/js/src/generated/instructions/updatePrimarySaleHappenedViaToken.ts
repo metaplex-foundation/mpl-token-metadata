@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type UpdatePrimarySaleHappenedViaTokenInstructionAccounts = {
@@ -40,20 +43,7 @@ export type UpdatePrimarySaleHappenedViaTokenInstructionData = {
 
 export type UpdatePrimarySaleHappenedViaTokenInstructionDataArgs = {};
 
-/** @deprecated Use `getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer()` without any argument instead. */
-export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
-  _context: object
-): Serializer<
-  UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
-  UpdatePrimarySaleHappenedViaTokenInstructionData
->;
 export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(): Serializer<
-  UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
-  UpdatePrimarySaleHappenedViaTokenInstructionData
->;
-export function getUpdatePrimarySaleHappenedViaTokenInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   UpdatePrimarySaleHappenedViaTokenInstructionDataArgs,
   UpdatePrimarySaleHappenedViaTokenInstructionData
 > {
@@ -78,25 +68,30 @@ export function updatePrimarySaleHappenedViaToken(
   context: Pick<Context, 'programs'>,
   input: UpdatePrimarySaleHappenedViaTokenInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    owner: [input.owner, false] as const,
-    token: [input.token, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    owner: { index: 1, isWritable: false, value: input.owner ?? null },
+    token: { index: 2, isWritable: false, value: input.token ?? null },
   };
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.token, false);
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data =

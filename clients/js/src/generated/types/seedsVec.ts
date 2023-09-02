@@ -18,14 +18,7 @@ export type SeedsVec = { seeds: Array<Uint8Array> };
 
 export type SeedsVecArgs = SeedsVec;
 
-/** @deprecated Use `getSeedsVecSerializer()` without any argument instead. */
-export function getSeedsVecSerializer(
-  _context: object
-): Serializer<SeedsVecArgs, SeedsVec>;
-export function getSeedsVecSerializer(): Serializer<SeedsVecArgs, SeedsVec>;
-export function getSeedsVecSerializer(
-  _context: object = {}
-): Serializer<SeedsVecArgs, SeedsVec> {
+export function getSeedsVecSerializer(): Serializer<SeedsVecArgs, SeedsVec> {
   return struct<SeedsVec>([['seeds', array(bytes({ size: u32() }))]], {
     description: 'SeedsVec',
   }) as Serializer<SeedsVecArgs, SeedsVec>;

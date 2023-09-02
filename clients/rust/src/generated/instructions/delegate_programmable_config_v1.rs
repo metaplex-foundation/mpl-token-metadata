@@ -177,7 +177,8 @@ impl DelegateProgrammableConfigV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DelegateProgrammableConfigV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }

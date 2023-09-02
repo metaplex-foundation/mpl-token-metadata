@@ -147,13 +147,15 @@ impl UpdateAsDataDelegateV2InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsDataDelegateV2InstructionArgs {
     pub data: Option<UpdateAsDataDelegateV2InstructionDataData>,
     pub authorization_data: Option<AuthorizationData>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsDataDelegateV2InstructionDataData {
     pub name: String,
     pub symbol: String,

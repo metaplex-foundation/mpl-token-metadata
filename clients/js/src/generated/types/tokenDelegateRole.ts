@@ -20,17 +20,10 @@ export enum TokenDelegateRole {
 
 export type TokenDelegateRoleArgs = TokenDelegateRole;
 
-/** @deprecated Use `getTokenDelegateRoleSerializer()` without any argument instead. */
-export function getTokenDelegateRoleSerializer(
-  _context: object
-): Serializer<TokenDelegateRoleArgs, TokenDelegateRole>;
 export function getTokenDelegateRoleSerializer(): Serializer<
   TokenDelegateRoleArgs,
   TokenDelegateRole
->;
-export function getTokenDelegateRoleSerializer(
-  _context: object = {}
-): Serializer<TokenDelegateRoleArgs, TokenDelegateRole> {
+> {
   return scalarEnum<TokenDelegateRole>(TokenDelegateRole, {
     description: 'TokenDelegateRole',
   }) as Serializer<TokenDelegateRoleArgs, TokenDelegateRole>;

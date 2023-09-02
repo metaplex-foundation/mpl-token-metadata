@@ -5,9 +5,10 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use spl_program_error::*;
+use num_derive::FromPrimitive;
+use thiserror::Error;
 
-#[spl_program_error]
+#[derive(Clone, Debug, Eq, Error, FromPrimitive, PartialEq)]
 pub enum MplTokenMetadataError {
     /// 0x0 -
     #[error("")]
@@ -591,4 +592,10 @@ pub enum MplTokenMetadataError {
     /// 0xC1 - Cannot change the update authority with a delegate
     #[error("Cannot change the update authority with a delegate")]
     CannotChangeUpdateAuthorityWithDelegate,
+}
+
+impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {
+    fn print<E>(&self) {
+        solana_program::msg!(&self.to_string());
+    }
 }

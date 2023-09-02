@@ -12,17 +12,10 @@ export type SetCollectionSizeArgs = { size: bigint };
 
 export type SetCollectionSizeArgsArgs = { size: number | bigint };
 
-/** @deprecated Use `getSetCollectionSizeArgsSerializer()` without any argument instead. */
-export function getSetCollectionSizeArgsSerializer(
-  _context: object
-): Serializer<SetCollectionSizeArgsArgs, SetCollectionSizeArgs>;
 export function getSetCollectionSizeArgsSerializer(): Serializer<
   SetCollectionSizeArgsArgs,
   SetCollectionSizeArgs
->;
-export function getSetCollectionSizeArgsSerializer(
-  _context: object = {}
-): Serializer<SetCollectionSizeArgsArgs, SetCollectionSizeArgs> {
+> {
   return struct<SetCollectionSizeArgs>([['size', u64()]], {
     description: 'SetCollectionSizeArgs',
   }) as Serializer<SetCollectionSizeArgsArgs, SetCollectionSizeArgs>;

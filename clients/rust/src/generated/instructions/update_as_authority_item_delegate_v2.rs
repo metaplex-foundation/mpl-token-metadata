@@ -148,7 +148,8 @@ impl UpdateAsAuthorityItemDelegateV2InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsAuthorityItemDelegateV2InstructionArgs {
     pub new_update_authority: Option<Pubkey>,
     pub primary_sale_happened: Option<bool>,

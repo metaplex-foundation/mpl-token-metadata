@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Option,
   OptionOrNullable,
@@ -28,7 +27,14 @@ import {
 } from '@metaplex-foundation/umi/serializers';
 import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
-import { PickPartial, addAccountMeta, addObjectProperty } from '../shared';
+import {
+  PickPartial,
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  expectSome,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -79,20 +85,7 @@ export type UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer()` without any argument instead. */
-export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
-  _context: object
-): Serializer<
-  UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
-  UpdateAsProgrammableConfigItemDelegateV2InstructionData
->;
 export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(): Serializer<
-  UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
-  UpdateAsProgrammableConfigItemDelegateV2InstructionData
->;
-export function getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs,
   UpdateAsProgrammableConfigItemDelegateV2InstructionData
 > {
@@ -138,142 +131,122 @@ export type UpdateAsProgrammableConfigItemDelegateV2InstructionArgs =
 
 // Instruction.
 export function updateAsProgrammableConfigItemDelegateV2(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: UpdateAsProgrammableConfigItemDelegateV2InstructionAccounts &
     UpdateAsProgrammableConfigItemDelegateV2InstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    token: [input.token, false] as const,
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    delegateRecord: {
+      index: 1,
+      isWritable: false,
+      value: input.delegateRecord ?? null,
+    },
+    token: { index: 2, isWritable: false, value: input.token ?? null },
+    mint: { index: 3, isWritable: false, value: input.mint ?? null },
+    metadata: { index: 4, isWritable: true, value: input.metadata ?? null },
+    edition: { index: 5, isWritable: false, value: input.edition ?? null },
+    payer: { index: 6, isWritable: true, value: input.payer ?? null },
+    systemProgram: {
+      index: 7,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 8,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
+    authorizationRulesProgram: {
+      index: 9,
+      isWritable: false,
+      value: input.authorizationRulesProgram ?? null,
+    },
+    authorizationRules: {
+      index: 10,
+      isWritable: false,
+      value: input.authorizationRules ?? null,
+    },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvingArgs,
-    'updateAuthority',
-    input.updateAuthority ?? context.identity.publicKey
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'delegateRecord',
-    input.delegateRecord
-      ? ([input.delegateRecord, false] as const)
-      : ([
-          findMetadataDelegateRecordPda(context, {
-            mint: publicKey(input.mint, false),
-            delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
-            updateAuthority: resolvingArgs.updateAuthority,
-            delegate: publicKey(resolvedAccounts.authority[0], false),
-          }),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRules',
-    input.authorizationRules
-      ? ([input.authorizationRules, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram
-      ? ([input.authorizationRulesProgram, false] as const)
-      : resolveAuthorizationRulesProgram(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.delegateRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.token, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.authorizationRulesProgram,
-    false
+  // Arguments.
+  const resolvedArgs: UpdateAsProgrammableConfigItemDelegateV2InstructionArgs =
+    { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+  if (!resolvedArgs.updateAuthority) {
+    resolvedArgs.updateAuthority = context.identity.publicKey;
+  }
+  if (!resolvedAccounts.delegateRecord.value) {
+    resolvedAccounts.delegateRecord.value = findMetadataDelegateRecordPda(
+      context,
+      {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        delegateRole: MetadataDelegateRole.ProgrammableConfigItem,
+        updateAuthority: expectSome(resolvedArgs.updateAuthority),
+        delegate: expectPublicKey(resolvedAccounts.authority.value),
+      }
+    );
+  }
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+  if (!resolvedAccounts.authorizationRulesProgram.value) {
+    resolvedAccounts.authorizationRulesProgram = {
+      ...resolvedAccounts.authorizationRulesProgram,
+      ...resolveAuthorizationRulesProgram(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      ),
+    };
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
   const data =
     getUpdateAsProgrammableConfigItemDelegateV2InstructionDataSerializer().serialize(
-      resolvedArgs
+      resolvedArgs as UpdateAsProgrammableConfigItemDelegateV2InstructionDataArgs
     );
 
   // Bytes Created On Chain.

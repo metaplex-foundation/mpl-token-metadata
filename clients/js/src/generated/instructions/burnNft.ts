@@ -7,13 +7,11 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
   Signer,
   TransactionBuilder,
-  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -23,7 +21,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type BurnNftInstructionAccounts = {
@@ -48,17 +51,10 @@ export type BurnNftInstructionData = { discriminator: number };
 
 export type BurnNftInstructionDataArgs = {};
 
-/** @deprecated Use `getBurnNftInstructionDataSerializer()` without any argument instead. */
-export function getBurnNftInstructionDataSerializer(
-  _context: object
-): Serializer<BurnNftInstructionDataArgs, BurnNftInstructionData>;
 export function getBurnNftInstructionDataSerializer(): Serializer<
   BurnNftInstructionDataArgs,
   BurnNftInstructionData
->;
-export function getBurnNftInstructionDataSerializer(
-  _context: object = {}
-): Serializer<BurnNftInstructionDataArgs, BurnNftInstructionData> {
+> {
   return mapSerializer<BurnNftInstructionDataArgs, any, BurnNftInstructionData>(
     struct<BurnNftInstructionData>([['discriminator', u8()]], {
       description: 'BurnNftInstructionData',
@@ -69,57 +65,67 @@ export function getBurnNftInstructionDataSerializer(
 
 // Instruction.
 export function burnNft(
-  context: Pick<Context, 'programs' | 'eddsa'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   input: BurnNftInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    owner: [input.owner, true] as const,
-    mint: [input.mint, true] as const,
-    tokenAccount: [input.tokenAccount, true] as const,
-    masterEditionAccount: [input.masterEditionAccount, true] as const,
-    collectionMetadata: [input.collectionMetadata, true] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    owner: { index: 1, isWritable: true, value: input.owner ?? null },
+    mint: { index: 2, isWritable: true, value: input.mint ?? null },
+    tokenAccount: {
+      index: 3,
+      isWritable: true,
+      value: input.tokenAccount ?? null,
+    },
+    masterEditionAccount: {
+      index: 4,
+      isWritable: true,
+      value: input.masterEditionAccount ?? null,
+    },
+    splTokenProgram: {
+      index: 5,
+      isWritable: false,
+      value: input.splTokenProgram ?? null,
+    },
+    collectionMetadata: {
+      index: 6,
+      isWritable: true,
+      value: input.collectionMetadata ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splTokenProgram',
-    input.splTokenProgram
-      ? ([input.splTokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.masterEditionAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, true);
+  // Default values.
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.splTokenProgram.value) {
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.splTokenProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
+  );
 
   // Data.
   const data = getBurnNftInstructionDataSerializer().serialize({});

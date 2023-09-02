@@ -140,7 +140,8 @@ impl UpdateAsProgrammableConfigItemDelegateV2InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsProgrammableConfigItemDelegateV2InstructionArgs {
     pub rule_set: RuleSetToggle,
     pub authorization_data: Option<AuthorizationData>,

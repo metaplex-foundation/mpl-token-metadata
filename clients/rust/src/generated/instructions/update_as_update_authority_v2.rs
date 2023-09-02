@@ -153,7 +153,8 @@ impl UpdateAsUpdateAuthorityV2InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsUpdateAuthorityV2InstructionArgs {
     pub new_update_authority: Option<Pubkey>,
     pub data: Option<UpdateAsUpdateAuthorityV2InstructionDataData>,
@@ -168,6 +169,7 @@ pub struct UpdateAsUpdateAuthorityV2InstructionArgs {
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsUpdateAuthorityV2InstructionDataData {
     pub name: String,
     pub symbol: String,

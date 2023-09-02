@@ -96,17 +96,10 @@ export type MetadataAccountDataArgs = {
   programmableConfig: OptionOrNullable<ProgrammableConfigArgs>;
 };
 
-/** @deprecated Use `getMetadataAccountDataSerializer()` without any argument instead. */
-export function getMetadataAccountDataSerializer(
-  _context: object
-): Serializer<MetadataAccountDataArgs, MetadataAccountData>;
 export function getMetadataAccountDataSerializer(): Serializer<
   MetadataAccountDataArgs,
   MetadataAccountData
->;
-export function getMetadataAccountDataSerializer(
-  _context: object = {}
-): Serializer<MetadataAccountDataArgs, MetadataAccountData> {
+> {
   return mapSerializer<MetadataAccountDataArgs, any, MetadataAccountData>(
     struct<MetadataAccountData>(
       [
@@ -133,20 +126,8 @@ export function getMetadataAccountDataSerializer(
   ) as Serializer<MetadataAccountDataArgs, MetadataAccountData>;
 }
 
-/** @deprecated Use `deserializeMetadata(rawAccount)` without any context instead. */
-export function deserializeMetadata(
-  context: object,
-  rawAccount: RpcAccount
-): Metadata;
-export function deserializeMetadata(rawAccount: RpcAccount): Metadata;
-export function deserializeMetadata(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
-): Metadata {
-  return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
-    getMetadataAccountDataSerializer()
-  );
+export function deserializeMetadata(rawAccount: RpcAccount): Metadata {
+  return deserializeAccount(rawAccount, getMetadataAccountDataSerializer());
 }
 
 export async function fetchMetadata(

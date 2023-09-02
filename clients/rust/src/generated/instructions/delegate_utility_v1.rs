@@ -172,7 +172,8 @@ impl DelegateUtilityV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DelegateUtilityV1InstructionArgs {
     pub amount: u64,
     pub authorization_data: Option<AuthorizationData>,
