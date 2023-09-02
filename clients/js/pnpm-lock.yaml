@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@metaplex-foundation/mpl-toolbox':
-    specifier: ^0.8.1
-    version: 0.8.1(@metaplex-foundation/umi@0.8.2)
+    specifier: ^0.9.0
+    version: 0.9.0(@metaplex-foundation/umi@0.8.2)
 
 devDependencies:
   '@ava/typescript':
@@ -1619,8 +1619,8 @@ packages:
       - supports-color
     dev: true
 
-  /@metaplex-foundation/mpl-toolbox@0.8.1(@metaplex-foundation/umi@0.8.2):
-    resolution: {integrity: sha512-PYU+qU6hg+h6V42z+MDnBTiWZXTTzWhIn5ieyRZYyszTru/LiJKHdsHGKe1VBfuXEuRdfRhAzivMjquZVaqO4A==}
+  /@metaplex-foundation/mpl-toolbox@0.9.0(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-FnzwA3rKLcwm/6DztDGSVfmabVMJDsEWOOpUMKtQG7iXNwtA1z5wICIzD13+P/uaEJX5tCSC4kHstJ7rDW5/7Q==}
     peerDependencies:
       '@metaplex-foundation/umi': ^0.8.2
     dependencies:
