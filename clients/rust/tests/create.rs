@@ -2,7 +2,6 @@
 pub mod setup;
 use setup::*;
 
-use solana_program::borsh0_10::try_from_slice_unchecked;
 use solana_program::pubkey::Pubkey;
 use solana_program::system_program;
 use solana_program_test::*;
@@ -23,6 +22,8 @@ use mpl_token_metadata::{
 use mpl_token_metadata::{instructions::CreateV1Builder, types::TokenStandard};
 
 mod create {
+
+    use borsh::BorshDeserialize;
 
     use super::*;
 
@@ -70,7 +71,7 @@ mod create {
         // then the metadata is created with the correct values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert!(!metadata.primary_sale_happened);
         assert!(metadata.is_mutable);
@@ -151,7 +152,7 @@ mod create {
         // then the metadata is created with the correct values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = try_from_slice_unchecked(&metadata_account.data).unwrap();
+        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
 
         assert!(!metadata.primary_sale_happened);
         assert!(metadata.is_mutable);
