@@ -6,7 +6,7 @@ on:
       bump:
         description: Version bump
         required: true
-        default: prerelease
+        default: patch
         type: choice
         options:
           - patch
@@ -20,7 +20,7 @@ on:
         description: NPM Tag (and preid for pre-releases)
         required: true
         type: string
-        default: alpha
+        default: latest
       create_release:
         description: Create a GitHub release
         required: true
