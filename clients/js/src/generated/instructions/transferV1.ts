@@ -8,7 +8,6 @@
 
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
-  AccountMeta,
   Context,
   Option,
   OptionOrNullable,
@@ -29,16 +28,20 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import {
-  resolveAuthorizationRulesProgram,
-  resolveDestinationTokenRecord,
-  resolveMasterEditionForProgrammables,
-  resolveTokenRecord,
-} from '../../hooked';
-import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+  findMasterEditionPda,
+  findMetadataPda,
+  findTokenRecordPda,
+} from '../accounts';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
+  TokenStandard,
   TokenStandardArgs,
   getAuthorizationDataSerializer,
 } from '../types';
@@ -94,17 +97,10 @@ export type TransferV1InstructionDataArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getTransferV1InstructionDataSerializer()` without any argument instead. */
-export function getTransferV1InstructionDataSerializer(
-  _context: object
-): Serializer<TransferV1InstructionDataArgs, TransferV1InstructionData>;
 export function getTransferV1InstructionDataSerializer(): Serializer<
   TransferV1InstructionDataArgs,
   TransferV1InstructionData
->;
-export function getTransferV1InstructionDataSerializer(
-  _context: object = {}
-): Serializer<TransferV1InstructionDataArgs, TransferV1InstructionData> {
+> {
   return mapSerializer<
     TransferV1InstructionDataArgs,
     any,
@@ -140,216 +136,189 @@ export type TransferV1InstructionArgs = TransferV1InstructionDataArgs &
 
 // Instruction.
 export function transferV1(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: TransferV1InstructionAccounts & TransferV1InstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    destinationOwner: [input.destinationOwner, false] as const,
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    token: { index: 0, isWritable: true, value: input.token ?? null },
+    tokenOwner: {
+      index: 1,
+      isWritable: false,
+      value: input.tokenOwner ?? null,
+    },
+    destinationToken: {
+      index: 2,
+      isWritable: true,
+      value: input.destinationToken ?? null,
+    },
+    destinationOwner: {
+      index: 3,
+      isWritable: false,
+      value: input.destinationOwner ?? null,
+    },
+    mint: { index: 4, isWritable: false, value: input.mint ?? null },
+    metadata: { index: 5, isWritable: true, value: input.metadata ?? null },
+    edition: { index: 6, isWritable: false, value: input.edition ?? null },
+    tokenRecord: {
+      index: 7,
+      isWritable: true,
+      value: input.tokenRecord ?? null,
+    },
+    destinationTokenRecord: {
+      index: 8,
+      isWritable: true,
+      value: input.destinationTokenRecord ?? null,
+    },
+    authority: { index: 9, isWritable: false, value: input.authority ?? null },
+    payer: { index: 10, isWritable: true, value: input.payer ?? null },
+    systemProgram: {
+      index: 11,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 12,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
+    splTokenProgram: {
+      index: 13,
+      isWritable: false,
+      value: input.splTokenProgram ?? null,
+    },
+    splAtaProgram: {
+      index: 14,
+      isWritable: false,
+      value: input.splAtaProgram ?? null,
+    },
+    authorizationRulesProgram: {
+      index: 15,
+      isWritable: false,
+      value: input.authorizationRulesProgram ?? null,
+    },
+    authorizationRules: {
+      index: 16,
+      isWritable: false,
+      value: input.authorizationRules ?? null,
+    },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenOwner',
-    input.tokenOwner
-      ? ([input.tokenOwner, false] as const)
-      : ([context.identity.publicKey, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'token',
-    input.token
-      ? ([input.token, true] as const)
-      : ([
-          findAssociatedTokenPda(context, {
-            mint: publicKey(input.mint, false),
-            owner: publicKey(resolvedAccounts.tokenOwner[0], false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'destinationToken',
-    input.destinationToken
-      ? ([input.destinationToken, true] as const)
-      : ([
-          findAssociatedTokenPda(context, {
-            mint: publicKey(input.mint, false),
-            owner: publicKey(input.destinationOwner, false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : resolveMasterEditionForProgrammables(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenRecord',
-    input.tokenRecord
-      ? ([input.tokenRecord, true] as const)
-      : resolveTokenRecord(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          true
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'destinationTokenRecord',
-    input.destinationTokenRecord
-      ? ([input.destinationTokenRecord, true] as const)
-      : resolveDestinationTokenRecord(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          true
-        )
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splTokenProgram',
-    input.splTokenProgram
-      ? ([input.splTokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'splAtaProgram',
-    input.splAtaProgram
-      ? ([input.splAtaProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splAssociatedToken',
-            'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRules',
-    input.authorizationRules
-      ? ([input.authorizationRules, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram
-      ? ([input.authorizationRulesProgram, false] as const)
-      : resolveAuthorizationRulesProgram(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.token, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenOwner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.destinationToken, false);
-  addAccountMeta(keys, signers, resolvedAccounts.destinationOwner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.destinationTokenRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splAtaProgram, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.authorizationRulesProgram,
-    false
+  // Arguments.
+  const resolvedArgs: TransferV1InstructionArgs = { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.tokenOwner.value) {
+    resolvedAccounts.tokenOwner.value = context.identity.publicKey;
+  }
+  if (!resolvedAccounts.token.value) {
+    resolvedAccounts.token.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+      owner: expectPublicKey(resolvedAccounts.tokenOwner.value),
+    });
+  }
+  if (!resolvedAccounts.destinationToken.value) {
+    resolvedAccounts.destinationToken.value = findAssociatedTokenPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+      owner: expectPublicKey(resolvedAccounts.destinationOwner.value),
+    });
+  }
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.edition.value) {
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.edition.value = findMasterEditionPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+      });
+    }
+  }
+  if (!resolvedAccounts.tokenRecord.value) {
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.tokenRecord.value = findTokenRecordPda(context, {
+        mint: expectPublicKey(resolvedAccounts.mint.value),
+        token: expectPublicKey(resolvedAccounts.token.value),
+      });
+    }
+  }
+  if (!resolvedAccounts.destinationTokenRecord.value) {
+    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
+      resolvedAccounts.destinationTokenRecord.value = findTokenRecordPda(
+        context,
+        {
+          mint: expectPublicKey(resolvedAccounts.mint.value),
+          token: expectPublicKey(resolvedAccounts.destinationToken.value),
+        }
+      );
+    }
+  }
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+  if (!resolvedAccounts.splTokenProgram.value) {
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.splTokenProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.splAtaProgram.value) {
+    resolvedAccounts.splAtaProgram.value = context.programs.getPublicKey(
+      'splAssociatedToken',
+      'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+    );
+    resolvedAccounts.splAtaProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.authorizationRulesProgram.value) {
+    if (resolvedAccounts.authorizationRules.value) {
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
+    }
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getTransferV1InstructionDataSerializer().serialize(resolvedArgs);
+  const data = getTransferV1InstructionDataSerializer().serialize(
+    resolvedArgs as TransferV1InstructionDataArgs
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

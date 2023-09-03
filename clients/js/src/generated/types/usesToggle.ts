@@ -27,17 +27,10 @@ export type UsesToggleArgs =
   | { __kind: 'Clear' }
   | { __kind: 'Set'; fields: [UsesArgs] };
 
-/** @deprecated Use `getUsesToggleSerializer()` without any argument instead. */
-export function getUsesToggleSerializer(
-  _context: object
-): Serializer<UsesToggleArgs, UsesToggle>;
 export function getUsesToggleSerializer(): Serializer<
   UsesToggleArgs,
   UsesToggle
->;
-export function getUsesToggleSerializer(
-  _context: object = {}
-): Serializer<UsesToggleArgs, UsesToggle> {
+> {
   return dataEnum<UsesToggle>(
     [
       ['None', unit()],

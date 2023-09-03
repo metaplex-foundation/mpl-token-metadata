@@ -18,17 +18,10 @@ export enum AuthorityType {
 
 export type AuthorityTypeArgs = AuthorityType;
 
-/** @deprecated Use `getAuthorityTypeSerializer()` without any argument instead. */
-export function getAuthorityTypeSerializer(
-  _context: object
-): Serializer<AuthorityTypeArgs, AuthorityType>;
 export function getAuthorityTypeSerializer(): Serializer<
   AuthorityTypeArgs,
   AuthorityType
->;
-export function getAuthorityTypeSerializer(
-  _context: object = {}
-): Serializer<AuthorityTypeArgs, AuthorityType> {
+> {
   return scalarEnum<AuthorityType>(AuthorityType, {
     description: 'AuthorityType',
   }) as Serializer<AuthorityTypeArgs, AuthorityType>;

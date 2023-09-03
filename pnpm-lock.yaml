@@ -5,8 +5,8 @@ devDependencies:
     specifier: ^0.12.1
     version: 0.12.1(typescript@4.9.5)
   '@metaplex-foundation/kinobi':
-    specifier: ^0.13.3
-    version: 0.13.3
+    specifier: ^0.14.0
+    version: 0.14.0
   '@metaplex-foundation/shank-js':
     specifier: ^0.1.0
     version: 0.1.0
@@ -85,13 +85,13 @@ packages:
     resolution: {integrity: sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==}
     dev: true
 
-  /@metaplex-foundation/kinobi@0.13.3:
-    resolution: {integrity: sha512-MIDmwkC28OUKIOePzjf9zP9qDQ1cGHAWOsAHlBvrVugIQHKPfFFnZVwzYlZCUZEkyX7BL828xV5nCY6jRhartg==}
+  /@metaplex-foundation/kinobi@0.14.0:
+    resolution: {integrity: sha512-8mtyxjNs4gPcs9VA+NrWaLdlRhBy+wSmQ+wsxoCGIb5u9H5l8yHgl0WefDoesNpd02y2660Ki9XFiY6BDNY0dA==}
     dependencies:
       '@noble/hashes': 1.2.0
       chalk: 4.1.2
-      nunjucks: 3.2.3
-      prettier: 2.8.4
+      nunjucks: 3.2.4
+      prettier: 2.8.8
     transitivePeerDependencies:
       - chokidar
     dev: true
@@ -849,8 +849,8 @@ packages:
     resolution: {integrity: sha512-qaKRmtYPZ5qdw4jWJD6bxEf1FJEqllJrwxCLIm0sQU/A7v2/czigzOb+C2uSiFsa9lBUzeH7M1oK+Q+OLxL3kA==}
     dev: true
 
-  /nunjucks@3.2.3:
-    resolution: {integrity: sha512-psb6xjLj47+fE76JdZwskvwG4MYsQKXUtMsPh6U0YMvmyjRtKRFcxnlXGWglNybtNTNVmGdp94K62/+NjF5FDQ==}
+  /nunjucks@3.2.4:
+    resolution: {integrity: sha512-26XRV6BhkgK0VOxfbU5cQI+ICFUtMLixv1noZn1tGU38kQH5A5nmmbk/O45xdyBhD1esk47nKrY0mvQpZIhRjQ==}
     engines: {node: '>= 6.9.0'}
     hasBin: true
     peerDependencies:
@@ -895,8 +895,8 @@ packages:
       selective-whitespace: 1.0.4
     dev: true
 
-  /prettier@2.8.4:
-    resolution: {integrity: sha512-vIS4Rlc2FNh0BySk3Wkd6xmwxB0FpOndW5fisM5H8hsZSxU2VWVB5CWIkIjWvrHjIhxk2g3bfMKM87zNTrZddw==}
+  /prettier@2.8.8:
+    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true

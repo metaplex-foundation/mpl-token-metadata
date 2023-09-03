@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Option,
   OptionOrNullable,
@@ -31,9 +30,13 @@ import {
   u16,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveAuthorizationRulesProgram } from '../../hooked';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   AuthorizationData,
   AuthorizationDataArgs,
@@ -124,17 +127,10 @@ export type UpdateV1InstructionDataArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getUpdateV1InstructionDataSerializer()` without any argument instead. */
-export function getUpdateV1InstructionDataSerializer(
-  _context: object
-): Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData>;
 export function getUpdateV1InstructionDataSerializer(): Serializer<
   UpdateV1InstructionDataArgs,
   UpdateV1InstructionData
->;
-export function getUpdateV1InstructionDataSerializer(
-  _context: object = {}
-): Serializer<UpdateV1InstructionDataArgs, UpdateV1InstructionData> {
+> {
   return mapSerializer<
     UpdateV1InstructionDataArgs,
     any,
@@ -190,132 +186,104 @@ export type UpdateV1InstructionArgs = UpdateV1InstructionDataArgs;
 
 // Instruction.
 export function updateV1(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity' | 'payer'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
   input: UpdateV1InstructionAccounts & UpdateV1InstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    delegateRecord: {
+      index: 1,
+      isWritable: false,
+      value: input.delegateRecord ?? null,
+    },
+    token: { index: 2, isWritable: false, value: input.token ?? null },
+    mint: { index: 3, isWritable: false, value: input.mint ?? null },
+    metadata: { index: 4, isWritable: true, value: input.metadata ?? null },
+    edition: { index: 5, isWritable: false, value: input.edition ?? null },
+    payer: { index: 6, isWritable: true, value: input.payer ?? null },
+    systemProgram: {
+      index: 7,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 8,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
+    authorizationRulesProgram: {
+      index: 9,
+      isWritable: false,
+      value: input.authorizationRulesProgram ?? null,
+    },
+    authorizationRules: {
+      index: 10,
+      isWritable: false,
+      value: input.authorizationRules ?? null,
+    },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'delegateRecord',
-    input.delegateRecord
-      ? ([input.delegateRecord, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'token',
-    input.token
-      ? ([input.token, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'edition',
-    input.edition
-      ? ([input.edition, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRules',
-    input.authorizationRules
-      ? ([input.authorizationRules, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'authorizationRulesProgram',
-    input.authorizationRulesProgram
-      ? ([input.authorizationRulesProgram, false] as const)
-      : resolveAuthorizationRulesProgram(
-          context,
-          { ...input, ...resolvedAccounts },
-          { ...input, ...resolvingArgs },
-          programId,
-          false
-        )
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.delegateRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.token, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.authorizationRulesProgram,
-    false
+  // Arguments.
+  const resolvedArgs: UpdateV1InstructionArgs = { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+  if (!resolvedAccounts.authorizationRulesProgram.value) {
+    if (resolvedAccounts.authorizationRules.value) {
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
+    }
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.authorizationRules, false);
 
   // Data.
-  const data = getUpdateV1InstructionDataSerializer().serialize(resolvedArgs);
+  const data = getUpdateV1InstructionDataSerializer().serialize(
+    resolvedArgs as UpdateV1InstructionDataArgs
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

@@ -15,17 +15,10 @@ export enum VerificationArgs {
 
 export type VerificationArgsArgs = VerificationArgs;
 
-/** @deprecated Use `getVerificationArgsSerializer()` without any argument instead. */
-export function getVerificationArgsSerializer(
-  _context: object
-): Serializer<VerificationArgsArgs, VerificationArgs>;
 export function getVerificationArgsSerializer(): Serializer<
   VerificationArgsArgs,
   VerificationArgs
->;
-export function getVerificationArgsSerializer(
-  _context: object = {}
-): Serializer<VerificationArgsArgs, VerificationArgs> {
+> {
   return scalarEnum<VerificationArgs>(VerificationArgs, {
     description: 'VerificationArgs',
   }) as Serializer<VerificationArgsArgs, VerificationArgs>;

@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   MintNewEditionFromMasterEditionViaTokenArgs,
   MintNewEditionFromMasterEditionViaTokenArgsArgs,
@@ -70,20 +73,7 @@ export type MintNewEditionFromMasterEditionViaTokenInstructionDataArgs = {
   mintNewEditionFromMasterEditionViaTokenArgs: MintNewEditionFromMasterEditionViaTokenArgsArgs;
 };
 
-/** @deprecated Use `getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer()` without any argument instead. */
-export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
-  _context: object
-): Serializer<
-  MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
-  MintNewEditionFromMasterEditionViaTokenInstructionData
->;
 export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(): Serializer<
-  MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
-  MintNewEditionFromMasterEditionViaTokenInstructionData
->;
-export function getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   MintNewEditionFromMasterEditionViaTokenInstructionDataArgs,
   MintNewEditionFromMasterEditionViaTokenInstructionData
 > {
@@ -115,96 +105,110 @@ export type MintNewEditionFromMasterEditionViaTokenInstructionArgs =
 
 // Instruction.
 export function mintNewEditionFromMasterEditionViaToken(
-  context: Pick<Context, 'programs' | 'payer'>,
+  context: Pick<Context, 'payer' | 'programs'>,
   input: MintNewEditionFromMasterEditionViaTokenInstructionAccounts &
     MintNewEditionFromMasterEditionViaTokenInstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    newMetadata: [input.newMetadata, true] as const,
-    newEdition: [input.newEdition, true] as const,
-    masterEdition: [input.masterEdition, true] as const,
-    newMint: [input.newMint, true] as const,
-    editionMarkPda: [input.editionMarkPda, true] as const,
-    newMintAuthority: [input.newMintAuthority, false] as const,
-    tokenAccountOwner: [input.tokenAccountOwner, false] as const,
-    tokenAccount: [input.tokenAccount, false] as const,
-    newMetadataUpdateAuthority: [
-      input.newMetadataUpdateAuthority,
-      false,
-    ] as const,
-    metadata: [input.metadata, false] as const,
-    rent: [input.rent, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    newMetadata: {
+      index: 0,
+      isWritable: true,
+      value: input.newMetadata ?? null,
+    },
+    newEdition: { index: 1, isWritable: true, value: input.newEdition ?? null },
+    masterEdition: {
+      index: 2,
+      isWritable: true,
+      value: input.masterEdition ?? null,
+    },
+    newMint: { index: 3, isWritable: true, value: input.newMint ?? null },
+    editionMarkPda: {
+      index: 4,
+      isWritable: true,
+      value: input.editionMarkPda ?? null,
+    },
+    newMintAuthority: {
+      index: 5,
+      isWritable: false,
+      value: input.newMintAuthority ?? null,
+    },
+    payer: { index: 6, isWritable: true, value: input.payer ?? null },
+    tokenAccountOwner: {
+      index: 7,
+      isWritable: false,
+      value: input.tokenAccountOwner ?? null,
+    },
+    tokenAccount: {
+      index: 8,
+      isWritable: false,
+      value: input.tokenAccount ?? null,
+    },
+    newMetadataUpdateAuthority: {
+      index: 9,
+      isWritable: false,
+      value: input.newMetadataUpdateAuthority ?? null,
+    },
+    metadata: { index: 10, isWritable: false, value: input.metadata ?? null },
+    tokenProgram: {
+      index: 11,
+      isWritable: false,
+      value: input.tokenProgram ?? null,
+    },
+    systemProgram: {
+      index: 12,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    rent: { index: 13, isWritable: false, value: input.rent ?? null },
   };
-  const resolvingArgs = {};
-  addObjectProperty(
-    resolvedAccounts,
-    'payer',
-    input.payer
-      ? ([input.payer, true] as const)
-      : ([context.payer, true] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'tokenProgram',
-    input.tokenProgram
-      ? ([input.tokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.newMetadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.newEdition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.masterEdition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.newMint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionMarkPda, false);
-  addAccountMeta(keys, signers, resolvedAccounts.newMintAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.payer, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenAccountOwner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenAccount, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.newMetadataUpdateAuthority,
-    false
+  // Arguments.
+  const resolvedArgs: MintNewEditionFromMasterEditionViaTokenInstructionArgs = {
+    ...input,
+  };
+
+  // Default values.
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
+  }
+  if (!resolvedAccounts.tokenProgram.value) {
+    resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.tokenProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.tokenProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.rent, true);
 
   // Data.
   const data =
     getMintNewEditionFromMasterEditionViaTokenInstructionDataSerializer().serialize(
-      resolvedArgs
+      resolvedArgs as MintNewEditionFromMasterEditionViaTokenInstructionDataArgs
     );
 
   // Bytes Created On Chain.

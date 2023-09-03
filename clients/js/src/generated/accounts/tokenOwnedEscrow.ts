@@ -50,17 +50,10 @@ export type TokenOwnedEscrowAccountDataArgs = {
   bump: number;
 };
 
-/** @deprecated Use `getTokenOwnedEscrowAccountDataSerializer()` without any argument instead. */
-export function getTokenOwnedEscrowAccountDataSerializer(
-  _context: object
-): Serializer<TokenOwnedEscrowAccountDataArgs, TokenOwnedEscrowAccountData>;
 export function getTokenOwnedEscrowAccountDataSerializer(): Serializer<
   TokenOwnedEscrowAccountDataArgs,
   TokenOwnedEscrowAccountData
->;
-export function getTokenOwnedEscrowAccountDataSerializer(
-  _context: object = {}
-): Serializer<TokenOwnedEscrowAccountDataArgs, TokenOwnedEscrowAccountData> {
+> {
   return mapSerializer<
     TokenOwnedEscrowAccountDataArgs,
     any,
@@ -79,20 +72,11 @@ export function getTokenOwnedEscrowAccountDataSerializer(
   ) as Serializer<TokenOwnedEscrowAccountDataArgs, TokenOwnedEscrowAccountData>;
 }
 
-/** @deprecated Use `deserializeTokenOwnedEscrow(rawAccount)` without any context instead. */
-export function deserializeTokenOwnedEscrow(
-  context: object,
-  rawAccount: RpcAccount
-): TokenOwnedEscrow;
 export function deserializeTokenOwnedEscrow(
   rawAccount: RpcAccount
-): TokenOwnedEscrow;
-export function deserializeTokenOwnedEscrow(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): TokenOwnedEscrow {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getTokenOwnedEscrowAccountDataSerializer()
   );
 }

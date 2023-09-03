@@ -126,9 +126,12 @@ kinobi.update(
     },
     {
       account: "authorizationRulesProgram",
-      ...k.resolverDefault("resolveAuthorizationRulesProgram", [
-        k.dependsOnAccount("authorizationRules"),
-      ]),
+      ...k.conditionalDefault("account", "authorizationRules", {
+        ifTrue: k.programDefault(
+          "mplTokenAuthRules",
+          "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg"
+        ),
+      }),
     },
   ])
 );
@@ -166,10 +169,16 @@ kinobi.update(
       ),
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
         tokenOwner: {
           defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
@@ -178,11 +187,15 @@ kinobi.update(
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -198,29 +211,39 @@ kinobi.update(
           defaultsTo: k.identityDefault(),
         },
         edition: {
-          defaultsTo: k.resolverDefault(
-            "resolveMasterEditionForProgrammables",
-            [k.dependsOnAccount("mint"), k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("masterEdition", {
+              seeds: { mint: k.accountDefault("mint") },
+            }),
+          }),
         },
         ownerTokenRecord: {
           name: "tokenRecord",
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         destination: {
           name: "destinationToken",
           defaultsTo: ataPdaDefault("mint", "destinationOwner"),
         },
         destinationTokenRecord: {
-          defaultsTo: k.resolverDefault("resolveDestinationTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("destinationToken"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("destinationToken"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -230,17 +253,16 @@ kinobi.update(
     delegate: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
-        },
-        tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
       },
       args: {
@@ -252,17 +274,16 @@ kinobi.update(
     revoke: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
-        },
-        tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
       },
       args: {
@@ -280,23 +301,36 @@ kinobi.update(
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
         edition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         splTokenProgram: {
-          defaultsTo: k.resolverDefault(
-            "resolveTokenProgramForNonProgrammables",
-            [k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.programDefault(
+              "splToken",
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            ),
+          }),
         },
       },
       args: {
@@ -312,23 +346,36 @@ kinobi.update(
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
         edition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
         splTokenProgram: {
-          defaultsTo: k.resolverDefault(
-            "resolveTokenProgramForNonProgrammables",
-            [k.dependsOnArg("tokenStandard")]
-          ),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.programDefault(
+              "splToken",
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            ),
+          }),
         },
       },
       args: {
@@ -348,22 +395,34 @@ kinobi.update(
           }),
         },
         edition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveBurnMasterEdition", [
-            k.dependsOnAccount("masterEditionMint"),
-          ]),
+          defaultsTo: k.conditionalDefault("account", "masterEditionMint", {
+            ifTrue: k.pdaDefault("masterEdition", {
+              seeds: { mint: k.accountDefault("masterEditionMint") },
+            }),
+          }),
         },
         tokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecord", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnAccount("token"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("mint"),
+                token: k.accountDefault("token"),
+              },
+            }),
+          }),
         },
       },
       args: {
@@ -546,6 +605,17 @@ const tokenDelegateDefaults = {
         },
       }),
     },
+    tokenRecord: {
+      defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+        value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+        ifTrue: k.pdaDefault("tokenRecord", {
+          seeds: {
+            mint: k.accountDefault("mint"),
+            token: k.accountDefault("token"),
+          },
+        }),
+      }),
+    },
     delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
     splTokenProgram: {
       defaultsTo: k.programDefault(
@@ -654,10 +724,16 @@ kinobi.update(
       bytesCreatedOnChain: k.bytesFromResolver("resolveCreateV1Bytes"),
       accounts: {
         masterEdition: {
-          defaultsTo: k.resolverDefault("resolveMasterEdition", [
-            k.dependsOnAccount("mint"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungible", [
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.pdaDefault("masterEdition", {
+                seeds: { mint: k.accountDefault("mint") },
+              }),
+            }
+          ),
         },
       },
       args: {
@@ -709,11 +785,19 @@ kinobi.update(
           }),
         },
         editionMarkerPda: {
-          defaultsTo: k.resolverDefault("resolveEditionMarkerForPrint", [
-            k.dependsOnArg("masterEditionMint"),
-            k.dependsOnArg("editionNumber"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("editionMarkerV2", {
+              seeds: { mint: k.argDefault("masterEditionMint") },
+            }),
+            ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
+              importFrom: "hooked",
+              seeds: {
+                mint: k.argDefault("masterEditionMint"),
+                editionNumber: k.argDefault("editionNumber"),
+              },
+            }),
+          }),
         },
         editionTokenAccount: {
           defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
@@ -738,11 +822,15 @@ kinobi.update(
           }),
         },
         editionTokenRecord: {
-          defaultsTo: k.resolverDefault("resolveTokenRecordForPrint", [
-            k.dependsOnAccount("editionMint"),
-            k.dependsOnAccount("editionTokenAccount"),
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("editionMint"),
+                token: k.accountDefault("editionTokenAccount"),
+              },
+            }),
+          }),
         },
       },
       args: {

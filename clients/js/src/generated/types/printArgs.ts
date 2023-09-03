@@ -19,14 +19,7 @@ export type PrintArgs = { __kind: 'V1'; edition: bigint };
 
 export type PrintArgsArgs = { __kind: 'V1'; edition: number | bigint };
 
-/** @deprecated Use `getPrintArgsSerializer()` without any argument instead. */
-export function getPrintArgsSerializer(
-  _context: object
-): Serializer<PrintArgsArgs, PrintArgs>;
-export function getPrintArgsSerializer(): Serializer<PrintArgsArgs, PrintArgs>;
-export function getPrintArgsSerializer(
-  _context: object = {}
-): Serializer<PrintArgsArgs, PrintArgs> {
+export function getPrintArgsSerializer(): Serializer<PrintArgsArgs, PrintArgs> {
   return dataEnum<PrintArgs>(
     [
       [

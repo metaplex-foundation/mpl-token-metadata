@@ -7,11 +7,9 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
-  Signer,
   TransactionBuilder,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -21,7 +19,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type PuffMetadataInstructionAccounts = {
@@ -34,17 +36,10 @@ export type PuffMetadataInstructionData = { discriminator: number };
 
 export type PuffMetadataInstructionDataArgs = {};
 
-/** @deprecated Use `getPuffMetadataInstructionDataSerializer()` without any argument instead. */
-export function getPuffMetadataInstructionDataSerializer(
-  _context: object
-): Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData>;
 export function getPuffMetadataInstructionDataSerializer(): Serializer<
   PuffMetadataInstructionDataArgs,
   PuffMetadataInstructionData
->;
-export function getPuffMetadataInstructionDataSerializer(
-  _context: object = {}
-): Serializer<PuffMetadataInstructionDataArgs, PuffMetadataInstructionData> {
+> {
   return mapSerializer<
     PuffMetadataInstructionDataArgs,
     any,
@@ -62,21 +57,28 @@ export function puffMetadata(
   context: Pick<Context, 'programs'>,
   input: PuffMetadataInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
   };
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data = getPuffMetadataInstructionDataSerializer().serialize({});

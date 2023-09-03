@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type CollectInstructionAccounts = {
@@ -36,17 +39,10 @@ export type CollectInstructionData = { discriminator: number };
 
 export type CollectInstructionDataArgs = {};
 
-/** @deprecated Use `getCollectInstructionDataSerializer()` without any argument instead. */
-export function getCollectInstructionDataSerializer(
-  _context: object
-): Serializer<CollectInstructionDataArgs, CollectInstructionData>;
 export function getCollectInstructionDataSerializer(): Serializer<
   CollectInstructionDataArgs,
   CollectInstructionData
->;
-export function getCollectInstructionDataSerializer(
-  _context: object = {}
-): Serializer<CollectInstructionDataArgs, CollectInstructionData> {
+> {
   return mapSerializer<CollectInstructionDataArgs, any, CollectInstructionData>(
     struct<CollectInstructionData>([['discriminator', u8()]], {
       description: 'CollectInstructionData',
@@ -57,32 +53,41 @@ export function getCollectInstructionDataSerializer(
 
 // Instruction.
 export function collect(
-  context: Pick<Context, 'programs' | 'identity'>,
+  context: Pick<Context, 'identity' | 'programs'>,
   input: CollectInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    pdaAccount: [input.pdaAccount, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    pdaAccount: {
+      index: 1,
+      isWritable: false,
+      value: input.pdaAccount ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.pdaAccount, false);
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data = getCollectInstructionDataSerializer().serialize({});
