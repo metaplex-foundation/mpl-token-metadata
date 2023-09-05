@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshDeserialize;
 use solana_program_test::*;
 use solana_sdk::{
     account::{Account, AccountSharedData},
@@ -69,10 +69,10 @@ mod bump_seed_migration {
             rent_epoch: 1,
         };
 
-        let data_mut = account.data_mut();
+        let data_mut = &mut account.data;
         borsh::to_writer(data_mut, &use_record_struct).unwrap();
         // Get the reference again since it was consumed in the previous call
-        account.data_mut().append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
+        account.data.append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
 
         let shared_data = &AccountSharedData::from(account);
         context.set_account(&record, shared_data);
