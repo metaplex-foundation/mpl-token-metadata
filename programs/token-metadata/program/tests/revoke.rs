@@ -11,7 +11,7 @@ use utils::*;
 
 mod revoke {
 
-    use borsh::{BorshDeserialize, BorshSerialize};
+    use borsh::BorshDeserialize;
     use num_traits::FromPrimitive;
     use solana_program::{program_option::COption, program_pack::Pack};
     use solana_sdk::account::{Account as SdkAccount, AccountSharedData};
