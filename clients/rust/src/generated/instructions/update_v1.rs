@@ -8,7 +8,7 @@
 use crate::generated::types::AuthorizationData;
 use crate::generated::types::CollectionDetailsToggle;
 use crate::generated::types::CollectionToggle;
-use crate::generated::types::Creator;
+use crate::generated::types::Data;
 use crate::generated::types::RuleSetToggle;
 use crate::generated::types::UsesToggle;
 use borsh::BorshDeserialize;
@@ -153,7 +153,7 @@ impl UpdateV1InstructionData {
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct UpdateV1InstructionArgs {
     pub new_update_authority: Option<Pubkey>,
-    pub data: Option<UpdateV1InstructionDataData>,
+    pub data: Option<Data>,
     pub primary_sale_happened: Option<bool>,
     pub is_mutable: Option<bool>,
     pub collection: CollectionToggle,
@@ -161,15 +161,6 @@ pub struct UpdateV1InstructionArgs {
     pub uses: UsesToggle,
     pub rule_set: RuleSetToggle,
     pub authorization_data: Option<AuthorizationData>,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-pub struct UpdateV1InstructionDataData {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
 }
 
 /// Instruction builder.
@@ -187,7 +178,7 @@ pub struct UpdateV1Builder {
     authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
     new_update_authority: Option<Pubkey>,
-    data: Option<UpdateV1InstructionDataData>,
+    data: Option<Data>,
     primary_sale_happened: Option<bool>,
     is_mutable: Option<bool>,
     collection: Option<CollectionToggle>,
@@ -292,7 +283,7 @@ impl UpdateV1Builder {
     }
     /// `[optional argument]`
     #[inline(always)]
-    pub fn data(&mut self, data: UpdateV1InstructionDataData) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.data = Some(data);
         self
     }
@@ -671,7 +662,7 @@ impl<'a> UpdateV1CpiBuilder<'a> {
     }
     /// `[optional argument]`
     #[inline(always)]
-    pub fn data(&mut self, data: UpdateV1InstructionDataData) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.instruction.data = Some(data);
         self
     }
@@ -792,7 +783,7 @@ struct UpdateV1CpiBuilderInstruction<'a> {
     authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     new_update_authority: Option<Pubkey>,
-    data: Option<UpdateV1InstructionDataData>,
+    data: Option<Data>,
     primary_sale_happened: Option<bool>,
     is_mutable: Option<bool>,
     collection: Option<CollectionToggle>,

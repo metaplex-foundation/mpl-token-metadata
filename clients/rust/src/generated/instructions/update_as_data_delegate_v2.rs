@@ -6,7 +6,7 @@
 //!
 
 use crate::generated::types::AuthorizationData;
-use crate::generated::types::Creator;
+use crate::generated::types::Data;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
@@ -149,17 +149,8 @@ impl UpdateAsDataDelegateV2InstructionData {
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct UpdateAsDataDelegateV2InstructionArgs {
-    pub data: Option<UpdateAsDataDelegateV2InstructionDataData>,
+    pub data: Option<Data>,
     pub authorization_data: Option<AuthorizationData>,
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-pub struct UpdateAsDataDelegateV2InstructionDataData {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
 }
 
 /// Instruction builder.
@@ -176,7 +167,7 @@ pub struct UpdateAsDataDelegateV2Builder {
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
     authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
-    data: Option<UpdateAsDataDelegateV2InstructionDataData>,
+    data: Option<Data>,
     authorization_data: Option<AuthorizationData>,
 }
 
@@ -269,7 +260,7 @@ impl UpdateAsDataDelegateV2Builder {
     }
     /// `[optional argument]`
     #[inline(always)]
-    pub fn data(&mut self, data: UpdateAsDataDelegateV2InstructionDataData) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.data = Some(data);
         self
     }
@@ -591,7 +582,7 @@ impl<'a> UpdateAsDataDelegateV2CpiBuilder<'a> {
     }
     /// `[optional argument]`
     #[inline(always)]
-    pub fn data(&mut self, data: UpdateAsDataDelegateV2InstructionDataData) -> &mut Self {
+    pub fn data(&mut self, data: Data) -> &mut Self {
         self.instruction.data = Some(data);
         self
     }
@@ -656,6 +647,6 @@ struct UpdateAsDataDelegateV2CpiBuilderInstruction<'a> {
     sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    data: Option<UpdateAsDataDelegateV2InstructionDataData>,
+    data: Option<Data>,
     authorization_data: Option<AuthorizationData>,
 }
