@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type UnverifyCollectionInstructionAccounts = {
@@ -44,20 +47,7 @@ export type UnverifyCollectionInstructionData = { discriminator: number };
 
 export type UnverifyCollectionInstructionDataArgs = {};
 
-/** @deprecated Use `getUnverifyCollectionInstructionDataSerializer()` without any argument instead. */
-export function getUnverifyCollectionInstructionDataSerializer(
-  _context: object
-): Serializer<
-  UnverifyCollectionInstructionDataArgs,
-  UnverifyCollectionInstructionData
->;
 export function getUnverifyCollectionInstructionDataSerializer(): Serializer<
-  UnverifyCollectionInstructionDataArgs,
-  UnverifyCollectionInstructionData
->;
-export function getUnverifyCollectionInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   UnverifyCollectionInstructionDataArgs,
   UnverifyCollectionInstructionData
 > {
@@ -81,46 +71,52 @@ export function unverifyCollection(
   context: Pick<Context, 'programs'>,
   input: UnverifyCollectionInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    collectionAuthority: [input.collectionAuthority, true] as const,
-    collectionMint: [input.collectionMint, false] as const,
-    collection: [input.collection, false] as const,
-    collectionMasterEditionAccount: [
-      input.collectionMasterEditionAccount,
-      false,
-    ] as const,
-    collectionAuthorityRecord: [
-      input.collectionAuthorityRecord,
-      false,
-    ] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    collectionAuthority: {
+      index: 1,
+      isWritable: true,
+      value: input.collectionAuthority ?? null,
+    },
+    collectionMint: {
+      index: 2,
+      isWritable: false,
+      value: input.collectionMint ?? null,
+    },
+    collection: {
+      index: 3,
+      isWritable: false,
+      value: input.collection ?? null,
+    },
+    collectionMasterEditionAccount: {
+      index: 4,
+      isWritable: false,
+      value: input.collectionMasterEditionAccount ?? null,
+    },
+    collectionAuthorityRecord: {
+      index: 5,
+      isWritable: false,
+      value: input.collectionAuthorityRecord ?? null,
+    },
   };
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collection, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionMasterEditionAccount,
-    false
-  );
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionAuthorityRecord,
-    true
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
   );
 
   // Data.

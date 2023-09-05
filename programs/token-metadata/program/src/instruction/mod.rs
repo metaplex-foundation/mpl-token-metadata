@@ -99,6 +99,7 @@ pub enum MetadataInstruction {
     #[account(13, name="system_program", desc="System program")]
     #[account(14, name="rent", desc="Rent info")]
     #[account(15, optional, writable, name="reservation_list", desc="Reservation List - If present, and you are on this list, you can get an edition number given by your position on the list.")]
+    #[legacy_optional_accounts_strategy]
     DeprecatedMintNewEditionFromMasterEditionViaPrintingToken,
 
     /// Allows updating the primary sale boolean on Metadata solely through owning an account
@@ -197,6 +198,7 @@ pub enum MetadataInstruction {
     #[account(11, name="token_program", desc="Token program")]
     #[account(12, name="system_program", desc="System program")]
     #[account(13, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     MintNewEditionFromMasterEditionViaToken(MintNewEditionFromMasterEditionViaTokenArgs),
 
     /// Converts the Master Edition V1 to a Master Edition V2, draining lamports from the two printing mints
@@ -225,6 +227,7 @@ pub enum MetadataInstruction {
     #[account(14, name="token_vault_program", desc="Token vault program")]
     #[account(15, name="system_program", desc="System program")]
     #[account(16, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     MintNewEditionFromMasterEditionViaVaultProxy(MintNewEditionFromMasterEditionViaTokenArgs),
 
     /// Puff a Metadata - make all of it's variable length fields (name/uri/symbol) a fixed length using a null character
@@ -245,6 +248,7 @@ pub enum MetadataInstruction {
     #[account(4, name="update_authority", desc="update authority info")]
     #[account(5, name="system_program", desc="System program")]
     #[account(6, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     CreateMetadataAccountV2,
 
     /// Register a Metadata as a Master Edition V2, which means Edition V2s can be minted.
@@ -259,6 +263,7 @@ pub enum MetadataInstruction {
     #[account(6, name="token_program", desc="Token program")]
     #[account(7, name="system_program", desc="System program")]
     #[account(8, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     CreateMasterEditionV3(CreateMasterEditionArgs),
 
     /// If a MetadataAccount Has a Collection allow the UpdateAuthority of the Collection to Verify the NFT Belongs in the Collection.
@@ -269,6 +274,7 @@ pub enum MetadataInstruction {
     #[account(4, name="collection", desc="Metadata Account of the Collection")]
     #[account(5, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(6, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     VerifyCollection,
 
     /// Utilize or Use an NFT , burns the NFT and returns the lamports to the update authority if the use method is burn and its out of uses.
@@ -286,6 +292,7 @@ pub enum MetadataInstruction {
     #[account(8, name="rent", desc="Rent info")]
     #[account(9, optional, writable, name="use_authority_record", desc="Use Authority Record PDA If present the program Assumes a delegated use authority")]
     #[account(10, optional, name="burner", desc="Program As Signer (Burner)")]
+    #[legacy_optional_accounts_strategy]
     Utilize(UtilizeArgs),
 
     /// Approve another account to call [utilize] on this NFT.
@@ -300,6 +307,7 @@ pub enum MetadataInstruction {
     #[account(8, name="token_program", desc="Token program")]
     #[account(9, name="system_program", desc="System program")]
     #[account(10, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     ApproveUseAuthority(ApproveUseAuthorityArgs),
 
     /// Revoke account to call [utilize] on this NFT.
@@ -312,6 +320,7 @@ pub enum MetadataInstruction {
     #[account(6, name="token_program", desc="Token program")]
     #[account(7, name="system_program", desc="System program")]
     #[account(8, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     RevokeUseAuthority,
 
     /// If a MetadataAccount Has a Collection allow an Authority of the Collection to unverify an NFT in a Collection.
@@ -321,6 +330,7 @@ pub enum MetadataInstruction {
     #[account(3, name="collection", desc="Metadata Account of the Collection")]
     #[account(4, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(5, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     UnverifyCollection,
 
     /// Approve another account to verify NFTs belonging to a collection, [verify_collection] on the collection NFT.
@@ -332,6 +342,7 @@ pub enum MetadataInstruction {
     #[account(5, name="mint", desc="Mint of Collection Metadata")]
     #[account(6, name="system_program", desc="System program")]
     #[account(7, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     ApproveCollectionAuthority,
 
     /// Revoke account to call [verify_collection] on this NFT.
@@ -352,6 +363,7 @@ pub enum MetadataInstruction {
     #[account(5, name="collection", desc="Metadata Account of the Collection")]
     #[account(6, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(7, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     SetAndVerifyCollection,
 
     /// Allow freezing of an NFT if this user is the delegate of the NFT.
@@ -383,6 +395,7 @@ pub enum MetadataInstruction {
     #[account(4, writable, name="master_edition_account", desc="MasterEdition2 of the NFT")]
     #[account(5, name="spl_token_program", desc="SPL Token Program")]
     #[account(6, optional, writable, name="collection_metadata", desc="Metadata of the Collection")]
+    #[legacy_optional_accounts_strategy]
     BurnNft,
 
     /// Verify Collection V2, new in v1.3--supports Collection Details.
@@ -394,6 +407,7 @@ pub enum MetadataInstruction {
     #[account(4, writable, name="collection", desc="Metadata Account of the Collection")]
     #[account(5, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(6, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     VerifySizedCollectionItem,
 
     /// Unverify Collection V2, new in v1.3--supports Collection Details.
@@ -405,6 +419,7 @@ pub enum MetadataInstruction {
     #[account(4, writable, name="collection", desc="Metadata Account of the Collection")]
     #[account(5, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(6, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     UnverifySizedCollectionItem,
 
     // Set And Verify V2, new in v1.3--supports Collection Details.
@@ -418,6 +433,7 @@ pub enum MetadataInstruction {
     #[account(5, writable, name="collection", desc="Metadata Account of the Collection")]
     #[account(6, writable, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(7, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     SetAndVerifySizedCollectionItem,
 
     /// Create Metadata object.
@@ -428,6 +444,7 @@ pub enum MetadataInstruction {
     #[account(4, name="update_authority", desc="update authority info")]
     #[account(5, name="system_program", desc="System program")]
     #[account(6, optional, name="rent", desc="Rent info")]
+    #[legacy_optional_accounts_strategy]
     CreateMetadataAccountV3(CreateMetadataAccountArgsV3),
 
     /// Set size of an existing collection.
@@ -435,6 +452,7 @@ pub enum MetadataInstruction {
     #[account(1, signer, writable, name="collection_authority", desc="Collection Update authority")]
     #[account(2, name="collection_mint", desc="Mint of the Collection")]
     #[account(3, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     SetCollectionSize(SetCollectionSizeArgs),
 
     /// Set the token standard of the asset.
@@ -442,6 +460,7 @@ pub enum MetadataInstruction {
     #[account(1, signer, name="update_authority", desc="Metadata update authority")]
     #[account(2, name="mint", desc="Mint account")]
     #[account(3, optional, name="edition", desc="Edition account")]
+    #[legacy_optional_accounts_strategy]
     SetTokenStandard,
 
     /// Set size of an existing collection using CPI from the Bubblegum program.  This is how
@@ -451,6 +470,7 @@ pub enum MetadataInstruction {
     #[account(2, name="collection_mint", desc="Mint of the Collection")]
     #[account(3, signer, name="bubblegum_signer", desc="Signing PDA of Bubblegum program")]
     #[account(4, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
+    #[legacy_optional_accounts_strategy]
     BubblegumSetCollectionSize(SetCollectionSizeArgs),
 
     /// Completely burn a print edition NFT.
@@ -476,6 +496,7 @@ pub enum MetadataInstruction {
     #[account(6, name="system_program", desc="System program")]
     #[account(7, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(8, optional, signer, name="authority", desc="Authority/creator of the escrow account")]
+    #[legacy_optional_accounts_strategy]
     CreateEscrowAccount,
 
     /// Close the escrow account.
@@ -503,6 +524,7 @@ pub enum MetadataInstruction {
     #[account(10, name="token_program", desc="Token program")]
     #[account(11, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(12, optional, signer, name="authority", desc="Authority/creator of the escrow account")]
+    #[legacy_optional_accounts_strategy]
     TransferOutOfEscrow(TransferOutOfEscrowArgs),
 
     //---- New API
@@ -547,7 +569,6 @@ pub enum MetadataInstruction {
     #[account(11, name="system_program", desc="System program")]
     #[account(12, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(13, name="spl_token_program", desc="SPL Token Program")]
-    #[default_optional_accounts]
     Burn(BurnArgs),
 
     /// Creates the metadata and associated accounts for a new or existing mint account.
@@ -567,7 +588,6 @@ pub enum MetadataInstruction {
     #[account(8, name="spl_token_program", desc="SPL Token program")]
     #[args(initialize_mint: bool)]
     #[args(update_authority_as_signer: bool)]
-    #[default_optional_accounts]
     Create(CreateArgs),
 
     /// Mints tokens from a mint account into the specified token account.
@@ -591,7 +611,6 @@ pub enum MetadataInstruction {
     #[account(12, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(13, optional, name="authorization_rules_program", desc="Token Authorization Rules program")]
     #[account(14, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Mint(MintArgs),
 
     /// Creates a delegate for an asset.
@@ -616,7 +635,6 @@ pub enum MetadataInstruction {
     #[account(11, optional, name="spl_token_program", desc="SPL Token Program")]
     #[account(12, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(13, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Delegate(DelegateArgs),
 
     /// Revokes a delegate.
@@ -636,7 +654,6 @@ pub enum MetadataInstruction {
     #[account(11, optional, name="spl_token_program", desc="SPL Token Program")]
     #[account(12, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(13, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Revoke(RevokeArgs),
 
     /// Locks an asset. For non-programmable assets, this will also freeze the token account.
@@ -656,7 +673,6 @@ pub enum MetadataInstruction {
     #[account(10, optional, name="spl_token_program", desc="SPL Token Program")]
     #[account(11, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(12, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Lock(LockArgs),
 
     /// Unlocks an asset. For non-programmable assets, this will also thaw the token account.
@@ -676,7 +692,6 @@ pub enum MetadataInstruction {
     #[account(10, optional, name="spl_token_program", desc="SPL Token Program")]
     #[account(11, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(12, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Unlock(UnlockArgs),
 
     /// Migrates an asset to a ProgrammableAsset type.
@@ -695,7 +710,6 @@ pub enum MetadataInstruction {
     #[account(12, name="spl_token_program", desc="SPL Token Program")]
     #[account(13, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(14, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Migrate,
 
     /// Transfer an asset.
@@ -719,7 +733,6 @@ pub enum MetadataInstruction {
     #[account(14, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(15, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(16, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Transfer(TransferArgs),
 
     /// Updates the metadata of an asset.
@@ -737,7 +750,6 @@ pub enum MetadataInstruction {
     #[account(8, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(9, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(10, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Update(UpdateArgs),
 
     /// Uses an asset.
@@ -758,7 +770,6 @@ pub enum MetadataInstruction {
     #[account(9, optional, name="spl_token_program", desc="SPL Token Program")]
     #[account(10, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(11, optional, name="authorization_rules", desc="Token Authorization Rules account")]
-    #[default_optional_accounts]
     Use(UseArgs),
 
     /// Verifies that an asset was created by a specific creator or belongs in an specified collection.
@@ -773,7 +784,6 @@ pub enum MetadataInstruction {
     #[account(5, optional, name="collection_master_edition", desc="Master Edition Account of the Collection Token")]
     #[account(6, name="system_program", desc="System program")]
     #[account(7, name="sysvar_instructions", desc="Instructions sysvar account")]
-    #[default_optional_accounts]
     Verify(VerificationArgs),
 
     /// Unverifies that an asset was created by a specific creator or belongs in an specified collection.
@@ -787,7 +797,6 @@ pub enum MetadataInstruction {
     #[account(4, optional, writable, name="collection_metadata", desc="Metadata Account of the Collection")]
     #[account(5, name="system_program", desc="System program")]
     #[account(6, name="sysvar_instructions", desc="Instructions sysvar account")]
-    #[default_optional_accounts]
     Unverify(VerificationArgs),
 
     /// Collect fees stored on PDA accounts.
@@ -816,7 +825,6 @@ pub enum MetadataInstruction {
     #[account(16, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(17, name="system_program", desc="System program")]
     #[args(initialize_mint: bool)]
-    #[default_optional_accounts]
     Print(PrintArgs),
 }
 

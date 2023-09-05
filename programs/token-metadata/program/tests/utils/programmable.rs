@@ -3,10 +3,6 @@ use mpl_token_auth_rules::{
     payload::Payload,
     state::{CompareOp, Rule, RuleSetV1},
 };
-use mpl_token_metadata::{
-    processor::{AuthorizationData, DelegateScenario, TransferScenario},
-    state::{Operation, PayloadKey, TokenDelegateRole},
-};
 use rmp_serde::Serializer;
 use serde::Serialize;
 use solana_sdk::{
@@ -14,6 +10,10 @@ use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
     transaction::Transaction,
+};
+use token_metadata::{
+    processor::{AuthorizationData, DelegateScenario, TransferScenario},
+    state::{Operation, PayloadKey, TokenDelegateRole},
 };
 
 use crate::*;

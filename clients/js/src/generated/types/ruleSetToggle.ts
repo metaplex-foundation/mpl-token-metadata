@@ -25,17 +25,10 @@ export type RuleSetToggle =
 
 export type RuleSetToggleArgs = RuleSetToggle;
 
-/** @deprecated Use `getRuleSetToggleSerializer()` without any argument instead. */
-export function getRuleSetToggleSerializer(
-  _context: object
-): Serializer<RuleSetToggleArgs, RuleSetToggle>;
 export function getRuleSetToggleSerializer(): Serializer<
   RuleSetToggleArgs,
   RuleSetToggle
->;
-export function getRuleSetToggleSerializer(
-  _context: object = {}
-): Serializer<RuleSetToggleArgs, RuleSetToggle> {
+> {
   return dataEnum<RuleSetToggle>(
     [
       ['None', unit()],

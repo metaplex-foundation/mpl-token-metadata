@@ -76,6 +76,11 @@ pub struct TokenRecord {
     pub delegate: Option<Pubkey>,
     /// The role of the current token delegate.
     pub delegate_role: Option<TokenDelegateRole>,
+
+    #[deprecated(
+        since = "1.13.2",
+        note = "The locked address is deprecated and will soon be removed."
+    )]
     /// Stores the destination pubkey when a transfer is lock to an allowed address. This
     /// pubkey gets set when a 'LockTransfer' delegate is approved.
     pub locked_transfer: Option<Pubkey>,

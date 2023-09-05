@@ -61,13 +61,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       js_changed: ${{ steps.changes.outputs.js_client }}
+      rust_changed: ${{ steps.changes.outputs.rust_client }}
     permissions:
       contents: write
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
         with:
-          submodules: recursive
           token: ${{ secrets.SVC_TOKEN }}
 
       - name: Load environment variables
@@ -98,9 +98,23 @@ jobs:
         with:
           filters: .github/file-filters.yml
 
-  test_js:
+  test_js_client:
     if: needs.generate_clients.outputs.js_changed == 'true'
     name: JS Client
     needs: generate_clients
-    uses: ./.github/workflows/test-js.yml
+    uses: ./.github/workflows/test-js-client.yml
+    secrets: inherit
+
+  build_rust_client:
+    if: needs.generate_clients.outputs.rust_changed == 'true'
+    name: Rust Client
+    needs: generate_clients
+    uses: ./.github/workflows/build-rust-client.yml
+    secrets: inherit
+
+  test_rust_client:
+    if: needs.generate_clients.outputs.rust_changed == 'true'
+    name: Rust Client
+    needs: generate_clients
+    uses: ./.github/workflows/test-rust-client.yml
     secrets: inherit

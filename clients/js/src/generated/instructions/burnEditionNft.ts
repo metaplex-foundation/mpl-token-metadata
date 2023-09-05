@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type BurnEditionNftInstructionAccounts = {
@@ -52,17 +55,7 @@ export type BurnEditionNftInstructionData = { discriminator: number };
 
 export type BurnEditionNftInstructionDataArgs = {};
 
-/** @deprecated Use `getBurnEditionNftInstructionDataSerializer()` without any argument instead. */
-export function getBurnEditionNftInstructionDataSerializer(
-  _context: object
-): Serializer<BurnEditionNftInstructionDataArgs, BurnEditionNftInstructionData>;
 export function getBurnEditionNftInstructionDataSerializer(): Serializer<
-  BurnEditionNftInstructionDataArgs,
-  BurnEditionNftInstructionData
->;
-export function getBurnEditionNftInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   BurnEditionNftInstructionDataArgs,
   BurnEditionNftInstructionData
 > {
@@ -86,64 +79,78 @@ export function burnEditionNft(
   context: Pick<Context, 'programs'>,
   input: BurnEditionNftInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    owner: [input.owner, true] as const,
-    printEditionMint: [input.printEditionMint, true] as const,
-    masterEditionMint: [input.masterEditionMint, false] as const,
-    printEditionTokenAccount: [input.printEditionTokenAccount, true] as const,
-    masterEditionTokenAccount: [
-      input.masterEditionTokenAccount,
-      false,
-    ] as const,
-    masterEditionAccount: [input.masterEditionAccount, true] as const,
-    printEditionAccount: [input.printEditionAccount, true] as const,
-    editionMarkerAccount: [input.editionMarkerAccount, true] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    owner: { index: 1, isWritable: true, value: input.owner ?? null },
+    printEditionMint: {
+      index: 2,
+      isWritable: true,
+      value: input.printEditionMint ?? null,
+    },
+    masterEditionMint: {
+      index: 3,
+      isWritable: false,
+      value: input.masterEditionMint ?? null,
+    },
+    printEditionTokenAccount: {
+      index: 4,
+      isWritable: true,
+      value: input.printEditionTokenAccount ?? null,
+    },
+    masterEditionTokenAccount: {
+      index: 5,
+      isWritable: false,
+      value: input.masterEditionTokenAccount ?? null,
+    },
+    masterEditionAccount: {
+      index: 6,
+      isWritable: true,
+      value: input.masterEditionAccount ?? null,
+    },
+    printEditionAccount: {
+      index: 7,
+      isWritable: true,
+      value: input.printEditionAccount ?? null,
+    },
+    editionMarkerAccount: {
+      index: 8,
+      isWritable: true,
+      value: input.editionMarkerAccount ?? null,
+    },
+    splTokenProgram: {
+      index: 9,
+      isWritable: false,
+      value: input.splTokenProgram ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'splTokenProgram',
-    input.splTokenProgram
-      ? ([input.splTokenProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splToken',
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.owner, false);
-  addAccountMeta(keys, signers, resolvedAccounts.printEditionMint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.masterEditionMint, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.printEditionTokenAccount,
-    false
+  // Default values.
+  if (!resolvedAccounts.splTokenProgram.value) {
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    resolvedAccounts.splTokenProgram.isWritable = false;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.masterEditionTokenAccount,
-    false
-  );
-  addAccountMeta(keys, signers, resolvedAccounts.masterEditionAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.printEditionAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.editionMarkerAccount, false);
-  addAccountMeta(keys, signers, resolvedAccounts.splTokenProgram, false);
 
   // Data.
   const data = getBurnEditionNftInstructionDataSerializer().serialize({});

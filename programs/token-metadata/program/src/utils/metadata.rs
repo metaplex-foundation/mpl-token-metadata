@@ -43,6 +43,7 @@ pub struct CreateMetadataAccountsLogicArgs<'a> {
 }
 
 /// Create a new account instruction
+#[allow(clippy::too_many_arguments)]
 pub fn process_create_metadata_accounts_logic(
     program_id: &Pubkey,
     accounts: CreateMetadataAccountsLogicArgs,

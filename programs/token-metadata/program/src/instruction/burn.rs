@@ -25,6 +25,7 @@ use crate::instruction::MetadataInstruction;
 ///   7. `[writable]` Print Edition PDA Account
 ///   8. `[writable]` Edition Marker PDA Account
 ///   9. [] SPL Token program.
+#[allow(clippy::too_many_arguments)]
 pub fn burn_edition_nft(
     program_id: Pubkey,
     metadata: Pubkey,
@@ -69,6 +70,7 @@ pub fn burn_edition_nft(
 /// 4. `[writable]` NFT edition account
 /// 5. `[]` SPL Token program.
 /// 6. Optional `[writable]` Collection metadata account
+#[allow(clippy::too_many_arguments)]
 pub fn burn_nft(
     program_id: Pubkey,
     metadata: Pubkey,

@@ -7,13 +7,11 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
   Signer,
   TransactionBuilder,
-  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -23,7 +21,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type RevokeCollectionAuthorityInstructionAccounts = {
@@ -46,20 +49,7 @@ export type RevokeCollectionAuthorityInstructionData = {
 
 export type RevokeCollectionAuthorityInstructionDataArgs = {};
 
-/** @deprecated Use `getRevokeCollectionAuthorityInstructionDataSerializer()` without any argument instead. */
-export function getRevokeCollectionAuthorityInstructionDataSerializer(
-  _context: object
-): Serializer<
-  RevokeCollectionAuthorityInstructionDataArgs,
-  RevokeCollectionAuthorityInstructionData
->;
 export function getRevokeCollectionAuthorityInstructionDataSerializer(): Serializer<
-  RevokeCollectionAuthorityInstructionDataArgs,
-  RevokeCollectionAuthorityInstructionData
->;
-export function getRevokeCollectionAuthorityInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   RevokeCollectionAuthorityInstructionDataArgs,
   RevokeCollectionAuthorityInstructionData
 > {
@@ -81,46 +71,54 @@ export function getRevokeCollectionAuthorityInstructionDataSerializer(
 
 // Instruction.
 export function revokeCollectionAuthority(
-  context: Pick<Context, 'programs' | 'eddsa'>,
+  context: Pick<Context, 'eddsa' | 'programs'>,
   input: RevokeCollectionAuthorityInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    collectionAuthorityRecord: [input.collectionAuthorityRecord, true] as const,
-    delegateAuthority: [input.delegateAuthority, true] as const,
-    revokeAuthority: [input.revokeAuthority, true] as const,
-    mint: [input.mint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    collectionAuthorityRecord: {
+      index: 0,
+      isWritable: true,
+      value: input.collectionAuthorityRecord ?? null,
+    },
+    delegateAuthority: {
+      index: 1,
+      isWritable: true,
+      value: input.delegateAuthority ?? null,
+    },
+    revokeAuthority: {
+      index: 2,
+      isWritable: true,
+      value: input.revokeAuthority ?? null,
+    },
+    metadata: { index: 3, isWritable: false, value: input.metadata ?? null },
+    mint: { index: 4, isWritable: false, value: input.mint ?? null },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, false] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionAuthorityRecord,
-    false
+  // Default values.
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
   );
-  addAccountMeta(keys, signers, resolvedAccounts.delegateAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.revokeAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
 
   // Data.
   const data =

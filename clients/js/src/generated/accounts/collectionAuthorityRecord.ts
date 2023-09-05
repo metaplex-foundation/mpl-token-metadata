@@ -46,20 +46,7 @@ export type CollectionAuthorityRecordAccountDataArgs = {
   updateAuthority: OptionOrNullable<PublicKey>;
 };
 
-/** @deprecated Use `getCollectionAuthorityRecordAccountDataSerializer()` without any argument instead. */
-export function getCollectionAuthorityRecordAccountDataSerializer(
-  _context: object
-): Serializer<
-  CollectionAuthorityRecordAccountDataArgs,
-  CollectionAuthorityRecordAccountData
->;
 export function getCollectionAuthorityRecordAccountDataSerializer(): Serializer<
-  CollectionAuthorityRecordAccountDataArgs,
-  CollectionAuthorityRecordAccountData
->;
-export function getCollectionAuthorityRecordAccountDataSerializer(
-  _context: object = {}
-): Serializer<
   CollectionAuthorityRecordAccountDataArgs,
   CollectionAuthorityRecordAccountData
 > {
@@ -83,20 +70,11 @@ export function getCollectionAuthorityRecordAccountDataSerializer(
   >;
 }
 
-/** @deprecated Use `deserializeCollectionAuthorityRecord(rawAccount)` without any context instead. */
-export function deserializeCollectionAuthorityRecord(
-  context: object,
-  rawAccount: RpcAccount
-): CollectionAuthorityRecord;
 export function deserializeCollectionAuthorityRecord(
   rawAccount: RpcAccount
-): CollectionAuthorityRecord;
-export function deserializeCollectionAuthorityRecord(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): CollectionAuthorityRecord {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getCollectionAuthorityRecordAccountDataSerializer()
   );
 }

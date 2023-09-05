@@ -23,7 +23,9 @@ programs: &programs
 
 client_common: &client_common
   - *programs
-  - ".github/workflows/test-js.yml"
+  - ".github/workflows/test-js-client.yml"
+  - ".github/workflows/test-rust-client.yml"
+  - ".github/workflows/build-rust-client.yml"
   - ".github/workflows/main.yml"
   - ".github/file-filters.yml"
   - ".github/.env"
@@ -34,8 +36,13 @@ js_client: &js_client
   - *client_common
   - "clients/js/**"
 
+rust_client: &rust_client
+  - *client_common
+  - "clients/rust/**"
+
 clients: &clients
   - *js_client
+  - *rust_client
 
 # Any.
 

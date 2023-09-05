@@ -50,21 +50,29 @@ jobs:
     with:
       program_matrix: '["${{ inputs.program }}"]'
 
-  test_js:
+  test_rust_client:
+    name: Rust Client
+    needs: build_programs
+    uses: ./.github/workflows/test-rust-client.yml
+    secrets: inherit
+
+  test_js_client:
     name: JS client
-    needs: test_programs
-    uses: ./.github/workflows/test-js.yml
+    needs: [test_programs, test_rust_client]
+    uses: ./.github/workflows/test-js-client.yml
     secrets: inherit
 
   create_proposal:
     name: Program / Proposal
     runs-on: ubuntu-latest
-    needs: test_js
+    needs: test_js_client
     permissions:
       contents: write
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SVC_TOKEN }}
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
@@ -77,7 +85,7 @@ jobs:
       - name: Install Solana
         uses: metaplex-foundation/actions/install-solana@v1
         with:
-          version: ${{ env.SOLANA_VERSION }}
+          version: ${{ env.SOLANA_CLI_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Install Themis
@@ -96,34 +104,35 @@ jobs:
             exit 1
           fi
 
-      - name: Determine Program Version
+      - name: Determine program version
         run: |
           IDL_NAME=`echo "${{ inputs.program }}" | tr - _`
-          VERSION=`jq '.version' ./idls/mpl_${IDL_NAME}.json | sed 's/"//g'`
+          VERSION=`jq '.version' ./idls/${IDL_NAME}.json | sed 's/"//g'`
+
           MAJOR=`echo ${VERSION} | cut -d. -f1`
           MINOR=`echo ${VERSION} | cut -d. -f2`
           PATCH=`echo ${VERSION} | cut -d. -f3`
-          
+
           if [ "${{ inputs.bump }}" == "major" ]; then
-             MAJOR=$((MAJOR + 1))
-             MINOR=0
-             PATCH=0
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
           elif [ "${{ inputs.bump }}" == "minor" ]; then
-             MINOR=$((MINOR + 1))
-             PATCH=0
+            MINOR=$((MINOR + 1))
+            PATCH=0
           else
-             PATCH=$((PATCH + 1))
+            PATCH=$((PATCH + 1))
           fi
-          
+
           echo PROGRAM_VERSION="${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV
-          echo PROGRAM_NAME="mpl_token_metadata" >> $GITHUB_ENV
+          echo PROGRAM_NAME="token_metadata" >> $GITHUB_ENV
 
       - name: Download program builds
         uses: actions/download-artifact@v3
         with:
           name: program-builds
 
-      - name: Create Proposal
+      - name: Create proposal
         run: |
           echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
           echo "Creating program buffer..."
@@ -147,13 +156,18 @@ jobs:
           rm submitter-key.json
 
           GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
-          git push --delete origin -d $GIT_TAG 2> /dev/null
+          DELETE_TAG=`git tag | grep '${GIT_TAG}' | wc -l | awk '{print $1}'`
 
-          if [ $? -eq 0 ]; then
+          if [ ${DELETE_TAG} -gt 1 ]; then
+            git push --delete origin -d $GIT_TAG 2> /dev/null
             echo "Removed git tag: '$GIT_TAG'"
           fi
 
-      - name: Commit and tag new version
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          tagging_message: "proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+      - name: Tag the proposal commit
+        run: |
+          echo "Tagging the proposal for ${{ inputs.program }} to ${{ inputs.cluster }}"
+
+          GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+
+          git tag $GIT_TAG
+          git push origin $GIT_TAG

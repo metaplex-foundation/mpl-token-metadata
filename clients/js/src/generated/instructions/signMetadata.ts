@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type SignMetadataInstructionAccounts = {
@@ -36,17 +39,10 @@ export type SignMetadataInstructionData = { discriminator: number };
 
 export type SignMetadataInstructionDataArgs = {};
 
-/** @deprecated Use `getSignMetadataInstructionDataSerializer()` without any argument instead. */
-export function getSignMetadataInstructionDataSerializer(
-  _context: object
-): Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData>;
 export function getSignMetadataInstructionDataSerializer(): Serializer<
   SignMetadataInstructionDataArgs,
   SignMetadataInstructionData
->;
-export function getSignMetadataInstructionDataSerializer(
-  _context: object = {}
-): Serializer<SignMetadataInstructionDataArgs, SignMetadataInstructionData> {
+> {
   return mapSerializer<
     SignMetadataInstructionDataArgs,
     any,
@@ -64,23 +60,29 @@ export function signMetadata(
   context: Pick<Context, 'programs'>,
   input: SignMetadataInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    creator: [input.creator, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    creator: { index: 1, isWritable: false, value: input.creator ?? null },
   };
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.creator, false);
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data = getSignMetadataInstructionDataSerializer().serialize({});

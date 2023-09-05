@@ -2,7 +2,14 @@
 
 pub mod utils;
 
-use mpl_token_metadata::{
+use num_traits::FromPrimitive;
+use solana_program::native_token::LAMPORTS_PER_SOL;
+use solana_program_test::*;
+use solana_sdk::{
+    instruction::InstructionError, signature::Keypair, signer::Signer, transaction::Transaction,
+    transaction::TransactionError,
+};
+use token_metadata::{
     error::MetadataError,
     instruction::{
         builders::VerifyBuilder, DelegateArgs, InstructionBuilder, MetadataDelegateRole,
@@ -10,13 +17,6 @@ use mpl_token_metadata::{
     },
     pda::{find_metadata_delegate_record_account, find_token_record_account},
     state::{Collection, CollectionDetails, Creator, TokenStandard},
-};
-use num_traits::FromPrimitive;
-use solana_program::native_token::LAMPORTS_PER_SOL;
-use solana_program_test::*;
-use solana_sdk::{
-    instruction::InstructionError, signature::Keypair, signer::Signer, transaction::Transaction,
-    transaction::TransactionError,
 };
 use utils::*;
 

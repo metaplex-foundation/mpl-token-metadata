@@ -2837,6 +2837,22 @@ export class InvalidMetadataFlagsError extends ProgramError {
 codeToErrorMap.set(0xc0, InvalidMetadataFlagsError);
 nameToErrorMap.set('InvalidMetadataFlags', InvalidMetadataFlagsError);
 
+/** CannotChangeUpdateAuthorityWithDelegate: Cannot change the update authority with a delegate */
+export class CannotChangeUpdateAuthorityWithDelegateError extends ProgramError {
+  readonly name: string = 'CannotChangeUpdateAuthorityWithDelegate';
+
+  readonly code: number = 0xc1; // 193
+
+  constructor(program: Program, cause?: Error) {
+    super('Cannot change the update authority with a delegate', program, cause);
+  }
+}
+codeToErrorMap.set(0xc1, CannotChangeUpdateAuthorityWithDelegateError);
+nameToErrorMap.set(
+  'CannotChangeUpdateAuthorityWithDelegate',
+  CannotChangeUpdateAuthorityWithDelegateError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

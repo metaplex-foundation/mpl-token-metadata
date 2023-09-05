@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -21,7 +20,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 import {
   SetCollectionSizeArgs,
   SetCollectionSizeArgsArgs,
@@ -50,20 +53,7 @@ export type SetCollectionSizeInstructionDataArgs = {
   setCollectionSizeArgs: SetCollectionSizeArgsArgs;
 };
 
-/** @deprecated Use `getSetCollectionSizeInstructionDataSerializer()` without any argument instead. */
-export function getSetCollectionSizeInstructionDataSerializer(
-  _context: object
-): Serializer<
-  SetCollectionSizeInstructionDataArgs,
-  SetCollectionSizeInstructionData
->;
 export function getSetCollectionSizeInstructionDataSerializer(): Serializer<
-  SetCollectionSizeInstructionDataArgs,
-  SetCollectionSizeInstructionData
->;
-export function getSetCollectionSizeInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   SetCollectionSizeInstructionDataArgs,
   SetCollectionSizeInstructionData
 > {
@@ -95,41 +85,55 @@ export function setCollectionSize(
   context: Pick<Context, 'programs'>,
   input: SetCollectionSizeInstructionAccounts & SetCollectionSizeInstructionArgs
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    collectionMetadata: [input.collectionMetadata, true] as const,
-    collectionAuthority: [input.collectionAuthority, true] as const,
-    collectionMint: [input.collectionMint, false] as const,
-    collectionAuthorityRecord: [
-      input.collectionAuthorityRecord,
-      false,
-    ] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    collectionMetadata: {
+      index: 0,
+      isWritable: true,
+      value: input.collectionMetadata ?? null,
+    },
+    collectionAuthority: {
+      index: 1,
+      isWritable: true,
+      value: input.collectionAuthority ?? null,
+    },
+    collectionMint: {
+      index: 2,
+      isWritable: false,
+      value: input.collectionMint ?? null,
+    },
+    collectionAuthorityRecord: {
+      index: 3,
+      isWritable: false,
+      value: input.collectionAuthorityRecord ?? null,
+    },
   };
-  const resolvingArgs = {};
-  const resolvedArgs = { ...input, ...resolvingArgs };
 
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
-  addAccountMeta(
-    keys,
-    signers,
-    resolvedAccounts.collectionAuthorityRecord,
-    true
+  // Arguments.
+  const resolvedArgs: SetCollectionSizeInstructionArgs = { ...input };
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
   );
 
   // Data.
-  const data =
-    getSetCollectionSizeInstructionDataSerializer().serialize(resolvedArgs);
+  const data = getSetCollectionSizeInstructionDataSerializer().serialize(
+    resolvedArgs as SetCollectionSizeInstructionDataArgs
+  );
 
   // Bytes Created On Chain.
   const bytesCreatedOnChain = 0;

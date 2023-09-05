@@ -8,11 +8,11 @@ pub mod utils;
 
 mod sign_metadata {
 
-    use mpl_token_metadata::{
+    use solana_sdk::transaction::Transaction;
+    use token_metadata::{
         instruction::{remove_creator_verification, sign_metadata},
         state::Creator,
     };
-    use solana_sdk::transaction::Transaction;
 
     use super::*;
 
@@ -48,7 +48,7 @@ mod sign_metadata {
             )
             .await
             .unwrap();
-        let sign_ix = sign_metadata(mpl_token_metadata::ID, test_meta.pubkey, creator.pubkey());
+        let sign_ix = sign_metadata(token_metadata::ID, test_meta.pubkey, creator.pubkey());
         let sign_tx = Transaction::new_signed_with_payer(
             &[sign_ix],
             Some(&context.payer.pubkey()),
@@ -64,7 +64,7 @@ mod sign_metadata {
         assert!(after_sign.data.creators.unwrap()[1].verified);
 
         let remove_ix =
-            remove_creator_verification(mpl_token_metadata::ID, test_meta.pubkey, creator.pubkey());
+            remove_creator_verification(token_metadata::ID, test_meta.pubkey, creator.pubkey());
         let remove_tx = Transaction::new_signed_with_payer(
             &[remove_ix],
             Some(&context.payer.pubkey()),

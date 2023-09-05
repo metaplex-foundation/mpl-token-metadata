@@ -7,11 +7,9 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
-  Signer,
   TransactionBuilder,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -21,7 +19,11 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { addAccountMeta } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type ConvertMasterEditionV1ToV2InstructionAccounts = {
@@ -40,20 +42,7 @@ export type ConvertMasterEditionV1ToV2InstructionData = {
 
 export type ConvertMasterEditionV1ToV2InstructionDataArgs = {};
 
-/** @deprecated Use `getConvertMasterEditionV1ToV2InstructionDataSerializer()` without any argument instead. */
-export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
-  _context: object
-): Serializer<
-  ConvertMasterEditionV1ToV2InstructionDataArgs,
-  ConvertMasterEditionV1ToV2InstructionData
->;
 export function getConvertMasterEditionV1ToV2InstructionDataSerializer(): Serializer<
-  ConvertMasterEditionV1ToV2InstructionDataArgs,
-  ConvertMasterEditionV1ToV2InstructionData
->;
-export function getConvertMasterEditionV1ToV2InstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   ConvertMasterEditionV1ToV2InstructionDataArgs,
   ConvertMasterEditionV1ToV2InstructionData
 > {
@@ -78,25 +67,42 @@ export function convertMasterEditionV1ToV2(
   context: Pick<Context, 'programs'>,
   input: ConvertMasterEditionV1ToV2InstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    masterEdition: [input.masterEdition, true] as const,
-    oneTimeAuth: [input.oneTimeAuth, true] as const,
-    printingMint: [input.printingMint, true] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    masterEdition: {
+      index: 0,
+      isWritable: true,
+      value: input.masterEdition ?? null,
+    },
+    oneTimeAuth: {
+      index: 1,
+      isWritable: true,
+      value: input.oneTimeAuth ?? null,
+    },
+    printingMint: {
+      index: 2,
+      isWritable: true,
+      value: input.printingMint ?? null,
+    },
   };
 
-  addAccountMeta(keys, signers, resolvedAccounts.masterEdition, false);
-  addAccountMeta(keys, signers, resolvedAccounts.oneTimeAuth, false);
-  addAccountMeta(keys, signers, resolvedAccounts.printingMint, false);
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data =

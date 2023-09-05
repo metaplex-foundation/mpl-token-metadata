@@ -21,17 +21,10 @@ export enum MetadataDelegateRole {
 
 export type MetadataDelegateRoleArgs = MetadataDelegateRole;
 
-/** @deprecated Use `getMetadataDelegateRoleSerializer()` without any argument instead. */
-export function getMetadataDelegateRoleSerializer(
-  _context: object
-): Serializer<MetadataDelegateRoleArgs, MetadataDelegateRole>;
 export function getMetadataDelegateRoleSerializer(): Serializer<
   MetadataDelegateRoleArgs,
   MetadataDelegateRole
->;
-export function getMetadataDelegateRoleSerializer(
-  _context: object = {}
-): Serializer<MetadataDelegateRoleArgs, MetadataDelegateRole> {
+> {
   return scalarEnum<MetadataDelegateRole>(MetadataDelegateRole, {
     description: 'MetadataDelegateRole',
   }) as Serializer<MetadataDelegateRoleArgs, MetadataDelegateRole>;

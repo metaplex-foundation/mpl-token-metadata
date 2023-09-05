@@ -1,20 +1,20 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::{
+use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program_test::*;
+use solana_sdk::{
+    account::{Account, AccountSharedData},
+    signature::{Keypair, Signer},
+    transaction::Transaction,
+};
+use token_metadata::{
     pda::{find_program_as_burner_account, find_use_authority_account},
     state::{
         Key as MetadataKey, UseAuthorityRecord, UseMethod, Uses, MAX_NAME_LENGTH,
         MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
     },
     utils::puffed_out_string,
-};
-use solana_program::borsh::try_from_slice_unchecked;
-use solana_program_test::*;
-use solana_sdk::{
-    account::{Account, AccountSharedData, WritableAccount},
-    signature::{Keypair, Signer},
-    transaction::Transaction,
 };
 use utils::*;
 mod bump_seed_migration {
@@ -64,22 +64,24 @@ mod bump_seed_migration {
         let mut account = Account {
             lamports: 1113600,
             data: vec![],
-            owner: mpl_token_metadata::ID,
+            owner: token_metadata::ID,
             executable: false,
             rent_epoch: 1,
         };
+
         let data_mut = account.data_mut();
         borsh::to_writer(data_mut, &use_record_struct).unwrap();
         // Get the reference again since it was consumed in the previous call
         account.data_mut().append(&mut vec![0, 0, 0, 0, 0, 0, 0, 0]);
+
         let shared_data = &AccountSharedData::from(account);
         context.set_account(&record, shared_data);
         airdrop(&mut context, &use_authority_account.pubkey(), 1113600)
             .await
             .unwrap();
         let (burner, _) = find_program_as_burner_account();
-        let utilize_with_use_authority = mpl_token_metadata::instruction::utilize(
-            mpl_token_metadata::ID,
+        let utilize_with_use_authority = token_metadata::instruction::utilize(
+            token_metadata::ID,
             test_metadata.pubkey,
             test_metadata.token.pubkey(),
             test_metadata.mint.pubkey(),
@@ -104,7 +106,8 @@ mod bump_seed_migration {
             .await
             .unwrap()
             .unwrap();
-        let uar: UseAuthorityRecord = try_from_slice_unchecked(&account_after.data).unwrap();
+        let uar: UseAuthorityRecord =
+            BorshDeserialize::deserialize(&mut &account_after.data[..]).unwrap();
         assert_eq!(uar.bump, record_bump);
     }
 }

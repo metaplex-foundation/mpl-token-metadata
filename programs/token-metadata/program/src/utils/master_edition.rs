@@ -551,6 +551,7 @@ pub fn mint_limited_edition<'a>(
 /// error.
 ///
 /// After a master edition is created, it becomes the mint authority of the mint account.
+#[allow(clippy::too_many_arguments)]
 pub fn create_master_edition<'a>(
     program_id: &Pubkey,
     edition_account_info: &'a AccountInfo<'a>,
