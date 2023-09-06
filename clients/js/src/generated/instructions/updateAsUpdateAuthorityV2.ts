@@ -20,14 +20,11 @@ import {
 } from '@metaplex-foundation/umi';
 import {
   Serializer,
-  array,
   bool,
   mapSerializer,
   option,
   publicKey as publicKeySerializer,
-  string,
   struct,
-  u16,
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
@@ -44,8 +41,8 @@ import {
   CollectionDetailsToggleArgs,
   CollectionToggle,
   CollectionToggleArgs,
-  Creator,
-  CreatorArgs,
+  Data,
+  DataArgs,
   RuleSetToggle,
   RuleSetToggleArgs,
   TokenStandard,
@@ -57,7 +54,7 @@ import {
   getAuthorizationDataSerializer,
   getCollectionDetailsToggleSerializer,
   getCollectionToggleSerializer,
-  getCreatorSerializer,
+  getDataSerializer,
   getRuleSetToggleSerializer,
   getTokenStandardSerializer,
   getUsesToggleSerializer,
@@ -96,13 +93,7 @@ export type UpdateAsUpdateAuthorityV2InstructionData = {
   discriminator: number;
   updateAsUpdateAuthorityV2Discriminator: number;
   newUpdateAuthority: Option<PublicKey>;
-  data: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
-  }>;
+  data: Option<Data>;
   primarySaleHappened: Option<boolean>;
   isMutable: Option<boolean>;
   collection: CollectionToggle;
@@ -115,13 +106,7 @@ export type UpdateAsUpdateAuthorityV2InstructionData = {
 
 export type UpdateAsUpdateAuthorityV2InstructionDataArgs = {
   newUpdateAuthority?: OptionOrNullable<PublicKey>;
-  data?: OptionOrNullable<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: OptionOrNullable<Array<CreatorArgs>>;
-  }>;
+  data?: OptionOrNullable<DataArgs>;
   primarySaleHappened?: OptionOrNullable<boolean>;
   isMutable?: OptionOrNullable<boolean>;
   collection?: CollectionToggleArgs;
@@ -146,18 +131,7 @@ export function getUpdateAsUpdateAuthorityV2InstructionDataSerializer(): Seriali
         ['discriminator', u8()],
         ['updateAsUpdateAuthorityV2Discriminator', u8()],
         ['newUpdateAuthority', option(publicKeySerializer())],
-        [
-          'data',
-          option(
-            struct<any>([
-              ['name', string()],
-              ['symbol', string()],
-              ['uri', string()],
-              ['sellerFeeBasisPoints', u16()],
-              ['creators', option(array(getCreatorSerializer()))],
-            ])
-          ),
-        ],
+        ['data', option(getDataSerializer())],
         ['primarySaleHappened', option(bool())],
         ['isMutable', option(bool())],
         ['collection', getCollectionToggleSerializer()],

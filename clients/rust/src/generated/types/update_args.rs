@@ -8,7 +8,7 @@
 use crate::generated::types::AuthorizationData;
 use crate::generated::types::CollectionDetailsToggle;
 use crate::generated::types::CollectionToggle;
-use crate::generated::types::Creator;
+use crate::generated::types::Data;
 use crate::generated::types::RuleSetToggle;
 use crate::generated::types::TokenStandard;
 use crate::generated::types::UsesToggle;
@@ -21,7 +21,7 @@ use solana_program::pubkey::Pubkey;
 pub enum UpdateArgs {
     V1 {
         new_update_authority: Option<Pubkey>,
-        data: Option<UpdateArgsV1Data>,
+        data: Option<Data>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,
         collection: CollectionToggle,
@@ -32,7 +32,7 @@ pub enum UpdateArgs {
     },
     AsUpdateAuthorityV2 {
         new_update_authority: Option<Pubkey>,
-        data: Option<UpdateArgsAsUpdateAuthorityV2Data>,
+        data: Option<Data>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,
         collection: CollectionToggle,
@@ -54,7 +54,7 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsDataDelegateV2 {
-        data: Option<UpdateArgsAsDataDelegateV2Data>,
+        data: Option<Data>,
         authorization_data: Option<AuthorizationData>,
     },
     AsProgrammableConfigDelegateV2 {
@@ -62,7 +62,7 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsDataItemDelegateV2 {
-        data: Option<UpdateArgsAsDataItemDelegateV2Data>,
+        data: Option<Data>,
         authorization_data: Option<AuthorizationData>,
     },
     AsCollectionItemDelegateV2 {
@@ -73,41 +73,4 @@ pub enum UpdateArgs {
         rule_set: RuleSetToggle,
         authorization_data: Option<AuthorizationData>,
     },
-}
-
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateArgsV1Data {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
-}
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateArgsAsUpdateAuthorityV2Data {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
-}
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateArgsAsDataDelegateV2Data {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
-}
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct UpdateArgsAsDataItemDelegateV2Data {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub seller_fee_basis_points: u16,
-    pub creators: Option<Vec<Creator>>,
 }

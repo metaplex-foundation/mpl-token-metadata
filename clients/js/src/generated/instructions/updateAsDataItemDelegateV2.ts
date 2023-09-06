@@ -20,12 +20,9 @@ import {
 } from '@metaplex-foundation/umi';
 import {
   Serializer,
-  array,
   mapSerializer,
   option,
-  string,
   struct,
-  u16,
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
@@ -40,11 +37,11 @@ import {
 import {
   AuthorizationData,
   AuthorizationDataArgs,
-  Creator,
-  CreatorArgs,
+  Data,
+  DataArgs,
   MetadataDelegateRole,
   getAuthorizationDataSerializer,
-  getCreatorSerializer,
+  getDataSerializer,
 } from '../types';
 
 // Accounts.
@@ -77,24 +74,12 @@ export type UpdateAsDataItemDelegateV2InstructionAccounts = {
 export type UpdateAsDataItemDelegateV2InstructionData = {
   discriminator: number;
   updateAsDataItemDelegateV2Discriminator: number;
-  data: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
-  }>;
+  data: Option<Data>;
   authorizationData: Option<AuthorizationData>;
 };
 
 export type UpdateAsDataItemDelegateV2InstructionDataArgs = {
-  data?: OptionOrNullable<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: OptionOrNullable<Array<CreatorArgs>>;
-  }>;
+  data?: OptionOrNullable<DataArgs>;
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
@@ -111,18 +96,7 @@ export function getUpdateAsDataItemDelegateV2InstructionDataSerializer(): Serial
       [
         ['discriminator', u8()],
         ['updateAsDataItemDelegateV2Discriminator', u8()],
-        [
-          'data',
-          option(
-            struct<any>([
-              ['name', string()],
-              ['symbol', string()],
-              ['uri', string()],
-              ['sellerFeeBasisPoints', u16()],
-              ['creators', option(array(getCreatorSerializer()))],
-            ])
-          ),
-        ],
+        ['data', option(getDataSerializer())],
         ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsDataItemDelegateV2InstructionData' }

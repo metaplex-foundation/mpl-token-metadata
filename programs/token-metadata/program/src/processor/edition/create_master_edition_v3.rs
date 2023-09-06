@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use mpl_utils::create_or_allocate_account_raw;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token::state::Mint;
@@ -90,11 +89,17 @@ pub fn process_create_master_edition(
     edition.key = Key::MasterEditionV2;
     edition.supply = 0;
     edition.max_supply = max_supply;
-    edition.serialize(&mut *edition_account_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(
+        &mut edition_account_info.try_borrow_mut_data()?[..],
+        &edition,
+    )?;
     if metadata_account_info.is_writable {
         let mut metadata_mut = Metadata::from_account_info(metadata_account_info)?;
         metadata_mut.token_standard = Some(TokenStandard::NonFungible);
-        metadata_mut.serialize(&mut *metadata_account_info.try_borrow_mut_data()?)?;
+        borsh::to_writer(
+            &mut metadata_account_info.try_borrow_mut_data()?[..],
+            &metadata_mut,
+        )?;
     }
 
     // While you can't mint any more of your master record, you can

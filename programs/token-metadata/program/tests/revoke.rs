@@ -11,7 +11,7 @@ use utils::*;
 
 mod revoke {
 
-    use borsh::{BorshDeserialize, BorshSerialize};
+    use borsh::BorshDeserialize;
     use num_traits::FromPrimitive;
     use solana_program::{program_option::COption, program_pack::Pack};
     use solana_sdk::account::{Account as SdkAccount, AccountSharedData};
@@ -474,8 +474,7 @@ mod revoke {
         // one through the API
         token_record.delegate_role = Some(TokenDelegateRole::Migration);
         let mut data = vec![0u8; TOKEN_RECORD_SIZE];
-        let mut buffer = &mut data[..TOKEN_RECORD_SIZE];
-        BorshSerialize::serialize(&token_record, &mut buffer).unwrap();
+        borsh::to_writer(&mut data[..TOKEN_RECORD_SIZE], &token_record).unwrap();
 
         let record_account = SdkAccount {
             lamports: pda.lamports,
