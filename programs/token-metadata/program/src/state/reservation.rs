@@ -150,7 +150,7 @@ impl ReservationList for ReservationListV2 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        BorshSerialize::serialize(self, &mut *account.data.borrow_mut())?;
+        borsh::to_writer(&mut account.data.borrow_mut()[..], self)?;
         Ok(())
     }
 
@@ -255,7 +255,7 @@ impl ReservationList for ReservationListV1 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        BorshSerialize::serialize(self, &mut *account.data.borrow_mut())?;
+        borsh::to_writer(&mut account.data.borrow_mut()[..], self)?;
         Ok(())
     }
 

@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token::state::Mint;
 
@@ -43,12 +42,14 @@ pub fn process_convert_master_edition_v1_to_v2(
         return Err(MetadataError::OneTimeAuthMintSupplyMustBeZeroForConversion.into());
     }
 
-    MasterEditionV2 {
-        key: Key::MasterEditionV2,
-        supply: master_edition.supply,
-        max_supply: master_edition.max_supply,
-    }
-    .serialize(&mut *master_edition_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(
+        &mut master_edition_info.try_borrow_mut_data()?[..],
+        &MasterEditionV2 {
+            key: Key::MasterEditionV2,
+            supply: master_edition.supply,
+            max_supply: master_edition.max_supply,
+        },
+    )?;
 
     Ok(())
 }

@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use mpl_utils::{assert_signer, create_or_allocate_account_raw};
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
@@ -69,6 +68,9 @@ pub fn process_approve_collection_authority(
     record.key = Key::CollectionAuthorityRecord;
     record.bump = collection_authority_bump_seed[0];
     record.update_authority = Some(*update_authority.key);
-    record.serialize(&mut *collection_authority_record.try_borrow_mut_data()?)?;
+    borsh::to_writer(
+        &mut collection_authority_record.try_borrow_mut_data()?[..],
+        &record,
+    )?;
     Ok(())
 }
