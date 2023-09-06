@@ -15,6 +15,7 @@ export * from './collectionDetailsToggle';
 export * from './collectionToggle';
 export * from './createArgs';
 export * from './creator';
+export * from './data';
 export * from './dataV2';
 export * from './delegateArgs';
 export * from './escrowAuthority';

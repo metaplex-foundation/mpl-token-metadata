@@ -563,11 +563,11 @@ kinobi.update(
 );
 
 // Unwrap types and structs.
-kinobi.update(new k.UnwrapDefinedTypesVisitor(["Data", "AssetData"]));
+kinobi.update(new k.UnwrapDefinedTypesVisitor(["AssetData"]));
+kinobi.update(new k.UnwrapTypeDefinedLinksVisitor(["metadata.data"]));
 kinobi.update(
   new k.FlattenStructVisitor({
     Metadata: ["data"],
-    CreateMetadataAccountInstructionArgs: ["data"],
     "CreateArgs.V1": ["assetData"],
   })
 );

@@ -20,12 +20,9 @@ import {
 } from '@metaplex-foundation/umi';
 import {
   Serializer,
-  array,
   mapSerializer,
   option,
-  string,
   struct,
-  u16,
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../accounts';
@@ -40,11 +37,11 @@ import {
 import {
   AuthorizationData,
   AuthorizationDataArgs,
-  Creator,
-  CreatorArgs,
+  Data,
+  DataArgs,
   MetadataDelegateRole,
   getAuthorizationDataSerializer,
-  getCreatorSerializer,
+  getDataSerializer,
 } from '../types';
 
 // Accounts.
@@ -77,24 +74,12 @@ export type UpdateAsDataDelegateV2InstructionAccounts = {
 export type UpdateAsDataDelegateV2InstructionData = {
   discriminator: number;
   updateAsDataDelegateV2Discriminator: number;
-  data: Option<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Option<Array<Creator>>;
-  }>;
+  data: Option<Data>;
   authorizationData: Option<AuthorizationData>;
 };
 
 export type UpdateAsDataDelegateV2InstructionDataArgs = {
-  data?: OptionOrNullable<{
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: OptionOrNullable<Array<CreatorArgs>>;
-  }>;
+  data?: OptionOrNullable<DataArgs>;
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
@@ -111,18 +96,7 @@ export function getUpdateAsDataDelegateV2InstructionDataSerializer(): Serializer
       [
         ['discriminator', u8()],
         ['updateAsDataDelegateV2Discriminator', u8()],
-        [
-          'data',
-          option(
-            struct<any>([
-              ['name', string()],
-              ['symbol', string()],
-              ['uri', string()],
-              ['sellerFeeBasisPoints', u16()],
-              ['creators', option(array(getCreatorSerializer()))],
-            ])
-          ),
-        ],
+        ['data', option(getDataSerializer())],
         ['authorizationData', option(getAuthorizationDataSerializer())],
       ],
       { description: 'UpdateAsDataDelegateV2InstructionData' }
