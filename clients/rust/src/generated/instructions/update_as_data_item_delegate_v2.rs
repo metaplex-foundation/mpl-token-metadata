@@ -37,12 +37,19 @@ pub struct UpdateAsDataItemDelegateV2 {
 }
 
 impl UpdateAsDataItemDelegateV2 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: UpdateAsDataItemDelegateV2InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(11);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: UpdateAsDataItemDelegateV2InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
             true,
@@ -118,6 +125,9 @@ impl UpdateAsDataItemDelegateV2 {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = UpdateAsDataItemDelegateV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -147,13 +157,15 @@ impl UpdateAsDataItemDelegateV2InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsDataItemDelegateV2InstructionArgs {
     pub data: Option<UpdateAsDataItemDelegateV2InstructionDataData>,
     pub authorization_data: Option<AuthorizationData>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateAsDataItemDelegateV2InstructionDataData {
     pub name: String,
     pub symbol: String,
@@ -178,6 +190,7 @@ pub struct UpdateAsDataItemDelegateV2Builder {
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
     data: Option<UpdateAsDataItemDelegateV2InstructionDataData>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl UpdateAsDataItemDelegateV2Builder {
@@ -195,16 +208,16 @@ impl UpdateAsDataItemDelegateV2Builder {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: solana_program::pubkey::Pubkey,
+        delegate_record: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.delegate_record = Some(delegate_record);
+        self.delegate_record = delegate_record;
         self
     }
     /// `[optional account]`
     /// Token account
     #[inline(always)]
-    pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token = Some(token);
+    pub fn token(&mut self, token: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.token = token;
         self
     }
     /// Mint account
@@ -222,8 +235,8 @@ impl UpdateAsDataItemDelegateV2Builder {
     /// `[optional account]`
     /// Edition account
     #[inline(always)]
-    pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.edition = Some(edition);
+    pub fn edition(&mut self, edition: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.edition = edition;
         self
     }
     /// Payer
@@ -232,12 +245,14 @@ impl UpdateAsDataItemDelegateV2Builder {
         self.payer = Some(payer);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -252,9 +267,9 @@ impl UpdateAsDataItemDelegateV2Builder {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: solana_program::pubkey::Pubkey,
+        authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules_program = Some(authorization_rules_program);
+        self.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -262,9 +277,9 @@ impl UpdateAsDataItemDelegateV2Builder {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: solana_program::pubkey::Pubkey,
+        authorization_rules: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules = Some(authorization_rules);
+        self.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument]`
@@ -279,8 +294,18 @@ impl UpdateAsDataItemDelegateV2Builder {
         self.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = UpdateAsDataItemDelegateV2 {
             authority: self.authority.expect("authority is not set"),
             delegate_record: self.delegate_record,
@@ -303,8 +328,34 @@ impl UpdateAsDataItemDelegateV2Builder {
             authorization_data: self.authorization_data.clone(),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `update_as_data_item_delegate_v2` CPI accounts.
+pub struct UpdateAsDataItemDelegateV2CpiAccounts<'a> {
+    /// Update authority or delegate
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Delegate record PDA
+    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token account
+    pub token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Mint account
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Edition account
+    pub edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token Authorization Rules Program
+    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules account
+    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `update_as_data_item_delegate_v2` CPI instruction.
@@ -338,16 +389,53 @@ pub struct UpdateAsDataItemDelegateV2Cpi<'a> {
 }
 
 impl<'a> UpdateAsDataItemDelegateV2Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: UpdateAsDataItemDelegateV2CpiAccounts<'a>,
+        args: UpdateAsDataItemDelegateV2InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            authority: accounts.authority,
+            delegate_record: accounts.delegate_record,
+            token: accounts.token,
+            mint: accounts.mint,
+            metadata: accounts.metadata,
+            edition: accounts.edition,
+            payer: accounts.payer,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            authorization_rules_program: accounts.authorization_rules_program,
+            authorization_rules: accounts.authorization_rules,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(11);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
             true,
@@ -426,6 +514,9 @@ impl<'a> UpdateAsDataItemDelegateV2Cpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = UpdateAsDataItemDelegateV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -437,7 +528,7 @@ impl<'a> UpdateAsDataItemDelegateV2Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(11 + 1);
+        let mut account_infos = Vec::with_capacity(11 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.authority.clone());
         if let Some(delegate_record) = self.delegate_record {
@@ -460,6 +551,9 @@ impl<'a> UpdateAsDataItemDelegateV2Cpi<'a> {
         if let Some(authorization_rules) = self.authorization_rules {
             account_infos.push(authorization_rules.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -491,6 +585,7 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
             authorization_rules: None,
             data: None,
             authorization_data: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -508,16 +603,19 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.delegate_record = Some(delegate_record);
+        self.instruction.delegate_record = delegate_record;
         self
     }
     /// `[optional account]`
     /// Token account
     #[inline(always)]
-    pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.token = Some(token);
+    pub fn token(
+        &mut self,
+        token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.token = token;
         self
     }
     /// Mint account
@@ -540,9 +638,9 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: &'a solana_program::account_info::AccountInfo<'a>,
+        edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.edition = Some(edition);
+        self.instruction.edition = edition;
         self
     }
     /// Payer
@@ -574,9 +672,9 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules_program = Some(authorization_rules_program);
+        self.instruction.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -584,9 +682,9 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules = Some(authorization_rules);
+        self.instruction.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument]`
@@ -601,14 +699,39 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
         self.instruction.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> UpdateAsDataItemDelegateV2Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = UpdateAsDataItemDelegateV2InstructionArgs {
             data: self.instruction.data.clone(),
             authorization_data: self.instruction.authorization_data.clone(),
         };
-
-        UpdateAsDataItemDelegateV2Cpi {
+        let instruction = UpdateAsDataItemDelegateV2Cpi {
             __program: self.instruction.__program,
 
             authority: self.instruction.authority.expect("authority is not set"),
@@ -639,7 +762,11 @@ impl<'a> UpdateAsDataItemDelegateV2CpiBuilder<'a> {
 
             authorization_rules: self.instruction.authorization_rules,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -658,4 +785,5 @@ struct UpdateAsDataItemDelegateV2CpiBuilderInstruction<'a> {
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     data: Option<UpdateAsDataItemDelegateV2InstructionDataData>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

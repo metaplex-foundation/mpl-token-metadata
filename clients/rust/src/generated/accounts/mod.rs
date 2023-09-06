@@ -5,16 +5,16 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-pub mod collection_authority_record;
-pub mod edition;
-pub mod edition_marker;
-pub mod edition_marker_v2;
-pub mod master_edition;
-pub mod metadata;
-pub mod metadata_delegate_record;
-pub mod token_owned_escrow;
-pub mod token_record;
-pub mod use_authority_record;
+pub(crate) mod collection_authority_record;
+pub(crate) mod edition;
+pub(crate) mod edition_marker;
+pub(crate) mod edition_marker_v2;
+pub(crate) mod master_edition;
+pub(crate) mod metadata;
+pub(crate) mod metadata_delegate_record;
+pub(crate) mod token_owned_escrow;
+pub(crate) mod token_record;
+pub(crate) mod use_authority_record;
 
 pub use self::collection_authority_record::*;
 pub use self::edition::*;

@@ -12,35 +12,30 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MetadataDelegateRecord {
     pub key: Key,
     pub bump: u8,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
     pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
     pub delegate: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
     pub update_authority: Pubkey,
 }
 
 impl MetadataDelegateRecord {
     pub const LEN: usize = 98;
 
-    pub fn find_pda(
-        mint: &Pubkey,
-        delegate_role: MetadataDelegateRoleSeed,
-        update_authority: &Pubkey,
-        delegate: &Pubkey,
-    ) -> (solana_program::pubkey::Pubkey, u8) {
-        solana_program::pubkey::Pubkey::find_program_address(
-            &[
-                "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
-                mint.as_ref(),
-                delegate_role.to_string().as_ref(),
-                update_authority.as_ref(),
-                delegate.as_ref(),
-            ],
-            &crate::MPL_TOKEN_METADATA_ID,
-        )
-    }
     pub fn create_pda(
         mint: Pubkey,
         delegate_role: MetadataDelegateRoleSeed,
@@ -60,6 +55,31 @@ impl MetadataDelegateRecord {
             ],
             &crate::MPL_TOKEN_METADATA_ID,
         )
+    }
+
+    pub fn find_pda(
+        mint: &Pubkey,
+        delegate_role: MetadataDelegateRoleSeed,
+        update_authority: &Pubkey,
+        delegate: &Pubkey,
+    ) -> (solana_program::pubkey::Pubkey, u8) {
+        solana_program::pubkey::Pubkey::find_program_address(
+            &[
+                "metadata".as_bytes(),
+                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                mint.as_ref(),
+                delegate_role.to_string().as_ref(),
+                update_authority.as_ref(),
+                delegate.as_ref(),
+            ],
+            &crate::MPL_TOKEN_METADATA_ID,
+        )
+    }
+
+    #[inline(always)]
+    pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
+        let mut data = data;
+        Self::deserialize(&mut data)
     }
 }
 

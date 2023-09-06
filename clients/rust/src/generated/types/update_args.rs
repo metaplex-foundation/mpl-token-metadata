@@ -17,6 +17,7 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum UpdateArgs {
     V1 {
         new_update_authority: Option<Pubkey>,
@@ -75,6 +76,7 @@ pub enum UpdateArgs {
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateArgsV1Data {
     pub name: String,
     pub symbol: String,
@@ -83,6 +85,7 @@ pub struct UpdateArgsV1Data {
     pub creators: Option<Vec<Creator>>,
 }
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateArgsAsUpdateAuthorityV2Data {
     pub name: String,
     pub symbol: String,
@@ -91,6 +94,7 @@ pub struct UpdateArgsAsUpdateAuthorityV2Data {
     pub creators: Option<Vec<Creator>>,
 }
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateArgsAsDataDelegateV2Data {
     pub name: String,
     pub symbol: String,
@@ -99,6 +103,7 @@ pub struct UpdateArgsAsDataDelegateV2Data {
     pub creators: Option<Vec<Creator>>,
 }
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UpdateArgsAsDataItemDelegateV2Data {
     pub name: String,
     pub symbol: String,

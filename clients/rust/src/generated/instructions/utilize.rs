@@ -35,12 +35,19 @@ pub struct Utilize {
 }
 
 impl Utilize {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: UtilizeInstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(11);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: UtilizeInstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
             false,
@@ -85,6 +92,9 @@ impl Utilize {
                 burner, false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -108,7 +118,8 @@ impl UtilizeInstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct UtilizeInstructionArgs {
     pub number_of_uses: u64,
 }
@@ -128,6 +139,7 @@ pub struct UtilizeBuilder {
     use_authority_record: Option<solana_program::pubkey::Pubkey>,
     burner: Option<solana_program::pubkey::Pubkey>,
     number_of_uses: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl UtilizeBuilder {
@@ -164,24 +176,28 @@ impl UtilizeBuilder {
         self.owner = Some(owner);
         self
     }
+    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
     /// Token program
     #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// `[optional account, default to 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL']`
     /// Associated Token program
     #[inline(always)]
     pub fn ata_program(&mut self, ata_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.ata_program = Some(ata_program);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'SysvarRent111111111111111111111111111111111']`
     /// Rent info
     #[inline(always)]
     pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
@@ -193,16 +209,16 @@ impl UtilizeBuilder {
     #[inline(always)]
     pub fn use_authority_record(
         &mut self,
-        use_authority_record: solana_program::pubkey::Pubkey,
+        use_authority_record: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.use_authority_record = Some(use_authority_record);
+        self.use_authority_record = use_authority_record;
         self
     }
     /// `[optional account]`
     /// Program As Signer (Burner)
     #[inline(always)]
-    pub fn burner(&mut self, burner: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.burner = Some(burner);
+    pub fn burner(&mut self, burner: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.burner = burner;
         self
     }
     #[inline(always)]
@@ -210,8 +226,18 @@ impl UtilizeBuilder {
         self.number_of_uses = Some(number_of_uses);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = Utilize {
             metadata: self.metadata.expect("metadata is not set"),
             token_account: self.token_account.expect("token_account is not set"),
@@ -240,8 +266,34 @@ impl UtilizeBuilder {
                 .expect("number_of_uses is not set"),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `utilize` CPI accounts.
+pub struct UtilizeCpiAccounts<'a> {
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token Account Of NFT
+    pub token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Mint of the Metadata
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// A Use Authority / Can be the current Owner of the NFT
+    pub use_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Owner
+    pub owner: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token program
+    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Associated Token program
+    pub ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Rent info
+    pub rent: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Use Authority Record PDA If present the program Assumes a delegated use authority
+    pub use_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Program As Signer (Burner)
+    pub burner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `utilize` CPI instruction.
@@ -275,16 +327,53 @@ pub struct UtilizeCpi<'a> {
 }
 
 impl<'a> UtilizeCpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: UtilizeCpiAccounts<'a>,
+        args: UtilizeInstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            metadata: accounts.metadata,
+            token_account: accounts.token_account,
+            mint: accounts.mint,
+            use_authority: accounts.use_authority,
+            owner: accounts.owner,
+            token_program: accounts.token_program,
+            ata_program: accounts.ata_program,
+            system_program: accounts.system_program,
+            rent: accounts.rent,
+            use_authority_record: accounts.use_authority_record,
+            burner: accounts.burner,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(11);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
             false,
@@ -333,6 +422,9 @@ impl<'a> UtilizeCpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -342,7 +434,7 @@ impl<'a> UtilizeCpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(11 + 1);
+        let mut account_infos = Vec::with_capacity(11 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.metadata.clone());
         account_infos.push(self.token_account.clone());
@@ -359,6 +451,9 @@ impl<'a> UtilizeCpi<'a> {
         if let Some(burner) = self.burner {
             account_infos.push(burner.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -389,6 +484,7 @@ impl<'a> UtilizeCpiBuilder<'a> {
             use_authority_record: None,
             burner: None,
             number_of_uses: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -469,9 +565,9 @@ impl<'a> UtilizeCpiBuilder<'a> {
     #[inline(always)]
     pub fn use_authority_record(
         &mut self,
-        use_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+        use_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.use_authority_record = Some(use_authority_record);
+        self.instruction.use_authority_record = use_authority_record;
         self
     }
     /// `[optional account]`
@@ -479,9 +575,9 @@ impl<'a> UtilizeCpiBuilder<'a> {
     #[inline(always)]
     pub fn burner(
         &mut self,
-        burner: &'a solana_program::account_info::AccountInfo<'a>,
+        burner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.burner = Some(burner);
+        self.instruction.burner = burner;
         self
     }
     #[inline(always)]
@@ -489,8 +585,34 @@ impl<'a> UtilizeCpiBuilder<'a> {
         self.instruction.number_of_uses = Some(number_of_uses);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> UtilizeCpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = UtilizeInstructionArgs {
             number_of_uses: self
                 .instruction
@@ -498,8 +620,7 @@ impl<'a> UtilizeCpiBuilder<'a> {
                 .clone()
                 .expect("number_of_uses is not set"),
         };
-
-        UtilizeCpi {
+        let instruction = UtilizeCpi {
             __program: self.instruction.__program,
 
             metadata: self.instruction.metadata.expect("metadata is not set"),
@@ -539,7 +660,11 @@ impl<'a> UtilizeCpiBuilder<'a> {
 
             burner: self.instruction.burner,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -557,4 +682,5 @@ struct UtilizeCpiBuilderInstruction<'a> {
     use_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     burner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     number_of_uses: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }
