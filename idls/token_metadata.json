@@ -3119,6 +3119,7 @@
           "name": "splTokenProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Token program"
           ]

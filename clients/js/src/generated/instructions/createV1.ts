@@ -284,13 +284,6 @@ export function createV1(
       'Sysvar1nstructions1111111111111111111111111'
     );
   }
-  if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
-      'splToken',
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-    );
-    resolvedAccounts.splTokenProgram.isWritable = false;
-  }
   if (!resolvedArgs.isCollection) {
     resolvedArgs.isCollection = false;
   }
