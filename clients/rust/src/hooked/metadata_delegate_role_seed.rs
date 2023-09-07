@@ -2,11 +2,11 @@ use std::fmt::{Display, Formatter, Result};
 
 use crate::types::MetadataDelegateRole;
 
-pub struct MetadataDelegateRoleSeed(MetadataDelegateRole);
+pub type MetadataDelegateRoleSeed = MetadataDelegateRole;
 
-impl Display for MetadataDelegateRoleSeed {
+impl Display for MetadataDelegateRole {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        let message = match self.0 {
+        let message = match self {
             MetadataDelegateRole::AuthorityItem => "authority_item_delegate".to_string(),
             MetadataDelegateRole::Collection => "collection_delegate".to_string(),
             MetadataDelegateRole::Use => "use_delegate".to_string(),
@@ -18,11 +18,5 @@ impl Display for MetadataDelegateRoleSeed {
         };
 
         write!(f, "{message}")
-    }
-}
-
-impl From<MetadataDelegateRole> for MetadataDelegateRoleSeed {
-    fn from(role: MetadataDelegateRole) -> Self {
-        MetadataDelegateRoleSeed(role)
     }
 }

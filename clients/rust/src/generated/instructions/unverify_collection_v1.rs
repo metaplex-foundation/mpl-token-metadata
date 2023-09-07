@@ -27,9 +27,15 @@ pub struct UnverifyCollectionV1 {
 }
 
 impl UnverifyCollectionV1 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(7);
+        self.instruction_with_remaining_accounts(&[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.authority,
             true,
@@ -72,6 +78,9 @@ impl UnverifyCollectionV1 {
             self.sysvar_instructions,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = UnverifyCollectionV1InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -109,6 +118,7 @@ pub struct UnverifyCollectionV1Builder {
     collection_metadata: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl UnverifyCollectionV1Builder {
@@ -126,9 +136,9 @@ impl UnverifyCollectionV1Builder {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: solana_program::pubkey::Pubkey,
+        delegate_record: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.delegate_record = Some(delegate_record);
+        self.delegate_record = delegate_record;
         self
     }
     /// Metadata account
@@ -151,17 +161,19 @@ impl UnverifyCollectionV1Builder {
     #[inline(always)]
     pub fn collection_metadata(
         &mut self,
-        collection_metadata: solana_program::pubkey::Pubkey,
+        collection_metadata: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.collection_metadata = Some(collection_metadata);
+        self.collection_metadata = collection_metadata;
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -171,8 +183,18 @@ impl UnverifyCollectionV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = UnverifyCollectionV1 {
             authority: self.authority.expect("authority is not set"),
             delegate_record: self.delegate_record,
@@ -187,8 +209,26 @@ impl UnverifyCollectionV1Builder {
             )),
         };
 
-        accounts.instruction()
+        accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
+}
+
+/// `unverify_collection_v1` CPI accounts.
+pub struct UnverifyCollectionV1CpiAccounts<'a> {
+    /// Creator to verify, collection (or metadata if parent burned) update authority or delegate
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Delegate record PDA
+    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Mint of the Collection
+    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata Account of the Collection
+    pub collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `unverify_collection_v1` CPI instruction.
@@ -212,16 +252,47 @@ pub struct UnverifyCollectionV1Cpi<'a> {
 }
 
 impl<'a> UnverifyCollectionV1Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: UnverifyCollectionV1CpiAccounts<'a>,
+    ) -> Self {
+        Self {
+            __program: program,
+            authority: accounts.authority,
+            delegate_record: accounts.delegate_record,
+            metadata: accounts.metadata,
+            collection_mint: accounts.collection_mint,
+            collection_metadata: accounts.collection_metadata,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(7);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.authority.key,
             true,
@@ -264,6 +335,9 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
             *self.sysvar_instructions.key,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = UnverifyCollectionV1InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -273,7 +347,7 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(7 + 1);
+        let mut account_infos = Vec::with_capacity(7 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.authority.clone());
         if let Some(delegate_record) = self.delegate_record {
@@ -286,6 +360,9 @@ impl<'a> UnverifyCollectionV1Cpi<'a> {
         }
         account_infos.push(self.system_program.clone());
         account_infos.push(self.sysvar_instructions.clone());
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -311,6 +388,7 @@ impl<'a> UnverifyCollectionV1CpiBuilder<'a> {
             collection_metadata: None,
             system_program: None,
             sysvar_instructions: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -328,9 +406,9 @@ impl<'a> UnverifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.delegate_record = Some(delegate_record);
+        self.instruction.delegate_record = delegate_record;
         self
     }
     /// Metadata account
@@ -356,9 +434,9 @@ impl<'a> UnverifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_metadata(
         &mut self,
-        collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.collection_metadata = Some(collection_metadata);
+        self.instruction.collection_metadata = collection_metadata;
         self
     }
     /// System program
@@ -379,9 +457,35 @@ impl<'a> UnverifyCollectionV1CpiBuilder<'a> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> UnverifyCollectionV1Cpi<'a> {
-        UnverifyCollectionV1Cpi {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let instruction = UnverifyCollectionV1Cpi {
             __program: self.instruction.__program,
 
             authority: self.instruction.authority.expect("authority is not set"),
@@ -406,7 +510,11 @@ impl<'a> UnverifyCollectionV1CpiBuilder<'a> {
                 .instruction
                 .sysvar_instructions
                 .expect("sysvar_instructions is not set"),
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -419,4 +527,5 @@ struct UnverifyCollectionV1CpiBuilderInstruction<'a> {
     collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

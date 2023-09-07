@@ -31,12 +31,19 @@ pub struct CreateMasterEditionV3 {
 }
 
 impl CreateMasterEditionV3 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: CreateMasterEditionV3InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(9);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: CreateMasterEditionV3InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.edition,
             false,
@@ -72,6 +79,9 @@ impl CreateMasterEditionV3 {
                 rent, false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = CreateMasterEditionV3InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -97,7 +107,8 @@ impl CreateMasterEditionV3InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateMasterEditionV3InstructionArgs {
     pub max_supply: Option<u64>,
 }
@@ -115,6 +126,7 @@ pub struct CreateMasterEditionV3Builder {
     system_program: Option<solana_program::pubkey::Pubkey>,
     rent: Option<solana_program::pubkey::Pubkey>,
     max_supply: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl CreateMasterEditionV3Builder {
@@ -160,12 +172,14 @@ impl CreateMasterEditionV3Builder {
         self.metadata = Some(metadata);
         self
     }
+    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
     /// Token program
     #[inline(always)]
     pub fn token_program(&mut self, token_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.token_program = Some(token_program);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
@@ -175,8 +189,8 @@ impl CreateMasterEditionV3Builder {
     /// `[optional account]`
     /// Rent info
     #[inline(always)]
-    pub fn rent(&mut self, rent: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.rent = Some(rent);
+    pub fn rent(&mut self, rent: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.rent = rent;
         self
     }
     /// `[optional argument]`
@@ -185,8 +199,18 @@ impl CreateMasterEditionV3Builder {
         self.max_supply = Some(max_supply);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = CreateMasterEditionV3 {
             edition: self.edition.expect("edition is not set"),
             mint: self.mint.expect("mint is not set"),
@@ -206,8 +230,30 @@ impl CreateMasterEditionV3Builder {
             max_supply: self.max_supply.clone(),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `create_master_edition_v3` CPI accounts.
+pub struct CreateMasterEditionV3CpiAccounts<'a> {
+    /// Unallocated edition V2 account with address as pda of ['metadata', program id, mint, 'edition']
+    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata mint
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Update authority
+    pub update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Mint authority on the metadata's mint - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
+    pub mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token program
+    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Rent info
+    pub rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `create_master_edition_v3` CPI instruction.
@@ -237,16 +283,51 @@ pub struct CreateMasterEditionV3Cpi<'a> {
 }
 
 impl<'a> CreateMasterEditionV3Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: CreateMasterEditionV3CpiAccounts<'a>,
+        args: CreateMasterEditionV3InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            edition: accounts.edition,
+            mint: accounts.mint,
+            update_authority: accounts.update_authority,
+            mint_authority: accounts.mint_authority,
+            payer: accounts.payer,
+            metadata: accounts.metadata,
+            token_program: accounts.token_program,
+            system_program: accounts.system_program,
+            rent: accounts.rent,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(9);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.edition.key,
             false,
@@ -284,6 +365,9 @@ impl<'a> CreateMasterEditionV3Cpi<'a> {
                 *rent.key, false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = CreateMasterEditionV3InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -295,7 +379,7 @@ impl<'a> CreateMasterEditionV3Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(9 + 1);
+        let mut account_infos = Vec::with_capacity(9 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.edition.clone());
         account_infos.push(self.mint.clone());
@@ -308,6 +392,9 @@ impl<'a> CreateMasterEditionV3Cpi<'a> {
         if let Some(rent) = self.rent {
             account_infos.push(rent.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -336,6 +423,7 @@ impl<'a> CreateMasterEditionV3CpiBuilder<'a> {
             system_program: None,
             rent: None,
             max_supply: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -408,8 +496,11 @@ impl<'a> CreateMasterEditionV3CpiBuilder<'a> {
     /// `[optional account]`
     /// Rent info
     #[inline(always)]
-    pub fn rent(&mut self, rent: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.rent = Some(rent);
+    pub fn rent(
+        &mut self,
+        rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.rent = rent;
         self
     }
     /// `[optional argument]`
@@ -418,13 +509,38 @@ impl<'a> CreateMasterEditionV3CpiBuilder<'a> {
         self.instruction.max_supply = Some(max_supply);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> CreateMasterEditionV3Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = CreateMasterEditionV3InstructionArgs {
             max_supply: self.instruction.max_supply.clone(),
         };
-
-        CreateMasterEditionV3Cpi {
+        let instruction = CreateMasterEditionV3Cpi {
             __program: self.instruction.__program,
 
             edition: self.instruction.edition.expect("edition is not set"),
@@ -457,7 +573,11 @@ impl<'a> CreateMasterEditionV3CpiBuilder<'a> {
 
             rent: self.instruction.rent,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -473,4 +593,5 @@ struct CreateMasterEditionV3CpiBuilderInstruction<'a> {
     system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     max_supply: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

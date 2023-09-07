@@ -46,14 +46,14 @@ mod lock {
         let delegate_ix = DelegateStandardV1Builder::new()
             .token(asset.token)
             .metadata(asset.metadata)
-            .master_edition(asset.master_edition)
+            .master_edition(Some(asset.master_edition))
             .mint(asset.mint.pubkey())
             .delegate(delegate.pubkey())
             .authority(token_owner.pubkey())
-            .spl_token_program(spl_token::ID)
+            .spl_token_program(Some(spl_token::ID))
             .payer(payer.pubkey())
             .amount(1)
-            .build();
+            .instruction();
 
         let tx = Transaction::new_signed_with_payer(
             &[delegate_ix],
@@ -68,12 +68,12 @@ mod lock {
         let lock_ix = LockV1Builder::new()
             .authority(delegate.pubkey())
             .metadata(asset.metadata)
-            .edition(asset.master_edition)
+            .edition(Some(asset.master_edition))
             .mint(asset.mint.pubkey())
             .token(asset.token)
-            .spl_token_program(spl_token::ID)
+            .spl_token_program(Some(spl_token::ID))
             .payer(payer.pubkey())
-            .build();
+            .instruction();
 
         let tx = Transaction::new_signed_with_payer(
             &[lock_ix],
