@@ -759,6 +759,10 @@ pub enum MetadataError {
     /// 192
     #[error("")]
     InvalidMetadataFlags,
+
+    /// 193
+    #[error("Cannot change the update authority with a delegate")]
+    CannotChangeUpdateAuthorityWithDelegate,
 }
 
 impl PrintProgramError for MetadataError {

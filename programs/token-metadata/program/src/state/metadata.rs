@@ -16,7 +16,7 @@ pub const MAX_SYMBOL_LENGTH: usize = 10;
 
 pub const MAX_URI_LENGTH: usize = 200;
 
-pub const MAX_METADATA_LEN: usize = 1 // key 
+pub const MAX_METADATA_LEN: usize = 1 // key
 + 32             // update auth pubkey
 + 32             // mint pubkey
 + MAX_DATA_SIZE
@@ -94,7 +94,7 @@ pub struct Metadata {
 impl Metadata {
     pub fn save(&self, data: &mut [u8]) -> Result<(), BorshError> {
         let mut bytes = Vec::with_capacity(MAX_METADATA_LEN);
-        BorshSerialize::serialize(&self, &mut bytes)?;
+        borsh::to_writer(&mut bytes, self)?;
         data[..bytes.len()].copy_from_slice(&bytes);
         Ok(())
     }
@@ -113,15 +113,21 @@ impl Metadata {
         // Only the Update Authority can update this section.
         match &args {
             UpdateArgs::V1 {
+                new_update_authority,
                 uses,
                 collection_details,
                 ..
             }
             | UpdateArgs::AsUpdateAuthorityV2 {
+                new_update_authority,
                 uses,
                 collection_details,
                 ..
             } => {
+                if let Some(authority) = new_update_authority {
+                    self.update_authority = *authority;
+                }
+
                 if uses.is_some() {
                     let uses_option = uses.clone().to_option();
                     // If already None leave it as None.
@@ -170,27 +176,20 @@ impl Metadata {
         // Update Authority or Authority Item Delegate can update this section.
         match &args {
             UpdateArgs::V1 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             }
             | UpdateArgs::AsUpdateAuthorityV2 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             }
             | UpdateArgs::AsAuthorityItemDelegateV2 {
-                new_update_authority,
                 primary_sale_happened,
                 is_mutable,
                 ..
             } => {
-                if let Some(authority) = new_update_authority {
-                    self.update_authority = *authority;
-                }
-
                 if let Some(primary_sale) = primary_sale_happened {
                     // If received primary_sale is true, flip to true.
                     if *primary_sale || !self.primary_sale_happened {
@@ -211,6 +210,15 @@ impl Metadata {
             }
             _ => (),
         }
+
+        // Update authority by Authority Item Delegate is deprecated.
+        if let UpdateArgs::AsAuthorityItemDelegateV2 {
+            new_update_authority: Some(_authority),
+            ..
+        } = &args
+        {
+            return Err(MetadataError::CannotChangeUpdateAuthorityWithDelegate.into());
+        };
 
         // Update Authority or Collection Delegates can update this section.
         match &args {
@@ -387,7 +395,7 @@ pub enum ProgrammableConfig {
 
 #[cfg(test)]
 mod tests {
-    use borsh::{BorshDeserialize, BorshSerialize};
+    use borsh::BorshDeserialize;
     use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
@@ -423,7 +431,7 @@ mod tests {
         let expected_metadata = expected_pesky_metadata();
 
         let mut buf = Vec::new();
-        expected_metadata.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_metadata).unwrap();
         pad_metadata_length(&mut buf);
 
         let pubkey = Keypair::new().pubkey();
@@ -452,7 +460,7 @@ mod tests {
         let expected_metadata = expected_pesky_metadata();
 
         let mut buf = Vec::new();
-        expected_metadata.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_metadata).unwrap();
         pad_metadata_length(&mut buf);
 
         let pubkey = Keypair::new().pubkey();
@@ -482,7 +490,7 @@ mod tests {
         let expected_metadata = expected_pesky_metadata();
 
         let mut buf = Vec::new();
-        expected_metadata.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_metadata).unwrap();
         // No padding is added to the metadata so it's too short.
 
         let pubkey = Keypair::new().pubkey();
@@ -515,7 +523,7 @@ mod tests {
             max_supply: Some(0),
         };
         let mut buf = Vec::new();
-        master_edition.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &master_edition).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;
@@ -549,7 +557,7 @@ mod tests {
         };
 
         let mut buf = Vec::new();
-        edition.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &edition).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;
@@ -580,7 +588,7 @@ mod tests {
         };
 
         let mut buf = Vec::new();
-        use_record.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &use_record).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;
@@ -611,7 +619,7 @@ mod tests {
         };
 
         let mut buf = Vec::new();
-        collection_record.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &collection_record).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;
@@ -641,7 +649,7 @@ mod tests {
         };
 
         let mut buf = Vec::new();
-        edition_marker.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &edition_marker).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;

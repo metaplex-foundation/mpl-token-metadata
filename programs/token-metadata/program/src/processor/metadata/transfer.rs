@@ -91,6 +91,10 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         amount,
     } = args;
 
+    if amount == 0 {
+        return Err(MetadataError::InvalidAmount.into());
+    }
+
     // Check signers
 
     // This authority must always be a signer, regardless of if it's the
@@ -335,11 +339,6 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 .map(|role| role == TokenDelegateRole::Sale)
                 .unwrap_or(false);
 
-            let is_locked_transfer_delegate = owner_token_record
-                .delegate_role
-                .map(|role| role == TokenDelegateRole::LockedTransfer)
-                .unwrap_or(false);
-
             let scenario = match authority_type {
                 AuthorityType::Holder => {
                     if is_sale_delegate {
@@ -348,25 +347,16 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                     TransferScenario::Holder
                 }
                 AuthorityType::TokenDelegate => {
-                    if owner_token_record.delegate_role.is_none() {
-                        return Err(MetadataError::MissingDelegateRole.into());
-                    }
+                    let delegate_role = owner_token_record
+                        .delegate_role
+                        .ok_or(MetadataError::MissingDelegateRole)?;
 
-                    // need to validate whether the destination key matches the locked
-                    // transfer address
-                    if is_locked_transfer_delegate {
-                        let locked_address = owner_token_record
-                            .locked_transfer
-                            .ok_or(MetadataError::MissingLockedTransferAddress)?;
-
-                        if !cmp_pubkeys(&locked_address, ctx.accounts.destination_owner_info.key) {
-                            return Err(MetadataError::InvalidLockedTransferAddress.into());
-                        }
-                        // locked transfer is a special case of the transfer restricted to a specific
-                        // address, so after validating the address we proceed as a 'normal' transfer
+                    if matches!(delegate_role, TokenDelegateRole::LockedTransfer) {
+                        // locked transfer is a special case of the transfer so we proceed
+                        // as a 'normal' transfer
                         TokenDelegateRole::Transfer.into()
                     } else {
-                        owner_token_record.delegate_role.unwrap().into()
+                        delegate_role.into()
                     }
                 }
                 _ => return Err(MetadataError::InvalidTransferAuthority.into()),

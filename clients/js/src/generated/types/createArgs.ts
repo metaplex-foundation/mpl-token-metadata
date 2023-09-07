@@ -86,17 +86,10 @@ export type CreateArgsArgs = {
   printSupply?: OptionOrNullable<PrintSupplyArgs>;
 };
 
-/** @deprecated Use `getCreateArgsSerializer()` without any argument instead. */
-export function getCreateArgsSerializer(
-  _context: object
-): Serializer<CreateArgsArgs, CreateArgs>;
 export function getCreateArgsSerializer(): Serializer<
   CreateArgsArgs,
   CreateArgs
->;
-export function getCreateArgsSerializer(
-  _context: object = {}
-): Serializer<CreateArgsArgs, CreateArgs> {
+> {
   return dataEnum<CreateArgs>(
     [
       [

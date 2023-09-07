@@ -7,7 +7,7 @@ const programDir = path.join(__dirname, "..", "programs");
 
 generateIdl({
   generator: "shank",
-  programName: "mpl_token_metadata",
+  programName: "token_metadata",
   programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
   idlDir,
   binaryInstallDir,

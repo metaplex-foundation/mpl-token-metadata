@@ -1,14 +1,10 @@
-use borsh::BorshSerialize;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token_2022::state::Mint;
 
 use crate::{
     assertions::{assert_initialized, assert_owned_by},
     error::MetadataError,
+    processor::all_account_infos,
     state::{Key, MasterEditionV1, MasterEditionV2, TokenMetadataAccount},
     utils::SPL_TOKEN_ID,
 };
@@ -17,10 +13,12 @@ pub fn process_convert_master_edition_v1_to_v2(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-    let master_edition_info = next_account_info(account_info_iter)?;
-    let one_time_printing_auth_mint_info = next_account_info(account_info_iter)?;
-    let printing_mint_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        master_edition_info,
+        one_time_printing_auth_mint_info,
+        printing_mint_info
+    );
 
     assert_owned_by(master_edition_info, program_id)?;
     assert_owned_by(one_time_printing_auth_mint_info, &SPL_TOKEN_ID)?;
@@ -45,12 +43,14 @@ pub fn process_convert_master_edition_v1_to_v2(
         return Err(MetadataError::OneTimeAuthMintSupplyMustBeZeroForConversion.into());
     }
 
-    MasterEditionV2 {
-        key: Key::MasterEditionV2,
-        supply: master_edition.supply,
-        max_supply: master_edition.max_supply,
-    }
-    .serialize(&mut *master_edition_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(
+        &mut master_edition_info.try_borrow_mut_data()?[..],
+        &MasterEditionV2 {
+            key: Key::MasterEditionV2,
+            supply: master_edition.supply,
+            max_supply: master_edition.max_supply,
+        },
+    )?;
 
     Ok(())
 }

@@ -55,12 +55,15 @@ impl CollectionAuthorityRecord {
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub enum CollectionDetails {
+    #[deprecated(
+        since = "1.13.1",
+        note = "The collection size tracking feature is deprecated and will soon be removed."
+    )]
     V1 { size: u64 },
 }
 
 #[cfg(test)]
 mod tests {
-    use borsh::BorshSerialize;
     use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
@@ -75,7 +78,7 @@ mod tests {
         let expected_data = CollectionAuthorityRecord::default();
 
         let mut buf = Vec::new();
-        expected_data.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_data).unwrap();
         CollectionAuthorityRecord::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();
@@ -104,7 +107,7 @@ mod tests {
         let wrong_type = UseAuthorityRecord::default();
 
         let mut buf = Vec::new();
-        wrong_type.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &wrong_type).unwrap();
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;

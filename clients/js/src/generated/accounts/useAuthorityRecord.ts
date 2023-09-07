@@ -43,17 +43,7 @@ export type UseAuthorityRecordAccountDataArgs = {
   bump: number;
 };
 
-/** @deprecated Use `getUseAuthorityRecordAccountDataSerializer()` without any argument instead. */
-export function getUseAuthorityRecordAccountDataSerializer(
-  _context: object
-): Serializer<UseAuthorityRecordAccountDataArgs, UseAuthorityRecordAccountData>;
 export function getUseAuthorityRecordAccountDataSerializer(): Serializer<
-  UseAuthorityRecordAccountDataArgs,
-  UseAuthorityRecordAccountData
->;
-export function getUseAuthorityRecordAccountDataSerializer(
-  _context: object = {}
-): Serializer<
   UseAuthorityRecordAccountDataArgs,
   UseAuthorityRecordAccountData
 > {
@@ -77,20 +67,11 @@ export function getUseAuthorityRecordAccountDataSerializer(
   >;
 }
 
-/** @deprecated Use `deserializeUseAuthorityRecord(rawAccount)` without any context instead. */
-export function deserializeUseAuthorityRecord(
-  context: object,
-  rawAccount: RpcAccount
-): UseAuthorityRecord;
 export function deserializeUseAuthorityRecord(
   rawAccount: RpcAccount
-): UseAuthorityRecord;
-export function deserializeUseAuthorityRecord(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): UseAuthorityRecord {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getUseAuthorityRecordAccountDataSerializer()
   );
 }

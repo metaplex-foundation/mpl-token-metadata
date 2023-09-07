@@ -1,4 +1,8 @@
-use mpl_token_metadata::{
+use borsh::BorshDeserialize;
+use solana_sdk::{
+    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
+};
+use token_metadata::{
     instruction,
     state::{
         Collection, CollectionDetails, Creator, DataV2, Metadata as TmMetadata,
@@ -6,10 +10,6 @@ use mpl_token_metadata::{
         METADATA_FEE_FLAG_INDEX, PREFIX,
     },
     ID,
-};
-use solana_program::borsh::try_from_slice_unchecked;
-use solana_sdk::{
-    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
 
 use crate::*;
@@ -66,9 +66,9 @@ impl Metadata {
     pub async fn get_data(
         &self,
         context: &mut ProgramTestContext,
-    ) -> mpl_token_metadata::state::Metadata {
+    ) -> token_metadata::state::Metadata {
         let account = get_account(context, &self.pubkey).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        BorshDeserialize::deserialize(&mut &account.data[..]).unwrap()
     }
 
     pub async fn is_pnft(&self, context: &mut ProgramTestContext) -> bool {
@@ -356,6 +356,7 @@ impl Metadata {
         context: &mut ProgramTestContext,
     ) -> Result<(Metadata, MasterEditionV2), BanksClientError> {
         let nft = Metadata::new();
+        #[allow(deprecated)]
         nft.create_v3(
             context,
             "Test".to_string(),
@@ -388,6 +389,7 @@ impl Metadata {
         max_supply: u64,
     ) -> Result<(Metadata, MasterEditionV2), BanksClientError> {
         let nft = Metadata::new();
+        #[allow(deprecated)]
         nft.create_v3(
             context,
             "Test".to_string(),
@@ -652,7 +654,7 @@ impl Metadata {
 
         let tx = Transaction::new_signed_with_payer(
             &[instruction::update_metadata_accounts_v2(
-                mpl_token_metadata::ID,
+                token_metadata::ID,
                 self.pubkey,
                 context.payer.pubkey(),
                 Some(new_update_authority),
@@ -711,6 +713,7 @@ pub async fn assert_collection_size(
     let collection_md = collection_metadata.get_data(context).await;
     let retrieved_size = if let Some(details) = collection_md.collection_details {
         match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => size,
         }
     } else {

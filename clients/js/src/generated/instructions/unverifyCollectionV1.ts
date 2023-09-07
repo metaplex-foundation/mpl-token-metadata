@@ -7,7 +7,6 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
@@ -23,7 +22,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type UnverifyCollectionV1InstructionAccounts = {
@@ -51,20 +55,7 @@ export type UnverifyCollectionV1InstructionData = {
 
 export type UnverifyCollectionV1InstructionDataArgs = {};
 
-/** @deprecated Use `getUnverifyCollectionV1InstructionDataSerializer()` without any argument instead. */
-export function getUnverifyCollectionV1InstructionDataSerializer(
-  _context: object
-): Serializer<
-  UnverifyCollectionV1InstructionDataArgs,
-  UnverifyCollectionV1InstructionData
->;
 export function getUnverifyCollectionV1InstructionDataSerializer(): Serializer<
-  UnverifyCollectionV1InstructionDataArgs,
-  UnverifyCollectionV1InstructionData
->;
-export function getUnverifyCollectionV1InstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   UnverifyCollectionV1InstructionDataArgs,
   UnverifyCollectionV1InstructionData
 > {
@@ -93,80 +84,79 @@ export function getUnverifyCollectionV1InstructionDataSerializer(
 
 // Instruction.
 export function unverifyCollectionV1(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'programs'>,
   input: UnverifyCollectionV1InstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    metadata: [input.metadata, true] as const,
-    collectionMint: [input.collectionMint, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    delegateRecord: {
+      index: 1,
+      isWritable: false,
+      value: input.delegateRecord ?? null,
+    },
+    metadata: { index: 2, isWritable: true, value: input.metadata ?? null },
+    collectionMint: {
+      index: 3,
+      isWritable: false,
+      value: input.collectionMint ?? null,
+    },
+    collectionMetadata: {
+      index: 4,
+      isWritable: true,
+      value: input.collectionMetadata ?? null,
+    },
+    systemProgram: {
+      index: 5,
+      isWritable: false,
+      value: input.systemProgram ?? null,
+    },
+    sysvarInstructions: {
+      index: 6,
+      isWritable: false,
+      value: input.sysvarInstructions ?? null,
+    },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'authority',
-    input.authority
-      ? ([input.authority, false] as const)
-      : ([context.identity, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'delegateRecord',
-    input.delegateRecord
-      ? ([input.delegateRecord, false] as const)
-      : ([programId, false] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'collectionMetadata',
-    input.collectionMetadata
-      ? ([input.collectionMetadata, true] as const)
-      : ([
-          findMetadataPda(context, {
-            mint: publicKey(input.collectionMint, false),
-          }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'systemProgram',
-    input.systemProgram
-      ? ([input.systemProgram, false] as const)
-      : ([
-          context.programs.getPublicKey(
-            'splSystem',
-            '11111111111111111111111111111111'
-          ),
-          false,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'sysvarInstructions',
-    input.sysvarInstructions
-      ? ([input.sysvarInstructions, false] as const)
-      : ([
-          publicKey('Sysvar1nstructions1111111111111111111111111'),
-          false,
-        ] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.authority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.delegateRecord, false);
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.collectionMetadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.systemProgram, false);
-  addAccountMeta(keys, signers, resolvedAccounts.sysvarInstructions, false);
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+  if (!resolvedAccounts.collectionMetadata.value) {
+    resolvedAccounts.collectionMetadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.collectionMint.value),
+    });
+  }
+  if (!resolvedAccounts.systemProgram.value) {
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
+      '11111111111111111111111111111111'
+    );
+    resolvedAccounts.systemProgram.isWritable = false;
+  }
+  if (!resolvedAccounts.sysvarInstructions.value) {
+    resolvedAccounts.sysvarInstructions.value = publicKey(
+      'Sysvar1nstructions1111111111111111111111111'
+    );
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
 
   // Data.
   const data = getUnverifyCollectionV1InstructionDataSerializer().serialize({});

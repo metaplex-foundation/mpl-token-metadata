@@ -47,6 +47,7 @@ pub struct CreateMetadataAccountsLogicArgs<'a> {
 
 #[allow(clippy::too_many_arguments)]
 /// Create a new account instruction
+#[allow(clippy::too_many_arguments)]
 pub fn process_create_metadata_accounts_logic(
     program_id: &Pubkey,
     accounts: CreateMetadataAccountsLogicArgs,
@@ -157,6 +158,7 @@ pub fn process_create_metadata_accounts_logic(
     // collection details enum for forward compatibility.
     if let Some(details) = collection_details {
         match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size: _size } => {
                 metadata.collection_details = Some(CollectionDetails::V1 { size: 0 });
             }

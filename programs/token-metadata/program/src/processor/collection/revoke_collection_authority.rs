@@ -1,13 +1,10 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{assert_owned_by, collection::assert_is_collection_delegated_authority},
     error::MetadataError,
+    processor::all_account_infos,
     state::{Key, Metadata, TokenMetadataAccount},
     utils::{close_program_account, SPL_TOKEN_ID},
 };
@@ -16,12 +13,14 @@ pub fn process_revoke_collection_authority(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-    let collection_authority_record = next_account_info(account_info_iter)?;
-    let delegate_authority = next_account_info(account_info_iter)?;
-    let revoke_authority = next_account_info(account_info_iter)?;
-    let metadata_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        collection_authority_record,
+        delegate_authority,
+        revoke_authority,
+        metadata_info,
+        mint_info
+    );
     let metadata = Metadata::from_account_info(metadata_info)?;
 
     assert_owned_by(metadata_info, program_id)?;

@@ -18,14 +18,7 @@ export type Payload = { map: Map<string, PayloadType> };
 
 export type PayloadArgs = { map: Map<string, PayloadTypeArgs> };
 
-/** @deprecated Use `getPayloadSerializer()` without any argument instead. */
-export function getPayloadSerializer(
-  _context: object
-): Serializer<PayloadArgs, Payload>;
-export function getPayloadSerializer(): Serializer<PayloadArgs, Payload>;
-export function getPayloadSerializer(
-  _context: object = {}
-): Serializer<PayloadArgs, Payload> {
+export function getPayloadSerializer(): Serializer<PayloadArgs, Payload> {
   return struct<Payload>([['map', map(string(), getPayloadTypeSerializer())]], {
     description: 'Payload',
   }) as Serializer<PayloadArgs, Payload>;

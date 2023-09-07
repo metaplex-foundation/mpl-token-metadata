@@ -16,14 +16,7 @@ export enum UseMethod {
 
 export type UseMethodArgs = UseMethod;
 
-/** @deprecated Use `getUseMethodSerializer()` without any argument instead. */
-export function getUseMethodSerializer(
-  _context: object
-): Serializer<UseMethodArgs, UseMethod>;
-export function getUseMethodSerializer(): Serializer<UseMethodArgs, UseMethod>;
-export function getUseMethodSerializer(
-  _context: object = {}
-): Serializer<UseMethodArgs, UseMethod> {
+export function getUseMethodSerializer(): Serializer<UseMethodArgs, UseMethod> {
   return scalarEnum<UseMethod>(UseMethod, {
     description: 'UseMethod',
   }) as Serializer<UseMethodArgs, UseMethod>;

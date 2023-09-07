@@ -1,9 +1,6 @@
 use mpl_utils::{assert_signer, close_account_raw};
 use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-    system_program,
+    account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey, system_program,
 };
 
 use super::find_escrow_seeds;
@@ -11,6 +8,7 @@ use crate::{
     assertions::{assert_derivation, assert_initialized, assert_keys_equal, assert_owned_by},
     error::MetadataError,
     pda::{EDITION, PREFIX},
+    processor::all_account_infos,
     state::{EscrowAuthority, Metadata, TokenMetadataAccount, TokenOwnedEscrow},
     utils::SPL_TOKEN_ID,
 };
@@ -19,27 +17,24 @@ pub fn process_close_escrow_account(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    all_account_infos!(
+        accounts,
+        escrow_account_info,
+        metadata_account_info,
+        mint_account_info,
+        token_account_info,
+        edition_account_info,
+        payer_account_info,
+        system_account_info
+    );
 
-    let escrow_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(escrow_account_info, &crate::ID)?;
-
-    let metadata_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(metadata_account_info, &crate::ID)?;
-
-    let mint_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(mint_account_info, &SPL_TOKEN_ID)?;
-
-    let token_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(token_account_info, &SPL_TOKEN_ID)?;
-
-    let edition_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(edition_account_info, &crate::ID)?;
-
-    let payer_account_info = next_account_info(account_info_iter)?;
     assert_signer(payer_account_info)?;
 
-    let system_account_info = next_account_info(account_info_iter)?;
     if *system_account_info.key != system_program::ID {
         return Err(MetadataError::InvalidSystemProgram.into());
     }

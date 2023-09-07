@@ -7,13 +7,11 @@
  */
 
 import {
-  AccountMeta,
   Context,
   Pda,
   PublicKey,
   Signer,
   TransactionBuilder,
-  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -23,7 +21,12 @@ import {
   u8,
 } from '@metaplex-foundation/umi/serializers';
 import { findMetadataPda } from '../accounts';
-import { addAccountMeta, addObjectProperty } from '../shared';
+import {
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  expectPublicKey,
+  getAccountMetasAndSigners,
+} from '../shared';
 
 // Accounts.
 export type SetTokenStandardInstructionAccounts = {
@@ -42,20 +45,7 @@ export type SetTokenStandardInstructionData = { discriminator: number };
 
 export type SetTokenStandardInstructionDataArgs = {};
 
-/** @deprecated Use `getSetTokenStandardInstructionDataSerializer()` without any argument instead. */
-export function getSetTokenStandardInstructionDataSerializer(
-  _context: object
-): Serializer<
-  SetTokenStandardInstructionDataArgs,
-  SetTokenStandardInstructionData
->;
 export function getSetTokenStandardInstructionDataSerializer(): Serializer<
-  SetTokenStandardInstructionDataArgs,
-  SetTokenStandardInstructionData
->;
-export function getSetTokenStandardInstructionDataSerializer(
-  _context: object = {}
-): Serializer<
   SetTokenStandardInstructionDataArgs,
   SetTokenStandardInstructionData
 > {
@@ -76,45 +66,48 @@ export function getSetTokenStandardInstructionDataSerializer(
 
 // Instruction.
 export function setTokenStandard(
-  context: Pick<Context, 'programs' | 'eddsa' | 'identity'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'programs'>,
   input: SetTokenStandardInstructionAccounts
 ): TransactionBuilder {
-  const signers: Signer[] = [];
-  const keys: AccountMeta[] = [];
-
   // Program ID.
   const programId = context.programs.getPublicKey(
     'mplTokenMetadata',
     'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
   );
 
-  // Resolved inputs.
-  const resolvedAccounts = {
-    mint: [input.mint, false] as const,
-    edition: [input.edition, false] as const,
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    updateAuthority: {
+      index: 1,
+      isWritable: false,
+      value: input.updateAuthority ?? null,
+    },
+    mint: { index: 2, isWritable: false, value: input.mint ?? null },
+    edition: { index: 3, isWritable: false, value: input.edition ?? null },
   };
-  addObjectProperty(
-    resolvedAccounts,
-    'metadata',
-    input.metadata
-      ? ([input.metadata, true] as const)
-      : ([
-          findMetadataPda(context, { mint: publicKey(input.mint, false) }),
-          true,
-        ] as const)
-  );
-  addObjectProperty(
-    resolvedAccounts,
-    'updateAuthority',
-    input.updateAuthority
-      ? ([input.updateAuthority, false] as const)
-      : ([context.identity, false] as const)
-  );
 
-  addAccountMeta(keys, signers, resolvedAccounts.metadata, false);
-  addAccountMeta(keys, signers, resolvedAccounts.updateAuthority, false);
-  addAccountMeta(keys, signers, resolvedAccounts.mint, false);
-  addAccountMeta(keys, signers, resolvedAccounts.edition, true);
+  // Default values.
+  if (!resolvedAccounts.metadata.value) {
+    resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.updateAuthority.value) {
+    resolvedAccounts.updateAuthority.value = context.identity;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'omitted',
+    programId
+  );
 
   // Data.
   const data = getSetTokenStandardInstructionDataSerializer().serialize({});

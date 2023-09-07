@@ -27,17 +27,10 @@ export type CollectionToggleArgs =
   | { __kind: 'Clear' }
   | { __kind: 'Set'; fields: [CollectionArgs] };
 
-/** @deprecated Use `getCollectionToggleSerializer()` without any argument instead. */
-export function getCollectionToggleSerializer(
-  _context: object
-): Serializer<CollectionToggleArgs, CollectionToggle>;
 export function getCollectionToggleSerializer(): Serializer<
   CollectionToggleArgs,
   CollectionToggle
->;
-export function getCollectionToggleSerializer(
-  _context: object = {}
-): Serializer<CollectionToggleArgs, CollectionToggle> {
+> {
   return dataEnum<CollectionToggle>(
     [
       ['None', unit()],

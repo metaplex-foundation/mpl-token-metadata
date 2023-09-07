@@ -7,10 +7,11 @@ use utils::*;
 
 mod mint {
 
-    use mpl_token_metadata::{error::MetadataError, state::TokenStandard, utils::unpack};
+    use mpl_utils::token::unpack;
     use num_traits::FromPrimitive;
     use solana_program::pubkey::Pubkey;
     use spl_token_2022::state::Account;
+    use token_metadata::{error::MetadataError, state::TokenStandard};
 
     use super::*;
 
@@ -45,7 +46,7 @@ mod mint {
         // asserts
 
         let account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token_account = unpack::<Account>(&account.data).unwrap();
+        let token_account = unpack::<Account>(&account.data).unwrap().base;
 
         assert!(token_account.is_frozen());
         assert_eq!(token_account.amount, 1);
@@ -83,7 +84,7 @@ mod mint {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(!token_account.is_frozen());
             assert_eq!(token_account.amount, 1);
@@ -122,7 +123,7 @@ mod mint {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(!token_account.is_frozen());
             assert_eq!(token_account.amount, 100);
@@ -161,7 +162,7 @@ mod mint {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = unpack::<Account>(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(!token_account.is_frozen());
             assert_eq!(token_account.amount, 50);

@@ -6,15 +6,16 @@ use utils::*;
 
 mod utility {
 
-    use mpl_token_metadata::{
+    use borsh::BorshDeserialize;
+    use solana_program::pubkey::Pubkey;
+    use solana_sdk::signature::{Keypair, Signer};
+    use spl_token_2022::state::Account;
+    use token_metadata::{
         instruction::DelegateArgs,
         pda::find_token_record_account,
         state::{TokenDelegateRole, TokenRecord, TokenStandard, TokenState},
         utils::unpack,
     };
-    use solana_program::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
-    use solana_sdk::signature::{Keypair, Signer};
-    use spl_token_2022::state::Account;
 
     use super::*;
 
@@ -44,7 +45,7 @@ mod utility {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -87,7 +88,7 @@ mod utility {
         // asserts
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Locked);
 
@@ -110,7 +111,7 @@ mod utility {
         // asserts
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
     }
@@ -217,7 +218,7 @@ mod utility {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -261,7 +262,7 @@ mod utility {
         // asserts
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Locked);
         assert_eq!(token_record.locked_transfer, Some(Pubkey::default()));
@@ -285,7 +286,7 @@ mod utility {
         // asserts
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
         assert_eq!(

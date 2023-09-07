@@ -1,0 +1,2 @@
+mod metadata_delegate_role_seed;
+pub use metadata_delegate_role_seed::MetadataDelegateRoleSeed;

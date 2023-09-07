@@ -1,0 +1,173 @@
+name: Create Proposal
+
+# Run on manual dispatch.
+on:
+  workflow_dispatch:
+    inputs:
+      program:
+        description: Program
+        required: true
+        default: token-metadata
+        type: choice
+        options:
+          - token-metadata
+      cluster:
+        description: Cluster environment
+        required: true
+        default: devnet
+        type: choice
+        options:
+          - devnet
+          - mainnet-beta
+      bump:
+        description: Version bump
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      proposal_description:
+        description: Proposal description
+        required: true
+        type: string
+
+env:
+  CACHE: true
+
+jobs:
+  build_programs:
+    name: Programs
+    uses: ./.github/workflows/build-programs.yml
+    secrets: inherit
+
+  test_programs:
+    name: Programs
+    needs: build_programs
+    uses: ./.github/workflows/test-programs.yml
+    secrets: inherit
+    with:
+      program_matrix: '["${{ inputs.program }}"]'
+
+  test_rust_client:
+    name: Rust Client
+    needs: build_programs
+    uses: ./.github/workflows/test-rust-client.yml
+    secrets: inherit
+
+  test_js_client:
+    name: JS client
+    needs: [test_programs, test_rust_client]
+    uses: ./.github/workflows/test-js-client.yml
+    secrets: inherit
+
+  create_proposal:
+    name: Program / Proposal
+    runs-on: ubuntu-latest
+    needs: test_js_client
+    permissions:
+      contents: write
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SVC_TOKEN }}
+
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: metaplex-foundation/actions/install-rust@v1
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Install Solana
+        uses: metaplex-foundation/actions/install-solana@v1
+        with:
+          version: ${{ env.SOLANA_CLI_VERSION }}
+          cache: ${{ env.CACHE }}
+
+      - name: Install Themis
+        uses: ./.github/actions/install-themis
+
+      - name: Set RPC
+        run: |
+          if [ "${{ inputs.cluster }}" == "devnet" ]; then
+            echo RPC=${{ secrets.DEVNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE="council" >> $GITHUB_ENV
+          elif [ "${{ inputs.cluster }}" == "mainnet-beta" ]; then
+            echo RPC=${{ secrets.MAINNET_RPC }} >> $GITHUB_ENV
+            echo MINT_TYPE="member" >> $GITHUB_ENV
+          else
+            echo "Invalid cluster"
+            exit 1
+          fi
+
+      - name: Determine program version
+        run: |
+          IDL_NAME=`echo "${{ inputs.program }}" | tr - _`
+          VERSION=`jq '.version' ./idls/${IDL_NAME}.json | sed 's/"//g'`
+
+          MAJOR=`echo ${VERSION} | cut -d. -f1`
+          MINOR=`echo ${VERSION} | cut -d. -f2`
+          PATCH=`echo ${VERSION} | cut -d. -f3`
+
+          if [ "${{ inputs.bump }}" == "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "${{ inputs.bump }}" == "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          echo PROGRAM_VERSION="${MAJOR}.${MINOR}.${PATCH}" >> $GITHUB_ENV
+          echo PROGRAM_NAME="token_metadata" >> $GITHUB_ENV
+
+      - name: Download program builds
+        uses: actions/download-artifact@v3
+        with:
+          name: program-builds
+
+      - name: Create proposal
+        run: |
+          echo "Deploying ${{ inputs.program }} to ${{ inputs.cluster }}"
+          echo "Creating program buffer..."
+
+          echo ${{ secrets.BOT_KEY }} > ./submitter-key.json 
+
+          solana config set -k ./submitter-key.json > /dev/null 2>&1
+          solana config set --url ${{ env.RPC }} > /dev/null 2>&1
+
+          BUFFER=$(solana program write-buffer ./programs/.bin/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
+          echo "Buffer: $BUFFER"
+          solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
+
+          RUST_LOG=debug themis upgrade-program \
+            --source-buffer $BUFFER \
+            --name "Deploy ${{ inputs.program }}@v${{ env.PROGRAM_VERSION }}" \
+            --mint-type ${{ env.MINT_TYPE }} \
+            --options ["Approve"] \
+            --description "${{ inputs.proposal_description }}"
+
+          rm submitter-key.json
+
+          GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+          DELETE_TAG=`git tag | grep '${GIT_TAG}' | wc -l | awk '{print $1}'`
+
+          if [ ${DELETE_TAG} -gt 1 ]; then
+            git push --delete origin -d $GIT_TAG 2> /dev/null
+            echo "Removed git tag: '$GIT_TAG'"
+          fi
+
+      - name: Tag the proposal commit
+        run: |
+          echo "Tagging the proposal for ${{ inputs.program }} to ${{ inputs.cluster }}"
+
+          GIT_TAG="proposal(v${{ env.PROGRAM_VERSION }}@${{ inputs.cluster }})"
+
+          git tag $GIT_TAG
+          git push origin $GIT_TAG

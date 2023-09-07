@@ -1,16 +1,16 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::state::Metadata as ProgramMetadata;
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{instruction::InstructionError, transaction::TransactionError};
+use token_metadata::state::Metadata as ProgramMetadata;
 use utils::*;
 
 mod unsized_collection_handlers {
 
-    use mpl_token_metadata::{error::MetadataError, state::Collection};
     use solana_sdk::{signature::Keypair, signer::Signer};
+    use token_metadata::{error::MetadataError, state::Collection};
 
     use super::*;
 
@@ -247,8 +247,8 @@ mod unsized_collection_handlers {
 }
 
 mod sized_collection_handlers {
-    use mpl_token_metadata::{error::MetadataError, state::Collection};
     use solana_sdk::{signature::Keypair, signer::Signer};
+    use token_metadata::{error::MetadataError, state::Collection};
 
     use super::*;
     #[tokio::test]
@@ -449,8 +449,8 @@ mod sized_collection_handlers {
 
 mod size_tracking {
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::state::{Collection, CollectionDetails};
     use solana_sdk::{signature::Keypair, signer::Signer};
+    use token_metadata::state::{Collection, CollectionDetails};
 
     use super::*;
     #[tokio::test]
@@ -516,6 +516,7 @@ mod size_tracking {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -543,6 +544,7 @@ mod size_tracking {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 1),
             }
         } else {
@@ -568,6 +570,7 @@ mod size_tracking {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 0),
             }
         } else {
@@ -594,6 +597,7 @@ mod size_tracking {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 1),
             }
         } else {
@@ -619,6 +623,7 @@ mod size_tracking {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 0),
             }
         } else {

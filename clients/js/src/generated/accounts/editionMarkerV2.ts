@@ -22,7 +22,10 @@ import {
 import {
   Serializer,
   bytes,
+  publicKey as publicKeySerializer,
+  string,
   struct,
+  u32,
 } from '@metaplex-foundation/umi/serializers';
 import { Key, KeyArgs, getKeySerializer } from '../types';
 
@@ -35,40 +38,24 @@ export type EditionMarkerV2AccountDataArgs = {
   ledger: Uint8Array;
 };
 
-/** @deprecated Use `getEditionMarkerV2AccountDataSerializer()` without any argument instead. */
-export function getEditionMarkerV2AccountDataSerializer(
-  _context: object
-): Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData>;
 export function getEditionMarkerV2AccountDataSerializer(): Serializer<
   EditionMarkerV2AccountDataArgs,
   EditionMarkerV2AccountData
->;
-export function getEditionMarkerV2AccountDataSerializer(
-  _context: object = {}
-): Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData> {
+> {
   return struct<EditionMarkerV2AccountData>(
     [
       ['key', getKeySerializer()],
-      ['ledger', bytes()],
+      ['ledger', bytes({ size: u32() })],
     ],
     { description: 'EditionMarkerV2AccountData' }
   ) as Serializer<EditionMarkerV2AccountDataArgs, EditionMarkerV2AccountData>;
 }
 
-/** @deprecated Use `deserializeEditionMarkerV2(rawAccount)` without any context instead. */
-export function deserializeEditionMarkerV2(
-  context: object,
-  rawAccount: RpcAccount
-): EditionMarkerV2;
 export function deserializeEditionMarkerV2(
   rawAccount: RpcAccount
-): EditionMarkerV2;
-export function deserializeEditionMarkerV2(
-  context: RpcAccount | object,
-  rawAccount?: RpcAccount
 ): EditionMarkerV2 {
   return deserializeAccount(
-    rawAccount ?? (context as RpcAccount),
+    rawAccount,
     getEditionMarkerV2AccountDataSerializer()
   );
 }
@@ -139,9 +126,53 @@ export function getEditionMarkerV2GpaBuilder(
   return gpaBuilder(context, programId)
     .registerFields<{ key: KeyArgs; ledger: Uint8Array }>({
       key: [0, getKeySerializer()],
-      ledger: [1, bytes()],
+      ledger: [1, bytes({ size: u32() })],
     })
     .deserializeUsing<EditionMarkerV2>((account) =>
       deserializeEditionMarkerV2(account)
     );
+}
+
+export function findEditionMarkerV2Pda(
+  context: Pick<Context, 'eddsa' | 'programs'>,
+  seeds: {
+    /** The address of the mint account */
+    mint: PublicKey;
+  }
+): Pda {
+  const programId = context.programs.getPublicKey(
+    'mplTokenMetadata',
+    'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s'
+  );
+  return context.eddsa.findPda(programId, [
+    string({ size: 'variable' }).serialize('metadata'),
+    publicKeySerializer().serialize(programId),
+    publicKeySerializer().serialize(seeds.mint),
+    string({ size: 'variable' }).serialize('edition'),
+    string({ size: 'variable' }).serialize('marker'),
+  ]);
+}
+
+export async function fetchEditionMarkerV2FromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
+  seeds: Parameters<typeof findEditionMarkerV2Pda>[1],
+  options?: RpcGetAccountOptions
+): Promise<EditionMarkerV2> {
+  return fetchEditionMarkerV2(
+    context,
+    findEditionMarkerV2Pda(context, seeds),
+    options
+  );
+}
+
+export async function safeFetchEditionMarkerV2FromSeeds(
+  context: Pick<Context, 'eddsa' | 'programs' | 'rpc'>,
+  seeds: Parameters<typeof findEditionMarkerV2Pda>[1],
+  options?: RpcGetAccountOptions
+): Promise<EditionMarkerV2 | null> {
+  return safeFetchEditionMarkerV2(
+    context,
+    findEditionMarkerV2Pda(context, seeds),
+    options
+  );
 }

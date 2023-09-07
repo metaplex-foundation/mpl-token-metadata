@@ -1,4 +1,3 @@
-use borsh::BorshSerialize;
 use mpl_utils::{
     assert_signer,
     token::{spl_token_burn, TokenBurnParams},
@@ -106,7 +105,7 @@ pub fn process_utilize(
             .allowed_uses
             .checked_sub(number_of_uses)
             .ok_or(MetadataError::NotEnoughUses)?;
-        record.serialize(data)?;
+        borsh::to_writer(&mut data[..], &record)?;
     } else if user_info.key != owner_info.key {
         return Err(MetadataError::InvalidUser.into());
     }

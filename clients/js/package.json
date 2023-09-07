@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/mpl-token-metadata",
-  "version": "3.0.0-alpha.24",
+  "version": "3.0.0",
   "description": "JavaScript client for Token Metadata",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -28,7 +28,7 @@
     "@metaplex-foundation/umi": "^0.8.2"
   },
   "dependencies": {
-    "@metaplex-foundation/mpl-toolbox": "^0.8.0"
+    "@metaplex-foundation/mpl-toolbox": "^0.9.0"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",

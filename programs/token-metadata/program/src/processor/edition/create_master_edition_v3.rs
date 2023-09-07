@@ -1,10 +1,5 @@
-use borsh::BorshSerialize;
 use mpl_utils::create_or_allocate_account_raw;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token_2022::state::Mint;
 
 use crate::{
@@ -13,6 +8,7 @@ use crate::{
         assert_token_program_matches_package, metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
+    processor::all_account_infos,
     state::{
         Key, MasterEditionV2, Metadata, TokenMetadataAccount, TokenStandard, EDITION,
         MAX_MASTER_EDITION_LEN, PREFIX,
@@ -26,16 +22,17 @@ pub fn process_create_master_edition(
     accounts: &[AccountInfo],
     max_supply: Option<u64>,
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
-
-    let edition_account_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let update_authority_info = next_account_info(account_info_iter)?;
-    let mint_authority_info = next_account_info(account_info_iter)?;
-    let payer_account_info = next_account_info(account_info_iter)?;
-    let metadata_account_info = next_account_info(account_info_iter)?;
-    let token_program_info = next_account_info(account_info_iter)?;
-    let system_account_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        edition_account_info,
+        mint_info,
+        update_authority_info,
+        mint_authority_info,
+        payer_account_info,
+        metadata_account_info,
+        token_program_info,
+        system_account_info
+    );
 
     let metadata = Metadata::from_account_info(metadata_account_info)?;
     let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
@@ -92,11 +89,17 @@ pub fn process_create_master_edition(
     edition.key = Key::MasterEditionV2;
     edition.supply = 0;
     edition.max_supply = max_supply;
-    edition.serialize(&mut *edition_account_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(
+        &mut edition_account_info.try_borrow_mut_data()?[..],
+        &edition,
+    )?;
     if metadata_account_info.is_writable {
         let mut metadata_mut = Metadata::from_account_info(metadata_account_info)?;
         metadata_mut.token_standard = Some(TokenStandard::NonFungible);
-        metadata_mut.serialize(&mut *metadata_account_info.try_borrow_mut_data()?)?;
+        borsh::to_writer(
+            &mut metadata_account_info.try_borrow_mut_data()?[..],
+            &metadata_mut,
+        )?;
     }
 
     // While you can't mint any more of your master record, you can

@@ -1,20 +1,20 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_token_metadata::state::Metadata as ProgramMetadata;
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::TransactionError};
+use token_metadata::state::Metadata as ProgramMetadata;
 use utils::*;
 mod burn_nft {
 
     use borsh::BorshDeserialize;
-    use mpl_token_metadata::{
+    use solana_program::pubkey::Pubkey;
+    use solana_sdk::signature::Keypair;
+    use token_metadata::{
         error::MetadataError,
         state::{Collection, CollectionDetails},
     };
-    use solana_program::pubkey::Pubkey;
-    use solana_sdk::signature::Keypair;
 
     use super::*;
     #[tokio::test]
@@ -271,6 +271,7 @@ mod burn_nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -298,6 +299,7 @@ mod burn_nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
@@ -387,6 +389,7 @@ mod burn_nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -415,6 +418,7 @@ mod burn_nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
@@ -442,6 +446,7 @@ mod burn_nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }

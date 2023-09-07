@@ -1,16 +1,13 @@
 use std::cmp;
 
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
     instruction::SetCollectionSizeArgs,
+    processor::all_account_infos,
     state::{CollectionDetails, Metadata, TokenMetadataAccount},
     utils::{clean_write_metadata, BUBBLEGUM_ACTIVATED, BUBBLEGUM_SIGNER, SPL_TOKEN_ID},
 };
@@ -22,12 +19,13 @@ pub fn bubblegum_set_collection_size(
 ) -> ProgramResult {
     let size = args.size;
 
-    let account_info_iter = &mut accounts.iter();
-
-    let parent_nft_metadata_account_info = next_account_info(account_info_iter)?;
-    let collection_update_authority_account_info = next_account_info(account_info_iter)?;
-    let collection_mint_account_info = next_account_info(account_info_iter)?;
-    let bubblegum_signer_info = next_account_info(account_info_iter)?;
+    all_account_infos!(
+        accounts,
+        parent_nft_metadata_account_info,
+        collection_update_authority_account_info,
+        collection_mint_account_info,
+        bubblegum_signer_info
+    );
 
     if !BUBBLEGUM_ACTIVATED {
         return Err(MetadataError::InvalidOperation.into());
@@ -56,6 +54,7 @@ pub fn bubblegum_set_collection_size(
     // Ensure new size is + or - 1 of the current size.
     let current_size = if let Some(details) = metadata.collection_details {
         match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => size,
         }
     } else {
@@ -71,7 +70,10 @@ pub fn bubblegum_set_collection_size(
     }
 
     // The Bubblegum program has authority to manage the collection details.
-    metadata.collection_details = Some(CollectionDetails::V1 { size });
+    metadata.collection_details = {
+        #[allow(deprecated)]
+        Some(CollectionDetails::V1 { size })
+    };
 
     clean_write_metadata(&mut metadata, parent_nft_metadata_account_info)?;
     Ok(())

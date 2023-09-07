@@ -33,6 +33,11 @@ export const OG_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'Fungible',
 ];
 
+export const NON_EDITION_NON_FUNGIBLE_STANDARDS: TokenStandardKeys[] = [
+  'NonFungible',
+  'ProgrammableNonFungible',
+];
+
 export const FUNGIBLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'FungibleAsset',
   'Fungible',

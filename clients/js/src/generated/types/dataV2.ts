@@ -47,14 +47,7 @@ export type DataV2Args = {
   uses: OptionOrNullable<UsesArgs>;
 };
 
-/** @deprecated Use `getDataV2Serializer()` without any argument instead. */
-export function getDataV2Serializer(
-  _context: object
-): Serializer<DataV2Args, DataV2>;
-export function getDataV2Serializer(): Serializer<DataV2Args, DataV2>;
-export function getDataV2Serializer(
-  _context: object = {}
-): Serializer<DataV2Args, DataV2> {
+export function getDataV2Serializer(): Serializer<DataV2Args, DataV2> {
   return struct<DataV2>(
     [
       ['name', string()],

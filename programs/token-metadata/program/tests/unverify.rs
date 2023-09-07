@@ -2,18 +2,18 @@
 
 pub mod utils;
 
-use mpl_token_metadata::{
-    error::MetadataError,
-    instruction::{BurnArgs, DelegateArgs, MetadataDelegateRole, UpdateArgs, VerificationArgs},
-    pda::{find_metadata_delegate_record_account, find_token_record_account},
-    state::{Collection, CollectionDetails, Creator, TokenStandard},
-};
 use num_traits::FromPrimitive;
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError, signature::Keypair, signer::Signer,
     transaction::TransactionError,
+};
+use token_metadata::{
+    error::MetadataError,
+    instruction::{BurnArgs, DelegateArgs, MetadataDelegateRole, UpdateArgs, VerificationArgs},
+    pda::{find_metadata_delegate_record_account, find_token_record_account},
+    state::{Collection, CollectionDetails, Creator, TokenStandard},
 };
 use utils::*;
 
@@ -896,6 +896,7 @@ mod unverify_collection {
 
         // Check collection details.  If sized collection, size should be updated.
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
         });
 
@@ -1002,6 +1003,7 @@ mod unverify_collection {
 
         // Check collection details.  If sized collection, size should be updated.
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
         });
 
@@ -1910,6 +1912,7 @@ mod unverify_collection {
 
         // Check collection details.  If sized collection, size should be updated.
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
         });
 
@@ -2035,6 +2038,7 @@ mod unverify_collection {
 
         // Check collection details.  If sized collection, size should be updated.
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
         });
 
@@ -2910,6 +2914,7 @@ mod unverify_collection {
 
         // Collection size should be updated.
         let verified_collection_details = collection_details.clone().map(|details| match details {
+            #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
         });
 

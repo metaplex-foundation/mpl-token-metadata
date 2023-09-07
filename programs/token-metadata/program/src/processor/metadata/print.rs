@@ -106,11 +106,14 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             &spl_token_2022::instruction::initialize_mint2(
                 token_program.key,
                 edition_mint_info.key,
-                edition_account_info.key,
-                Some(edition_account_info.key),
+                edition_mint_authority_info.key,
+                Some(edition_mint_authority_info.key),
                 0,
             )?,
-            &[edition_mint_info.clone(), edition_account_info.clone()],
+            &[
+                edition_mint_info.clone(),
+                edition_mint_authority_info.clone(),
+            ],
         )?;
     } else {
         // validates the existing mint account
@@ -145,6 +148,23 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
                 edition_token_account_owner_info.clone(),
                 edition_mint_info.clone(),
                 edition_token_account_info.clone(),
+            ],
+        )?;
+
+        // mint one token to the associated token account
+        invoke(
+            &spl_token_2022::instruction::mint_to(
+                token_program.key,
+                edition_mint_info.key,
+                edition_token_account_info.key,
+                edition_mint_authority_info.key,
+                &[],
+                1,
+            )?,
+            &[
+                edition_mint_info.clone(),
+                edition_token_account_info.clone(),
+                edition_mint_authority_info.clone(),
             ],
         )?;
     } else {

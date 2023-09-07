@@ -128,6 +128,10 @@ pub enum UpdateArgs {
     },
     AsAuthorityItemDelegateV2 {
         /// The new update authority.
+        #[deprecated(
+            since = "1.13.3",
+            note = "A delegate cannot change the update authority. This field will be removed in a future release."
+        )]
         new_update_authority: Option<Pubkey>,
         /// Indicates whether the primary sale has happened or not (once set to `true`, it cannot be
         /// changed back).

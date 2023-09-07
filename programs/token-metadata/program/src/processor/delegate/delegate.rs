@@ -1,6 +1,5 @@
 use std::fmt::Display;
 
-use borsh::BorshSerialize;
 use mpl_token_auth_rules::utils::get_latest_revision;
 use mpl_utils::{assert_signer, create_or_allocate_account_raw, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
@@ -224,6 +223,7 @@ fn create_delegate_v1(
 /// spl-token 'approve' delegate.
 ///
 /// Note that `DelegateRole::Sale` is only available for programmable assets.
+#[allow(deprecated)]
 fn create_persistent_delegate_v1(
     program_id: &Pubkey,
     ctx: Context<Delegate>,
@@ -311,11 +311,6 @@ fn create_persistent_delegate_v1(
                 }
             };
 
-            // we cannot replace an existing delegate, it must be revoked first
-            if token_record.delegate.is_some() {
-                return Err(MetadataError::DelegateAlreadyExists.into());
-            }
-
             // if we have a rule set, we need to store its revision; at this point,
             // we will validate that we have the correct auth rules PDA
             if let Some(ProgrammableConfig::V1 {
@@ -374,6 +369,8 @@ fn create_persistent_delegate_v1(
                 TokenState::Unlocked
             };
 
+            // stores the locked transfer address for backwards compatibility, but this is
+            // not enforced by the transfer instruction
             token_record.locked_transfer = if matches!(role, TokenDelegateRole::LockedTransfer) {
                 if let DelegateArgs::LockedTransferV1 { locked_address, .. } = args {
                     Some(*locked_address)
@@ -535,7 +532,7 @@ fn create_pda_account<'a>(
         update_authority: *authority_info.key,
         ..Default::default()
     };
-    pda.serialize(&mut *delegate_record_info.try_borrow_mut_data()?)?;
+    borsh::to_writer(&mut delegate_record_info.try_borrow_mut_data()?[..], &pda)?;
 
     Ok(())
 }

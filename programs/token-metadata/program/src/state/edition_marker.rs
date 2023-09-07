@@ -97,7 +97,7 @@ impl EditionMarker {
         let mut edition_marker_data = account_info.try_borrow_mut_data()?;
         edition_marker_data[0..].fill(0);
 
-        borsh::BorshSerialize::serialize(&self, &mut *edition_marker_data)?;
+        borsh::to_writer(&mut edition_marker_data[..], &self)?;
 
         Ok(())
     }
@@ -105,7 +105,6 @@ impl EditionMarker {
 
 #[cfg(test)]
 mod tests {
-    use borsh::BorshSerialize;
     use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
@@ -120,7 +119,7 @@ mod tests {
         let expected_data = EditionMarker::default();
 
         let mut buf = Vec::new();
-        expected_data.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_data).unwrap();
         EditionMarker::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();
@@ -149,7 +148,7 @@ mod tests {
         let wrong_type = Metadata::default();
 
         let mut buf = Vec::new();
-        wrong_type.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &wrong_type).unwrap();
         Metadata::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();

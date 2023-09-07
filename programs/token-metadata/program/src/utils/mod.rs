@@ -19,9 +19,8 @@ pub use mpl_utils::{
 };
 pub use programmable_asset::*;
 use solana_program::{
-    account_info::AccountInfo, borsh::try_from_slice_unchecked, entrypoint::ProgramResult,
-    program::invoke_signed, program_error::ProgramError, pubkey, pubkey::Pubkey, rent::Rent,
-    sysvar::Sysvar,
+    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
+    program_error::ProgramError, pubkey, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
 };
 use spl_token_2022::{
     extension::{BaseState, StateWithExtensions},
@@ -193,7 +192,8 @@ pub fn try_from_slice_checked<T: TokenMetadataAccount>(
         return Err(MetadataError::DataTypeMismatch.into());
     }
 
-    let result: T = try_from_slice_unchecked(data)?;
+    let mut data_mut = data;
+    let result = T::deserialize(&mut data_mut)?;
 
     Ok(result)
 }

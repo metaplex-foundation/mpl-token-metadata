@@ -27,17 +27,10 @@ export type PrintSupplyArgs =
   | { __kind: 'Limited'; fields: [number | bigint] }
   | { __kind: 'Unlimited' };
 
-/** @deprecated Use `getPrintSupplySerializer()` without any argument instead. */
-export function getPrintSupplySerializer(
-  _context: object
-): Serializer<PrintSupplyArgs, PrintSupply>;
 export function getPrintSupplySerializer(): Serializer<
   PrintSupplyArgs,
   PrintSupply
->;
-export function getPrintSupplySerializer(
-  _context: object = {}
-): Serializer<PrintSupplyArgs, PrintSupply> {
+> {
   return dataEnum<PrintSupply>(
     [
       ['Zero', unit()],

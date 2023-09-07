@@ -1,0 +1,91 @@
+name: Deploy Rust Client
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: Level
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - rc
+          - beta
+          - alpha
+          - release
+          - version
+      version:
+        description: Version
+        required: false
+        type: string
+      dry_run:
+        description: Dry run
+        required: true
+        default: true
+        type: boolean
+
+env:
+  CACHE: true
+
+jobs:
+  build_programs:
+    name: Programs
+    uses: ./.github/workflows/build-programs.yml
+    secrets: inherit
+
+  build_rust_client:
+    name: Rust Client
+    uses: ./.github/workflows/build-rust-client.yml
+    secrets: inherit
+
+  test_rust_client:
+    name: Rust Client
+    needs: [build_programs, build_rust_client]
+    uses: ./.github/workflows/test-rust-client.yml
+    secrets: inherit
+
+  publish_crate:
+    name: Rust Client / Publish Crate
+    runs-on: ubuntu-latest
+    needs: test_rust_client
+    permissions:
+      contents: write
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SVC_TOKEN }}
+
+      - name: Load environment variables
+        run: cat .github/.env >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: metaplex-foundation/actions/install-rust@v1
+        with:
+          toolchain: "1.70.0"
+
+      - name: Install cargo-release
+        uses: metaplex-foundation/actions/install-cargo-release@v1
+        with:
+          cache: ${{ env.CACHE }}
+
+      - name: Publish Crate
+        working-directory: ./clients/rust
+        run: |
+          if [ "${{ inputs.level }}" == "version" ]; then
+            BUMP=${{ inputs.version }}
+          else
+            BUMP=${{ inputs.level }}
+          fi
+
+          if [ "${{ inputs.dry_run }}" == "false" ]; then
+            OPTIONS="--no-publish --no-confirm --execute"
+            git config user.name ${{ env.COMMIT_USER_NAME }}
+            git config user.email ${{ env.COMMIT_USER_EMAIL }}
+          fi
+
+          cargo login ${{ secrets.CRATES_TOKEN }}
+          cargo release $BUMP $OPTIONS

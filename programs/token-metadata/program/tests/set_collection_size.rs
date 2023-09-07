@@ -2,16 +2,6 @@
 pub mod utils;
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::{
-    error::MetadataError,
-    instruction::{
-        approve_collection_authority, set_collection_size, MetadataInstruction,
-        SetCollectionSizeArgs,
-    },
-    pda::find_collection_authority_account,
-    state::{CollectionDetails, Metadata as ProgramMetadata},
-    ID as PROGRAM_ID,
-};
 use num_traits::FromPrimitive;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -24,11 +14,21 @@ use solana_sdk::{
     signer::Signer,
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::{
+    error::MetadataError,
+    instruction::{
+        approve_collection_authority, set_collection_size, MetadataInstruction,
+        SetCollectionSizeArgs,
+    },
+    pda::find_collection_authority_account,
+    state::{CollectionDetails, Metadata as ProgramMetadata},
+    ID as PROGRAM_ID,
+};
 use utils::*;
 
 mod set_collection_size {
 
-    use mpl_token_metadata::pda::find_collection_authority_account;
+    use token_metadata::pda::find_collection_authority_account;
 
     use super::*;
 
@@ -88,6 +88,7 @@ mod set_collection_size {
         let metadata = ProgramMetadata::deserialize(&mut md_account.data.as_slice()).unwrap();
         let retrieved_size = if let Some(details) = metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
             }
         } else {
@@ -190,6 +191,7 @@ mod set_collection_size {
         let metadata = ProgramMetadata::deserialize(&mut md_account.data.as_slice()).unwrap();
         let retrieved_size = if let Some(details) = metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
             }
         } else {
@@ -384,6 +386,7 @@ mod set_collection_size {
         let metadata = ProgramMetadata::deserialize(&mut md_account.data.as_slice()).unwrap();
         let retrieved_size = if let Some(details) = metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
             }
         } else {
@@ -451,6 +454,7 @@ mod set_collection_size {
         let metadata = ProgramMetadata::deserialize(&mut md_account.data.as_slice()).unwrap();
         let retrieved_size = if let Some(details) = metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
             }
         } else {

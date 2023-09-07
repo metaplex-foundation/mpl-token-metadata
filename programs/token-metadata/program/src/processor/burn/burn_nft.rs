@@ -90,10 +90,7 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
         sysvar_instructions_info: spl_token_program_info,
         spl_token_program_info,
     };
-    let context = Context {
-        accounts,
-        remaining_accounts: vec![],
-    };
+    let context = Context { accounts };
 
     let args = BurnNonFungibleArgs {
         metadata,

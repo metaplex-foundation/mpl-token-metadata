@@ -12,8 +12,6 @@ pub use digital_asset::*;
 pub use edition_marker::*;
 pub use master_edition_v2::MasterEditionV2;
 pub use metadata::{assert_collection_size, Metadata};
-pub use mpl_token_metadata::instruction;
-use mpl_token_metadata::state::CollectionDetails;
 pub use programmable::create_default_metaplex_rule_set;
 pub use rooster_manager::*;
 use solana_program_test::*;
@@ -22,12 +20,16 @@ use solana_sdk::{
     signer::keypair::Keypair, system_instruction, transaction::Transaction,
 };
 use spl_token::state::Mint;
+pub use token_metadata::instruction;
+use token_metadata::state::CollectionDetails;
 
-pub const DEFAULT_COLLECTION_DETAILS: Option<CollectionDetails> =
-    Some(CollectionDetails::V1 { size: 0 });
+pub const DEFAULT_COLLECTION_DETAILS: Option<CollectionDetails> = {
+    #[allow(deprecated)]
+    Some(CollectionDetails::V1 { size: 0 })
+};
 
 pub fn program_test() -> ProgramTest {
-    ProgramTest::new("mpl_token_metadata", mpl_token_metadata::ID, None)
+    ProgramTest::new("token_metadata", token_metadata::ID, None)
 }
 
 pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> Account {
@@ -75,7 +77,7 @@ pub async fn burn(
 ) -> Result<(), BanksClientError> {
     let tx = Transaction::new_signed_with_payer(
         &[instruction::burn_nft(
-            mpl_token_metadata::ID,
+            token_metadata::ID,
             metadata,
             owner.pubkey(),
             mint,
@@ -109,7 +111,7 @@ pub async fn burn_edition(
 ) -> Result<(), BanksClientError> {
     let tx = Transaction::new_signed_with_payer(
         &[instruction::burn_edition_nft(
-            mpl_token_metadata::ID,
+            token_metadata::ID,
             metadata,
             owner.pubkey(),
             print_edition_mint,

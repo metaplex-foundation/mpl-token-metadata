@@ -32,14 +32,7 @@ export type UseArgsArgs = {
   authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
 };
 
-/** @deprecated Use `getUseArgsSerializer()` without any argument instead. */
-export function getUseArgsSerializer(
-  _context: object
-): Serializer<UseArgsArgs, UseArgs>;
-export function getUseArgsSerializer(): Serializer<UseArgsArgs, UseArgs>;
-export function getUseArgsSerializer(
-  _context: object = {}
-): Serializer<UseArgsArgs, UseArgs> {
+export function getUseArgsSerializer(): Serializer<UseArgsArgs, UseArgs> {
   return dataEnum<UseArgs>(
     [
       [

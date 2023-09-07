@@ -2,12 +2,6 @@
 pub mod utils;
 
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::{
-    error::MetadataError,
-    instruction::set_token_standard,
-    state::{Metadata as ProgramMetadata, TokenStandard},
-    ID as PROGRAM_ID,
-};
 use num_traits::FromPrimitive;
 use solana_program_test::*;
 use solana_sdk::{
@@ -16,6 +10,12 @@ use solana_sdk::{
     signature::Keypair,
     signer::Signer,
     transaction::{Transaction, TransactionError},
+};
+use token_metadata::{
+    error::MetadataError,
+    instruction::set_token_standard,
+    state::{Metadata as ProgramMetadata, TokenStandard},
+    ID as PROGRAM_ID,
 };
 use utils::*;
 

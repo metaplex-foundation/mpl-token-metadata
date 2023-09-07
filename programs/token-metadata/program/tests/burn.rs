@@ -2,14 +2,6 @@
 
 pub mod utils;
 
-use mpl_token_metadata::{
-    error::MetadataError,
-    instruction::{builders::BurnBuilder, BurnArgs, DelegateArgs, InstructionBuilder},
-    state::{
-        Collection, CollectionDetails, Creator, Key, MasterEditionV2 as ProgramMasterEditionV2,
-        Metadata as ProgramMetadata, PrintSupply, TokenMetadataAccount, TokenStandard,
-    },
-};
 use num_traits::FromPrimitive;
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
@@ -19,11 +11,19 @@ use solana_sdk::{
     signer::Signer,
     transaction::{Transaction, TransactionError},
 };
+use token_metadata::{
+    error::MetadataError,
+    instruction::{builders::BurnBuilder, BurnArgs, DelegateArgs, InstructionBuilder},
+    state::{
+        Collection, CollectionDetails, Creator, Key, MasterEditionV2 as ProgramMasterEditionV2,
+        Metadata as ProgramMetadata, PrintSupply, TokenMetadataAccount, TokenStandard,
+    },
+};
 use utils::*;
 
 mod pnft {
-    use mpl_token_metadata::{instruction::TransferArgs, pda::find_token_record_account};
     use solana_program::system_instruction;
+    use token_metadata::{instruction::TransferArgs, pda::find_token_record_account};
 
     use super::*;
 
@@ -606,7 +606,7 @@ mod pnft {
             &fake_token_record.pubkey(),
             100_000_000,
             80,
-            &mpl_token_metadata::ID,
+            &token_metadata::ID,
         );
 
         let args = BurnArgs::V1 { amount: 1 };
@@ -1083,8 +1083,8 @@ mod pnft {
 }
 
 mod pnft_edition {
-    use mpl_token_metadata::pda::find_token_record_account;
     use spl_associated_token_account::get_associated_token_address_with_program_id;
+    use token_metadata::pda::find_token_record_account;
 
     use super::*;
 
@@ -2188,6 +2188,7 @@ mod nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -2216,6 +2217,7 @@ mod nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
@@ -2246,6 +2248,7 @@ mod nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -2603,6 +2606,7 @@ mod nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
@@ -2630,6 +2634,7 @@ mod nft {
 
         if let Some(details) = parent_metadata.collection_details {
             match details {
+                #[allow(deprecated)]
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
@@ -3884,9 +3889,10 @@ mod nft_edition {
 }
 
 mod fungible {
-    use mpl_token_metadata::{instruction::TransferArgs, utils::unpack};
+    use mpl_utils::token::unpack;
     use solana_program::native_token::LAMPORTS_PER_SOL;
     use spl_token_2022::state::Account;
+    use token_metadata::instruction::TransferArgs;
 
     use super::*;
 
@@ -3960,7 +3966,7 @@ mod fungible {
             .unwrap()
             .unwrap();
 
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
 
         assert_eq!(token.amount, initial_amount - burn_amount);
 

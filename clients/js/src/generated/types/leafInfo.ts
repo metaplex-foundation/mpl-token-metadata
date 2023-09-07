@@ -17,14 +17,7 @@ export type LeafInfo = { leaf: Uint8Array; proof: Array<Uint8Array> };
 
 export type LeafInfoArgs = LeafInfo;
 
-/** @deprecated Use `getLeafInfoSerializer()` without any argument instead. */
-export function getLeafInfoSerializer(
-  _context: object
-): Serializer<LeafInfoArgs, LeafInfo>;
-export function getLeafInfoSerializer(): Serializer<LeafInfoArgs, LeafInfo>;
-export function getLeafInfoSerializer(
-  _context: object = {}
-): Serializer<LeafInfoArgs, LeafInfo> {
+export function getLeafInfoSerializer(): Serializer<LeafInfoArgs, LeafInfo> {
   return struct<LeafInfo>(
     [
       ['leaf', bytes({ size: 32 })],

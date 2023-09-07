@@ -7,13 +7,13 @@ use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::Tra
 use utils::*;
 
 mod burn_edition_nft {
-    use mpl_token_metadata::{
-        error::MetadataError,
-        state::{MasterEditionV2 as ProgramMasterEdition, TokenMetadataAccount},
-    };
     use solana_program::pubkey::Pubkey;
     use solana_sdk::signature::Keypair;
     use spl_associated_token_account::get_associated_token_address;
+    use token_metadata::{
+        error::MetadataError,
+        state::{MasterEditionV2 as ProgramMasterEdition, TokenMetadataAccount},
+    };
 
     use super::*;
 

@@ -7,20 +7,21 @@ use utils::*;
 
 mod lock {
 
-    use mpl_token_metadata::{
-        error::MetadataError,
-        instruction::DelegateArgs,
-        pda::find_token_record_account,
-        state::{TokenRecord, TokenStandard, TokenState},
-        utils::unpack,
-    };
-    use solana_program::{borsh::try_from_slice_unchecked, pubkey::Pubkey};
+    use borsh::BorshDeserialize;
+    use mpl_utils::token::unpack;
+    use solana_program::pubkey::Pubkey;
     use solana_sdk::{
         instruction::InstructionError,
         signature::{Keypair, Signer},
         transaction::TransactionError,
     };
     use spl_token_2022::state::Account;
+    use token_metadata::{
+        error::MetadataError,
+        instruction::DelegateArgs,
+        pda::find_token_record_account,
+        state::{TokenRecord, TokenStandard, TokenState},
+    };
 
     use super::*;
 
@@ -50,7 +51,7 @@ mod lock {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -99,7 +100,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -142,7 +143,7 @@ mod lock {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -184,7 +185,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(token.is_frozen());
     }
@@ -213,7 +214,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should not be frozen
         assert!(!token.is_frozen());
 
@@ -246,7 +247,7 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should be frozen
         assert!(token.is_frozen());
     }
@@ -277,7 +278,7 @@ mod lock {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -319,7 +320,7 @@ mod lock {
         // asserts
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Locked);
 
@@ -372,7 +373,7 @@ mod lock {
         let (pda_key, _) = find_token_record_account(&asset.mint.pubkey(), &asset.token.unwrap());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Unlocked);
 
@@ -415,12 +416,12 @@ mod lock {
         // asserts
 
         let token_account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token = unpack::<Account>(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         // should be frozen
         assert!(token.is_frozen());
 
         let pda = get_account(&mut context, &pda_key).await;
-        let token_record: TokenRecord = try_from_slice_unchecked(&pda.data).unwrap();
+        let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
 
         assert_eq!(token_record.state, TokenState::Locked);
         assert_eq!(token_record.locked_transfer, Some(Pubkey::default()));

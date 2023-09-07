@@ -38,17 +38,10 @@ export type PayloadTypeArgs =
   | { __kind: 'MerkleProof'; fields: [LeafInfoArgs] }
   | { __kind: 'Number'; fields: [number | bigint] };
 
-/** @deprecated Use `getPayloadTypeSerializer()` without any argument instead. */
-export function getPayloadTypeSerializer(
-  _context: object
-): Serializer<PayloadTypeArgs, PayloadType>;
 export function getPayloadTypeSerializer(): Serializer<
   PayloadTypeArgs,
   PayloadType
->;
-export function getPayloadTypeSerializer(
-  _context: object = {}
-): Serializer<PayloadTypeArgs, PayloadType> {
+> {
   return dataEnum<PayloadType>(
     [
       [

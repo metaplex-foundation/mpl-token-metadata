@@ -195,11 +195,7 @@ pub trait Resizable: TokenMetadataAccount + BorshSerialize {
             )?;
         }
 
-        let mut account_data = account_info.data.borrow_mut();
-        // passes a slice to borsh so the internal account data array does not get
-        // temporarily resized
-        let mut storage = &mut account_data[..required_size];
-        BorshSerialize::serialize(self, &mut storage)?;
+        borsh::to_writer(&mut account_info.data.borrow_mut()[..], self)?;
 
         Ok(())
     }

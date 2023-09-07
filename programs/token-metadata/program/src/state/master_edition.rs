@@ -111,7 +111,7 @@ impl MasterEdition for MasterEditionV2 {
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
         let mut storage = &mut account.data.borrow_mut()[..MASTER_EDITION_FEE_FLAG_INDEX];
-        BorshSerialize::serialize(self, &mut storage)?;
+        borsh::to_writer(&mut storage, self)?;
         Ok(())
     }
 }
@@ -171,14 +171,13 @@ impl MasterEdition for MasterEditionV1 {
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
         let mut storage = &mut account.data.borrow_mut()[..MASTER_EDITION_FEE_FLAG_INDEX];
-        BorshSerialize::serialize(self, &mut storage)?;
+        borsh::to_writer(&mut storage, self)?;
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use borsh::BorshSerialize;
     use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
@@ -193,7 +192,7 @@ mod tests {
         let expected_data = MasterEditionV2::default();
 
         let mut buf = Vec::new();
-        expected_data.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &expected_data).unwrap();
         MasterEditionV2::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();
@@ -222,7 +221,7 @@ mod tests {
         let wrong_type = Metadata::default();
 
         let mut buf = Vec::new();
-        wrong_type.serialize(&mut buf).unwrap();
+        borsh::to_writer(&mut buf, &wrong_type).unwrap();
         Metadata::pad_length(&mut buf).unwrap();
 
         let pubkey = Keypair::new().pubkey();
