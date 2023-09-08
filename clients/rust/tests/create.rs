@@ -55,6 +55,7 @@ mod create {
             .seller_fee_basis_points(500)
             .token_standard(TokenStandard::NonFungible)
             .print_supply(PrintSupply::Zero)
+            .spl_token_program(Some(spl_token::ID))
             .instruction();
 
         let tx = Transaction::new_signed_with_payer(

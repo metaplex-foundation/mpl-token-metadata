@@ -55,6 +55,7 @@ impl DigitalAsset {
             .name(name)
             .uri(uri)
             .token_standard(token_standard)
+            .spl_token_program(Some(spl_token::ID))
             .instruction();
 
         let tx = Transaction::new_signed_with_payer(
