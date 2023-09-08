@@ -83,7 +83,7 @@ jobs:
         run: pnpm generate
 
       - name: Ensure working directory is clean
-        run: test -n "$(git status --porcelain)"
+        run: test -z "$(git status --porcelain)"
 
   test_js_client:
     if: needs.changes.outputs.js_client == 'true'
