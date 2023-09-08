@@ -20,7 +20,7 @@ The packages below can be use to interact with Token Metadata program.
 
 ### TypeScript
 ```sh
-npm install @metaplex-foundation/mpl-token-metadata@alpha
+npm install @metaplex-foundation/mpl-token-metadata
 ```
 
 [See typedoc documentation](https://mpl-token-metadata-js-docs.vercel.app/).
