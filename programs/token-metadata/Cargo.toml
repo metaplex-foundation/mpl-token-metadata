@@ -10,5 +10,3 @@ strip = true               # Automatically strip symbols from the binary.
 opt-level = "z" 
 lto = true
 codegen-units = 1
-
-# Some text here to trigger a hash change.
