@@ -3,7 +3,14 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke, program_pack::Pack,
     pubkey::Pubkey, rent::Rent, system_instruction, sysvar::Sysvar,
 };
-use spl_token_2022::{native_mint::DECIMALS, state::Mint};
+use spl_token_2022::{
+    extension::{
+        mint_close_authority::MintCloseAuthority, BaseStateWithExtensions, ExtensionType,
+        StateWithExtensions,
+    },
+    native_mint::DECIMALS,
+    state::Mint,
+};
 
 use crate::{
     error::MetadataError,
@@ -18,6 +25,13 @@ use crate::{
         process_create_metadata_accounts_logic, CreateMetadataAccountsLogicArgs,
     },
 };
+
+/// List of SPL Token-2022 `Mint` account exntesion types that are allowed on
+/// non-fungible assets.
+const NON_FUNGIBLE_EXTENSIONS: &[ExtensionType] = &[
+    ExtensionType::MintCloseAuthority,
+    ExtensionType::NonTransferable,
+];
 
 /// Create the associated metadata accounts for a mint.
 ///
@@ -225,4 +239,51 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
 
     // Set fee flag after metadata account is created.
     set_fee_flag(ctx.accounts.metadata_info)
+}
+
+fn validate_mint(
+    mint: &AccountInfo,
+    metadata: &AccountInfo,
+    token_standard: TokenStandard,
+) -> ProgramResult {
+    let mint_data = &mint.data.borrow();
+    let mint = StateWithExtensions::<Mint>::unpack(mint_data)?;
+
+    if matches!(
+        token_standard,
+        TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible
+    ) {
+        // NonFungible assets must have decimals == 0 and supply no greater than 1
+        if mint.base.decimals > 0 || mint.base.supply > 1 {
+            return Err(MetadataError::InvalidMintForTokenStandard.into());
+        }
+        // Programmable assets must have supply == 0 since there cannot be any
+        // existing token account
+        if matches!(token_standard, TokenStandard::ProgrammableNonFungible)
+            && (mint.base.supply > 0)
+        {
+            return Err(MetadataError::MintSupplyMustBeZero.into());
+        }
+
+        // validates the mint extensions
+        mint.get_extension_types()?
+            .iter()
+            .try_for_each(|extension_type| {
+                if !NON_FUNGIBLE_EXTENSIONS.contains(extension_type) {
+                    return Err(MetadataError::InvalidMintExtensionType);
+                }
+                Ok(())
+            })?;
+    }
+
+    // for all assets, if the mint close authority is enabled, it must be set to
+    // be the metadata account
+    if let Ok(extension) = mint.get_extension::<MintCloseAuthority>() {
+        let close_authority: Option<Pubkey> = extension.close_authority.into();
+        if close_authority.is_none() || close_authority != Some(*metadata.key) {
+            return Err(MetadataError::InvalidMintCloseAuthority.into());
+        }
+    }
+
+    Ok(())
 }
