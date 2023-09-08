@@ -12,11 +12,24 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TokenOwnedEscrow {
     pub key: Key,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
     pub base_token: Pubkey,
     pub authority: EscrowAuthority,
     pub bump: u8,
+}
+
+impl TokenOwnedEscrow {
+    #[inline(always)]
+    pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
+        let mut data = data;
+        Self::deserialize(&mut data)
+    }
 }
 
 impl<'a> TryFrom<&'a solana_program::account_info::AccountInfo<'a>> for TokenOwnedEscrow {

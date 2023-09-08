@@ -23,8 +23,6 @@ use mpl_token_metadata::{instructions::CreateV1Builder, types::TokenStandard};
 
 mod create {
 
-    use borsh::BorshDeserialize;
-
     use super::*;
 
     #[tokio::test]
@@ -44,7 +42,7 @@ mod create {
 
         let create_ix = CreateV1Builder::new()
             .metadata(metadata)
-            .master_edition(master_edition)
+            .master_edition(Some(master_edition))
             .mint(mint_pubkey, true)
             .authority(payer_pubkey)
             .payer(payer_pubkey)
@@ -57,7 +55,7 @@ mod create {
             .seller_fee_basis_points(500)
             .token_standard(TokenStandard::NonFungible)
             .print_supply(PrintSupply::Zero)
-            .build();
+            .instruction();
 
         let tx = Transaction::new_signed_with_payer(
             &[create_ix],
@@ -71,7 +69,7 @@ mod create {
         // then the metadata is created with the correct values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
 
         assert!(!metadata.primary_sale_happened);
         assert!(metadata.is_mutable);
@@ -152,7 +150,7 @@ mod create {
         // then the metadata is created with the correct values
 
         let metadata_account = get_account(&mut context, &metadata).await;
-        let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
 
         assert!(!metadata.primary_sale_happened);
         assert!(metadata.is_mutable);

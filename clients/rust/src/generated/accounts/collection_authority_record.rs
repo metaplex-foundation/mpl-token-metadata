@@ -11,6 +11,7 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CollectionAuthorityRecord {
     pub key: Key,
     pub bump: u8,
@@ -18,21 +19,6 @@ pub struct CollectionAuthorityRecord {
 }
 
 impl CollectionAuthorityRecord {
-    pub fn find_pda(
-        mint: &Pubkey,
-        collection_authority: &Pubkey,
-    ) -> (solana_program::pubkey::Pubkey, u8) {
-        solana_program::pubkey::Pubkey::find_program_address(
-            &[
-                "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
-                mint.as_ref(),
-                "collection_authority".as_bytes(),
-                collection_authority.as_ref(),
-            ],
-            &crate::MPL_TOKEN_METADATA_ID,
-        )
-    }
     pub fn create_pda(
         mint: Pubkey,
         collection_authority: Pubkey,
@@ -49,6 +35,28 @@ impl CollectionAuthorityRecord {
             ],
             &crate::MPL_TOKEN_METADATA_ID,
         )
+    }
+
+    pub fn find_pda(
+        mint: &Pubkey,
+        collection_authority: &Pubkey,
+    ) -> (solana_program::pubkey::Pubkey, u8) {
+        solana_program::pubkey::Pubkey::find_program_address(
+            &[
+                "metadata".as_bytes(),
+                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                mint.as_ref(),
+                "collection_authority".as_bytes(),
+                collection_authority.as_ref(),
+            ],
+            &crate::MPL_TOKEN_METADATA_ID,
+        )
+    }
+
+    #[inline(always)]
+    pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
+        let mut data = data;
+        Self::deserialize(&mut data)
     }
 }
 

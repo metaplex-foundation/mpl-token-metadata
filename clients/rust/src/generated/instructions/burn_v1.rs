@@ -41,12 +41,19 @@ pub struct BurnV1 {
 }
 
 impl BurnV1 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: BurnV1InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(14);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: BurnV1InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(14 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.authority,
             true,
@@ -149,6 +156,9 @@ impl BurnV1 {
             self.spl_token_program,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = BurnV1InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -176,7 +186,8 @@ impl BurnV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct BurnV1InstructionArgs {
     pub amount: u64,
 }
@@ -199,6 +210,7 @@ pub struct BurnV1Builder {
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
     spl_token_program: Option<solana_program::pubkey::Pubkey>,
     amount: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl BurnV1Builder {
@@ -216,9 +228,9 @@ impl BurnV1Builder {
     #[inline(always)]
     pub fn collection_metadata(
         &mut self,
-        collection_metadata: solana_program::pubkey::Pubkey,
+        collection_metadata: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.collection_metadata = Some(collection_metadata);
+        self.collection_metadata = collection_metadata;
         self
     }
     /// Metadata (pda of ['metadata', program id, mint id])
@@ -230,8 +242,8 @@ impl BurnV1Builder {
     /// `[optional account]`
     /// Edition of the asset
     #[inline(always)]
-    pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.edition = Some(edition);
+    pub fn edition(&mut self, edition: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.edition = edition;
         self
     }
     /// Mint of token asset
@@ -249,8 +261,11 @@ impl BurnV1Builder {
     /// `[optional account]`
     /// Master edition account
     #[inline(always)]
-    pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.master_edition = Some(master_edition);
+    pub fn master_edition(
+        &mut self,
+        master_edition: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.master_edition = master_edition;
         self
     }
     /// `[optional account]`
@@ -258,9 +273,9 @@ impl BurnV1Builder {
     #[inline(always)]
     pub fn master_edition_mint(
         &mut self,
-        master_edition_mint: solana_program::pubkey::Pubkey,
+        master_edition_mint: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.master_edition_mint = Some(master_edition_mint);
+        self.master_edition_mint = master_edition_mint;
         self
     }
     /// `[optional account]`
@@ -268,31 +283,39 @@ impl BurnV1Builder {
     #[inline(always)]
     pub fn master_edition_token(
         &mut self,
-        master_edition_token: solana_program::pubkey::Pubkey,
+        master_edition_token: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.master_edition_token = Some(master_edition_token);
+        self.master_edition_token = master_edition_token;
         self
     }
     /// `[optional account]`
     /// Edition marker account
     #[inline(always)]
-    pub fn edition_marker(&mut self, edition_marker: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.edition_marker = Some(edition_marker);
+    pub fn edition_marker(
+        &mut self,
+        edition_marker: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.edition_marker = edition_marker;
         self
     }
     /// `[optional account]`
     /// Token record account
     #[inline(always)]
-    pub fn token_record(&mut self, token_record: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token_record = Some(token_record);
+    pub fn token_record(
+        &mut self,
+        token_record: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.token_record = token_record;
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -302,6 +325,7 @@ impl BurnV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
     /// SPL Token Program
     #[inline(always)]
     pub fn spl_token_program(
@@ -317,8 +341,18 @@ impl BurnV1Builder {
         self.amount = Some(amount);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = BurnV1 {
             authority: self.authority.expect("authority is not set"),
             collection_metadata: self.collection_metadata,
@@ -345,8 +379,40 @@ impl BurnV1Builder {
             amount: self.amount.clone().unwrap_or(1),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `burn_v1` CPI accounts.
+pub struct BurnV1CpiAccounts<'a> {
+    /// Asset owner or Utility delegate
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata of the Collection
+    pub collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Metadata (pda of ['metadata', program id, mint id])
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Edition of the asset
+    pub edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Mint of token asset
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token account to close
+    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Master edition account
+    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Master edition mint of the asset
+    pub master_edition_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Master edition token account
+    pub master_edition_token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Edition marker account
+    pub edition_marker: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token record account
+    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Token Program
+    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `burn_v1` CPI instruction.
@@ -386,16 +452,56 @@ pub struct BurnV1Cpi<'a> {
 }
 
 impl<'a> BurnV1Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: BurnV1CpiAccounts<'a>,
+        args: BurnV1InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            authority: accounts.authority,
+            collection_metadata: accounts.collection_metadata,
+            metadata: accounts.metadata,
+            edition: accounts.edition,
+            mint: accounts.mint,
+            token: accounts.token,
+            master_edition: accounts.master_edition,
+            master_edition_mint: accounts.master_edition_mint,
+            master_edition_token: accounts.master_edition_token,
+            edition_marker: accounts.edition_marker,
+            token_record: accounts.token_record,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            spl_token_program: accounts.spl_token_program,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(14);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(14 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.authority.key,
             true,
@@ -501,6 +607,9 @@ impl<'a> BurnV1Cpi<'a> {
             *self.spl_token_program.key,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = BurnV1InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -510,7 +619,7 @@ impl<'a> BurnV1Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(14 + 1);
+        let mut account_infos = Vec::with_capacity(14 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.authority.clone());
         if let Some(collection_metadata) = self.collection_metadata {
@@ -540,6 +649,9 @@ impl<'a> BurnV1Cpi<'a> {
         account_infos.push(self.system_program.clone());
         account_infos.push(self.sysvar_instructions.clone());
         account_infos.push(self.spl_token_program.clone());
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -573,6 +685,7 @@ impl<'a> BurnV1CpiBuilder<'a> {
             sysvar_instructions: None,
             spl_token_program: None,
             amount: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -590,9 +703,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_metadata(
         &mut self,
-        collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.collection_metadata = Some(collection_metadata);
+        self.instruction.collection_metadata = collection_metadata;
         self
     }
     /// Metadata (pda of ['metadata', program id, mint id])
@@ -609,9 +722,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: &'a solana_program::account_info::AccountInfo<'a>,
+        edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.edition = Some(edition);
+        self.instruction.edition = edition;
         self
     }
     /// Mint of token asset
@@ -631,9 +744,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition = Some(master_edition);
+        self.instruction.master_edition = master_edition;
         self
     }
     /// `[optional account]`
@@ -641,9 +754,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition_mint(
         &mut self,
-        master_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition_mint = Some(master_edition_mint);
+        self.instruction.master_edition_mint = master_edition_mint;
         self
     }
     /// `[optional account]`
@@ -651,9 +764,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition_token(
         &mut self,
-        master_edition_token: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition_token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition_token = Some(master_edition_token);
+        self.instruction.master_edition_token = master_edition_token;
         self
     }
     /// `[optional account]`
@@ -661,9 +774,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn edition_marker(
         &mut self,
-        edition_marker: &'a solana_program::account_info::AccountInfo<'a>,
+        edition_marker: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.edition_marker = Some(edition_marker);
+        self.instruction.edition_marker = edition_marker;
         self
     }
     /// `[optional account]`
@@ -671,9 +784,9 @@ impl<'a> BurnV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn token_record(
         &mut self,
-        token_record: &'a solana_program::account_info::AccountInfo<'a>,
+        token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.token_record = Some(token_record);
+        self.instruction.token_record = token_record;
         self
     }
     /// System program
@@ -709,13 +822,38 @@ impl<'a> BurnV1CpiBuilder<'a> {
         self.instruction.amount = Some(amount);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> BurnV1Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = BurnV1InstructionArgs {
             amount: self.instruction.amount.clone().unwrap_or(1),
         };
-
-        BurnV1Cpi {
+        let instruction = BurnV1Cpi {
             __program: self.instruction.__program,
 
             authority: self.instruction.authority.expect("authority is not set"),
@@ -755,7 +893,11 @@ impl<'a> BurnV1CpiBuilder<'a> {
                 .spl_token_program
                 .expect("spl_token_program is not set"),
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -776,4 +918,5 @@ struct BurnV1CpiBuilderInstruction<'a> {
     sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     amount: Option<u64>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

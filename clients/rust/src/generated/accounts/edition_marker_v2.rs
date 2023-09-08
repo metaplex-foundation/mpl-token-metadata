@@ -11,24 +11,13 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct EditionMarkerV2 {
     pub key: Key,
     pub ledger: Vec<u8>,
 }
 
 impl EditionMarkerV2 {
-    pub fn find_pda(mint: &Pubkey) -> (solana_program::pubkey::Pubkey, u8) {
-        solana_program::pubkey::Pubkey::find_program_address(
-            &[
-                "metadata".as_bytes(),
-                crate::MPL_TOKEN_METADATA_ID.as_ref(),
-                mint.as_ref(),
-                "edition".as_bytes(),
-                "marker".as_bytes(),
-            ],
-            &crate::MPL_TOKEN_METADATA_ID,
-        )
-    }
     pub fn create_pda(
         mint: Pubkey,
         bump: u8,
@@ -44,6 +33,25 @@ impl EditionMarkerV2 {
             ],
             &crate::MPL_TOKEN_METADATA_ID,
         )
+    }
+
+    pub fn find_pda(mint: &Pubkey) -> (solana_program::pubkey::Pubkey, u8) {
+        solana_program::pubkey::Pubkey::find_program_address(
+            &[
+                "metadata".as_bytes(),
+                crate::MPL_TOKEN_METADATA_ID.as_ref(),
+                mint.as_ref(),
+                "edition".as_bytes(),
+                "marker".as_bytes(),
+            ],
+            &crate::MPL_TOKEN_METADATA_ID,
+        )
+    }
+
+    #[inline(always)]
+    pub fn from_bytes(data: &[u8]) -> Result<Self, std::io::Error> {
+        let mut data = data;
+        Self::deserialize(&mut data)
     }
 }
 

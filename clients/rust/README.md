@@ -107,7 +107,7 @@ Alternatively, you can use the `CreateV1Builder` to create the appropriate instr
 ```rust
 let create_ix = CreateV1Builder::new()
     .metadata(metadata)
-    .master_edition(master_edition)
+    .master_edition(Some(master_edition))
     .mint(mint_pubkey, true)
     .authority(payer_pubkey)
     .payer(payer_pubkey)
@@ -169,7 +169,7 @@ pub struct TransferV1Cpi<'a> {
 }
 ```
 
-After filling in the instruction account info and argument fields, you can use the `invoke()` or `invoke_signed(...)` method to perform the CPI:
+After filling in the program, instruction accounts and argument fields, you can use the `invoke()` or `invoke_signed(...)` method to perform the CPI:
 
 ```rust
 // instruction args
@@ -179,27 +179,29 @@ let mut args = TransferV1InstructionArgs {
 };
 
 // instruction accounts
-let cpi_transfer = TransferV1Cpi {
-    __program: metadata_program_info,
-    __args: args,
-    token: owner_token_info,
-    token_owner: owner_info,
-    destination_token: destination_token_info,
-    destination_owner: destination_info,
-    mint: mint_info,
-    metadata: metadata_info,
-    authority: vault_info,
-    payer: payer_info,
-    system_program: system_program_info,
-    sysvar_instructions: sysvar_instructions_info,
-    spl_token_program: spl_token_program_info,
-    spl_ata_program: spl_ata_program_info,
-    edition: edition_info,
-    token_record: None,
-    destination_token_record: None,
-    authorization_rules: None,
-    authorization_rules_program: None,
-};
+let cpi_transfer = TransferV1Cpi::new(
+    metadata_program_info,
+    TransferV1CpiAccounts {
+        token: owner_token_info,
+        token_owner: owner_info,
+        destination_token: destination_token_info,
+        destination_owner: destination_info,
+        mint: mint_info,
+        metadata: metadata_info,
+        authority: vault_info,
+        payer: payer_info,
+        system_program: system_program_info,
+        sysvar_instructions: sysvar_instructions_info,
+        spl_token_program: spl_token_program_info,
+        spl_ata_program: spl_ata_program_info,
+        edition: edition_info,
+        token_record: None,
+        destination_token_record: None,
+        authorization_rules: None,
+        authorization_rules_program: None,
+    },
+    args,
+);
 
 // performs the CPI
 cpi_transfer.invoke_signed(&[&signer_seeds])
@@ -222,8 +224,7 @@ let cpi_transfer = TransferV1CpiBuilder::new(metadata_program_info)
     .sysvar_instructions(sysvar_instructions_info)
     .spl_token_program(spl_token_program_info)
     .spl_ata_program(spl_ata_program_info)
-    .amount(amount)
-    .build();
+    .amount(amount);
 
 // performs the CPI
 cpi_transfer.invoke_signed(&[&signer_seeds])

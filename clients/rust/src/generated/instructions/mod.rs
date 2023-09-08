@@ -5,88 +5,88 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-pub mod approve_collection_authority;
-pub mod approve_use_authority;
-pub mod bubblegum_set_collection_size;
-pub mod burn_edition_nft;
-pub mod burn_nft;
-pub mod burn_v1;
-pub mod close_escrow_account;
-pub mod collect;
-pub mod convert_master_edition_v1_to_v2;
-pub mod create_escrow_account;
-pub mod create_master_edition_v3;
-pub mod create_metadata_account_v3;
-pub mod create_v1;
-pub mod delegate_authority_item_v1;
-pub mod delegate_collection_item_v1;
-pub mod delegate_collection_v1;
-pub mod delegate_data_item_v1;
-pub mod delegate_data_v1;
-pub mod delegate_locked_transfer_v1;
-pub mod delegate_programmable_config_item_v1;
-pub mod delegate_programmable_config_v1;
-pub mod delegate_sale_v1;
-pub mod delegate_staking_v1;
-pub mod delegate_standard_v1;
-pub mod delegate_transfer_v1;
-pub mod delegate_utility_v1;
-pub mod deprecated_mint_new_edition_from_master_edition_via_printing_token;
-pub mod freeze_delegated_account;
-pub mod lock_v1;
-pub mod migrate;
-pub mod mint_new_edition_from_master_edition_via_token;
-pub mod mint_new_edition_from_master_edition_via_vault_proxy;
-pub mod mint_v1;
-pub mod print_v1;
-pub mod puff_metadata;
-pub mod remove_creator_verification;
-pub mod revoke_authority_item_v1;
-pub mod revoke_collection_authority;
-pub mod revoke_collection_item_v1;
-pub mod revoke_collection_v1;
-pub mod revoke_data_item_v1;
-pub mod revoke_data_v1;
-pub mod revoke_locked_transfer_v1;
-pub mod revoke_migration_v1;
-pub mod revoke_programmable_config_item_v1;
-pub mod revoke_programmable_config_v1;
-pub mod revoke_sale_v1;
-pub mod revoke_staking_v1;
-pub mod revoke_standard_v1;
-pub mod revoke_transfer_v1;
-pub mod revoke_use_authority;
-pub mod revoke_utility_v1;
-pub mod set_and_verify_collection;
-pub mod set_and_verify_sized_collection_item;
-pub mod set_collection_size;
-pub mod set_token_standard;
-pub mod sign_metadata;
-pub mod thaw_delegated_account;
-pub mod transfer_out_of_escrow;
-pub mod transfer_v1;
-pub mod unlock_v1;
-pub mod unverify_collection;
-pub mod unverify_collection_v1;
-pub mod unverify_creator_v1;
-pub mod unverify_sized_collection_item;
-pub mod update_as_authority_item_delegate_v2;
-pub mod update_as_collection_delegate_v2;
-pub mod update_as_collection_item_delegate_v2;
-pub mod update_as_data_delegate_v2;
-pub mod update_as_data_item_delegate_v2;
-pub mod update_as_programmable_config_delegate_v2;
-pub mod update_as_programmable_config_item_delegate_v2;
-pub mod update_as_update_authority_v2;
-pub mod update_metadata_account_v2;
-pub mod update_primary_sale_happened_via_token;
-pub mod update_v1;
-pub mod use_v1;
-pub mod utilize;
-pub mod verify_collection;
-pub mod verify_collection_v1;
-pub mod verify_creator_v1;
-pub mod verify_sized_collection_item;
+pub(crate) mod approve_collection_authority;
+pub(crate) mod approve_use_authority;
+pub(crate) mod bubblegum_set_collection_size;
+pub(crate) mod burn_edition_nft;
+pub(crate) mod burn_nft;
+pub(crate) mod burn_v1;
+pub(crate) mod close_escrow_account;
+pub(crate) mod collect;
+pub(crate) mod convert_master_edition_v1_to_v2;
+pub(crate) mod create_escrow_account;
+pub(crate) mod create_master_edition_v3;
+pub(crate) mod create_metadata_account_v3;
+pub(crate) mod create_v1;
+pub(crate) mod delegate_authority_item_v1;
+pub(crate) mod delegate_collection_item_v1;
+pub(crate) mod delegate_collection_v1;
+pub(crate) mod delegate_data_item_v1;
+pub(crate) mod delegate_data_v1;
+pub(crate) mod delegate_locked_transfer_v1;
+pub(crate) mod delegate_programmable_config_item_v1;
+pub(crate) mod delegate_programmable_config_v1;
+pub(crate) mod delegate_sale_v1;
+pub(crate) mod delegate_staking_v1;
+pub(crate) mod delegate_standard_v1;
+pub(crate) mod delegate_transfer_v1;
+pub(crate) mod delegate_utility_v1;
+pub(crate) mod deprecated_mint_new_edition_from_master_edition_via_printing_token;
+pub(crate) mod freeze_delegated_account;
+pub(crate) mod lock_v1;
+pub(crate) mod migrate;
+pub(crate) mod mint_new_edition_from_master_edition_via_token;
+pub(crate) mod mint_new_edition_from_master_edition_via_vault_proxy;
+pub(crate) mod mint_v1;
+pub(crate) mod print_v1;
+pub(crate) mod puff_metadata;
+pub(crate) mod remove_creator_verification;
+pub(crate) mod revoke_authority_item_v1;
+pub(crate) mod revoke_collection_authority;
+pub(crate) mod revoke_collection_item_v1;
+pub(crate) mod revoke_collection_v1;
+pub(crate) mod revoke_data_item_v1;
+pub(crate) mod revoke_data_v1;
+pub(crate) mod revoke_locked_transfer_v1;
+pub(crate) mod revoke_migration_v1;
+pub(crate) mod revoke_programmable_config_item_v1;
+pub(crate) mod revoke_programmable_config_v1;
+pub(crate) mod revoke_sale_v1;
+pub(crate) mod revoke_staking_v1;
+pub(crate) mod revoke_standard_v1;
+pub(crate) mod revoke_transfer_v1;
+pub(crate) mod revoke_use_authority;
+pub(crate) mod revoke_utility_v1;
+pub(crate) mod set_and_verify_collection;
+pub(crate) mod set_and_verify_sized_collection_item;
+pub(crate) mod set_collection_size;
+pub(crate) mod set_token_standard;
+pub(crate) mod sign_metadata;
+pub(crate) mod thaw_delegated_account;
+pub(crate) mod transfer_out_of_escrow;
+pub(crate) mod transfer_v1;
+pub(crate) mod unlock_v1;
+pub(crate) mod unverify_collection;
+pub(crate) mod unverify_collection_v1;
+pub(crate) mod unverify_creator_v1;
+pub(crate) mod unverify_sized_collection_item;
+pub(crate) mod update_as_authority_item_delegate_v2;
+pub(crate) mod update_as_collection_delegate_v2;
+pub(crate) mod update_as_collection_item_delegate_v2;
+pub(crate) mod update_as_data_delegate_v2;
+pub(crate) mod update_as_data_item_delegate_v2;
+pub(crate) mod update_as_programmable_config_delegate_v2;
+pub(crate) mod update_as_programmable_config_item_delegate_v2;
+pub(crate) mod update_as_update_authority_v2;
+pub(crate) mod update_metadata_account_v2;
+pub(crate) mod update_primary_sale_happened_via_token;
+pub(crate) mod update_v1;
+pub(crate) mod use_v1;
+pub(crate) mod utilize;
+pub(crate) mod verify_collection;
+pub(crate) mod verify_collection_v1;
+pub(crate) mod verify_creator_v1;
+pub(crate) mod verify_sized_collection_item;
 
 pub use self::approve_collection_authority::*;
 pub use self::approve_use_authority::*;
@@ -170,3 +170,61 @@ pub use self::verify_collection::*;
 pub use self::verify_collection_v1::*;
 pub use self::verify_creator_v1::*;
 pub use self::verify_sized_collection_item::*;
+
+#[derive(Clone, Copy)]
+pub enum InstructionAccount {
+    Readonly(solana_program::pubkey::Pubkey),
+    ReadonlySigner(solana_program::pubkey::Pubkey),
+    Writable(solana_program::pubkey::Pubkey),
+    WritableSigner(solana_program::pubkey::Pubkey),
+}
+
+impl InstructionAccount {
+    pub fn to_account_meta(&self) -> solana_program::instruction::AccountMeta {
+        let (pubkey, writable, signer) = match self {
+            InstructionAccount::Readonly(pubkey) => (pubkey, false, false),
+            InstructionAccount::ReadonlySigner(pubkey) => (pubkey, false, true),
+            InstructionAccount::Writable(pubkey) => (pubkey, true, false),
+            InstructionAccount::WritableSigner(pubkey) => (pubkey, true, true),
+        };
+
+        if writable {
+            solana_program::instruction::AccountMeta::new(*pubkey, signer)
+        } else {
+            solana_program::instruction::AccountMeta::new_readonly(*pubkey, signer)
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum InstructionAccountInfo<'a> {
+    Readonly(&'a solana_program::account_info::AccountInfo<'a>),
+    ReadonlySigner(&'a solana_program::account_info::AccountInfo<'a>),
+    Writable(&'a solana_program::account_info::AccountInfo<'a>),
+    WritableSigner(&'a solana_program::account_info::AccountInfo<'a>),
+}
+
+impl<'a> InstructionAccountInfo<'a> {
+    pub fn to_account_meta(&self) -> solana_program::instruction::AccountMeta {
+        let (pubkey, writable, signer) = match self {
+            InstructionAccountInfo::Readonly(account_info) => (account_info.key, false, false),
+            InstructionAccountInfo::ReadonlySigner(account_info) => (account_info.key, false, true),
+            InstructionAccountInfo::Writable(account_info) => (account_info.key, true, false),
+            InstructionAccountInfo::WritableSigner(account_info) => (account_info.key, true, true),
+        };
+
+        if writable {
+            solana_program::instruction::AccountMeta::new(*pubkey, signer)
+        } else {
+            solana_program::instruction::AccountMeta::new_readonly(*pubkey, signer)
+        }
+    }
+    pub fn account_info(&self) -> &'a solana_program::account_info::AccountInfo<'a> {
+        match self {
+            InstructionAccountInfo::Readonly(account_info)
+            | InstructionAccountInfo::ReadonlySigner(account_info)
+            | InstructionAccountInfo::Writable(account_info)
+            | InstructionAccountInfo::WritableSigner(account_info) => account_info,
+        }
+    }
+}

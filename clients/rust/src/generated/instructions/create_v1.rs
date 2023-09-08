@@ -38,12 +38,19 @@ pub struct CreateV1 {
 }
 
 impl CreateV1 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: CreateV1InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(9);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: CreateV1InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
             false,
@@ -93,6 +100,9 @@ impl CreateV1 {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = CreateV1InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -120,7 +130,8 @@ impl CreateV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CreateV1InstructionArgs {
     pub name: String,
     pub symbol: String,
@@ -164,6 +175,7 @@ pub struct CreateV1Builder {
     rule_set: Option<Pubkey>,
     decimals: Option<u8>,
     print_supply: Option<PrintSupply>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl CreateV1Builder {
@@ -179,8 +191,11 @@ impl CreateV1Builder {
     /// `[optional account]`
     /// Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition']
     #[inline(always)]
-    pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.master_edition = Some(master_edition);
+    pub fn master_edition(
+        &mut self,
+        master_edition: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.master_edition = master_edition;
         self
     }
     /// Mint of token asset
@@ -211,12 +226,14 @@ impl CreateV1Builder {
         self.update_authority = Some((update_authority, as_signer));
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -316,8 +333,18 @@ impl CreateV1Builder {
         self.print_supply = Some(print_supply);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = CreateV1 {
             metadata: self.metadata.expect("metadata is not set"),
             master_edition: self.master_edition,
@@ -356,8 +383,30 @@ impl CreateV1Builder {
             print_supply: self.print_supply.clone(),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `create_v1` CPI accounts.
+pub struct CreateV1CpiAccounts<'a> {
+    /// Unallocated metadata account with address as pda of ['metadata', program id, mint id]
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Unallocated edition account with address as pda of ['metadata', program id, mint, 'edition']
+    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Mint of token asset
+    pub mint: (&'a solana_program::account_info::AccountInfo<'a>, bool),
+    /// Mint authority
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Update authority for the metadata account
+    pub update_authority: (&'a solana_program::account_info::AccountInfo<'a>, bool),
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Token program
+    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `create_v1` CPI instruction.
@@ -387,16 +436,51 @@ pub struct CreateV1Cpi<'a> {
 }
 
 impl<'a> CreateV1Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: CreateV1CpiAccounts<'a>,
+        args: CreateV1InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            metadata: accounts.metadata,
+            master_edition: accounts.master_edition,
+            mint: accounts.mint,
+            authority: accounts.authority,
+            payer: accounts.payer,
+            update_authority: accounts.update_authority,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            spl_token_program: accounts.spl_token_program,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(9);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
             false,
@@ -447,6 +531,9 @@ impl<'a> CreateV1Cpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = CreateV1InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -456,7 +543,7 @@ impl<'a> CreateV1Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(9 + 1);
+        let mut account_infos = Vec::with_capacity(9 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.metadata.clone());
         if let Some(master_edition) = self.master_edition {
@@ -471,7 +558,9 @@ impl<'a> CreateV1Cpi<'a> {
         if let Some(spl_token_program) = self.spl_token_program {
             account_infos.push(spl_token_program.clone());
         }
-
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
         } else {
@@ -512,6 +601,7 @@ impl<'a> CreateV1CpiBuilder<'a> {
             rule_set: None,
             decimals: None,
             print_supply: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -529,9 +619,9 @@ impl<'a> CreateV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition = Some(master_edition);
+        self.instruction.master_edition = master_edition;
         self
     }
     /// Mint of token asset
@@ -677,8 +767,34 @@ impl<'a> CreateV1CpiBuilder<'a> {
         self.instruction.print_supply = Some(print_supply);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> CreateV1Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = CreateV1InstructionArgs {
             name: self.instruction.name.clone().expect("name is not set"),
             symbol: self.instruction.symbol.clone().unwrap_or(String::from("")),
@@ -707,8 +823,7 @@ impl<'a> CreateV1CpiBuilder<'a> {
             decimals: self.instruction.decimals.clone(),
             print_supply: self.instruction.print_supply.clone(),
         };
-
-        CreateV1Cpi {
+        let instruction = CreateV1Cpi {
             __program: self.instruction.__program,
 
             metadata: self.instruction.metadata.expect("metadata is not set"),
@@ -738,7 +853,11 @@ impl<'a> CreateV1CpiBuilder<'a> {
 
             spl_token_program: self.instruction.spl_token_program,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -767,4 +886,5 @@ struct CreateV1CpiBuilderInstruction<'a> {
     rule_set: Option<Pubkey>,
     decimals: Option<u8>,
     print_supply: Option<PrintSupply>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

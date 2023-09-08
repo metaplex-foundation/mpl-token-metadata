@@ -43,7 +43,7 @@ impl DigitalAsset {
 
         let create_ix = CreateV1Builder::new()
             .metadata(self.metadata)
-            .master_edition(self.master_edition)
+            .master_edition(Some(self.master_edition))
             .mint(self.mint.pubkey(), true)
             .authority(update_authority.pubkey())
             .payer(payer.pubkey())
@@ -55,7 +55,7 @@ impl DigitalAsset {
             .name(name)
             .uri(uri)
             .token_standard(token_standard)
-            .build();
+            .instruction();
 
         let tx = Transaction::new_signed_with_payer(
             &[create_ix],
@@ -82,14 +82,14 @@ impl DigitalAsset {
 
         let mint_ix = MintV1Builder::new()
             .token(self.token)
-            .token_owner(*token_owner)
+            .token_owner(Some(*token_owner))
             .metadata(self.metadata)
-            .master_edition(self.master_edition)
+            .master_edition(Some(self.master_edition))
             .mint(self.mint.pubkey())
             .authority(update_authority.pubkey())
             .payer(payer.pubkey())
             .amount(amount)
-            .build();
+            .instruction();
 
         let tx = Transaction::new_signed_with_payer(
             &[mint_ix],

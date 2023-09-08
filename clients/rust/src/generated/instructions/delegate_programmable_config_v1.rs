@@ -42,12 +42,19 @@ pub struct DelegateProgrammableConfigV1 {
 }
 
 impl DelegateProgrammableConfigV1 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: DelegateProgrammableConfigV1InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(14);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: DelegateProgrammableConfigV1InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(14 + remaining_accounts.len());
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
                 delegate_record,
@@ -148,6 +155,9 @@ impl DelegateProgrammableConfigV1 {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = DelegateProgrammableConfigV1InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -177,7 +187,8 @@ impl DelegateProgrammableConfigV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DelegateProgrammableConfigV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
@@ -200,6 +211,7 @@ pub struct DelegateProgrammableConfigV1Builder {
     authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl DelegateProgrammableConfigV1Builder {
@@ -211,9 +223,9 @@ impl DelegateProgrammableConfigV1Builder {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: solana_program::pubkey::Pubkey,
+        delegate_record: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.delegate_record = Some(delegate_record);
+        self.delegate_record = delegate_record;
         self
     }
     /// Owner of the delegated account
@@ -231,15 +243,21 @@ impl DelegateProgrammableConfigV1Builder {
     /// `[optional account]`
     /// Master Edition account
     #[inline(always)]
-    pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.master_edition = Some(master_edition);
+    pub fn master_edition(
+        &mut self,
+        master_edition: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.master_edition = master_edition;
         self
     }
     /// `[optional account]`
     /// Token record account
     #[inline(always)]
-    pub fn token_record(&mut self, token_record: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token_record = Some(token_record);
+    pub fn token_record(
+        &mut self,
+        token_record: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.token_record = token_record;
         self
     }
     /// Mint of metadata
@@ -251,8 +269,8 @@ impl DelegateProgrammableConfigV1Builder {
     /// `[optional account]`
     /// Token account of mint
     #[inline(always)]
-    pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token = Some(token);
+    pub fn token(&mut self, token: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.token = token;
         self
     }
     /// Update authority or token owner
@@ -267,12 +285,14 @@ impl DelegateProgrammableConfigV1Builder {
         self.payer = Some(payer);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System Program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -287,9 +307,9 @@ impl DelegateProgrammableConfigV1Builder {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: solana_program::pubkey::Pubkey,
+        spl_token_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.spl_token_program = Some(spl_token_program);
+        self.spl_token_program = spl_token_program;
         self
     }
     /// `[optional account]`
@@ -297,9 +317,9 @@ impl DelegateProgrammableConfigV1Builder {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: solana_program::pubkey::Pubkey,
+        authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules_program = Some(authorization_rules_program);
+        self.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -307,9 +327,9 @@ impl DelegateProgrammableConfigV1Builder {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: solana_program::pubkey::Pubkey,
+        authorization_rules: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules = Some(authorization_rules);
+        self.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument]`
@@ -318,8 +338,18 @@ impl DelegateProgrammableConfigV1Builder {
         self.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = DelegateProgrammableConfigV1 {
             delegate_record: self.delegate_record,
             delegate: self.delegate.expect("delegate is not set"),
@@ -344,8 +374,40 @@ impl DelegateProgrammableConfigV1Builder {
             authorization_data: self.authorization_data.clone(),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `delegate_programmable_config_v1` CPI accounts.
+pub struct DelegateProgrammableConfigV1CpiAccounts<'a> {
+    /// Delegate record account
+    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Owner of the delegated account
+    pub delegate: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Master Edition account
+    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token record account
+    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Mint of metadata
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token account of mint
+    pub token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Update authority or token owner
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System Program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Token Program
+    pub spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules Program
+    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules account
+    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `delegate_programmable_config_v1` CPI instruction.
@@ -385,16 +447,56 @@ pub struct DelegateProgrammableConfigV1Cpi<'a> {
 }
 
 impl<'a> DelegateProgrammableConfigV1Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: DelegateProgrammableConfigV1CpiAccounts<'a>,
+        args: DelegateProgrammableConfigV1InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            delegate_record: accounts.delegate_record,
+            delegate: accounts.delegate,
+            metadata: accounts.metadata,
+            master_edition: accounts.master_edition,
+            token_record: accounts.token_record,
+            mint: accounts.mint,
+            token: accounts.token,
+            authority: accounts.authority,
+            payer: accounts.payer,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            spl_token_program: accounts.spl_token_program,
+            authorization_rules_program: accounts.authorization_rules_program,
+            authorization_rules: accounts.authorization_rules,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(14);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(14 + remaining_accounts.len());
         if let Some(delegate_record) = self.delegate_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
                 *delegate_record.key,
@@ -499,6 +601,9 @@ impl<'a> DelegateProgrammableConfigV1Cpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = DelegateProgrammableConfigV1InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -510,7 +615,7 @@ impl<'a> DelegateProgrammableConfigV1Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(14 + 1);
+        let mut account_infos = Vec::with_capacity(14 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         if let Some(delegate_record) = self.delegate_record {
             account_infos.push(delegate_record.clone());
@@ -540,6 +645,9 @@ impl<'a> DelegateProgrammableConfigV1Cpi<'a> {
         if let Some(authorization_rules) = self.authorization_rules {
             account_infos.push(authorization_rules.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -573,6 +681,7 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
             authorization_rules_program: None,
             authorization_rules: None,
             authorization_data: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -581,9 +690,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.delegate_record = Some(delegate_record);
+        self.instruction.delegate_record = delegate_record;
         self
     }
     /// Owner of the delegated account
@@ -609,9 +718,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition = Some(master_edition);
+        self.instruction.master_edition = master_edition;
         self
     }
     /// `[optional account]`
@@ -619,9 +728,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn token_record(
         &mut self,
-        token_record: &'a solana_program::account_info::AccountInfo<'a>,
+        token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.token_record = Some(token_record);
+        self.instruction.token_record = token_record;
         self
     }
     /// Mint of metadata
@@ -633,8 +742,11 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     /// `[optional account]`
     /// Token account of mint
     #[inline(always)]
-    pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.token = Some(token);
+    pub fn token(
+        &mut self,
+        token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.token = token;
         self
     }
     /// Update authority or token owner
@@ -675,9 +787,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.spl_token_program = Some(spl_token_program);
+        self.instruction.spl_token_program = spl_token_program;
         self
     }
     /// `[optional account]`
@@ -685,9 +797,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules_program = Some(authorization_rules_program);
+        self.instruction.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -695,9 +807,9 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules = Some(authorization_rules);
+        self.instruction.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument]`
@@ -706,13 +818,38 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
         self.instruction.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> DelegateProgrammableConfigV1Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = DelegateProgrammableConfigV1InstructionArgs {
             authorization_data: self.instruction.authorization_data.clone(),
         };
-
-        DelegateProgrammableConfigV1Cpi {
+        let instruction = DelegateProgrammableConfigV1Cpi {
             __program: self.instruction.__program,
 
             delegate_record: self.instruction.delegate_record,
@@ -749,7 +886,11 @@ impl<'a> DelegateProgrammableConfigV1CpiBuilder<'a> {
 
             authorization_rules: self.instruction.authorization_rules,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -770,4 +911,5 @@ struct DelegateProgrammableConfigV1CpiBuilderInstruction<'a> {
     authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

@@ -44,12 +44,19 @@ pub struct MintV1 {
 }
 
 impl MintV1 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(
         &self,
         args: MintV1InstructionArgs,
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(15);
+        self.instruction_with_remaining_accounts(args, &[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: MintV1InstructionArgs,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.token, false,
         ));
@@ -149,6 +156,9 @@ impl MintV1 {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = MintV1InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -176,7 +186,8 @@ impl MintV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MintV1InstructionArgs {
     pub amount: u64,
     pub authorization_data: Option<AuthorizationData>,
@@ -202,6 +213,7 @@ pub struct MintV1Builder {
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
     amount: Option<u64>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl MintV1Builder {
@@ -217,8 +229,11 @@ impl MintV1Builder {
     /// `[optional account]`
     /// Owner of the token account
     #[inline(always)]
-    pub fn token_owner(&mut self, token_owner: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token_owner = Some(token_owner);
+    pub fn token_owner(
+        &mut self,
+        token_owner: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.token_owner = token_owner;
         self
     }
     /// Metadata account (pda of ['metadata', program id, mint id])
@@ -230,15 +245,21 @@ impl MintV1Builder {
     /// `[optional account]`
     /// Master Edition account
     #[inline(always)]
-    pub fn master_edition(&mut self, master_edition: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.master_edition = Some(master_edition);
+    pub fn master_edition(
+        &mut self,
+        master_edition: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.master_edition = master_edition;
         self
     }
     /// `[optional account]`
     /// Token record account
     #[inline(always)]
-    pub fn token_record(&mut self, token_record: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token_record = Some(token_record);
+    pub fn token_record(
+        &mut self,
+        token_record: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.token_record = token_record;
         self
     }
     /// Mint of token asset
@@ -258,9 +279,9 @@ impl MintV1Builder {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: solana_program::pubkey::Pubkey,
+        delegate_record: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.delegate_record = Some(delegate_record);
+        self.delegate_record = delegate_record;
         self
     }
     /// Payer
@@ -269,12 +290,14 @@ impl MintV1Builder {
         self.payer = Some(payer);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instructions sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -284,6 +307,7 @@ impl MintV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
     /// SPL Token program
     #[inline(always)]
     pub fn spl_token_program(
@@ -293,6 +317,7 @@ impl MintV1Builder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account, default to 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL']`
     /// SPL Associated Token Account program
     #[inline(always)]
     pub fn spl_ata_program(
@@ -307,9 +332,9 @@ impl MintV1Builder {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: solana_program::pubkey::Pubkey,
+        authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules_program = Some(authorization_rules_program);
+        self.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -317,9 +342,9 @@ impl MintV1Builder {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: solana_program::pubkey::Pubkey,
+        authorization_rules: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules = Some(authorization_rules);
+        self.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument, defaults to '1']`
@@ -334,8 +359,18 @@ impl MintV1Builder {
         self.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = MintV1 {
             token: self.token.expect("token is not set"),
             token_owner: self.token_owner,
@@ -366,8 +401,42 @@ impl MintV1Builder {
             authorization_data: self.authorization_data.clone(),
         };
 
-        accounts.instruction(args)
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
+}
+
+/// `mint_v1` CPI accounts.
+pub struct MintV1CpiAccounts<'a> {
+    /// Token or Associated Token account
+    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Owner of the token account
+    pub token_owner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Metadata account (pda of ['metadata', program id, mint id])
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Master Edition account
+    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token record account
+    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Mint of token asset
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// (Mint or Update) authority
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Metadata delegate record
+    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instructions sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Token program
+    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Associated Token Account program
+    pub spl_ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token Authorization Rules program
+    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules account
+    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `mint_v1` CPI instruction.
@@ -409,16 +478,57 @@ pub struct MintV1Cpi<'a> {
 }
 
 impl<'a> MintV1Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: MintV1CpiAccounts<'a>,
+        args: MintV1InstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            token: accounts.token,
+            token_owner: accounts.token_owner,
+            metadata: accounts.metadata,
+            master_edition: accounts.master_edition,
+            token_record: accounts.token_record,
+            mint: accounts.mint,
+            authority: accounts.authority,
+            delegate_record: accounts.delegate_record,
+            payer: accounts.payer,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            spl_token_program: accounts.spl_token_program,
+            spl_ata_program: accounts.spl_ata_program,
+            authorization_rules_program: accounts.authorization_rules_program,
+            authorization_rules: accounts.authorization_rules,
+            __args: args,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(15);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.token.key,
             false,
@@ -521,6 +631,9 @@ impl<'a> MintV1Cpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let mut data = MintV1InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -530,7 +643,7 @@ impl<'a> MintV1Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(15 + 1);
+        let mut account_infos = Vec::with_capacity(15 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.token.clone());
         if let Some(token_owner) = self.token_owner {
@@ -559,6 +672,9 @@ impl<'a> MintV1Cpi<'a> {
         if let Some(authorization_rules) = self.authorization_rules {
             account_infos.push(authorization_rules.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -594,6 +710,7 @@ impl<'a> MintV1CpiBuilder<'a> {
             authorization_rules: None,
             amount: None,
             authorization_data: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -608,9 +725,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn token_owner(
         &mut self,
-        token_owner: &'a solana_program::account_info::AccountInfo<'a>,
+        token_owner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.token_owner = Some(token_owner);
+        self.instruction.token_owner = token_owner;
         self
     }
     /// Metadata account (pda of ['metadata', program id, mint id])
@@ -627,9 +744,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.master_edition = Some(master_edition);
+        self.instruction.master_edition = master_edition;
         self
     }
     /// `[optional account]`
@@ -637,9 +754,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn token_record(
         &mut self,
-        token_record: &'a solana_program::account_info::AccountInfo<'a>,
+        token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.token_record = Some(token_record);
+        self.instruction.token_record = token_record;
         self
     }
     /// Mint of token asset
@@ -662,9 +779,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.delegate_record = Some(delegate_record);
+        self.instruction.delegate_record = delegate_record;
         self
     }
     /// Payer
@@ -714,9 +831,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules_program = Some(authorization_rules_program);
+        self.instruction.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -724,9 +841,9 @@ impl<'a> MintV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules = Some(authorization_rules);
+        self.instruction.authorization_rules = authorization_rules;
         self
     }
     /// `[optional argument, defaults to '1']`
@@ -741,14 +858,39 @@ impl<'a> MintV1CpiBuilder<'a> {
         self.instruction.authorization_data = Some(authorization_data);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> MintV1Cpi<'a> {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
         let args = MintV1InstructionArgs {
             amount: self.instruction.amount.clone().unwrap_or(1),
             authorization_data: self.instruction.authorization_data.clone(),
         };
-
-        MintV1Cpi {
+        let instruction = MintV1Cpi {
             __program: self.instruction.__program,
 
             token: self.instruction.token.expect("token is not set"),
@@ -793,7 +935,11 @@ impl<'a> MintV1CpiBuilder<'a> {
 
             authorization_rules: self.instruction.authorization_rules,
             __args: args,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -816,4 +962,5 @@ struct MintV1CpiBuilderInstruction<'a> {
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     amount: Option<u64>,
     authorization_data: Option<AuthorizationData>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

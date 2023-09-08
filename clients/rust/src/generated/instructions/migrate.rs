@@ -43,9 +43,15 @@ pub struct Migrate {
 }
 
 impl Migrate {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(15);
+        self.instruction_with_remaining_accounts(&[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
             false,
@@ -117,6 +123,9 @@ impl Migrate {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = MigrateInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
@@ -156,6 +165,7 @@ pub struct MigrateBuilder {
     spl_token_program: Option<solana_program::pubkey::Pubkey>,
     authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl MigrateBuilder {
@@ -228,12 +238,14 @@ impl MigrateBuilder {
         self.token_record = Some(token_record);
         self
     }
+    /// `[optional account, default to '11111111111111111111111111111111']`
     /// System program
     #[inline(always)]
     pub fn system_program(&mut self, system_program: solana_program::pubkey::Pubkey) -> &mut Self {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
     /// Instruction sysvar account
     #[inline(always)]
     pub fn sysvar_instructions(
@@ -243,6 +255,7 @@ impl MigrateBuilder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
     /// SPL Token Program
     #[inline(always)]
     pub fn spl_token_program(
@@ -257,9 +270,9 @@ impl MigrateBuilder {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: solana_program::pubkey::Pubkey,
+        authorization_rules_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules_program = Some(authorization_rules_program);
+        self.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -267,13 +280,23 @@ impl MigrateBuilder {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: solana_program::pubkey::Pubkey,
+        authorization_rules: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.authorization_rules = Some(authorization_rules);
+        self.authorization_rules = authorization_rules;
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = Migrate {
             metadata: self.metadata.expect("metadata is not set"),
             edition: self.edition.expect("edition is not set"),
@@ -300,8 +323,42 @@ impl MigrateBuilder {
             authorization_rules: self.authorization_rules,
         };
 
-        accounts.instruction()
+        accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
+}
+
+/// `migrate` CPI accounts.
+pub struct MigrateCpiAccounts<'a> {
+    /// Metadata account
+    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Edition account
+    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token account
+    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token account owner
+    pub token_owner: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Mint account
+    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Payer
+    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Update authority
+    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Collection metadata account
+    pub collection_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Delegate record account
+    pub delegate_record: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token record account
+    pub token_record: &'a solana_program::account_info::AccountInfo<'a>,
+    /// System program
+    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Instruction sysvar account
+    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    /// SPL Token Program
+    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Token Authorization Rules Program
+    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    /// Token Authorization Rules account
+    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `migrate` CPI instruction.
@@ -341,16 +398,55 @@ pub struct MigrateCpi<'a> {
 }
 
 impl<'a> MigrateCpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: MigrateCpiAccounts<'a>,
+    ) -> Self {
+        Self {
+            __program: program,
+            metadata: accounts.metadata,
+            edition: accounts.edition,
+            token: accounts.token,
+            token_owner: accounts.token_owner,
+            mint: accounts.mint,
+            payer: accounts.payer,
+            authority: accounts.authority,
+            collection_metadata: accounts.collection_metadata,
+            delegate_record: accounts.delegate_record,
+            token_record: accounts.token_record,
+            system_program: accounts.system_program,
+            sysvar_instructions: accounts.sysvar_instructions,
+            spl_token_program: accounts.spl_token_program,
+            authorization_rules_program: accounts.authorization_rules_program,
+            authorization_rules: accounts.authorization_rules,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(15);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
             false,
@@ -425,6 +521,9 @@ impl<'a> MigrateCpi<'a> {
                 false,
             ));
         }
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = MigrateInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
@@ -432,7 +531,7 @@ impl<'a> MigrateCpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(15 + 1);
+        let mut account_infos = Vec::with_capacity(15 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.metadata.clone());
         account_infos.push(self.edition.clone());
@@ -453,6 +552,9 @@ impl<'a> MigrateCpi<'a> {
         if let Some(authorization_rules) = self.authorization_rules {
             account_infos.push(authorization_rules.clone());
         }
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -486,6 +588,7 @@ impl<'a> MigrateCpiBuilder<'a> {
             spl_token_program: None,
             authorization_rules_program: None,
             authorization_rules: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -602,9 +705,9 @@ impl<'a> MigrateCpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules_program = Some(authorization_rules_program);
+        self.instruction.authorization_rules_program = authorization_rules_program;
         self
     }
     /// `[optional account]`
@@ -612,14 +715,40 @@ impl<'a> MigrateCpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: &'a solana_program::account_info::AccountInfo<'a>,
+        authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.authorization_rules = Some(authorization_rules);
+        self.instruction.authorization_rules = authorization_rules;
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> MigrateCpi<'a> {
-        MigrateCpi {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let instruction = MigrateCpi {
             __program: self.instruction.__program,
 
             metadata: self.instruction.metadata.expect("metadata is not set"),
@@ -672,7 +801,11 @@ impl<'a> MigrateCpiBuilder<'a> {
             authorization_rules_program: self.instruction.authorization_rules_program,
 
             authorization_rules: self.instruction.authorization_rules,
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -693,4 +826,5 @@ struct MigrateCpiBuilderInstruction<'a> {
     spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

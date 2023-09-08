@@ -19,9 +19,15 @@ pub struct ConvertMasterEditionV1ToV2 {
 }
 
 impl ConvertMasterEditionV1ToV2 {
-    #[allow(clippy::vec_init_then_push)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(3);
+        self.instruction_with_remaining_accounts(&[])
+    }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccount],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.master_edition,
             false,
@@ -34,6 +40,9 @@ impl ConvertMasterEditionV1ToV2 {
             self.printing_mint,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = ConvertMasterEditionV1ToV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -63,6 +72,7 @@ pub struct ConvertMasterEditionV1ToV2Builder {
     master_edition: Option<solana_program::pubkey::Pubkey>,
     one_time_auth: Option<solana_program::pubkey::Pubkey>,
     printing_mint: Option<solana_program::pubkey::Pubkey>,
+    __remaining_accounts: Vec<super::InstructionAccount>,
 }
 
 impl ConvertMasterEditionV1ToV2Builder {
@@ -87,16 +97,36 @@ impl ConvertMasterEditionV1ToV2Builder {
         self.printing_mint = Some(printing_mint);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> solana_program::instruction::Instruction {
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = ConvertMasterEditionV1ToV2 {
             master_edition: self.master_edition.expect("master_edition is not set"),
             one_time_auth: self.one_time_auth.expect("one_time_auth is not set"),
             printing_mint: self.printing_mint.expect("printing_mint is not set"),
         };
 
-        accounts.instruction()
+        accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
     }
+}
+
+/// `convert_master_edition_v1_to_v2` CPI accounts.
+pub struct ConvertMasterEditionV1ToV2CpiAccounts<'a> {
+    /// Master Record Edition V1 (pda of ['metadata', program id, master metadata mint id, 'edition'])
+    pub master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+    /// One time authorization mint
+    pub one_time_auth: &'a solana_program::account_info::AccountInfo<'a>,
+    /// Printing mint
+    pub printing_mint: &'a solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `convert_master_edition_v1_to_v2` CPI instruction.
@@ -112,16 +142,43 @@ pub struct ConvertMasterEditionV1ToV2Cpi<'a> {
 }
 
 impl<'a> ConvertMasterEditionV1ToV2Cpi<'a> {
-    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-        self.invoke_signed(&[])
+    pub fn new(
+        program: &'a solana_program::account_info::AccountInfo<'a>,
+        accounts: ConvertMasterEditionV1ToV2CpiAccounts<'a>,
+    ) -> Self {
+        Self {
+            __program: program,
+            master_edition: accounts.master_edition,
+            one_time_auth: accounts.one_time_auth,
+            printing_mint: accounts.printing_mint,
+        }
     }
-    #[allow(clippy::clone_on_copy)]
-    #[allow(clippy::vec_init_then_push)]
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
     pub fn invoke_signed(
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(3);
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.master_edition.key,
             false,
@@ -134,6 +191,9 @@ impl<'a> ConvertMasterEditionV1ToV2Cpi<'a> {
             *self.printing_mint.key,
             false,
         ));
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
         let data = ConvertMasterEditionV1ToV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -143,11 +203,14 @@ impl<'a> ConvertMasterEditionV1ToV2Cpi<'a> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(3 + 1);
+        let mut account_infos = Vec::with_capacity(3 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.master_edition.clone());
         account_infos.push(self.one_time_auth.clone());
         account_infos.push(self.printing_mint.clone());
+        remaining_accounts.iter().for_each(|remaining_account| {
+            account_infos.push(remaining_account.account_info().clone())
+        });
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -169,6 +232,7 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
             master_edition: None,
             one_time_auth: None,
             printing_mint: None,
+            __remaining_accounts: Vec::new(),
         });
         Self { instruction }
     }
@@ -199,9 +263,35 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
         self.instruction.printing_mint = Some(printing_mint);
         self
     }
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: super::InstructionAccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.__remaining_accounts.push(account);
+        self
+    }
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[super::InstructionAccountInfo<'a>],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
     #[allow(clippy::clone_on_copy)]
-    pub fn build(&self) -> ConvertMasterEditionV1ToV2Cpi<'a> {
-        ConvertMasterEditionV1ToV2Cpi {
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let instruction = ConvertMasterEditionV1ToV2Cpi {
             __program: self.instruction.__program,
 
             master_edition: self
@@ -218,7 +308,11 @@ impl<'a> ConvertMasterEditionV1ToV2CpiBuilder<'a> {
                 .instruction
                 .printing_mint
                 .expect("printing_mint is not set"),
-        }
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
     }
 }
 
@@ -227,4 +321,5 @@ struct ConvertMasterEditionV1ToV2CpiBuilderInstruction<'a> {
     master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     one_time_auth: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     printing_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
 }

@@ -11,6 +11,7 @@ use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum DelegateArgs {
     CollectionV1 {
         authorization_data: Option<AuthorizationData>,
@@ -39,6 +40,10 @@ pub enum DelegateArgs {
     },
     LockedTransferV1 {
         amount: u64,
+        #[cfg_attr(
+            feature = "serde",
+            serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+        )]
         locked_address: Pubkey,
         authorization_data: Option<AuthorizationData>,
     },
