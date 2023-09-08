@@ -45,6 +45,12 @@ jobs:
           version: ${{ inputs.solana || env.SOLANA_VERSION }}
           cache: ${{ env.CACHE }}
 
+      - name: Cache Rust client dependencies
+        uses: metaplex-foundation/actions/cache-crate@v1
+        with:
+          folder: ./clients/rust
+          key: rust-client
+
       - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
