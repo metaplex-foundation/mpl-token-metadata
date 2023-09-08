@@ -30,7 +30,7 @@ npm install @metaplex-foundation/mpl-token-metadata@alpha
 cargo add mpl-token-metadata
 ```
 
-[See crate documentation](https://docs.rs/mpl-token-metadata/1.13.1/mpl_token_metadata/).
+[See crate documentation](https://docs.rs/mpl-token-metadata/latest/mpl_token_metadata/).
 
 ## Building
 
