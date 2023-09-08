@@ -256,59 +256,59 @@ impl BurnEditionNftBuilder {
 }
 
 /// `burn_edition_nft` CPI accounts.
-pub struct BurnEditionNftCpiAccounts<'a> {
+pub struct BurnEditionNftCpiAccounts<'a, 'b> {
     /// Metadata (pda of ['metadata', program id, mint id])
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// NFT owner
-    pub owner: &'a solana_program::account_info::AccountInfo<'a>,
+    pub owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the print edition NFT
-    pub print_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the original/master NFT
-    pub master_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account the print edition NFT is in
-    pub print_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account the Master Edition NFT is in
-    pub master_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 of the original NFT
-    pub master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Print Edition account of the NFT
-    pub print_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition Marker PDA of the NFT
-    pub edition_marker_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition_marker_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token Program
-    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `burn_edition_nft` CPI instruction.
-pub struct BurnEditionNftCpi<'a> {
+pub struct BurnEditionNftCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata (pda of ['metadata', program id, mint id])
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// NFT owner
-    pub owner: &'a solana_program::account_info::AccountInfo<'a>,
+    pub owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the print edition NFT
-    pub print_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the original/master NFT
-    pub master_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account the print edition NFT is in
-    pub print_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account the Master Edition NFT is in
-    pub master_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 of the original NFT
-    pub master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Print Edition account of the NFT
-    pub print_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub print_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition Marker PDA of the NFT
-    pub edition_marker_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition_marker_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token Program
-    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> BurnEditionNftCpi<'a> {
+impl<'a, 'b> BurnEditionNftCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: BurnEditionNftCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: BurnEditionNftCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -331,7 +331,7 @@ impl<'a> BurnEditionNftCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -347,7 +347,7 @@ impl<'a> BurnEditionNftCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(10 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -425,12 +425,12 @@ impl<'a> BurnEditionNftCpi<'a> {
 }
 
 /// `burn_edition_nft` CPI instruction builder.
-pub struct BurnEditionNftCpiBuilder<'a> {
-    instruction: Box<BurnEditionNftCpiBuilderInstruction<'a>>,
+pub struct BurnEditionNftCpiBuilder<'a, 'b> {
+    instruction: Box<BurnEditionNftCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> BurnEditionNftCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> BurnEditionNftCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(BurnEditionNftCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -451,14 +451,14 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// NFT owner
     #[inline(always)]
-    pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn owner(&mut self, owner: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
@@ -466,7 +466,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn print_edition_mint(
         &mut self,
-        print_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        print_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.print_edition_mint = Some(print_edition_mint);
         self
@@ -475,7 +475,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition_mint(
         &mut self,
-        master_edition_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.master_edition_mint = Some(master_edition_mint);
         self
@@ -484,7 +484,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn print_edition_token_account(
         &mut self,
-        print_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+        print_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.print_edition_token_account = Some(print_edition_token_account);
         self
@@ -493,7 +493,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition_token_account(
         &mut self,
-        master_edition_token_account: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.master_edition_token_account = Some(master_edition_token_account);
         self
@@ -502,7 +502,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition_account(
         &mut self,
-        master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.master_edition_account = Some(master_edition_account);
         self
@@ -511,7 +511,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn print_edition_account(
         &mut self,
-        print_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+        print_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.print_edition_account = Some(print_edition_account);
         self
@@ -520,7 +520,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn edition_marker_account(
         &mut self,
-        edition_marker_account: &'a solana_program::account_info::AccountInfo<'a>,
+        edition_marker_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.edition_marker_account = Some(edition_marker_account);
         self
@@ -529,7 +529,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
@@ -537,7 +537,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -545,7 +545,7 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -616,17 +616,17 @@ impl<'a> BurnEditionNftCpiBuilder<'a> {
     }
 }
 
-struct BurnEditionNftCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    owner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    print_edition_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    master_edition_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    print_edition_token_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    master_edition_token_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    master_edition_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    print_edition_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition_marker_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct BurnEditionNftCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    print_edition_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_edition_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    print_edition_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_edition_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_edition_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    print_edition_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_marker_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

@@ -160,39 +160,39 @@ impl RevokeCollectionAuthorityBuilder {
 }
 
 /// `revoke_collection_authority` CPI accounts.
-pub struct RevokeCollectionAuthorityCpiAccounts<'a> {
+pub struct RevokeCollectionAuthorityCpiAccounts<'a, 'b> {
     /// Collection Authority Record PDA
-    pub collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegated Collection Authority
-    pub delegate_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update Authority, or Delegated Authority, of Collection NFT
-    pub revoke_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub revoke_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of Metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `revoke_collection_authority` CPI instruction.
-pub struct RevokeCollectionAuthorityCpi<'a> {
+pub struct RevokeCollectionAuthorityCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegated Collection Authority
-    pub delegate_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update Authority, or Delegated Authority, of Collection NFT
-    pub revoke_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub revoke_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of Metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> RevokeCollectionAuthorityCpi<'a> {
+impl<'a, 'b> RevokeCollectionAuthorityCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: RevokeCollectionAuthorityCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: RevokeCollectionAuthorityCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -210,7 +210,7 @@ impl<'a> RevokeCollectionAuthorityCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -226,7 +226,7 @@ impl<'a> RevokeCollectionAuthorityCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -281,12 +281,12 @@ impl<'a> RevokeCollectionAuthorityCpi<'a> {
 }
 
 /// `revoke_collection_authority` CPI instruction builder.
-pub struct RevokeCollectionAuthorityCpiBuilder<'a> {
-    instruction: Box<RevokeCollectionAuthorityCpiBuilderInstruction<'a>>,
+pub struct RevokeCollectionAuthorityCpiBuilder<'a, 'b> {
+    instruction: Box<RevokeCollectionAuthorityCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> RevokeCollectionAuthorityCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(RevokeCollectionAuthorityCpiBuilderInstruction {
             __program: program,
             collection_authority_record: None,
@@ -302,7 +302,7 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
-        collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
@@ -311,7 +311,7 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_authority(
         &mut self,
-        delegate_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.delegate_authority = Some(delegate_authority);
         self
@@ -320,7 +320,7 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn revoke_authority(
         &mut self,
-        revoke_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        revoke_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.revoke_authority = Some(revoke_authority);
         self
@@ -329,21 +329,21 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// Mint of Metadata
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -351,7 +351,7 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -397,12 +397,12 @@ impl<'a> RevokeCollectionAuthorityCpiBuilder<'a> {
     }
 }
 
-struct RevokeCollectionAuthorityCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    delegate_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    revoke_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct RevokeCollectionAuthorityCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    delegate_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    revoke_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

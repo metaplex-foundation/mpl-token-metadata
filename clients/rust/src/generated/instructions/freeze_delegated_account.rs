@@ -150,39 +150,39 @@ impl FreezeDelegatedAccountBuilder {
 }
 
 /// `freeze_delegated_account` CPI accounts.
-pub struct FreezeDelegatedAccountCpiAccounts<'a> {
+pub struct FreezeDelegatedAccountCpiAccounts<'a, 'b> {
     /// Delegate
-    pub delegate: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account to freeze
-    pub token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition
-    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token mint
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token Program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `freeze_delegated_account` CPI instruction.
-pub struct FreezeDelegatedAccountCpi<'a> {
+pub struct FreezeDelegatedAccountCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegate
-    pub delegate: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account to freeze
-    pub token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition
-    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token mint
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token Program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> FreezeDelegatedAccountCpi<'a> {
+impl<'a, 'b> FreezeDelegatedAccountCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: FreezeDelegatedAccountCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: FreezeDelegatedAccountCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -200,7 +200,7 @@ impl<'a> FreezeDelegatedAccountCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -216,7 +216,7 @@ impl<'a> FreezeDelegatedAccountCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -271,12 +271,12 @@ impl<'a> FreezeDelegatedAccountCpi<'a> {
 }
 
 /// `freeze_delegated_account` CPI instruction builder.
-pub struct FreezeDelegatedAccountCpiBuilder<'a> {
-    instruction: Box<FreezeDelegatedAccountCpiBuilderInstruction<'a>>,
+pub struct FreezeDelegatedAccountCpiBuilder<'a, 'b> {
+    instruction: Box<FreezeDelegatedAccountCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> FreezeDelegatedAccountCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(FreezeDelegatedAccountCpiBuilderInstruction {
             __program: program,
             delegate: None,
@@ -292,7 +292,7 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate(
         &mut self,
-        delegate: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.delegate = Some(delegate);
         self
@@ -301,7 +301,7 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_account(
         &mut self,
-        token_account: &'a solana_program::account_info::AccountInfo<'a>,
+        token_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_account = Some(token_account);
         self
@@ -310,14 +310,14 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: &'a solana_program::account_info::AccountInfo<'a>,
+        edition: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.edition = Some(edition);
         self
     }
     /// Token mint
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
@@ -325,7 +325,7 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_program(
         &mut self,
-        token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        token_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_program = Some(token_program);
         self
@@ -333,7 +333,7 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -341,7 +341,7 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -384,12 +384,12 @@ impl<'a> FreezeDelegatedAccountCpiBuilder<'a> {
     }
 }
 
-struct FreezeDelegatedAccountCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    delegate: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct FreezeDelegatedAccountCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    delegate: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

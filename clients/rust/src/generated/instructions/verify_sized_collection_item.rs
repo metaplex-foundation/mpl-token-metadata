@@ -194,47 +194,47 @@ impl VerifySizedCollectionItemBuilder {
 }
 
 /// `verify_sized_collection_item` CPI accounts.
-pub struct VerifySizedCollectionItemCpiAccounts<'a> {
+pub struct VerifySizedCollectionItemCpiAccounts<'a, 'b> {
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Update authority
-    pub collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 Account of the Collection Token
-    pub collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `verify_sized_collection_item` CPI instruction.
-pub struct VerifySizedCollectionItemCpi<'a> {
+pub struct VerifySizedCollectionItemCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Update authority
-    pub collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 Account of the Collection Token
-    pub collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-impl<'a> VerifySizedCollectionItemCpi<'a> {
+impl<'a, 'b> VerifySizedCollectionItemCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: VerifySizedCollectionItemCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: VerifySizedCollectionItemCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -254,7 +254,7 @@ impl<'a> VerifySizedCollectionItemCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -270,7 +270,7 @@ impl<'a> VerifySizedCollectionItemCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(7 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -339,12 +339,12 @@ impl<'a> VerifySizedCollectionItemCpi<'a> {
 }
 
 /// `verify_sized_collection_item` CPI instruction builder.
-pub struct VerifySizedCollectionItemCpiBuilder<'a> {
-    instruction: Box<VerifySizedCollectionItemCpiBuilderInstruction<'a>>,
+pub struct VerifySizedCollectionItemCpiBuilder<'a, 'b> {
+    instruction: Box<VerifySizedCollectionItemCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> VerifySizedCollectionItemCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(VerifySizedCollectionItemCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -362,7 +362,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -371,14 +371,14 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority(
         &mut self,
-        collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_authority = Some(collection_authority);
         self
     }
     /// payer
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -386,7 +386,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_mint(
         &mut self,
-        collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_mint = Some(collection_mint);
         self
@@ -395,7 +395,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection(
         &mut self,
-        collection: &'a solana_program::account_info::AccountInfo<'a>,
+        collection: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection = Some(collection);
         self
@@ -404,7 +404,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_master_edition_account(
         &mut self,
-        collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_master_edition_account =
             Some(collection_master_edition_account);
@@ -415,7 +415,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
-        collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.collection_authority_record = collection_authority_record;
         self
@@ -423,7 +423,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -431,7 +431,7 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -481,14 +481,14 @@ impl<'a> VerifySizedCollectionItemCpiBuilder<'a> {
     }
 }
 
-struct VerifySizedCollectionItemCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_master_edition_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct VerifySizedCollectionItemCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_master_edition_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

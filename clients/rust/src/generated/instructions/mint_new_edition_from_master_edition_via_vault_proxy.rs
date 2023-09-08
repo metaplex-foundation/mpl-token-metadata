@@ -384,89 +384,89 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
 }
 
 /// `mint_new_edition_from_master_edition_via_vault_proxy` CPI accounts.
-pub struct MintNewEditionFromMasterEditionViaVaultProxyCpiAccounts<'a> {
+pub struct MintNewEditionFromMasterEditionViaVaultProxyCpiAccounts<'a, 'b> {
     /// New Metadata key (pda of ['metadata', program id, mint id])
-    pub new_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
-    pub new_edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']
-    pub master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub new_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
-    pub edition_mark_pda: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition_mark_pda: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub new_mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Vault authority
-    pub vault_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub vault_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Safety deposit token store account
-    pub safety_deposit_store: &'a solana_program::account_info::AccountInfo<'a>,
+    pub safety_deposit_store: &'b solana_program::account_info::AccountInfo<'a>,
     /// Safety deposit box
-    pub safety_deposit_box: &'a solana_program::account_info::AccountInfo<'a>,
+    pub safety_deposit_box: &'b solana_program::account_info::AccountInfo<'a>,
     /// Vault
-    pub vault: &'a solana_program::account_info::AccountInfo<'a>,
+    pub vault: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority info for new metadata
-    pub new_metadata_update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_metadata_update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token vault program
-    pub token_vault_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_vault_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
-    pub rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `mint_new_edition_from_master_edition_via_vault_proxy` CPI instruction.
-pub struct MintNewEditionFromMasterEditionViaVaultProxyCpi<'a> {
+pub struct MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Metadata key (pda of ['metadata', program id, mint id])
-    pub new_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
-    pub new_edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']
-    pub master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub master_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub new_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
-    pub edition_mark_pda: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition_mark_pda: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub new_mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Vault authority
-    pub vault_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub vault_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Safety deposit token store account
-    pub safety_deposit_store: &'a solana_program::account_info::AccountInfo<'a>,
+    pub safety_deposit_store: &'b solana_program::account_info::AccountInfo<'a>,
     /// Safety deposit box
-    pub safety_deposit_box: &'a solana_program::account_info::AccountInfo<'a>,
+    pub safety_deposit_box: &'b solana_program::account_info::AccountInfo<'a>,
     /// Vault
-    pub vault: &'a solana_program::account_info::AccountInfo<'a>,
+    pub vault: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority info for new metadata
-    pub new_metadata_update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_metadata_update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token vault program
-    pub token_vault_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_vault_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
-    pub rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
     pub __args: MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
 }
 
-impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a> {
+impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: MintNewEditionFromMasterEditionViaVaultProxyCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: MintNewEditionFromMasterEditionViaVaultProxyCpiAccounts<'a, 'b>,
         args: MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
     ) -> Self {
         Self {
@@ -498,7 +498,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -514,7 +514,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(17 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -634,12 +634,12 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a> {
 }
 
 /// `mint_new_edition_from_master_edition_via_vault_proxy` CPI instruction builder.
-pub struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
-    instruction: Box<MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a>>,
+pub struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a, 'b> {
+    instruction: Box<MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(
             MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction {
                 __program: program,
@@ -670,7 +670,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_metadata(
         &mut self,
-        new_metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        new_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_metadata = Some(new_metadata);
         self
@@ -679,7 +679,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_edition(
         &mut self,
-        new_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        new_edition: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_edition = Some(new_edition);
         self
@@ -688,7 +688,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: &'a solana_program::account_info::AccountInfo<'a>,
+        master_edition: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.master_edition = Some(master_edition);
         self
@@ -697,7 +697,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_mint(
         &mut self,
-        new_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        new_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_mint = Some(new_mint);
         self
@@ -706,7 +706,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn edition_mark_pda(
         &mut self,
-        edition_mark_pda: &'a solana_program::account_info::AccountInfo<'a>,
+        edition_mark_pda: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.edition_mark_pda = Some(edition_mark_pda);
         self
@@ -715,14 +715,14 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_mint_authority(
         &mut self,
-        new_mint_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        new_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_mint_authority = Some(new_mint_authority);
         self
     }
     /// payer
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -730,7 +730,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn vault_authority(
         &mut self,
-        vault_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        vault_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.vault_authority = Some(vault_authority);
         self
@@ -739,7 +739,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn safety_deposit_store(
         &mut self,
-        safety_deposit_store: &'a solana_program::account_info::AccountInfo<'a>,
+        safety_deposit_store: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.safety_deposit_store = Some(safety_deposit_store);
         self
@@ -748,14 +748,14 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn safety_deposit_box(
         &mut self,
-        safety_deposit_box: &'a solana_program::account_info::AccountInfo<'a>,
+        safety_deposit_box: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.safety_deposit_box = Some(safety_deposit_box);
         self
     }
     /// Vault
     #[inline(always)]
-    pub fn vault(&mut self, vault: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn vault(&mut self, vault: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.vault = Some(vault);
         self
     }
@@ -763,7 +763,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_metadata_update_authority(
         &mut self,
-        new_metadata_update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        new_metadata_update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_metadata_update_authority = Some(new_metadata_update_authority);
         self
@@ -772,7 +772,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -781,7 +781,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_program(
         &mut self,
-        token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        token_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_program = Some(token_program);
         self
@@ -790,7 +790,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_vault_program(
         &mut self,
-        token_vault_program: &'a solana_program::account_info::AccountInfo<'a>,
+        token_vault_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_vault_program = Some(token_vault_program);
         self
@@ -799,7 +799,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -809,7 +809,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn rent(
         &mut self,
-        rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.rent = rent;
         self
@@ -827,7 +827,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -835,7 +835,7 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -940,26 +940,26 @@ impl<'a> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a> {
     }
 }
 
-struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    new_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    new_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    new_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition_mark_pda: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    new_mint_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    vault_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    safety_deposit_store: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    safety_deposit_box: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    vault: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    new_metadata_update_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_vault_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    new_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    new_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    new_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_mark_pda: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    new_mint_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    vault_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    safety_deposit_store: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    safety_deposit_box: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    vault: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    new_metadata_update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_vault_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mint_new_edition_from_master_edition_via_token_args:
         Option<MintNewEditionFromMasterEditionViaTokenArgs>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

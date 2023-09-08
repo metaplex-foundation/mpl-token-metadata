@@ -197,14 +197,14 @@ impl InstructionAccount {
 }
 
 #[derive(Clone, Copy)]
-pub enum InstructionAccountInfo<'a> {
-    Readonly(&'a solana_program::account_info::AccountInfo<'a>),
-    ReadonlySigner(&'a solana_program::account_info::AccountInfo<'a>),
-    Writable(&'a solana_program::account_info::AccountInfo<'a>),
-    WritableSigner(&'a solana_program::account_info::AccountInfo<'a>),
+pub enum InstructionAccountInfo<'a, 'b> {
+    Readonly(&'b solana_program::account_info::AccountInfo<'a>),
+    ReadonlySigner(&'b solana_program::account_info::AccountInfo<'a>),
+    Writable(&'b solana_program::account_info::AccountInfo<'a>),
+    WritableSigner(&'b solana_program::account_info::AccountInfo<'a>),
 }
 
-impl<'a> InstructionAccountInfo<'a> {
+impl<'a, 'b> InstructionAccountInfo<'a, 'b> {
     pub fn to_account_meta(&self) -> solana_program::instruction::AccountMeta {
         let (pubkey, writable, signer) = match self {
             InstructionAccountInfo::Readonly(account_info) => (account_info.key, false, false),
@@ -219,7 +219,7 @@ impl<'a> InstructionAccountInfo<'a> {
             solana_program::instruction::AccountMeta::new_readonly(*pubkey, signer)
         }
     }
-    pub fn account_info(&self) -> &'a solana_program::account_info::AccountInfo<'a> {
+    pub fn account_info(&self) -> &'b solana_program::account_info::AccountInfo<'a> {
         match self {
             InstructionAccountInfo::Readonly(account_info)
             | InstructionAccountInfo::ReadonlySigner(account_info)
