@@ -94,8 +94,12 @@ jobs:
             git reset --soft HEAD~1
           fi
 
+          PROGRAM_VERSION=`grep -E '^version\s*=' Cargo.toml | awk -F '"' '{print $2}'`
+          echo PROGRAM_VERSION="${PROGRAM_VERSION}" >> $GITHUB_ENV
+
       - name: Commit and tag new version
         uses: stefanzweifel/git-auto-commit-action@v4
+        if: github.event.inputs.dry_run == 'false'
         with:
           commit_message: "chore: Release mpl-token-metadata version ${{ env.PROGRAM_VERSION }}"
           tagging_message: mpl-token-metadata@v${{ env.PROGRAM_VERSION }}
