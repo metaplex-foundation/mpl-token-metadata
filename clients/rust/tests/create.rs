@@ -132,7 +132,7 @@ mod create {
             authority: payer_pubkey,
             update_authority: (payer_pubkey, true),
             payer: payer_pubkey,
-            spl_token_program: spl_token::ID,
+            spl_token_program: Some(spl_token::ID),
             system_program: system_program::ID,
             sysvar_instructions: solana_program::sysvar::instructions::ID,
         }
