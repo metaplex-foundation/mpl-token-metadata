@@ -90,23 +90,23 @@ impl PuffMetadataBuilder {
 }
 
 /// `puff_metadata` CPI accounts.
-pub struct PuffMetadataCpiAccounts<'a> {
+pub struct PuffMetadataCpiAccounts<'a, 'b> {
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `puff_metadata` CPI instruction.
-pub struct PuffMetadataCpi<'a> {
+pub struct PuffMetadataCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> PuffMetadataCpi<'a> {
+impl<'a, 'b> PuffMetadataCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: PuffMetadataCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: PuffMetadataCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -120,7 +120,7 @@ impl<'a> PuffMetadataCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -136,7 +136,7 @@ impl<'a> PuffMetadataCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(1 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -169,12 +169,12 @@ impl<'a> PuffMetadataCpi<'a> {
 }
 
 /// `puff_metadata` CPI instruction builder.
-pub struct PuffMetadataCpiBuilder<'a> {
-    instruction: Box<PuffMetadataCpiBuilderInstruction<'a>>,
+pub struct PuffMetadataCpiBuilder<'a, 'b> {
+    instruction: Box<PuffMetadataCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> PuffMetadataCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> PuffMetadataCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(PuffMetadataCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -186,7 +186,7 @@ impl<'a> PuffMetadataCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -194,7 +194,7 @@ impl<'a> PuffMetadataCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -202,7 +202,7 @@ impl<'a> PuffMetadataCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -231,8 +231,8 @@ impl<'a> PuffMetadataCpiBuilder<'a> {
     }
 }
 
-struct PuffMetadataCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct PuffMetadataCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

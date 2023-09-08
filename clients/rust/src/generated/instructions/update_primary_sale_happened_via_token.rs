@@ -118,31 +118,31 @@ impl UpdatePrimarySaleHappenedViaTokenBuilder {
 }
 
 /// `update_primary_sale_happened_via_token` CPI accounts.
-pub struct UpdatePrimarySaleHappenedViaTokenCpiAccounts<'a> {
+pub struct UpdatePrimarySaleHappenedViaTokenCpiAccounts<'a, 'b> {
     /// Metadata key (pda of ['metadata', program id, mint id])
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Owner on the token account
-    pub owner: &'a solana_program::account_info::AccountInfo<'a>,
+    pub owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Account containing tokens from the metadata's mint
-    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `update_primary_sale_happened_via_token` CPI instruction.
-pub struct UpdatePrimarySaleHappenedViaTokenCpi<'a> {
+pub struct UpdatePrimarySaleHappenedViaTokenCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata key (pda of ['metadata', program id, mint id])
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Owner on the token account
-    pub owner: &'a solana_program::account_info::AccountInfo<'a>,
+    pub owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Account containing tokens from the metadata's mint
-    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
+impl<'a, 'b> UpdatePrimarySaleHappenedViaTokenCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: UpdatePrimarySaleHappenedViaTokenCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: UpdatePrimarySaleHappenedViaTokenCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -158,7 +158,7 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -174,7 +174,7 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(3 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -219,12 +219,12 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpi<'a> {
 }
 
 /// `update_primary_sale_happened_via_token` CPI instruction builder.
-pub struct UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
-    instruction: Box<UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction<'a>>,
+pub struct UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a, 'b> {
+    instruction: Box<UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -238,27 +238,27 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// Owner on the token account
     #[inline(always)]
-    pub fn owner(&mut self, owner: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn owner(&mut self, owner: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.owner = Some(owner);
         self
     }
     /// Account containing tokens from the metadata's mint
     #[inline(always)]
-    pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn token(&mut self, token: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self
     }
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -266,7 +266,7 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -299,10 +299,10 @@ impl<'a> UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a> {
     }
 }
 
-struct UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    owner: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

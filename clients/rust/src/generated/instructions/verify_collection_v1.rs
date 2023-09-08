@@ -239,51 +239,51 @@ impl VerifyCollectionV1Builder {
 }
 
 /// `verify_collection_v1` CPI accounts.
-pub struct VerifyCollectionV1CpiAccounts<'a> {
+pub struct VerifyCollectionV1CpiAccounts<'a, 'b> {
     /// Creator to verify, collection update authority or delegate
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegate record PDA
-    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Edition Account of the Collection Token
-    pub collection_master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `verify_collection_v1` CPI instruction.
-pub struct VerifyCollectionV1Cpi<'a> {
+pub struct VerifyCollectionV1Cpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Creator to verify, collection update authority or delegate
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegate record PDA
-    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Edition Account of the Collection Token
-    pub collection_master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> VerifyCollectionV1Cpi<'a> {
+impl<'a, 'b> VerifyCollectionV1Cpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: VerifyCollectionV1CpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: VerifyCollectionV1CpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -304,7 +304,7 @@ impl<'a> VerifyCollectionV1Cpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -320,7 +320,7 @@ impl<'a> VerifyCollectionV1Cpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -417,12 +417,12 @@ impl<'a> VerifyCollectionV1Cpi<'a> {
 }
 
 /// `verify_collection_v1` CPI instruction builder.
-pub struct VerifyCollectionV1CpiBuilder<'a> {
-    instruction: Box<VerifyCollectionV1CpiBuilderInstruction<'a>>,
+pub struct VerifyCollectionV1CpiBuilder<'a, 'b> {
+    instruction: Box<VerifyCollectionV1CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> VerifyCollectionV1CpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> VerifyCollectionV1CpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(VerifyCollectionV1CpiBuilderInstruction {
             __program: program,
             authority: None,
@@ -441,7 +441,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authority(
         &mut self,
-        authority: &'a solana_program::account_info::AccountInfo<'a>,
+        authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.authority = Some(authority);
         self
@@ -451,7 +451,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.delegate_record = delegate_record;
         self
@@ -460,7 +460,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -469,7 +469,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_mint(
         &mut self,
-        collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_mint = Some(collection_mint);
         self
@@ -479,7 +479,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_metadata(
         &mut self,
-        collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        collection_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.collection_metadata = collection_metadata;
         self
@@ -489,7 +489,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_master_edition(
         &mut self,
-        collection_master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        collection_master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.collection_master_edition = collection_master_edition;
         self
@@ -498,7 +498,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -507,7 +507,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
-        sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+        sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
@@ -515,7 +515,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -523,7 +523,7 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -575,15 +575,15 @@ impl<'a> VerifyCollectionV1CpiBuilder<'a> {
     }
 }
 
-struct VerifyCollectionV1CpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct VerifyCollectionV1CpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

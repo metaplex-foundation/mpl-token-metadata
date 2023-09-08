@@ -213,55 +213,55 @@ impl CreateEscrowAccountBuilder {
 }
 
 /// `create_escrow_account` CPI accounts.
-pub struct CreateEscrowAccountCpiAccounts<'a> {
+pub struct CreateEscrowAccountCpiAccounts<'a, 'b> {
     /// Escrow account
-    pub escrow: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of the token
-    pub token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Wallet paying for the transaction and new account
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority/creator of the escrow account
-    pub authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `create_escrow_account` CPI instruction.
-pub struct CreateEscrowAccountCpi<'a> {
+pub struct CreateEscrowAccountCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Escrow account
-    pub escrow: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of the token
-    pub token_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: &'a solana_program::account_info::AccountInfo<'a>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Wallet paying for the transaction and new account
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority/creator of the escrow account
-    pub authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-impl<'a> CreateEscrowAccountCpi<'a> {
+impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: CreateEscrowAccountCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: CreateEscrowAccountCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -283,7 +283,7 @@ impl<'a> CreateEscrowAccountCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -299,7 +299,7 @@ impl<'a> CreateEscrowAccountCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -378,12 +378,12 @@ impl<'a> CreateEscrowAccountCpi<'a> {
 }
 
 /// `create_escrow_account` CPI instruction builder.
-pub struct CreateEscrowAccountCpiBuilder<'a> {
-    instruction: Box<CreateEscrowAccountCpiBuilderInstruction<'a>>,
+pub struct CreateEscrowAccountCpiBuilder<'a, 'b> {
+    instruction: Box<CreateEscrowAccountCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> CreateEscrowAccountCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> CreateEscrowAccountCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(CreateEscrowAccountCpiBuilderInstruction {
             __program: program,
             escrow: None,
@@ -403,7 +403,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn escrow(
         &mut self,
-        escrow: &'a solana_program::account_info::AccountInfo<'a>,
+        escrow: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.escrow = Some(escrow);
         self
@@ -412,14 +412,14 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// Mint account
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
@@ -427,7 +427,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_account(
         &mut self,
-        token_account: &'a solana_program::account_info::AccountInfo<'a>,
+        token_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_account = Some(token_account);
         self
@@ -436,14 +436,14 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: &'a solana_program::account_info::AccountInfo<'a>,
+        edition: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.edition = Some(edition);
         self
     }
     /// Wallet paying for the transaction and new account
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -451,7 +451,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -460,7 +460,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
-        sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+        sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
@@ -470,7 +470,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn authority(
         &mut self,
-        authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.authority = authority;
         self
@@ -478,7 +478,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -486,7 +486,7 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -540,16 +540,16 @@ impl<'a> CreateEscrowAccountCpiBuilder<'a> {
     }
 }
 
-struct CreateEscrowAccountCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    escrow: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct CreateEscrowAccountCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    escrow: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

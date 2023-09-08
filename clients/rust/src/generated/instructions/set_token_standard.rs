@@ -136,35 +136,35 @@ impl SetTokenStandardBuilder {
 }
 
 /// `set_token_standard` CPI accounts.
-pub struct SetTokenStandardCpiAccounts<'a> {
+pub struct SetTokenStandardCpiAccounts<'a, 'b> {
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata update authority
-    pub update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `set_token_standard` CPI instruction.
-pub struct SetTokenStandardCpi<'a> {
+pub struct SetTokenStandardCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata update authority
-    pub update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-impl<'a> SetTokenStandardCpi<'a> {
+impl<'a, 'b> SetTokenStandardCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: SetTokenStandardCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: SetTokenStandardCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -181,7 +181,7 @@ impl<'a> SetTokenStandardCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -197,7 +197,7 @@ impl<'a> SetTokenStandardCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -249,12 +249,12 @@ impl<'a> SetTokenStandardCpi<'a> {
 }
 
 /// `set_token_standard` CPI instruction builder.
-pub struct SetTokenStandardCpiBuilder<'a> {
-    instruction: Box<SetTokenStandardCpiBuilderInstruction<'a>>,
+pub struct SetTokenStandardCpiBuilder<'a, 'b> {
+    instruction: Box<SetTokenStandardCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> SetTokenStandardCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> SetTokenStandardCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(SetTokenStandardCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -269,7 +269,7 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -278,14 +278,14 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     #[inline(always)]
     pub fn update_authority(
         &mut self,
-        update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.update_authority = Some(update_authority);
         self
     }
     /// Mint account
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
@@ -294,7 +294,7 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.edition = edition;
         self
@@ -302,7 +302,7 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -310,7 +310,7 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -348,11 +348,11 @@ impl<'a> SetTokenStandardCpiBuilder<'a> {
     }
 }
 
-struct SetTokenStandardCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    update_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct SetTokenStandardCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

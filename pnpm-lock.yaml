@@ -5,8 +5,8 @@ devDependencies:
     specifier: ^0.12.1
     version: 0.12.1(typescript@4.9.5)
   '@metaplex-foundation/kinobi':
-    specifier: ^0.15.0
-    version: 0.15.0
+    specifier: ^0.15.1
+    version: 0.15.1
   '@metaplex-foundation/shank-js':
     specifier: ^0.1.0
     version: 0.1.0
@@ -85,8 +85,8 @@ packages:
     resolution: {integrity: sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==}
     dev: true
 
-  /@metaplex-foundation/kinobi@0.15.0:
-    resolution: {integrity: sha512-wIkuZd04qM1UwmV1/vNN9fmze0YE/uWn7iOhBNsU+j/wQJSJn2sYrNYcMGDzJCDS9bZmZPDp6K9N7jaEtSdMRA==}
+  /@metaplex-foundation/kinobi@0.15.1:
+    resolution: {integrity: sha512-K3RpmvgfB2fr9+Xqrffm9aH0/5mhm78wBhTNwsfs+sYIMZhP01vkJxciX4KTSNHJ776keLbuc8glyh2t5dAOPA==}
     dependencies:
       '@noble/hashes': 1.2.0
       chalk: 4.1.2

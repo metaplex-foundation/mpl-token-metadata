@@ -79,11 +79,11 @@ impl Metadata {
     }
 }
 
-impl<'a> TryFrom<&'a solana_program::account_info::AccountInfo<'a>> for Metadata {
+impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for Metadata {
     type Error = std::io::Error;
 
     fn try_from(
-        account_info: &'a solana_program::account_info::AccountInfo<'a>,
+        account_info: &solana_program::account_info::AccountInfo<'a>,
     ) -> Result<Self, Self::Error> {
         let mut data: &[u8] = &(*account_info.data).borrow();
         Self::deserialize(&mut data)
