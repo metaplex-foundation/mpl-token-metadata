@@ -38,6 +38,7 @@ import {
   resolveCreators,
   resolveDecimals,
   resolveIsNonFungible,
+  resolveIsNonFungibleOrIsMintSigner,
   resolvePrintSupply,
 } from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
@@ -286,7 +287,7 @@ export function createV1(
   }
   if (!resolvedAccounts.splTokenProgram.value) {
     if (
-      resolveIsNonFungible(
+      resolveIsNonFungibleOrIsMintSigner(
         context,
         resolvedAccounts,
         resolvedArgs,

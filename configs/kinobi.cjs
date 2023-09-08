@@ -160,7 +160,8 @@ kinobi.update(
         },
         splTokenProgram: {
           defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
+            k.resolverDefault("resolveIsNonFungibleOrIsMintSigner", [
+              k.dependsOnAccount("mint"),
               k.dependsOnArg("tokenStandard"),
             ]),
             {
