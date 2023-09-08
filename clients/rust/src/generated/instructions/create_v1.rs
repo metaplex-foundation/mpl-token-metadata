@@ -248,9 +248,9 @@ impl CreateV1Builder {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: solana_program::pubkey::Pubkey,
+        spl_token_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.spl_token_program = Some(spl_token_program);
+        self.spl_token_program = spl_token_program;
         self
     }
     #[inline(always)]
@@ -406,7 +406,7 @@ pub struct CreateV1CpiAccounts<'a> {
     /// Instructions sysvar account
     pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
     /// SPL Token program
-    pub spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `create_v1` CPI instruction.
@@ -561,6 +561,7 @@ impl<'a> CreateV1Cpi<'a> {
         remaining_accounts.iter().for_each(|remaining_account| {
             account_infos.push(remaining_account.account_info().clone())
         });
+
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
         } else {
@@ -682,9 +683,9 @@ impl<'a> CreateV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.spl_token_program = Some(spl_token_program);
+        self.instruction.spl_token_program = spl_token_program;
         self
     }
     #[inline(always)]
