@@ -95,7 +95,7 @@ kinobi.update(
       ],
     },
     // Deprecated nodes.
-    // "mplTokenMetadata.ReservationListV1": { delete: true },
+    "mplTokenMetadata.ReservationListV1": { delete: true },
     "mplTokenMetadata.ReservationListV2": { delete: true },
     "mplTokenMetadata.MasterEditionV1": { delete: true },
   })
