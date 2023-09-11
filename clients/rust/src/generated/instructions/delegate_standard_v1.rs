@@ -372,77 +372,77 @@ impl DelegateStandardV1Builder {
 }
 
 /// `delegate_standard_v1` CPI accounts.
-pub struct DelegateStandardV1CpiAccounts<'a> {
+pub struct DelegateStandardV1CpiAccounts<'a, 'b> {
     /// Delegate record account
-    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Owner of the delegated account
-    pub delegate: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Edition account
-    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token record account
-    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Mint of metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of mint
-    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority or token owner
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// System Program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token Program
-    pub spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules Program
-    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authorization_rules_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
-    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authorization_rules: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `delegate_standard_v1` CPI instruction.
-pub struct DelegateStandardV1Cpi<'a> {
+pub struct DelegateStandardV1Cpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Delegate record account
-    pub delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Owner of the delegated account
-    pub delegate: &'a solana_program::account_info::AccountInfo<'a>,
+    pub delegate: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Edition account
-    pub master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token record account
-    pub token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Mint of metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of mint
-    pub token: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority or token owner
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// System Program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token Program
-    pub spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules Program
-    pub authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authorization_rules_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token Authorization Rules account
-    pub authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authorization_rules: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
     pub __args: DelegateStandardV1InstructionArgs,
 }
 
-impl<'a> DelegateStandardV1Cpi<'a> {
+impl<'a, 'b> DelegateStandardV1Cpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: DelegateStandardV1CpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: DelegateStandardV1CpiAccounts<'a, 'b>,
         args: DelegateStandardV1InstructionArgs,
     ) -> Self {
         Self {
@@ -471,7 +471,7 @@ impl<'a> DelegateStandardV1Cpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -487,7 +487,7 @@ impl<'a> DelegateStandardV1Cpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(14 + remaining_accounts.len());
         if let Some(delegate_record) = self.delegate_record {
@@ -643,12 +643,12 @@ impl<'a> DelegateStandardV1Cpi<'a> {
 }
 
 /// `delegate_standard_v1` CPI instruction builder.
-pub struct DelegateStandardV1CpiBuilder<'a> {
-    instruction: Box<DelegateStandardV1CpiBuilderInstruction<'a>>,
+pub struct DelegateStandardV1CpiBuilder<'a, 'b> {
+    instruction: Box<DelegateStandardV1CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> DelegateStandardV1CpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> DelegateStandardV1CpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(DelegateStandardV1CpiBuilderInstruction {
             __program: program,
             delegate_record: None,
@@ -675,7 +675,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate_record(
         &mut self,
-        delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.delegate_record = delegate_record;
         self
@@ -684,7 +684,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn delegate(
         &mut self,
-        delegate: &'a solana_program::account_info::AccountInfo<'a>,
+        delegate: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.delegate = Some(delegate);
         self
@@ -693,7 +693,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -703,7 +703,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn master_edition(
         &mut self,
-        master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.master_edition = master_edition;
         self
@@ -713,20 +713,20 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn token_record(
         &mut self,
-        token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.token_record = token_record;
         self
     }
     /// Mint of metadata
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
     /// Token account of mint
     #[inline(always)]
-    pub fn token(&mut self, token: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn token(&mut self, token: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.token = Some(token);
         self
     }
@@ -734,14 +734,14 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authority(
         &mut self,
-        authority: &'a solana_program::account_info::AccountInfo<'a>,
+        authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.authority = Some(authority);
         self
     }
     /// Payer
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -749,7 +749,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -758,7 +758,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
-        sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+        sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
@@ -768,7 +768,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.spl_token_program = spl_token_program;
         self
@@ -778,7 +778,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules_program(
         &mut self,
-        authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        authorization_rules_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.authorization_rules_program = authorization_rules_program;
         self
@@ -788,7 +788,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn authorization_rules(
         &mut self,
-        authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        authorization_rules: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.authorization_rules = authorization_rules;
         self
@@ -802,7 +802,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -810,7 +810,7 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -875,22 +875,22 @@ impl<'a> DelegateStandardV1CpiBuilder<'a> {
     }
 }
 
-struct DelegateStandardV1CpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    delegate_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    delegate: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    master_edition: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    spl_token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    authorization_rules_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    authorization_rules: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+struct DelegateStandardV1CpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    delegate: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authorization_rules_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authorization_rules: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     amount: Option<u64>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

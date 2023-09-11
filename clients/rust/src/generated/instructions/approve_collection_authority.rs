@@ -206,51 +206,51 @@ impl ApproveCollectionAuthorityBuilder {
 }
 
 /// `approve_collection_authority` CPI accounts.
-pub struct ApproveCollectionAuthorityCpiAccounts<'a> {
+pub struct ApproveCollectionAuthorityCpiAccounts<'a, 'b> {
     /// Collection Authority Record PDA
-    pub collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     /// A Collection Authority
-    pub new_collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update Authority of Collection NFT
-    pub update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of Collection Metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
-    pub rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `approve_collection_authority` CPI instruction.
-pub struct ApproveCollectionAuthorityCpi<'a> {
+pub struct ApproveCollectionAuthorityCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     /// A Collection Authority
-    pub new_collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub new_collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update Authority of Collection NFT
-    pub update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Payer
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of Collection Metadata
-    pub mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
-    pub rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-impl<'a> ApproveCollectionAuthorityCpi<'a> {
+impl<'a, 'b> ApproveCollectionAuthorityCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: ApproveCollectionAuthorityCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: ApproveCollectionAuthorityCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -271,7 +271,7 @@ impl<'a> ApproveCollectionAuthorityCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -287,7 +287,7 @@ impl<'a> ApproveCollectionAuthorityCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -360,12 +360,12 @@ impl<'a> ApproveCollectionAuthorityCpi<'a> {
 }
 
 /// `approve_collection_authority` CPI instruction builder.
-pub struct ApproveCollectionAuthorityCpiBuilder<'a> {
-    instruction: Box<ApproveCollectionAuthorityCpiBuilderInstruction<'a>>,
+pub struct ApproveCollectionAuthorityCpiBuilder<'a, 'b> {
+    instruction: Box<ApproveCollectionAuthorityCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> ApproveCollectionAuthorityCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(ApproveCollectionAuthorityCpiBuilderInstruction {
             __program: program,
             collection_authority_record: None,
@@ -384,7 +384,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
-        collection_authority_record: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_authority_record: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_authority_record = Some(collection_authority_record);
         self
@@ -393,7 +393,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn new_collection_authority(
         &mut self,
-        new_collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        new_collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.new_collection_authority = Some(new_collection_authority);
         self
@@ -402,14 +402,14 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn update_authority(
         &mut self,
-        update_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.update_authority = Some(update_authority);
         self
     }
     /// Payer
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -417,14 +417,14 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// Mint of Collection Metadata
     #[inline(always)]
-    pub fn mint(&mut self, mint: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn mint(&mut self, mint: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.mint = Some(mint);
         self
     }
@@ -432,7 +432,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -442,7 +442,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn rent(
         &mut self,
-        rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.rent = rent;
         self
@@ -450,7 +450,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -458,7 +458,7 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -513,15 +513,15 @@ impl<'a> ApproveCollectionAuthorityCpiBuilder<'a> {
     }
 }
 
-struct ApproveCollectionAuthorityCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    new_collection_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    update_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    rent: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct ApproveCollectionAuthorityCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    new_collection_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

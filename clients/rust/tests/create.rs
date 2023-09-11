@@ -9,8 +9,10 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
+use spl_token_2022::extension::ExtensionType;
 
 use mpl_token_metadata::accounts::MasterEdition;
+use mpl_token_metadata::errors::MplTokenMetadataError;
 use mpl_token_metadata::{
     accounts::Metadata,
     types::{Key, PrintSupply},
@@ -24,6 +26,38 @@ use mpl_token_metadata::{instructions::CreateV1Builder, types::TokenStandard};
 mod create {
 
     use super::*;
+
+    #[test_case::test_case(TokenStandard::Fungible, spl_token::ID ; "fungible with spl-token")]
+    #[test_case::test_case(TokenStandard::Fungible, spl_token_2022::ID ; "fungible with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::FungibleAsset, spl_token::ID ; "fungible_asset with spl-token")]
+    #[test_case::test_case(TokenStandard::FungibleAsset, spl_token_2022::ID ; "fungible_asset with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::NonFungible, spl_token::ID ; "non_fungible with spl-token")]
+    #[test_case::test_case(TokenStandard::NonFungible, spl_token_2022::ID ; "non_fungible with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible, spl_token::ID ; "programmable_non_fungible with spl-token")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible, spl_token_2022::ID ; "programmable_non_fungible with spl-token-2022")]
+    #[tokio::test]
+    async fn create(token_standard: TokenStandard, spl_token_program: Pubkey) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the mint extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default(&mut context, token_standard.clone(), spl_token_program)
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_program);
+
+        // and the metadata account was created
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
+    }
 
     #[tokio::test]
     async fn create_nonfungible() {
@@ -168,5 +202,318 @@ mod create {
             metadata.token_standard,
             Some(TokenStandard::ProgrammableNonFungible)
         );
+    }
+}
+
+mod create_token2022 {
+
+    use super::*;
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn create_from_mint_with_mint_close_authority(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the mint extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::MintCloseAuthority],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[tokio::test]
+    async fn create_from_mint_with_mint_transfer_fees(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::TransferFeeConfig],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn fail_from_mint_with_transfer_fees(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        let error = asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::TransferFeeConfig],
+            )
+            .await
+            .unwrap_err();
+
+        // then we expect an error
+        assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[tokio::test]
+    async fn create_from_mint_with_default_accout_state(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::DefaultAccountState],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn fail_from_mint_with_default_accout_state(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        let error = asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::DefaultAccountState],
+            )
+            .await
+            .unwrap_err();
+
+        // then we expect an error
+        assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn create_from_mint_with_non_transferable_tokens(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::NonTransferable],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[tokio::test]
+    async fn create_from_mint_with_interest_bearing_tokens(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::InterestBearingConfig],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn fail_from_mint_with_interest_bearing_tokens(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        let error = asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::InterestBearingConfig],
+            )
+            .await
+            .unwrap_err();
+
+        // then we expect an error
+        assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[tokio::test]
+    async fn create_from_mint_with_permanent_delegate(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::PermanentDelegate],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn fail_from_mint_with_permanent_delegate(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        let error = asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::PermanentDelegate],
+            )
+            .await
+            .unwrap_err();
+
+        // then we expect an error
+        assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[tokio::test]
+    async fn create_from_mint_with_transfer_hook(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::TransferHook],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
+    }
+
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn fail_from_mint_with_transfer_hook(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        let error = asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::TransferHook],
+            )
+            .await
+            .unwrap_err();
+
+        // then we expect an error
+        assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn create_from_mint_with_metadata_pointer(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // when we create an asset with the metadta pointer extension
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::MetadataPointer],
+            )
+            .await
+            .unwrap();
+
+        // then the mint account was created
+        assert!(find_account(&mut context, &asset.mint.pubkey())
+            .await
+            .is_some());
     }
 }

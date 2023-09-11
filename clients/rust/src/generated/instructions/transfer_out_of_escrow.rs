@@ -298,73 +298,73 @@ impl TransferOutOfEscrowBuilder {
 }
 
 /// `transfer_out_of_escrow` CPI accounts.
-pub struct TransferOutOfEscrowCpiAccounts<'a> {
+pub struct TransferOutOfEscrowCpiAccounts<'a, 'b> {
     /// Escrow account
-    pub escrow: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Wallet paying for the transaction and new account
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account for the new attribute
-    pub attribute_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account source for the new attribute
-    pub attribute_src: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_src: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account, owned by TM, destination for the new attribute
-    pub attribute_dst: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_dst: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account that the escrow is attached
-    pub escrow_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account that holds the token the escrow is attached to
-    pub escrow_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Associated Token program
-    pub ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub ata_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority/creator of the escrow account
-    pub authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `transfer_out_of_escrow` CPI instruction.
-pub struct TransferOutOfEscrowCpi<'a> {
+pub struct TransferOutOfEscrowCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Escrow account
-    pub escrow: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Wallet paying for the transaction and new account
-    pub payer: &'a solana_program::account_info::AccountInfo<'a>,
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account for the new attribute
-    pub attribute_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account source for the new attribute
-    pub attribute_src: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_src: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account, owned by TM, destination for the new attribute
-    pub attribute_dst: &'a solana_program::account_info::AccountInfo<'a>,
+    pub attribute_dst: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint account that the escrow is attached
-    pub escrow_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account that holds the token the escrow is attached to
-    pub escrow_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub escrow_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
-    pub system_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Associated Token program
-    pub ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub ata_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
-    pub token_program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Instructions sysvar account
-    pub sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+    pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority/creator of the escrow account
-    pub authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
     pub __args: TransferOutOfEscrowInstructionArgs,
 }
 
-impl<'a> TransferOutOfEscrowCpi<'a> {
+impl<'a, 'b> TransferOutOfEscrowCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: TransferOutOfEscrowCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: TransferOutOfEscrowCpiAccounts<'a, 'b>,
         args: TransferOutOfEscrowInstructionArgs,
     ) -> Self {
         Self {
@@ -392,7 +392,7 @@ impl<'a> TransferOutOfEscrowCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -408,7 +408,7 @@ impl<'a> TransferOutOfEscrowCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(13 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -509,12 +509,12 @@ impl<'a> TransferOutOfEscrowCpi<'a> {
 }
 
 /// `transfer_out_of_escrow` CPI instruction builder.
-pub struct TransferOutOfEscrowCpiBuilder<'a> {
-    instruction: Box<TransferOutOfEscrowCpiBuilderInstruction<'a>>,
+pub struct TransferOutOfEscrowCpiBuilder<'a, 'b> {
+    instruction: Box<TransferOutOfEscrowCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> TransferOutOfEscrowCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(TransferOutOfEscrowCpiBuilderInstruction {
             __program: program,
             escrow: None,
@@ -539,7 +539,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn escrow(
         &mut self,
-        escrow: &'a solana_program::account_info::AccountInfo<'a>,
+        escrow: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.escrow = Some(escrow);
         self
@@ -548,14 +548,14 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
     }
     /// Wallet paying for the transaction and new account
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'a solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
         self.instruction.payer = Some(payer);
         self
     }
@@ -563,7 +563,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn attribute_mint(
         &mut self,
-        attribute_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        attribute_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.attribute_mint = Some(attribute_mint);
         self
@@ -572,7 +572,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn attribute_src(
         &mut self,
-        attribute_src: &'a solana_program::account_info::AccountInfo<'a>,
+        attribute_src: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.attribute_src = Some(attribute_src);
         self
@@ -581,7 +581,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn attribute_dst(
         &mut self,
-        attribute_dst: &'a solana_program::account_info::AccountInfo<'a>,
+        attribute_dst: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.attribute_dst = Some(attribute_dst);
         self
@@ -590,7 +590,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn escrow_mint(
         &mut self,
-        escrow_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        escrow_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.escrow_mint = Some(escrow_mint);
         self
@@ -599,7 +599,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn escrow_account(
         &mut self,
-        escrow_account: &'a solana_program::account_info::AccountInfo<'a>,
+        escrow_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.escrow_account = Some(escrow_account);
         self
@@ -608,7 +608,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn system_program(
         &mut self,
-        system_program: &'a solana_program::account_info::AccountInfo<'a>,
+        system_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.system_program = Some(system_program);
         self
@@ -617,7 +617,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn ata_program(
         &mut self,
-        ata_program: &'a solana_program::account_info::AccountInfo<'a>,
+        ata_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.ata_program = Some(ata_program);
         self
@@ -626,7 +626,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn token_program(
         &mut self,
-        token_program: &'a solana_program::account_info::AccountInfo<'a>,
+        token_program: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.token_program = Some(token_program);
         self
@@ -635,7 +635,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn sysvar_instructions(
         &mut self,
-        sysvar_instructions: &'a solana_program::account_info::AccountInfo<'a>,
+        sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
@@ -645,7 +645,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn authority(
         &mut self,
-        authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.authority = authority;
         self
@@ -659,7 +659,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -667,7 +667,7 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -751,21 +751,21 @@ impl<'a> TransferOutOfEscrowCpiBuilder<'a> {
     }
 }
 
-struct TransferOutOfEscrowCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    escrow: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    attribute_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    attribute_src: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    attribute_dst: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    escrow_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    escrow_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    system_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    ata_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    token_program: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    sysvar_instructions: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+struct TransferOutOfEscrowCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    escrow: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    attribute_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    attribute_src: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    attribute_dst: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    escrow_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    escrow_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     amount: Option<u64>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

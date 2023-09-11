@@ -104,27 +104,27 @@ impl CollectBuilder {
 }
 
 /// `collect` CPI accounts.
-pub struct CollectCpiAccounts<'a> {
+pub struct CollectCpiAccounts<'a, 'b> {
     /// Authority to collect fees
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// PDA to retrieve fees from
-    pub pda_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub pda_account: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `collect` CPI instruction.
-pub struct CollectCpi<'a> {
+pub struct CollectCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority to collect fees
-    pub authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// PDA to retrieve fees from
-    pub pda_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub pda_account: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-impl<'a> CollectCpi<'a> {
+impl<'a, 'b> CollectCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: CollectCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: CollectCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -139,7 +139,7 @@ impl<'a> CollectCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -155,7 +155,7 @@ impl<'a> CollectCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -193,12 +193,12 @@ impl<'a> CollectCpi<'a> {
 }
 
 /// `collect` CPI instruction builder.
-pub struct CollectCpiBuilder<'a> {
-    instruction: Box<CollectCpiBuilderInstruction<'a>>,
+pub struct CollectCpiBuilder<'a, 'b> {
+    instruction: Box<CollectCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> CollectCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> CollectCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(CollectCpiBuilderInstruction {
             __program: program,
             authority: None,
@@ -211,7 +211,7 @@ impl<'a> CollectCpiBuilder<'a> {
     #[inline(always)]
     pub fn authority(
         &mut self,
-        authority: &'a solana_program::account_info::AccountInfo<'a>,
+        authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.authority = Some(authority);
         self
@@ -220,7 +220,7 @@ impl<'a> CollectCpiBuilder<'a> {
     #[inline(always)]
     pub fn pda_account(
         &mut self,
-        pda_account: &'a solana_program::account_info::AccountInfo<'a>,
+        pda_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.pda_account = Some(pda_account);
         self
@@ -228,7 +228,7 @@ impl<'a> CollectCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -236,7 +236,7 @@ impl<'a> CollectCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -270,9 +270,9 @@ impl<'a> CollectCpiBuilder<'a> {
     }
 }
 
-struct CollectCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    pda_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct CollectCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pda_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

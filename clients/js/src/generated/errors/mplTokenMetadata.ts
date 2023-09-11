@@ -2853,6 +2853,32 @@ nameToErrorMap.set(
   CannotChangeUpdateAuthorityWithDelegateError
 );
 
+/** InvalidMintExtensionType: Invalid mint extension type */
+export class InvalidMintExtensionTypeError extends ProgramError {
+  readonly name: string = 'InvalidMintExtensionType';
+
+  readonly code: number = 0xc2; // 194
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid mint extension type', program, cause);
+  }
+}
+codeToErrorMap.set(0xc2, InvalidMintExtensionTypeError);
+nameToErrorMap.set('InvalidMintExtensionType', InvalidMintExtensionTypeError);
+
+/** InvalidMintCloseAuthority: Invalid mint close authority */
+export class InvalidMintCloseAuthorityError extends ProgramError {
+  readonly name: string = 'InvalidMintCloseAuthority';
+
+  readonly code: number = 0xc3; // 195
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid mint close authority', program, cause);
+  }
+}
+codeToErrorMap.set(0xc3, InvalidMintCloseAuthorityError);
+nameToErrorMap.set('InvalidMintCloseAuthority', InvalidMintCloseAuthorityError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

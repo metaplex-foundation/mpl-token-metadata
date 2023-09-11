@@ -181,43 +181,43 @@ impl UnverifyCollectionBuilder {
 }
 
 /// `unverify_collection` CPI accounts.
-pub struct UnverifyCollectionCpiAccounts<'a> {
+pub struct UnverifyCollectionCpiAccounts<'a, 'b> {
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority
-    pub collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 Account of the Collection Token
-    pub collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `unverify_collection` CPI instruction.
-pub struct UnverifyCollectionCpi<'a> {
+pub struct UnverifyCollectionCpi<'a, 'b> {
     /// The program to invoke.
-    pub __program: &'a solana_program::account_info::AccountInfo<'a>,
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account
-    pub metadata: &'a solana_program::account_info::AccountInfo<'a>,
+    pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority
-    pub collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of the Collection
-    pub collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata Account of the Collection
-    pub collection: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection: &'b solana_program::account_info::AccountInfo<'a>,
     /// MasterEdition2 Account of the Collection Token
-    pub collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+    pub collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Collection Authority Record PDA
-    pub collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+    pub collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-impl<'a> UnverifyCollectionCpi<'a> {
+impl<'a, 'b> UnverifyCollectionCpi<'a, 'b> {
     pub fn new(
-        program: &'a solana_program::account_info::AccountInfo<'a>,
-        accounts: UnverifyCollectionCpiAccounts<'a>,
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: UnverifyCollectionCpiAccounts<'a, 'b>,
     ) -> Self {
         Self {
             __program: program,
@@ -236,7 +236,7 @@ impl<'a> UnverifyCollectionCpi<'a> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -252,7 +252,7 @@ impl<'a> UnverifyCollectionCpi<'a> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a>],
+        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(6 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -316,12 +316,12 @@ impl<'a> UnverifyCollectionCpi<'a> {
 }
 
 /// `unverify_collection` CPI instruction builder.
-pub struct UnverifyCollectionCpiBuilder<'a> {
-    instruction: Box<UnverifyCollectionCpiBuilderInstruction<'a>>,
+pub struct UnverifyCollectionCpiBuilder<'a, 'b> {
+    instruction: Box<UnverifyCollectionCpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a> UnverifyCollectionCpiBuilder<'a> {
-    pub fn new(program: &'a solana_program::account_info::AccountInfo<'a>) -> Self {
+impl<'a, 'b> UnverifyCollectionCpiBuilder<'a, 'b> {
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
         let instruction = Box::new(UnverifyCollectionCpiBuilderInstruction {
             __program: program,
             metadata: None,
@@ -338,7 +338,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn metadata(
         &mut self,
-        metadata: &'a solana_program::account_info::AccountInfo<'a>,
+        metadata: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.metadata = Some(metadata);
         self
@@ -347,7 +347,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority(
         &mut self,
-        collection_authority: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_authority = Some(collection_authority);
         self
@@ -356,7 +356,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_mint(
         &mut self,
-        collection_mint: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_mint: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_mint = Some(collection_mint);
         self
@@ -365,7 +365,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection(
         &mut self,
-        collection: &'a solana_program::account_info::AccountInfo<'a>,
+        collection: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection = Some(collection);
         self
@@ -374,7 +374,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_master_edition_account(
         &mut self,
-        collection_master_edition_account: &'a solana_program::account_info::AccountInfo<'a>,
+        collection_master_edition_account: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.collection_master_edition_account =
             Some(collection_master_edition_account);
@@ -385,7 +385,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn collection_authority_record(
         &mut self,
-        collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
+        collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
         self.instruction.collection_authority_record = collection_authority_record;
         self
@@ -393,7 +393,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a>,
+        account: super::InstructionAccountInfo<'a, 'b>,
     ) -> &mut Self {
         self.instruction.__remaining_accounts.push(account);
         self
@@ -401,7 +401,7 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a>],
+        accounts: &[super::InstructionAccountInfo<'a, 'b>],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -449,13 +449,13 @@ impl<'a> UnverifyCollectionCpiBuilder<'a> {
     }
 }
 
-struct UnverifyCollectionCpiBuilderInstruction<'a> {
-    __program: &'a solana_program::account_info::AccountInfo<'a>,
-    metadata: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_authority: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_mint: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_master_edition_account: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    collection_authority_record: Option<&'a solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a>>,
+struct UnverifyCollectionCpiBuilderInstruction<'a, 'b> {
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_master_edition_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
 }

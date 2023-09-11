@@ -9,6 +9,9 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
+use spl_token_2022::extension::ExtensionType;
+
+use crate::setup::TokenManager;
 
 pub struct DigitalAsset {
     pub mint: Keypair,
@@ -125,5 +128,96 @@ impl DigitalAsset {
             .await?;
 
         Ok(())
+    }
+
+    pub async fn create_default(
+        &mut self,
+        context: &mut ProgramTestContext,
+        token_standard: TokenStandard,
+        spl_token_program: Pubkey,
+    ) -> Result<(), BanksClientError> {
+        let mint_pubkey = self.mint.pubkey();
+        let payer_pubkey = context.payer.pubkey();
+
+        let (metadata, _) = Metadata::find_pda(&mint_pubkey);
+        let (master_edition, _) = MasterEdition::find_pda(&mint_pubkey);
+
+        let create_ix = CreateV1Builder::new()
+            .metadata(metadata)
+            .master_edition(Some(master_edition))
+            .mint(mint_pubkey, true)
+            .authority(payer_pubkey)
+            .payer(payer_pubkey)
+            .update_authority(payer_pubkey, true)
+            .is_mutable(true)
+            .primary_sale_happened(false)
+            .name(String::from("DigitalAsset"))
+            .uri(String::from("http://digital.asset"))
+            .seller_fee_basis_points(500)
+            .token_standard(token_standard)
+            .print_supply(PrintSupply::Zero)
+            .spl_token_program(Some(spl_token_program))
+            .instruction();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[create_ix],
+            Some(&context.payer.pubkey()),
+            &[&context.payer, &self.mint],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
+    }
+
+    pub async fn create_default_with_mint_extensions(
+        &mut self,
+        context: &mut ProgramTestContext,
+        token_standard: TokenStandard,
+        extensions: &[ExtensionType],
+    ) -> Result<(), BanksClientError> {
+        let mint_pubkey = self.mint.pubkey();
+        let payer_pubkey = context.payer.pubkey();
+
+        let token_manager = TokenManager::default();
+        token_manager
+            .create_mint_with_extensions(
+                context,
+                &self.mint,
+                &payer_pubkey,
+                Some(&payer_pubkey),
+                0,
+                extensions,
+            )
+            .await
+            .unwrap();
+
+        let (metadata, _) = Metadata::find_pda(&mint_pubkey);
+        let (master_edition, _) = MasterEdition::find_pda(&mint_pubkey);
+
+        let create_ix = CreateV1Builder::new()
+            .metadata(metadata)
+            .master_edition(Some(master_edition))
+            .mint(mint_pubkey, true)
+            .authority(payer_pubkey)
+            .payer(payer_pubkey)
+            .update_authority(payer_pubkey, true)
+            .is_mutable(true)
+            .primary_sale_happened(false)
+            .name(String::from("DigitalAsset"))
+            .uri(String::from("http://digital.asset"))
+            .seller_fee_basis_points(500)
+            .token_standard(token_standard)
+            .print_supply(PrintSupply::Zero)
+            .spl_token_program(Some(spl_token_2022::ID))
+            .instruction();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[create_ix],
+            Some(&context.payer.pubkey()),
+            &[&context.payer, &self.mint],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
     }
 }

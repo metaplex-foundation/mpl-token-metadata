@@ -7727,6 +7727,16 @@
       "code": 193,
       "name": "CannotChangeUpdateAuthorityWithDelegate",
       "msg": "Cannot change the update authority with a delegate"
+    },
+    {
+      "code": 194,
+      "name": "InvalidMintExtensionType",
+      "msg": "Invalid mint extension type"
+    },
+    {
+      "code": 195,
+      "name": "InvalidMintCloseAuthority",
+      "msg": "Invalid mint close authority"
     }
   ],
   "metadata": {
