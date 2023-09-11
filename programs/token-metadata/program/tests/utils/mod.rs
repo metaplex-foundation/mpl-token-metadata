@@ -29,7 +29,9 @@ pub const DEFAULT_COLLECTION_DETAILS: Option<CollectionDetails> = {
 };
 
 pub fn program_test() -> ProgramTest {
-    ProgramTest::new("token_metadata", token_metadata::ID, None)
+    let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    program_test.add_program("spl_token_2022", spl_token_2022::ID, None);
+    program_test
 }
 
 pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> Account {

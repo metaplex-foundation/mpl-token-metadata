@@ -521,7 +521,7 @@ mod delegate {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn store_rule_set_revision_on_delegate(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;
@@ -675,7 +675,7 @@ mod delegate {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn delegate_not_in_allow_list(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;

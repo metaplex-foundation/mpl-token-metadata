@@ -533,7 +533,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn success_update_pfnt_config_by_update_authority(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -609,7 +609,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_pfnt_config_no_token_in_account(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -734,7 +734,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_pfnt_config_token_and_mint_mismatch(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -838,7 +838,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_pfnt_config_metadata_and_mint_mismatch(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -942,7 +942,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_pfnt_config_by_update_authority_wrong_edition(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -1087,7 +1087,7 @@ mod update {
         update_args: UpdateArgs,
         spl_token_program: Pubkey,
     ) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -1246,7 +1246,7 @@ mod update {
     }
 
     async fn fail_update_by_items_delegate(delegate_args: DelegateArgs, spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -1328,7 +1328,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_by_items_persistent_delegate(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -1407,7 +1407,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_by_holder(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -2530,7 +2530,7 @@ mod update {
         update_args: UpdateArgs,
         spl_token_program: Pubkey,
     ) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -2642,7 +2642,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn success_update_data_by_collections_data_delegate(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -2785,7 +2785,7 @@ mod update {
     async fn fail_update_prog_config_by_col_prog_config_delegate_wrong_v1_args(
         spl_token_program: Pubkey,
     ) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -2909,7 +2909,7 @@ mod update {
     async fn fail_update_by_col_prog_config_delegate_using_new_collection_in_v1_args(
         spl_token_program: Pubkey,
     ) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -3037,7 +3037,7 @@ mod update {
         // prevent it from being updated again because it either won't be owned by the mpl-token-auth rules
         // program or it won't be a valid rule set to call validate on.
         // We relax the check a little to let users fix invalid rule sets.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -3196,7 +3196,7 @@ mod update {
     #[tokio::test]
     async fn cannot_update_rule_set_when_delegate_set(spl_token_program: Pubkey) {
         // When a delegate is set, the rule set cannot be updated.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let context = &mut program_test.start_with_context().await;
@@ -3769,7 +3769,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_data_by_collections_collection_delegate(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 
@@ -3925,7 +3925,7 @@ mod update {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_update_prog_config_by_collections_collection_delegate(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let context = &mut program_test.start_with_context().await;
 

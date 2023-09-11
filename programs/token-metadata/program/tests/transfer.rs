@@ -464,7 +464,7 @@ mod auth_rules_transfer {
     async fn wallet_to_wallet(spl_token_program: Pubkey) {
         // Wallet to wallet should skip royalties rules, for now.
 
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -586,7 +586,7 @@ mod auth_rules_transfer {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn fail_transfer_zero_amount(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -656,7 +656,7 @@ mod auth_rules_transfer {
     #[tokio::test]
     async fn owner_transfer(spl_token_program: Pubkey) {
         // Tests an owner transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -804,7 +804,7 @@ mod auth_rules_transfer {
     #[tokio::test]
     async fn transfer_delegate(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -993,7 +993,7 @@ mod auth_rules_transfer {
     #[tokio::test]
     async fn transfer_delegate_wrong_metadata(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1106,7 +1106,7 @@ mod auth_rules_transfer {
     #[tokio::test]
     async fn sale_delegate(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1308,7 +1308,7 @@ mod auth_rules_transfer {
         // the delegate to close the account. This test ensures that the CloseAuthority
         // is cleared after the transfer along with the rest of the delegate data.
 
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1439,7 +1439,7 @@ mod auth_rules_transfer {
     async fn no_auth_rules_skips_validation(spl_token_program: Pubkey) {
         // Tests a pNFT with a rule_set of None skipping validation and still being
         // transferred correctly.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1492,7 +1492,7 @@ mod auth_rules_transfer {
     #[tokio::test]
     async fn locked_transfer_delegate(spl_token_program: Pubkey) {
         // tests a LockedTransfer delegate, which works similarly to a Transfer delegate
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1636,7 +1636,7 @@ mod auth_rules_transfer {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn escrowless_delegate_transfer(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -1757,7 +1757,7 @@ mod auth_rules_transfer {
         // We ensure that the destination owner is linked to the destination token account
         // so that people cannot get around auth rules by passing in an owner that is in an allowlist
         // but doesn't actually correspond to the token account.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1856,7 +1856,7 @@ mod auth_rules_transfer {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn invalid_close_authority_fails(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1936,7 +1936,7 @@ mod auth_rules_transfer {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn clear_delegate_after_holder_transfer(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -2045,7 +2045,7 @@ mod auth_rules_transfer {
     #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn delegate_on_destination_transfer_fails(spl_token_program: Pubkey) {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
