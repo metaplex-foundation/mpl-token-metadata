@@ -2879,6 +2879,19 @@ export class InvalidMintCloseAuthorityError extends ProgramError {
 codeToErrorMap.set(0xc3, InvalidMintCloseAuthorityError);
 nameToErrorMap.set('InvalidMintCloseAuthority', InvalidMintCloseAuthorityError);
 
+/** InvalidMetadataPointer: Invalid metadata pointer */
+export class InvalidMetadataPointerError extends ProgramError {
+  readonly name: string = 'InvalidMetadataPointer';
+
+  readonly code: number = 0xc4; // 196
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid metadata pointer', program, cause);
+  }
+}
+codeToErrorMap.set(0xc4, InvalidMetadataPointerError);
+nameToErrorMap.set('InvalidMetadataPointer', InvalidMetadataPointerError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

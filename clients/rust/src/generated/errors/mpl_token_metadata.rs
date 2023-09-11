@@ -598,6 +598,9 @@ pub enum MplTokenMetadataError {
     /// 195 (0xC3) - Invalid mint close authority
     #[error("Invalid mint close authority")]
     InvalidMintCloseAuthority,
+    /// 196 (0xC4) - Invalid metadata pointer
+    #[error("Invalid metadata pointer")]
+    InvalidMetadataPointer,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

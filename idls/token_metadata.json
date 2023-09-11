@@ -7737,6 +7737,11 @@
       "code": 195,
       "name": "InvalidMintCloseAuthority",
       "msg": "Invalid mint close authority"
+    },
+    {
+      "code": 196,
+      "name": "InvalidMetadataPointer",
+      "msg": "Invalid metadata pointer"
     }
   ],
   "metadata": {
