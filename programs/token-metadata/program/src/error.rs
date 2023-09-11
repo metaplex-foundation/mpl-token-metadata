@@ -771,6 +771,10 @@ pub enum MetadataError {
     /// 195
     #[error("Invalid mint close authority")]
     InvalidMintCloseAuthority,
+
+    /// 196
+    #[error("Invalid metadata pointer")]
+    InvalidMetadataPointer,
 }
 
 impl PrintProgramError for MetadataError {
