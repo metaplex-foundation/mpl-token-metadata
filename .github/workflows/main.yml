@@ -17,6 +17,8 @@ jobs:
       any: ${{ steps.changes.outputs.any }}
       programs: ${{ steps.changes.outputs.programs }}
       program_matrix: ${{ steps.program_matrix.outputs.matrix }}
+      js_client: ${{ steps.changes.outputs.js_client }}
+      rust_client: ${{ steps.changes.outputs.rust_client }}
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
@@ -59,16 +61,9 @@ jobs:
     if: ${{ needs.changes.outputs.any == 'true' }}
     needs: build_programs
     runs-on: ubuntu-latest
-    outputs:
-      js_changed: ${{ steps.changes.outputs.js_client }}
-      rust_changed: ${{ steps.changes.outputs.rust_client }}
-    permissions:
-      contents: write
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.SVC_TOKEN }}
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
@@ -87,33 +82,25 @@ jobs:
       - name: Generate IDLs and clients
         run: pnpm generate
 
-      - name: Commit generated clients
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Update generated clients
-
-      - name: Detect client changes
-        uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: .github/file-filters.yml
+      - name: Ensure working directory is clean
+        run: test -z "$(git status --porcelain)"
 
   test_js_client:
-    if: needs.generate_clients.outputs.js_changed == 'true'
+    if: needs.changes.outputs.js_client == 'true'
     name: JS Client
     needs: generate_clients
     uses: ./.github/workflows/test-js-client.yml
     secrets: inherit
 
   build_rust_client:
-    if: needs.generate_clients.outputs.rust_changed == 'true'
+    if: needs.changes.outputs.rust_client == 'true'
     name: Rust Client
     needs: generate_clients
     uses: ./.github/workflows/build-rust-client.yml
     secrets: inherit
 
   test_rust_client:
-    if: needs.generate_clients.outputs.rust_changed == 'true'
+    if: needs.changes.outputs.rust_client == 'true'
     name: Rust Client
     needs: generate_clients
     uses: ./.github/workflows/test-rust-client.yml

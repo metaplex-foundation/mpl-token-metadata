@@ -31,6 +31,12 @@ jobs:
           version: ${{ env.SOLANA_VERSION }}
           cache: ${{ env.CACHE }}
 
+      - name: Cache Rust client test dependencies
+        uses: metaplex-foundation/actions/cache-crate@v1
+        with:
+          folder: ./clients/rust
+          key: rust-client-test
+
       - name: Download program builds
         uses: actions/download-artifact@v3
         with:

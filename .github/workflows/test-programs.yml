@@ -36,7 +36,7 @@ jobs:
 
       - name: Cache program dependencies
         if: env.CACHE == 'true'
-        uses: metaplex-foundation/actions/cache-program@v1
+        uses: metaplex-foundation/actions/cache-crates@v1
         with:
           folder: ./programs/${{ matrix.program }}
           key: program-${{ matrix.program }}
