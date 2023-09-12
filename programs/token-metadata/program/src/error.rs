@@ -775,6 +775,10 @@ pub enum MetadataError {
     /// 196
     #[error("Invalid metadata pointer")]
     InvalidMetadataPointer,
+
+    /// 197
+    #[error("Invalid token extension type")]
+    InvalidTokenExtensionType,
 }
 
 impl PrintProgramError for MetadataError {
