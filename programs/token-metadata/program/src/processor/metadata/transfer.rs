@@ -14,10 +14,7 @@ use solana_program::{
 use spl_token_2022::state::{Account, Mint};
 
 use crate::{
-    assertions::{
-        assert_keys_equal, assert_owned_by, assert_token_matches_owner_and_mint,
-        metadata::assert_holding_amount,
-    },
+    assertions::{assert_keys_equal, assert_owned_by, metadata::assert_holding_amount},
     error::MetadataError,
     instruction::{Context, Transfer, TransferArgs},
     pda::find_token_record_account,
@@ -28,7 +25,7 @@ use crate::{
     utils::{
         assert_token_program_matches_package, auth_rules_validate, clear_close_authority,
         close_program_account, create_token_record_account, frozen_transfer, unpack,
-        AuthRulesValidateParams, ClearCloseAuthorityParams,
+        validate_token, AuthRulesValidateParams, ClearCloseAuthorityParams,
     },
 };
 
@@ -122,6 +119,9 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         assert_owned_by(authorization_rules, &mpl_token_auth_rules::ID)?;
     }
 
+    // Deserialize metadata.
+    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+
     // Check if the destination exists.
     if ctx.accounts.destination_info.data_is_empty() {
         // creating the associated token account
@@ -140,15 +140,17 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             ],
         )?;
     } else {
-        assert_owned_by(
+        let token = validate_token(
+            ctx.accounts.mint_info,
             ctx.accounts.destination_info,
-            ctx.accounts.spl_token_program_info.key,
+            ctx.accounts.spl_token_program_info,
+            metadata.token_standard,
+            None, // we already checked the supply of the mint account
         )?;
-        assert_token_matches_owner_and_mint(
-            ctx.accounts.destination_info,
-            ctx.accounts.destination_owner_info.key,
-            ctx.accounts.mint_info.key,
-        )?;
+
+        if token.owner != *ctx.accounts.destination_owner_info.key {
+            return Err(MetadataError::InvalidOwner.into());
+        }
     }
 
     // Check program IDs.
@@ -174,9 +176,6 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
     }
 
     let mut is_wallet_to_wallet = false;
-
-    // Deserialize metadata.
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
 
     // Must be the actual current owner of the token where
     // mint, token, owner and metadata accounts all match up.

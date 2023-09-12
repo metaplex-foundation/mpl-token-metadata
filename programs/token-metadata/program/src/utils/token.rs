@@ -206,7 +206,7 @@ pub(crate) fn validate_token(
     spl_token_program: &AccountInfo,
     token_standard: Option<TokenStandard>,
     required_amount: Option<u64>,
-) -> ProgramResult {
+) -> Result<Account, ProgramError> {
     if token.owner != spl_token_program.key {
         return Err(MetadataError::IncorrectOwner.into());
     }
@@ -241,5 +241,5 @@ pub(crate) fn validate_token(
             })?;
     }
 
-    Ok(())
+    Ok(token.base)
 }
