@@ -43,15 +43,17 @@ mod create {
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_default(&mut context, token_standard.clone(), spl_token_program)
+            .create_default(&mut context, token_standard, spl_token_program)
             .await
             .unwrap();
 
         // then the mint account was created
+
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
         assert!(account.owner == spl_token_program);
 
         // and the metadata account was created
+
         let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
         let metadata_account = get_account(&mut context, &metadata).await;
         let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
@@ -130,16 +132,8 @@ mod create {
         let mint = Keypair::new();
         let mint_pubkey = mint.pubkey();
 
-        let metadata_seeds = &[b"metadata", PROGRAM_ID.as_ref(), mint_pubkey.as_ref()];
-        let (metadata, _) = Pubkey::find_program_address(metadata_seeds, &PROGRAM_ID);
-
-        let master_edition_seeds = &[
-            b"metadata",
-            PROGRAM_ID.as_ref(),
-            mint_pubkey.as_ref(),
-            b"edition",
-        ];
-        let (master_edition, _) = Pubkey::find_program_address(master_edition_seeds, &PROGRAM_ID);
+        let (metadata, _) = Metadata::find_pda(&mint.pubkey());
+        let (master_edition, _) = MasterEdition::find_pda(&mint.pubkey());
 
         // when we create a programmable non-fungible metadata
 
@@ -230,9 +224,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
@@ -254,9 +256,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
@@ -278,6 +288,7 @@ mod create_token2022 {
             .unwrap_err();
 
         // then we expect an error
+
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
 
@@ -300,9 +311,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
@@ -324,6 +343,7 @@ mod create_token2022 {
             .unwrap_err();
 
         // then we expect an error
+
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
 
@@ -348,9 +368,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
@@ -372,9 +400,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
@@ -396,6 +432,7 @@ mod create_token2022 {
             .unwrap_err();
 
         // then we expect an error
+
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
 
@@ -418,9 +455,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
@@ -442,6 +487,7 @@ mod create_token2022 {
             .unwrap_err();
 
         // then we expect an error
+
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
 
@@ -464,9 +510,17 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
@@ -488,6 +542,7 @@ mod create_token2022 {
             .unwrap_err();
 
         // then we expect an error
+
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
 
@@ -512,8 +567,16 @@ mod create_token2022 {
             .unwrap();
 
         // then the mint account was created
-        assert!(find_account(&mut context, &asset.mint.pubkey())
-            .await
-            .is_some());
+
+        let account = get_account(&mut context, &asset.mint.pubkey()).await;
+        assert!(account.owner == spl_token_2022::ID);
+
+        // and the metadata account was created
+
+        let (metadata, _) = Metadata::find_pda(&asset.mint.pubkey());
+        let metadata_account = get_account(&mut context, &metadata).await;
+        let metadata = Metadata::from_bytes(&metadata_account.data).unwrap();
+
+        assert_eq!(metadata.token_standard, Some(token_standard));
     }
 }

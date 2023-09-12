@@ -1,5 +1,5 @@
 use mpl_token_metadata::{
-    accounts::{MasterEdition, Metadata},
+    accounts::{MasterEdition, Metadata, TokenRecord},
     instructions::{CreateV1Builder, MintV1Builder},
     types::{PrintSupply, TokenStandard},
 };
@@ -32,6 +32,7 @@ impl Default for DigitalAsset {
 }
 
 impl DigitalAsset {
+    #[allow(clippy::too_many_arguments)]
     pub async fn create(
         &mut self,
         context: &mut ProgramTestContext,
@@ -40,6 +41,7 @@ impl DigitalAsset {
         token_standard: TokenStandard,
         update_authority: &Keypair,
         payer: &Keypair,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         self.metadata = Metadata::find_pda(&self.mint.pubkey()).0;
         self.master_edition = MasterEdition::find_pda(&self.mint.pubkey()).0;
@@ -58,7 +60,7 @@ impl DigitalAsset {
             .name(name)
             .uri(uri)
             .token_standard(token_standard)
-            .spl_token_program(Some(spl_token::ID))
+            .spl_token_program(Some(spl_token_program))
             .instruction();
 
         let tx = Transaction::new_signed_with_payer(
@@ -77,22 +79,28 @@ impl DigitalAsset {
         amount: u64,
         update_authority: &Keypair,
         payer: &Keypair,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
-        self.token = spl_associated_token_account::get_associated_token_address_with_program_id(
-            token_owner,
-            &self.mint.pubkey(),
-            &spl_token::ID,
-        );
+        if self.token == Pubkey::default() {
+            self.token = spl_associated_token_account::get_associated_token_address_with_program_id(
+                token_owner,
+                &self.mint.pubkey(),
+                &spl_token_program,
+            );
+        }
+        let token_record = TokenRecord::find_pda(&self.mint.pubkey(), &self.token).0;
 
         let mint_ix = MintV1Builder::new()
             .token(self.token)
             .token_owner(Some(*token_owner))
             .metadata(self.metadata)
             .master_edition(Some(self.master_edition))
+            .token_record(Some(token_record))
             .mint(self.mint.pubkey())
             .authority(update_authority.pubkey())
             .payer(payer.pubkey())
             .amount(amount)
+            .spl_token_program(spl_token_program)
             .instruction();
 
         let tx = Transaction::new_signed_with_payer(
@@ -113,6 +121,7 @@ impl DigitalAsset {
         token_owner: &Pubkey,
         amount: u64,
         payer: &Keypair,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         self.create(
             context,
@@ -121,11 +130,19 @@ impl DigitalAsset {
             token_standard,
             update_authority,
             payer,
+            spl_token_program,
         )
         .await?;
 
-        self.mint(context, token_owner, amount, update_authority, payer)
-            .await?;
+        self.mint(
+            context,
+            token_owner,
+            amount,
+            update_authority,
+            payer,
+            spl_token_program,
+        )
+        .await?;
 
         Ok(())
     }
@@ -139,12 +156,12 @@ impl DigitalAsset {
         let mint_pubkey = self.mint.pubkey();
         let payer_pubkey = context.payer.pubkey();
 
-        let (metadata, _) = Metadata::find_pda(&mint_pubkey);
-        let (master_edition, _) = MasterEdition::find_pda(&mint_pubkey);
+        self.metadata = Metadata::find_pda(&mint_pubkey).0;
+        self.master_edition = MasterEdition::find_pda(&mint_pubkey).0;
 
         let create_ix = CreateV1Builder::new()
-            .metadata(metadata)
-            .master_edition(Some(master_edition))
+            .metadata(self.metadata)
+            .master_edition(Some(self.master_edition))
             .mint(mint_pubkey, true)
             .authority(payer_pubkey)
             .payer(payer_pubkey)
@@ -191,12 +208,12 @@ impl DigitalAsset {
             .await
             .unwrap();
 
-        let (metadata, _) = Metadata::find_pda(&mint_pubkey);
-        let (master_edition, _) = MasterEdition::find_pda(&mint_pubkey);
+        self.metadata = Metadata::find_pda(&mint_pubkey).0;
+        self.master_edition = MasterEdition::find_pda(&mint_pubkey).0;
 
         let create_ix = CreateV1Builder::new()
-            .metadata(metadata)
-            .master_edition(Some(master_edition))
+            .metadata(self.metadata)
+            .master_edition(Some(self.master_edition))
             .mint(mint_pubkey, true)
             .authority(payer_pubkey)
             .payer(payer_pubkey)

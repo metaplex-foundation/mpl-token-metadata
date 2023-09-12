@@ -4,13 +4,12 @@ mod token_manager;
 
 pub use digital_asset::*;
 pub use dirty_clone::*;
+use spl_token_2022::extension::{BaseState, StateWithExtensions};
 pub use token_manager::*;
 
-use solana_program::pubkey::Pubkey;
+use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{ProgramTest, ProgramTestContext};
 use solana_sdk::account::Account;
-
-pub const PROGRAM_ID: Pubkey = mpl_token_metadata::ID;
 
 pub fn program_test() -> ProgramTest {
     let mut program_test = ProgramTest::new("token_metadata", mpl_token_metadata::ID, None);
@@ -29,6 +28,12 @@ pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> A
         .await
         .unwrap()
         .expect("account not found")
+}
+
+pub fn unpack<S: BaseState>(
+    account_data: &[u8],
+) -> Result<StateWithExtensions<'_, S>, ProgramError> {
+    StateWithExtensions::<S>::unpack(account_data)
 }
 
 #[macro_export]
