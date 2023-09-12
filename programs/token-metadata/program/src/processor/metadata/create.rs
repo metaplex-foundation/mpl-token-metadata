@@ -1,18 +1,4 @@
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke,
-    program_pack::IsInitialized, program_pack::Pack, pubkey::Pubkey, rent::Rent,
-    system_instruction, sysvar::Sysvar,
-};
-use spl_token_2022::{
-    extension::{
-        metadata_pointer::{self, MetadataPointer},
-        mint_close_authority::MintCloseAuthority,
-        BaseStateWithExtensions, ExtensionType, StateWithExtensions,
-    },
-    instruction::initialize_mint_close_authority,
-    native_mint::DECIMALS,
-    state::Mint,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
 
 use crate::{
     error::MetadataError,
@@ -22,19 +8,11 @@ use crate::{
         TOKEN_STANDARD_INDEX,
     },
     utils::{
-        create_master_edition,
+        create_master_edition, create_mint,
         fee::{levy, set_fee_flag, LevyArgs},
-        process_create_metadata_accounts_logic, CreateMetadataAccountsLogicArgs,
+        process_create_metadata_accounts_logic, validate_mint, CreateMetadataAccountsLogicArgs,
     },
 };
-
-/// List of SPL Token-2022 `Mint` account exntesion types that are allowed on
-/// non-fungible assets.
-const NON_FUNGIBLE_EXTENSIONS: &[ExtensionType] = &[
-    ExtensionType::MintCloseAuthority,
-    ExtensionType::NonTransferable,
-    ExtensionType::MetadataPointer,
-];
 
 /// Create the associated metadata accounts for a mint.
 ///
@@ -97,11 +75,30 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
             spl_token_program,
         )?;
     } else {
-        validate_mint(
+        let mint = validate_mint(
             ctx.accounts.mint_info,
             ctx.accounts.metadata_info,
             asset_data.token_standard,
         )?;
+
+        if matches!(
+            asset_data.token_standard,
+            TokenStandard::ProgrammableNonFungible | TokenStandard::NonFungible
+        ) {
+            // NonFungible assets must have decimals == 0 and supply no greater than 1
+            if mint.decimals > 0 || mint.supply > 1 {
+                return Err(MetadataError::InvalidMintForTokenStandard.into());
+            }
+            // Programmable assets must have supply == 0 since there cannot be any
+            // existing token account
+            if matches!(
+                asset_data.token_standard,
+                TokenStandard::ProgrammableNonFungible
+            ) && (mint.supply > 0)
+            {
+                return Err(MetadataError::MintSupplyMustBeZero.into());
+            }
+        }
     }
 
     // creates the metadata account
@@ -193,171 +190,4 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
 
     // Set fee flag after metadata account is created.
     set_fee_flag(ctx.accounts.metadata_info)
-}
-
-/// Validates the mint account for the given token standard.
-///
-/// For all token standards, the validation consists of checking that the mint:
-/// - is initialized
-/// - (token-2022) has the mint close authority extension enabled and set to the metadata account
-///
-/// For non-fungibles assets, the validation consists of checking that the mint:
-/// - has no more than 1 supply
-/// - has 0 decimals
-/// - (token-2022) has no other extensions enabled apart from `ExtensionType::MintCloseAuthority`
-///    and `ExtensionType::NonTransferable`
-///
-/// For programmable non-fungibles assets, the validation consists of checking that the mint:
-/// - has no more than 0 supply
-/// - has 0 decimals
-/// - (token-2022) has no other extensions enabled apart from `MintCloseAuthority`
-///    and `NonTransferable`
-fn validate_mint(
-    mint: &AccountInfo,
-    metadata: &AccountInfo,
-    token_standard: TokenStandard,
-) -> ProgramResult {
-    let mint_data = &mint.data.borrow();
-    let mint = StateWithExtensions::<Mint>::unpack(mint_data)?;
-
-    if !mint.base.is_initialized() {
-        return Err(MetadataError::Uninitialized.into());
-    }
-
-    if matches!(
-        token_standard,
-        TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible
-    ) {
-        // NonFungible assets must have decimals == 0 and supply no greater than 1
-        if mint.base.decimals > 0 || mint.base.supply > 1 {
-            return Err(MetadataError::InvalidMintForTokenStandard.into());
-        }
-        // Programmable assets must have supply == 0 since there cannot be any
-        // existing token account
-        if matches!(token_standard, TokenStandard::ProgrammableNonFungible)
-            && (mint.base.supply > 0)
-        {
-            return Err(MetadataError::MintSupplyMustBeZero.into());
-        }
-
-        // validates the mint extensions
-        mint.get_extension_types()?
-            .iter()
-            .try_for_each(|extension_type| {
-                if !NON_FUNGIBLE_EXTENSIONS.contains(extension_type) {
-                    msg!("Invalid mint extension: {:?}", extension_type);
-                    return Err(MetadataError::InvalidMintExtensionType);
-                }
-                Ok(())
-            })?;
-    }
-
-    // For all token standards:
-    //
-    // 1) if the mint close authority extension is enabled, it must
-    //    be set to be the metadata account; and
-    if let Ok(extension) = mint.get_extension::<MintCloseAuthority>() {
-        let close_authority: Option<Pubkey> = extension.close_authority.into();
-        if close_authority.is_none() || close_authority != Some(*metadata.key) {
-            return Err(MetadataError::InvalidMintCloseAuthority.into());
-        }
-    }
-
-    // 2) if the metadata pointer extension is enabled, it must be set
-    //    to the metadata account address
-    if let Ok(extension) = mint.get_extension::<MetadataPointer>() {
-        let authority: Option<Pubkey> = extension.authority.into();
-        let metadata_address: Option<Pubkey> = extension.metadata_address.into();
-
-        if authority.is_some() {
-            msg!("Metadata pointer extension: authority must be None");
-            return Err(MetadataError::InvalidMetadataPointer.into());
-        }
-
-        if metadata_address != Some(*metadata.key) {
-            msg!("Metadata pointer extension: metadata address mismatch");
-            return Err(MetadataError::InvalidMetadataPointer.into());
-        }
-    }
-
-    Ok(())
-}
-
-fn create_mint<'a>(
-    mint: &'a AccountInfo<'a>,
-    metadata: &'a AccountInfo<'a>,
-    authority: &'a AccountInfo<'a>,
-    payer: &'a AccountInfo<'a>,
-    token_standard: TokenStandard,
-    decimals: Option<u8>,
-    spl_token_program: &'a AccountInfo<'a>,
-) -> ProgramResult {
-    let spl_token_2022 = matches!(spl_token_program.key, &spl_token_2022::ID);
-
-    let mint_account_size = if spl_token_2022 {
-        ExtensionType::try_calculate_account_len::<Mint>(&[
-            ExtensionType::MintCloseAuthority,
-            ExtensionType::MetadataPointer,
-        ])?
-    } else {
-        Mint::LEN
-    };
-
-    invoke(
-        &system_instruction::create_account(
-            payer.key,
-            mint.key,
-            Rent::get()?.minimum_balance(mint_account_size),
-            mint_account_size as u64,
-            spl_token_program.key,
-        ),
-        &[payer.clone(), mint.clone()],
-    )?;
-
-    if spl_token_2022 {
-        let account_infos = vec![mint.clone(), metadata.clone(), spl_token_program.clone()];
-
-        invoke(
-            &initialize_mint_close_authority(spl_token_program.key, mint.key, Some(metadata.key))?,
-            &account_infos,
-        )?;
-
-        invoke(
-            &metadata_pointer::instruction::initialize(
-                spl_token_program.key,
-                mint.key,
-                None,
-                Some(*metadata.key),
-            )?,
-            &account_infos,
-        )?;
-    }
-
-    let decimals = match token_standard {
-        // for NonFungible variants, we ignore the argument and
-        // always use 0 decimals
-        TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => 0,
-        // for Fungile variants, we either use the specified decimals or the default
-        // DECIMALS from spl-token
-        TokenStandard::FungibleAsset | TokenStandard::Fungible => match decimals {
-            Some(decimals) => decimals,
-            // if decimals not provided, use the default
-            None => DECIMALS,
-        },
-        _ => {
-            return Err(MetadataError::InvalidTokenStandard.into());
-        }
-    };
-
-    // initializing the mint account
-    invoke(
-        &spl_token_2022::instruction::initialize_mint2(
-            spl_token_program.key,
-            mint.key,
-            authority.key,
-            Some(authority.key),
-            decimals,
-        )?,
-        &[mint.clone(), authority.clone()],
-    )
 }

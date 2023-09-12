@@ -1,16 +1,8 @@
 use mpl_utils::token::get_mint_supply;
 use solana_program::{
-    account_info::AccountInfo,
-    entrypoint::ProgramResult,
-    program::invoke,
-    program_error::ProgramError,
-    program_pack::Pack,
-    pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::{self, Sysvar},
+    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
+    program_error::ProgramError, pubkey::Pubkey, sysvar,
 };
-use spl_token_2022::state::{Account, Mint};
 
 use crate::{
     assertions::assert_keys_equal,
@@ -22,10 +14,10 @@ use crate::{
         TOKEN_STANDARD_INDEX_EDITION,
     },
     utils::{
-        assert_owned_by, create_token_record_account,
+        assert_owned_by, create_mint, create_token_record_account,
         fee::{levy, set_fee_flag, LevyArgs},
-        freeze, process_mint_new_edition_from_master_edition_via_token_logic, unpack_initialized,
-        MintNewEditionFromMasterEditionViaTokenLogicArgs,
+        freeze, process_mint_new_edition_from_master_edition_via_token_logic, validate_mint,
+        validate_token, MintNewEditionFromMasterEditionViaTokenLogicArgs,
     },
 };
 
@@ -83,6 +75,12 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
         token_metadata_pda_info: edition_metadata_info,
     })?;
 
+    // Deserialize the master edition's metadata so we can determine token type
+    let master_metadata = Metadata::from_account_info(master_metadata_info)?;
+    let token_standard = master_metadata
+        .token_standard
+        .unwrap_or(TokenStandard::NonFungible);
+
     // if the account does not exist, we will allocate a new mint
     if edition_mint_info.data_is_empty() {
         // mint account must be a signer in the transaction
@@ -90,36 +88,18 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             return Err(MetadataError::MintIsNotSigner.into());
         }
 
-        invoke(
-            &system_instruction::create_account(
-                payer_info.key,
-                edition_mint_info.key,
-                Rent::get()?.minimum_balance(Mint::LEN),
-                Mint::LEN as u64,
-                token_program.key,
-            ),
-            &[payer_info.clone(), edition_mint_info.clone()],
-        )?;
-
-        // initializing the mint account
-        invoke(
-            &spl_token_2022::instruction::initialize_mint2(
-                token_program.key,
-                edition_mint_info.key,
-                edition_mint_authority_info.key,
-                Some(edition_mint_authority_info.key),
-                0,
-            )?,
-            &[
-                edition_mint_info.clone(),
-                edition_mint_authority_info.clone(),
-            ],
+        create_mint(
+            edition_mint_info,
+            edition_metadata_info,
+            edition_mint_authority_info,
+            payer_info,
+            token_standard,
+            None,
+            token_program,
         )?;
     } else {
-        // validates the existing mint account
-
-        let mint = unpack_initialized::<Mint>(&edition_mint_info.data.borrow())?;
-        // NonFungible assets must have decimals == 0 and supply no greater than 1
+        let mint = validate_mint(edition_mint_info, edition_metadata_info, token_standard)?;
+        // non-fungibles must have decimals == 0 and supply no greater than 1
         if mint.decimals > 0 || mint.supply > 1 {
             return Err(MetadataError::InvalidMintForTokenStandard.into());
         }
@@ -168,12 +148,13 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             ],
         )?;
     } else {
-        assert_owned_by(edition_token_account_info, token_program.key)?;
-        let edition_token_account =
-            unpack_initialized::<Account>(&edition_token_account_info.data.borrow())?;
-        if edition_token_account.amount < 1 {
-            return Err(MetadataError::NotEnoughTokens.into());
-        }
+        validate_token(
+            edition_mint_info,
+            edition_token_account_info,
+            token_program,
+            Some(token_standard),
+            Some(1), // we must have a token already
+        )?;
     }
 
     if ata_program.key != &spl_associated_token_account::ID {
@@ -183,12 +164,6 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
     if sysvar_instructions.key != &sysvar::instructions::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-
-    // Deserialize the master edition's metadata so we can determine token type
-    let master_metadata = Metadata::from_account_info(master_metadata_info)?;
-    let token_standard = master_metadata
-        .token_standard
-        .unwrap_or(TokenStandard::NonFungible);
 
     match token_standard {
         TokenStandard::NonFungible => {}

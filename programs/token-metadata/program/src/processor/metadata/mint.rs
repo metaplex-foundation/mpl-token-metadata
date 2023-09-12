@@ -17,7 +17,7 @@ use crate::{
     state::{Metadata, TokenMetadataAccount, TokenStandard},
     utils::{
         assert_token_program_matches_package, create_token_record_account, freeze, thaw,
-        unpack_initialized,
+        unpack_initialized, validate_token,
     },
 };
 
@@ -51,7 +51,6 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
     assert_signer(ctx.accounts.payer_info)?;
 
     // validates the accounts
-
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
     assert_derivation(
         program_id,
@@ -135,9 +134,12 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
             ],
         )?;
     } else {
-        assert_owned_by(
+        validate_token(
+            ctx.accounts.mint_info,
             ctx.accounts.token_info,
-            ctx.accounts.spl_token_program_info.key,
+            ctx.accounts.spl_token_program_info,
+            metadata.token_standard,
+            None, // we already checked the supply of the mint account
         )?;
     }
 
