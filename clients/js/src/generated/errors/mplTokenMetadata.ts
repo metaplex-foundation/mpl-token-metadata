@@ -2892,6 +2892,19 @@ export class InvalidMetadataPointerError extends ProgramError {
 codeToErrorMap.set(0xc4, InvalidMetadataPointerError);
 nameToErrorMap.set('InvalidMetadataPointer', InvalidMetadataPointerError);
 
+/** InvalidTokenExtensionType: Invalid token extension type */
+export class InvalidTokenExtensionTypeError extends ProgramError {
+  readonly name: string = 'InvalidTokenExtensionType';
+
+  readonly code: number = 0xc5; // 197
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid token extension type', program, cause);
+  }
+}
+codeToErrorMap.set(0xc5, InvalidTokenExtensionTypeError);
+nameToErrorMap.set('InvalidTokenExtensionType', InvalidTokenExtensionTypeError);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

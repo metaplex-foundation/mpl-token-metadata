@@ -7742,6 +7742,11 @@
       "code": 196,
       "name": "InvalidMetadataPointer",
       "msg": "Invalid metadata pointer"
+    },
+    {
+      "code": 197,
+      "name": "InvalidTokenExtensionType",
+      "msg": "Invalid token extension type"
     }
   ],
   "metadata": {

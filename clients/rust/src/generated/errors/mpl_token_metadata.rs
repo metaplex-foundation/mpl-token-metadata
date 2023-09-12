@@ -601,6 +601,9 @@ pub enum MplTokenMetadataError {
     /// 196 (0xC4) - Invalid metadata pointer
     #[error("Invalid metadata pointer")]
     InvalidMetadataPointer,
+    /// 197 (0xC5) - Invalid token extension type
+    #[error("Invalid token extension type")]
+    InvalidTokenExtensionType,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {
