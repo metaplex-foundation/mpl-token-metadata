@@ -3,21 +3,25 @@ import {
   generateSigner,
   PublicKey,
   publicKey,
+  Signer,
   some,
 } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
+  CollectionArgs,
   DigitalAsset,
   fetchAllDigitalAsset,
   fetchAllDigitalAssetByCreator,
   fetchAllDigitalAssetByOwner,
   fetchAllDigitalAssetByUpdateAuthority,
+  fetchAllDigitalAssetByVerifiedCollection,
   fetchAllMetadataByOwner,
   fetchDigitalAsset,
   fetchDigitalAssetByMetadata,
   findMasterEditionPda,
   findMetadataPda,
   TokenStandard,
+  verifyCollectionV1,
 } from '../src';
 import {
   createDigitalAsset,
@@ -231,6 +235,69 @@ test('it can fetch all Metadata accounts by owner', async (t) => {
   t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
 });
 
+test('it can fetch all DigitalAssets by verified collection', async (t) => {
+  const umi = await createUmi();
+  const collectionAuthority = generateSigner(umi);
+
+  const collectionA = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthority,
+  });
+
+  const collectionB = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthority,
+  });
+
+  const mintA1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionA.publicKey,
+      verified: false,
+    },
+    collectionAuthority,
+  });
+
+  const mintA2 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionA.publicKey,
+      verified: false,
+    },
+    collectionAuthority,
+  });
+
+  const mintA3 = await createDigitalAssetWithToken(umi, {
+    collection: {
+      key: collectionA.publicKey,
+      verified: false,
+    },
+  });
+
+  const mintB1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionB.publicKey,
+      verified: false,
+    },
+    collectionAuthority,
+  });
+
+  // When we fetch all digital assets in collection A.
+  const digitalAssets = await fetchAllDigitalAssetByVerifiedCollection(
+    umi,
+    collectionA.publicKey
+  );
+
+  // Then we get the two NFTs in collection A.
+  t.is(digitalAssets.length, 2);
+  const mints = digitalAssets.map((da) => base58PublicKey(da.mint));
+  t.true(mints.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mints.includes(base58PublicKey(mintA2.publicKey)));
+
+  // And we don't get the NFT in collection A but not verified.
+  t.false(mints.includes(base58PublicKey(mintA3.publicKey)));
+  // And we don't get the NFT in collection B.
+  t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
 function createDigitalAssetWithFirstCreator(
   context: Parameters<typeof createDigitalAsset>[0],
   creator: PublicKey
@@ -253,4 +320,25 @@ function createDigitalAssetWithSecondCreator(
       { address: creator, share: 50, verified: false },
     ]),
   });
+}
+
+async function createDigitalAssetWithVerifiedCollection(
+  context: Parameters<typeof createDigitalAssetWithToken>[0],
+  input: Parameters<typeof createDigitalAssetWithToken>[1] & {
+    collection: CollectionArgs;
+    collectionAuthority: Signer;
+  }
+) {
+  const mint = await createDigitalAssetWithToken(context, {
+    ...input,
+  });
+
+  const metadata = findMetadataPda(context, { mint: mint.publicKey });
+  await verifyCollectionV1(context, {
+    metadata,
+    collectionMint: input.collection.key,
+    authority: input.collectionAuthority,
+  }).sendAndConfirm(context);
+
+  return mint;
 }
