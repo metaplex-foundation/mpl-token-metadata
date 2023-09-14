@@ -127,18 +127,14 @@ export async function fetchAllDigitalAssetByVerifiedCollection(
   options?: RpcGetAccountsOptions
 ): Promise<DigitalAsset[]> {
   const mints = await Promise.all(
-    COLLECTION_OFFSETS.map(async (offset) => {
-      try {
-        return await getMetadataGpaBuilder(context)
-          .where(offset, 1)
-          .where(offset + VERIFIED_COLLECTION_OFFSET, 1)
-          .where(offset + COLLECTION_ADDRESS_OFFSET, collectionAddress)
-          .sliceField('mint')
-          .getDataAsPublicKeys();
-      } catch (e) {
-        return [];
-      }
-    })
+    COLLECTION_OFFSETS.map(async (offset) =>
+      getMetadataGpaBuilder(context)
+        .where(offset, 1)
+        .where(offset + VERIFIED_COLLECTION_OFFSET, 1)
+        .where(offset + COLLECTION_ADDRESS_OFFSET, collectionAddress)
+        .sliceField('mint')
+        .getDataAsPublicKeys()
+    )
   );
 
   return fetchAllDigitalAsset(context, mints.flat(), options);

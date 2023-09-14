@@ -252,7 +252,6 @@ test('it can fetch all DigitalAssets by verified collection', async (t) => {
   const mintA1 = await createDigitalAssetWithVerifiedCollection(umi, {
     collection: {
       key: collectionA.publicKey,
-      verified: false,
     },
     collectionAuthority,
   });
@@ -260,7 +259,6 @@ test('it can fetch all DigitalAssets by verified collection', async (t) => {
   const mintA2 = await createDigitalAssetWithVerifiedCollection(umi, {
     collection: {
       key: collectionA.publicKey,
-      verified: false,
     },
     collectionAuthority,
   });
@@ -275,7 +273,6 @@ test('it can fetch all DigitalAssets by verified collection', async (t) => {
   const mintB1 = await createDigitalAssetWithVerifiedCollection(umi, {
     collection: {
       key: collectionB.publicKey,
-      verified: false,
     },
     collectionAuthority,
   });
@@ -296,6 +293,216 @@ test('it can fetch all DigitalAssets by verified collection', async (t) => {
   t.false(mints.includes(base58PublicKey(mintA3.publicKey)));
   // And we don't get the NFT in collection B.
   t.false(mints.includes(base58PublicKey(mintB1.publicKey)));
+});
+
+test('it can fetch all DigitalAssets by verified collection no matter the creator length', async (t) => {
+  const umi = await createUmi();
+  const collectionAuthorityA = generateSigner(umi);
+  const collectionAuthorityB = generateSigner(umi);
+  const collectionAuthorityC = generateSigner(umi);
+  const collectionAuthorityD = generateSigner(umi);
+  const collectionAuthorityE = generateSigner(umi);
+
+  // Collection with 2 creators
+  const collectionA = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthorityA,
+    creators: [
+      {
+        address: collectionAuthorityA.publicKey,
+        verified: true,
+        share: 50,
+      },
+      {
+        address: collectionAuthorityB.publicKey,
+        verified: false,
+        share: 50,
+      },
+    ],
+  });
+
+  const mintA1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionA.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  const mintA2 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionA.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  // Collection with 3 Creators
+  const collectionB = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthorityA,
+    creators: [
+      {
+        address: collectionAuthorityA.publicKey,
+        verified: true,
+        share: 34,
+      },
+      {
+        address: collectionAuthorityB.publicKey,
+        verified: false,
+        share: 33,
+      },
+      {
+        address: collectionAuthorityC.publicKey,
+        verified: false,
+        share: 33,
+      },
+    ],
+  });
+
+  const mintB1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionB.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  const mintB2 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionB.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  // Collection with 4 Creators
+  const collectionC = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthorityA,
+    creators: [
+      {
+        address: collectionAuthorityA.publicKey,
+        verified: true,
+        share: 25,
+      },
+      {
+        address: collectionAuthorityB.publicKey,
+        verified: false,
+        share: 25,
+      },
+      {
+        address: collectionAuthorityC.publicKey,
+        verified: false,
+        share: 25,
+      },
+      {
+        address: collectionAuthorityD.publicKey,
+        verified: false,
+        share: 25,
+      },
+    ],
+  });
+
+  const mintC1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionC.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  const mintC2 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionC.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  // Collection with 5 Creators
+  const collectionD = await createDigitalAssetWithToken(umi, {
+    isCollection: true,
+    authority: collectionAuthorityA,
+    creators: [
+      {
+        address: collectionAuthorityA.publicKey,
+        verified: true,
+        share: 20,
+      },
+      {
+        address: collectionAuthorityB.publicKey,
+        verified: false,
+        share: 20,
+      },
+      {
+        address: collectionAuthorityC.publicKey,
+        verified: false,
+        share: 20,
+      },
+      {
+        address: collectionAuthorityD.publicKey,
+        verified: false,
+        share: 20,
+      },
+      {
+        address: collectionAuthorityE.publicKey,
+        verified: false,
+        share: 20,
+      },
+    ],
+  });
+
+  const mintD1 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionD.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  const mintD2 = await createDigitalAssetWithVerifiedCollection(umi, {
+    collection: {
+      key: collectionD.publicKey,
+    },
+    collectionAuthority: collectionAuthorityA,
+  });
+
+  // When we fetch all digital assets in collection A.
+  const digitalAssetsA = await fetchAllDigitalAssetByVerifiedCollection(
+    umi,
+    collectionA.publicKey
+  );
+
+  const digitalAssetsB = await fetchAllDigitalAssetByVerifiedCollection(
+    umi,
+    collectionB.publicKey
+  );
+
+  const digitalAssetsC = await fetchAllDigitalAssetByVerifiedCollection(
+    umi,
+    collectionC.publicKey
+  );
+
+  const digitalAssetsD = await fetchAllDigitalAssetByVerifiedCollection(
+    umi,
+    collectionD.publicKey
+  );
+
+  // Each collection should have 2 items
+  t.is(digitalAssetsA.length, 2);
+  t.is(digitalAssetsB.length, 2);
+  t.is(digitalAssetsC.length, 2);
+  t.is(digitalAssetsD.length, 2);
+
+  const mintsA = digitalAssetsA.map((da) => base58PublicKey(da.mint));
+  t.true(mintsA.includes(base58PublicKey(mintA1.publicKey)));
+  t.true(mintsA.includes(base58PublicKey(mintA2.publicKey)));
+
+  const mintsB = digitalAssetsB.map((da) => base58PublicKey(da.mint));
+  t.true(mintsB.includes(base58PublicKey(mintB1.publicKey)));
+  t.true(mintsB.includes(base58PublicKey(mintB2.publicKey)));
+
+  const mintsC = digitalAssetsC.map((da) => base58PublicKey(da.mint));
+  t.true(mintsC.includes(base58PublicKey(mintC1.publicKey)));
+  t.true(mintsC.includes(base58PublicKey(mintC2.publicKey)));
+
+  const mintsD = digitalAssetsD.map((da) => base58PublicKey(da.mint));
+  t.true(mintsD.includes(base58PublicKey(mintD1.publicKey)));
+  t.true(mintsD.includes(base58PublicKey(mintD2.publicKey)));
 });
 
 function createDigitalAssetWithFirstCreator(
@@ -324,13 +531,20 @@ function createDigitalAssetWithSecondCreator(
 
 async function createDigitalAssetWithVerifiedCollection(
   context: Parameters<typeof createDigitalAssetWithToken>[0],
-  input: Parameters<typeof createDigitalAssetWithToken>[1] & {
-    collection: CollectionArgs;
+  input: Omit<
+    Parameters<typeof createDigitalAssetWithToken>[1],
+    'collection'
+  > & {
+    collection: Omit<CollectionArgs, 'verified'>;
     collectionAuthority: Signer;
   }
 ) {
   const mint = await createDigitalAssetWithToken(context, {
     ...input,
+    collection: {
+      key: input.collection.key,
+      verified: false,
+    },
   });
 
   const metadata = findMetadataPda(context, { mint: mint.publicKey });
