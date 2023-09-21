@@ -8,7 +8,14 @@ import {
   Umi,
 } from '@metaplex-foundation/umi';
 import { createUmi as baseCreateUmi } from '@metaplex-foundation/umi-bundle-tests';
-import { createV1, mintV1, mplTokenMetadata, TokenStandard } from '../src';
+import {
+  createV1,
+  findMetadataPda,
+  mintV1,
+  mplTokenMetadata,
+  TokenStandard,
+  verifyCreatorV1,
+} from '../src';
 
 export type TokenStandardKeys = keyof typeof TokenStandard;
 
@@ -91,5 +98,39 @@ export const createDigitalAssetWithToken = async (
       })
     )
     .sendAndConfirm(umi);
+  return mint;
+};
+export const createDigitalAssetWithVerifiedCreators = async (
+  umi: Umi,
+  input: Partial<Parameters<typeof createV1>[1]> & {
+    creatorAuthority?: Signer;
+  }
+) => {
+  const mint = generateSigner(umi);
+  await transactionBuilder()
+    .add(
+      createV1(umi, {
+        mint,
+        name: 'My NFT',
+        uri: 'https://example.com',
+        sellerFeeBasisPoints: percentAmount(2.5),
+        ...input,
+      })
+    )
+    .sendAndConfirm(umi);
+
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+
+  await transactionBuilder()
+    .add(verifyCreatorV1(umi, { metadata, authority: input.creatorAuthority }))
+    .add(
+      mintV1(umi, {
+        authority: input.authority,
+        mint: mint.publicKey,
+        amount: 1,
+        tokenStandard: TokenStandard.NonFungible,
+      })
+    );
+
   return mint;
 };
