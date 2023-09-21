@@ -5074,7 +5074,7 @@ dependencies = [
  "borsh 0.9.3",
  "mpl-token-auth-rules",
  "mpl-token-metadata-context-derive 0.3.0",
- "mpl-utils 0.3.1",
+ "mpl-utils 0.2.0",
  "num-derive",
  "num-traits",
  "rmp-serde",
