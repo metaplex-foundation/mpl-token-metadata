@@ -441,7 +441,7 @@ pub enum MetadataInstruction {
     #[account(1, name="mint", desc="Mint of token asset")]
     #[account(2, signer, name="mint_authority", desc="Mint authority")]
     #[account(3, signer, writable, name="payer", desc="payer")]
-    #[account(4, name="update_authority", desc="update authority info")]
+    #[account(4, optional_signer, name="update_authority", desc="update authority info")]
     #[account(5, name="system_program", desc="System program")]
     #[account(6, optional, name="rent", desc="Rent info")]
     #[legacy_optional_accounts_strategy]

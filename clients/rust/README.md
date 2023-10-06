@@ -119,7 +119,7 @@ let create_ix = CreateV1Builder::new()
     .seller_fee_basis_points(500)
     .token_standard(TokenStandard::ProgrammableNonFungible)
     .print_supply(PrintSupply::Zero)
-    .build();
+    .instruction();
 ```
 
 ### _CPI_ instruction builders
