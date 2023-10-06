@@ -2096,7 +2096,7 @@ name = "mpl-token-metadata"
 version = "3.0.2"
 dependencies = [
  "assert_matches",
- "borsh 0.9.3",
+ "borsh 0.10.3",
  "num-derive",
  "num-traits",
  "serde",
