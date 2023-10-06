@@ -21,7 +21,7 @@ pub struct CreateMetadataAccountV3 {
     /// payer
     pub payer: solana_program::pubkey::Pubkey,
     /// update authority info
-    pub update_authority: solana_program::pubkey::Pubkey,
+    pub update_authority: (solana_program::pubkey::Pubkey, bool),
     /// System program
     pub system_program: solana_program::pubkey::Pubkey,
     /// Rent info
@@ -57,8 +57,8 @@ impl CreateMetadataAccountV3 {
             self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.update_authority,
-            false,
+            self.update_authority.0,
+            self.update_authority.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.system_program,
@@ -112,7 +112,7 @@ pub struct CreateMetadataAccountV3Builder {
     mint: Option<solana_program::pubkey::Pubkey>,
     mint_authority: Option<solana_program::pubkey::Pubkey>,
     payer: Option<solana_program::pubkey::Pubkey>,
-    update_authority: Option<solana_program::pubkey::Pubkey>,
+    update_authority: Option<(solana_program::pubkey::Pubkey, bool)>,
     system_program: Option<solana_program::pubkey::Pubkey>,
     rent: Option<solana_program::pubkey::Pubkey>,
     data: Option<DataV2>,
@@ -154,8 +154,9 @@ impl CreateMetadataAccountV3Builder {
     pub fn update_authority(
         &mut self,
         update_authority: solana_program::pubkey::Pubkey,
+        as_signer: bool,
     ) -> &mut Self {
-        self.update_authority = Some(update_authority);
+        self.update_authority = Some((update_authority, as_signer));
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -232,7 +233,7 @@ pub struct CreateMetadataAccountV3CpiAccounts<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// update authority info
-    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
@@ -252,7 +253,7 @@ pub struct CreateMetadataAccountV3Cpi<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// update authority info
-    pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub update_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Rent info
@@ -322,8 +323,8 @@ impl<'a, 'b> CreateMetadataAccountV3Cpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.update_authority.key,
-            false,
+            *self.update_authority.0.key,
+            self.update_authority.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.system_program.key,
@@ -354,7 +355,7 @@ impl<'a, 'b> CreateMetadataAccountV3Cpi<'a, 'b> {
         account_infos.push(self.mint.clone());
         account_infos.push(self.mint_authority.clone());
         account_infos.push(self.payer.clone());
-        account_infos.push(self.update_authority.clone());
+        account_infos.push(self.update_authority.0.clone());
         account_infos.push(self.system_program.clone());
         if let Some(rent) = self.rent {
             account_infos.push(rent.clone());
@@ -429,8 +430,9 @@ impl<'a, 'b> CreateMetadataAccountV3CpiBuilder<'a, 'b> {
     pub fn update_authority(
         &mut self,
         update_authority: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.update_authority = Some(update_authority);
+        self.instruction.update_authority = Some((update_authority, as_signer));
         self
     }
     /// System program
@@ -545,7 +547,7 @@ struct CreateMetadataAccountV3CpiBuilderInstruction<'a, 'b> {
     mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mint_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    update_authority: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     data: Option<DataV2>,

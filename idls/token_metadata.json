@@ -2350,6 +2350,7 @@
           "name": "updateAuthority",
           "isMut": false,
           "isSigner": false,
+          "isOptionalSigner": true,
           "docs": [
             "update authority info"
           ]

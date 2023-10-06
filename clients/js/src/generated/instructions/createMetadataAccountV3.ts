@@ -51,7 +51,7 @@ export type CreateMetadataAccountV3InstructionAccounts = {
   /** payer */
   payer?: Signer;
   /** update authority info */
-  updateAuthority?: PublicKey | Pda;
+  updateAuthority?: PublicKey | Pda | Signer;
   /** System program */
   systemProgram?: PublicKey | Pda;
   /** Rent info */
@@ -149,7 +149,7 @@ export function createMetadataAccountV3(
     resolvedAccounts.payer.value = context.payer;
   }
   if (!resolvedAccounts.updateAuthority.value) {
-    resolvedAccounts.updateAuthority.value = context.identity.publicKey;
+    resolvedAccounts.updateAuthority.value = context.identity;
   }
   if (!resolvedAccounts.systemProgram.value) {
     resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
