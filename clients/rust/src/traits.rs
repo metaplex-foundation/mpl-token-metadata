@@ -18,6 +18,8 @@ use crate::{
     },
 };
 
+// UpdateV1InstructionArgs
+
 impl Default for UpdateV1InstructionArgs {
     fn default() -> Self {
         Self {
@@ -33,6 +35,10 @@ impl Default for UpdateV1InstructionArgs {
         }
     }
 }
+
+// Token Standard
+
+impl Copy for TokenStandard {}
 
 // Master Edition
 

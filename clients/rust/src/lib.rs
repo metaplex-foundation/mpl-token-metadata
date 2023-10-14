@@ -4,5 +4,4 @@ mod traits;
 pub mod utils;
 
 pub use generated::programs::MPL_TOKEN_METADATA_ID as ID;
-use generated::types::TokenStandard;
 pub use generated::*;
