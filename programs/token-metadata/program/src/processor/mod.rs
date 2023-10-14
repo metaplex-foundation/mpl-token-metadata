@@ -166,10 +166,10 @@ pub fn process_instruction<'a>(
             metadata::print(program_id, accounts, args)
         }
         _ => {
-            // pNFT accounts can only be used by the "new" API; before forwarding
-            // the transaction to the "legacy" processor we determine whether we are
+            // pNFT accounts and SPL Token-2022 program can only be used by the "new" API; before
+            // forwarding the transaction to the "legacy" processor we determine whether we are
             // dealing with a pNFT or not
-            if !has_programmable_metadata(program_id, accounts)? {
+            if !incompatible_accounts(program_id, accounts)? {
                 process_legacy_instruction(program_id, accounts, instruction)
             } else {
                 Err(MetadataError::InstructionNotSupported.into())
@@ -343,11 +343,11 @@ fn process_legacy_instruction<'a>(
     }
 }
 
-/// Checks if the instruction's accounts contain a pNFT metadata.
+/// Checks whether the instruction's accounts are compatible with legacy instructions or not.
 ///
-/// We need to determine if we are dealing with a pNFT metadata or not
-/// so we can restrict the available instructions.
-fn has_programmable_metadata(
+/// The test will return `true` if we are dealing with a pNFT metadata or SPL Token-2022 program;
+/// otherwise, it will return `false`.
+fn incompatible_accounts(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> Result<bool, ProgramError> {
@@ -366,6 +366,8 @@ fn has_programmable_metadata(
                     return Ok(true);
                 }
             }
+        } else if account_info.key == &spl_token_2022::ID {
+            return Ok(true);
         }
     }
 
