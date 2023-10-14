@@ -17,11 +17,11 @@ use mpl_token_metadata::{
     accounts::Metadata,
     types::{Key, PrintSupply},
 };
-use mpl_token_metadata::{
-    clean,
-    instructions::{CreateV1, CreateV1InstructionArgs},
-};
 use mpl_token_metadata::{instructions::CreateV1Builder, types::TokenStandard};
+use mpl_token_metadata::{
+    instructions::{CreateV1, CreateV1InstructionArgs},
+    utils::clean,
+};
 
 mod create {
 

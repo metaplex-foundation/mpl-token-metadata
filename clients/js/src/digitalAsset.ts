@@ -34,6 +34,9 @@ import {
 
 const CREATORS_OFFSET = 326;
 const MAX_CREATOR_SIZE = 34;
+const COLLECTION_OFFSETS = [366, 400, 434, 468, 502];
+const VERIFIED_COLLECTION_OFFSET = 1;
+const COLLECTION_ADDRESS_OFFSET = 2;
 
 export type DigitalAsset = {
   publicKey: PublicKey;
@@ -113,6 +116,28 @@ export async function fetchAllDigitalAssetByCreator(
     .sliceField('mint')
     .getDataAsPublicKeys();
   return fetchAllDigitalAsset(context, mints, options);
+}
+
+/**
+ * Fetches all digital assets from a verified collection. This does not work on older nfts that do not have a tokenStandard set.
+ */
+export async function fetchAllDigitalAssetByVerifiedCollection(
+  context: Pick<Context, 'rpc' | 'eddsa' | 'programs'>,
+  collectionAddress: PublicKey,
+  options?: RpcGetAccountsOptions
+): Promise<DigitalAsset[]> {
+  const mints = await Promise.all(
+    COLLECTION_OFFSETS.map(async (offset) =>
+      getMetadataGpaBuilder(context)
+        .where(offset, 1)
+        .where(offset + VERIFIED_COLLECTION_OFFSET, 1)
+        .where(offset + COLLECTION_ADDRESS_OFFSET, collectionAddress)
+        .sliceField('mint')
+        .getDataAsPublicKeys()
+    )
+  );
+
+  return fetchAllDigitalAsset(context, mints.flat(), options);
 }
 
 export async function fetchAllDigitalAssetByUpdateAuthority(
