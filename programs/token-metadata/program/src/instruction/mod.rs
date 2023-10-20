@@ -597,7 +597,7 @@ pub enum MetadataInstruction {
     /// must be the update authority; in all other cases, it must be the mint authority from the mint
     /// account.
     #[account(0, writable, name="token", desc="Token or Associated Token account")]
-    #[account(1, optional, name="token_owner", desc="Owner of the token account")]
+    #[account(1, name="token_owner", desc="Owner of the token account")]
     #[account(2, name="metadata", desc="Metadata account (pda of ['metadata', program id, mint id])")]
     #[account(3, optional, writable, name="master_edition", desc="Master Edition account")]
     #[account(4, optional, writable, name="token_record", desc="Token record account")]

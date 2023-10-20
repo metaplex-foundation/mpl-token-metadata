@@ -203,6 +203,7 @@ pub(crate) fn validate_mint(
 pub(crate) fn validate_token(
     mint: &AccountInfo,
     token: &AccountInfo,
+    token_owner: &AccountInfo,
     spl_token_program: &AccountInfo,
     token_standard: Option<TokenStandard>,
     required_amount: Option<u64>,
@@ -216,6 +217,10 @@ pub(crate) fn validate_token(
 
     if token.base.mint != *mint.key {
         return Err(MetadataError::MintMismatch.into());
+    }
+
+    if token.base.owner != *token_owner.key {
+        return Err(MetadataError::IncorrectOwner.into());
     }
 
     if let Some(amount) = required_amount {

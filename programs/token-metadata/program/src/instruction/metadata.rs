@@ -685,7 +685,7 @@ impl InstructionBuilder for super::builders::Mint {
     fn instruction(&self) -> solana_program::instruction::Instruction {
         let mut accounts = vec![
             AccountMeta::new(self.token, false),
-            AccountMeta::new_readonly(self.token_owner.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.token_owner, false),
             AccountMeta::new_readonly(self.metadata, false),
             if let Some(master_edition) = self.master_edition {
                 AccountMeta::new(master_edition, false)

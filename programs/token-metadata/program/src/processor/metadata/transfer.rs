@@ -143,6 +143,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         let token = validate_token(
             ctx.accounts.mint_info,
             ctx.accounts.destination_info,
+            ctx.accounts.destination_owner_info,
             ctx.accounts.spl_token_program_info,
             metadata.token_standard,
             None, // we already checked the supply of the mint account
