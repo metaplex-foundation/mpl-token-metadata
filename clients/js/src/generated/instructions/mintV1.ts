@@ -27,7 +27,7 @@ import {
   u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { resolveIsNonFungible, resolveOptionalTokenOwner } from '../../hooked';
+import { resolveIsNonFungible } from '../../hooked';
 import {
   findMasterEditionPda,
   findMetadataPda,
@@ -52,7 +52,7 @@ export type MintV1InstructionAccounts = {
   /** Token or Associated Token account */
   token?: PublicKey | Pda;
   /** Owner of the token account */
-  tokenOwner?: PublicKey | Pda;
+  tokenOwner: PublicKey | Pda;
   /** Metadata account (pda of ['metadata', program id, mint id]) */
   metadata?: PublicKey | Pda;
   /** Master Edition account */
@@ -199,18 +199,6 @@ export function mintV1(
   const resolvedArgs: MintV1InstructionArgs = { ...input };
 
   // Default values.
-  if (!resolvedAccounts.tokenOwner.value) {
-    resolvedAccounts.tokenOwner = {
-      ...resolvedAccounts.tokenOwner,
-      ...resolveOptionalTokenOwner(
-        context,
-        resolvedAccounts,
-        resolvedArgs,
-        programId,
-        false
-      ),
-    };
-  }
   if (!resolvedAccounts.token.value) {
     resolvedAccounts.token.value = findAssociatedTokenPda(context, {
       mint: expectPublicKey(resolvedAccounts.mint.value),

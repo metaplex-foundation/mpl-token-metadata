@@ -92,7 +92,7 @@ export const createDigitalAssetWithToken = async (
         authority: input.authority,
         mint: mint.publicKey,
         token: input.token,
-        tokenOwner: input.tokenOwner,
+        tokenOwner: input.tokenOwner ?? umi.identity.publicKey,
         amount: input.amount ?? 1,
         tokenStandard: input.tokenStandard ?? TokenStandard.NonFungible,
       })
@@ -127,6 +127,7 @@ export const createDigitalAssetWithVerifiedCreators = async (
       mintV1(umi, {
         authority: input.authority,
         mint: mint.publicKey,
+        tokenOwner: umi.identity.publicKey,
         amount: 1,
         tokenStandard: TokenStandard.NonFungible,
       })

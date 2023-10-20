@@ -3154,7 +3154,6 @@
           "name": "tokenOwner",
           "isMut": false,
           "isSigner": false,
-          "isOptional": true,
           "docs": [
             "Owner of the token account"
           ]

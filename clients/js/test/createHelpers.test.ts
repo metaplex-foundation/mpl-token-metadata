@@ -32,6 +32,7 @@ test('it can create a new NonFungible', async (t) => {
   // When we create a new NonFungible at this address.
   await createNft(umi, {
     mint,
+    tokenOwner: umi.identity.publicKey,
     name: 'My NFT',
     uri: 'https://example.com/my-nft.json',
     sellerFeeBasisPoints: percentAmount(5.5),
@@ -86,6 +87,7 @@ test('it can create a new ProgrammableNonFungible', async (t) => {
   // When we create a new ProgrammableNonFungible at this address.
   await createProgrammableNft(umi, {
     mint,
+    tokenOwner: umi.identity.publicKey,
     name: 'My Programmable NFT',
     uri: 'https://example.com/my-programmable-nft.json',
     sellerFeeBasisPoints: percentAmount(5.5),

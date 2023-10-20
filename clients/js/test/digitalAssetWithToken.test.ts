@@ -150,6 +150,7 @@ test('it can fetch all DigitalAssetWithToken by owner and mint', async (t) => {
       mintV1(umi, {
         mint: mintA1.publicKey,
         token: regularToken.publicKey,
+        tokenOwner: ownerA,
         tokenStandard: TokenStandard.FungibleAsset,
         amount: 15,
       })
