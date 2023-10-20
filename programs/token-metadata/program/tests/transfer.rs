@@ -1849,7 +1849,7 @@ mod auth_rules_transfer {
 
         let err = nft.transfer(params, spl_token_program).await.unwrap_err();
 
-        assert_custom_error_ix!(1, err, MetadataError::InvalidOwner);
+        assert_custom_error_ix!(1, err, MetadataError::IncorrectOwner);
     }
 
     #[test_case::test_case(spl_token::id() ; "Token Program")]
