@@ -366,7 +366,9 @@ fn incompatible_accounts(
                     return Ok(true);
                 }
             }
-        } else if account_info.key == &spl_token_2022::ID {
+        } else if account_info.key == &spl_token_2022::ID
+            || account_info.owner == &spl_token_2022::ID
+        {
             return Ok(true);
         }
     }
