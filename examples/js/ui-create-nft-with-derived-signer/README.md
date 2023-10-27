@@ -15,7 +15,7 @@ npm install @metaplex-foundation/umi \
   @metaplex-foundation/umi-signer-wallet-adapters \
   @metaplex-foundation/umi-uploader-bundlr \
   @metaplex-foundation/umi-signer-derived \
-  @metaplex-foundation/mpl-essentials \
+  @metaplex-foundation/mpl-toolbox \
   @lorisleiva/mpl-digital-asset \
   @solana/web3.js \
   @solana/wallet-adapter-base \
