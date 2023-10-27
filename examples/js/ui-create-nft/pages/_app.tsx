@@ -3,7 +3,6 @@ import { WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
   LedgerWalletAdapter,
-  PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
@@ -20,7 +19,6 @@ export default function App({ Component, pageProps }: AppProps) {
   const wallets = useMemo(
     () => [
       new LedgerWalletAdapter(),
-      new PhantomWalletAdapter(),
       new SolflareWalletAdapter({ network }),
     ],
     [network]
