@@ -23,6 +23,9 @@ npm install @metaplex-foundation/umi \
 # Check out the code for the index page.
 cat pages/index.tsx
 
+# add your nft.storage token to the .env file
+vi .env
+
 # Run locally.
 npm run dev
 ```
