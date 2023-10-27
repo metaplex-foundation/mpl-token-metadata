@@ -16,7 +16,7 @@ export const UmiProvider = ({
   const wallet = useWallet();
   const umi = createUmi(endpoint)
     .use(walletAdapterIdentity(wallet))
-    .use(nftStorageUploader())
+    .use(nftStorageUploader({token: "AddYourTokenHere!"}))
     .use(mplTokenMetadata());
 
   return <UmiContext.Provider value={{ umi }}>{children}</UmiContext.Provider>;
