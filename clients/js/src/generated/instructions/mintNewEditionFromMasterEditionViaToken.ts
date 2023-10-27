@@ -116,7 +116,7 @@ export function mintNewEditionFromMasterEditionViaToken(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     newMetadata: {
       index: 0,
       isWritable: true,
@@ -167,7 +167,7 @@ export function mintNewEditionFromMasterEditionViaToken(
       value: input.systemProgram ?? null,
     },
     rent: { index: 13, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: MintNewEditionFromMasterEditionViaTokenInstructionArgs = {

@@ -108,7 +108,7 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     edition: { index: 1, isWritable: true, value: input.edition ?? null },
     masterEdition: {
@@ -169,7 +169,7 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
       isWritable: true,
       value: input.reservationList ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

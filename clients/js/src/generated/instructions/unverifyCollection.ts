@@ -78,7 +78,7 @@ export function unverifyCollection(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     collectionAuthority: {
       index: 1,
@@ -105,7 +105,7 @@ export function unverifyCollection(
       isWritable: false,
       value: input.collectionAuthorityRecord ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Accounts in order.
   const orderedAccounts: ResolvedAccount[] = Object.values(

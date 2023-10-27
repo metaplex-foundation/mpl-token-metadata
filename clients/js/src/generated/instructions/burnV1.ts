@@ -126,7 +126,7 @@ export function burnV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     authority: { index: 0, isWritable: true, value: input.authority ?? null },
     collectionMetadata: {
       index: 1,
@@ -177,7 +177,7 @@ export function burnV1(
       isWritable: false,
       value: input.splTokenProgram ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: BurnV1InstructionArgs = { ...input };

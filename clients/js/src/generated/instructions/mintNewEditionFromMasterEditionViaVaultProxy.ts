@@ -125,7 +125,7 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     newMetadata: {
       index: 0,
       isWritable: true,
@@ -187,7 +187,7 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
       value: input.systemProgram ?? null,
     },
     rent: { index: 16, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs =

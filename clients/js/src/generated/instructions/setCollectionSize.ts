@@ -92,7 +92,7 @@ export function setCollectionSize(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     collectionMetadata: {
       index: 0,
       isWritable: true,
@@ -113,7 +113,7 @@ export function setCollectionSize(
       isWritable: false,
       value: input.collectionAuthorityRecord ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: SetCollectionSizeInstructionArgs = { ...input };

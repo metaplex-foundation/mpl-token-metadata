@@ -63,14 +63,14 @@ export function collect(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     authority: { index: 0, isWritable: false, value: input.authority ?? null },
     pdaAccount: {
       index: 1,
       isWritable: false,
       value: input.pdaAccount ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.authority.value) {
