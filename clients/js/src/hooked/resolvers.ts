@@ -11,7 +11,6 @@ import {
   CollectionDetailsArgs,
   CreatorArgs,
   PrintSupplyArgs,
-  ResolvedAccount,
   ResolvedAccountsWithIndices,
   TokenStandard,
   collectionDetails,
@@ -87,7 +86,7 @@ export const resolveOptionalTokenOwner = (
   context: Pick<Context, 'identity'>,
   accounts: ResolvedAccountsWithIndices,
   ...rest: any[]
-): Partial<ResolvedAccount> =>
+) =>
   accounts.token.value
     ? { value: null }
     : { value: context.identity.publicKey };
