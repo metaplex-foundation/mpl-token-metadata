@@ -86,7 +86,7 @@ export function revokeUseAuthority(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     useAuthorityRecord: {
       index: 0,
       isWritable: true,
@@ -112,7 +112,7 @@ export function revokeUseAuthority(
       value: input.systemProgram ?? null,
     },
     rent: { index: 8, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

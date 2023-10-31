@@ -74,7 +74,7 @@ export function convertMasterEditionV1ToV2(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     masterEdition: {
       index: 0,
       isWritable: true,
@@ -90,7 +90,7 @@ export function convertMasterEditionV1ToV2(
       isWritable: true,
       value: input.printingMint ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Accounts in order.
   const orderedAccounts: ResolvedAccount[] = Object.values(

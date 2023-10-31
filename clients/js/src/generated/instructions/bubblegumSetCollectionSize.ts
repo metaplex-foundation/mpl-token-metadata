@@ -95,7 +95,7 @@ export function bubblegumSetCollectionSize(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     collectionMetadata: {
       index: 0,
       isWritable: true,
@@ -121,7 +121,7 @@ export function bubblegumSetCollectionSize(
       isWritable: false,
       value: input.collectionAuthorityRecord ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: BubblegumSetCollectionSizeInstructionArgs = { ...input };

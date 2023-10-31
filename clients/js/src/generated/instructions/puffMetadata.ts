@@ -64,9 +64,9 @@ export function puffMetadata(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Accounts in order.
   const orderedAccounts: ResolvedAccount[] = Object.values(

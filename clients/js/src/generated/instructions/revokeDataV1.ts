@@ -121,7 +121,7 @@ export function revokeDataV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     delegateRecord: {
       index: 0,
       isWritable: true,
@@ -168,7 +168,7 @@ export function revokeDataV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: RevokeDataV1InstructionArgs = { ...input };

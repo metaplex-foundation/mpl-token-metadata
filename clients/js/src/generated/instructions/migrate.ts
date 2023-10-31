@@ -96,7 +96,7 @@ export function migrate(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     edition: { index: 1, isWritable: true, value: input.edition ?? null },
     token: { index: 2, isWritable: true, value: input.token ?? null },
@@ -148,7 +148,7 @@ export function migrate(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

@@ -87,7 +87,7 @@ export function createEscrowAccount(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     escrow: { index: 0, isWritable: true, value: input.escrow ?? null },
     metadata: { index: 1, isWritable: true, value: input.metadata ?? null },
     mint: { index: 2, isWritable: false, value: input.mint ?? null },
@@ -109,7 +109,7 @@ export function createEscrowAccount(
       value: input.sysvarInstructions ?? null,
     },
     authority: { index: 8, isWritable: false, value: input.authority ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

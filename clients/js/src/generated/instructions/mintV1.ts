@@ -137,7 +137,7 @@ export function mintV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     token: { index: 0, isWritable: true, value: input.token ?? null },
     tokenOwner: {
       index: 1,
@@ -193,7 +193,7 @@ export function mintV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: MintV1InstructionArgs = { ...input };

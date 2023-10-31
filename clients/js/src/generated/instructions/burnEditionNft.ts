@@ -86,7 +86,7 @@ export function burnEditionNft(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     owner: { index: 1, isWritable: true, value: input.owner ?? null },
     printEditionMint: {
@@ -129,7 +129,7 @@ export function burnEditionNft(
       isWritable: false,
       value: input.splTokenProgram ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.splTokenProgram.value) {

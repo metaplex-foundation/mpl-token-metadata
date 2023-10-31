@@ -122,7 +122,7 @@ export function revokeSaleV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     delegateRecord: {
       index: 0,
       isWritable: true,
@@ -169,7 +169,7 @@ export function revokeSaleV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: RevokeSaleV1InstructionArgs = { ...input };

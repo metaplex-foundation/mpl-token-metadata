@@ -75,7 +75,7 @@ export function burnNft(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     owner: { index: 1, isWritable: true, value: input.owner ?? null },
     mint: { index: 2, isWritable: true, value: input.mint ?? null },
@@ -99,7 +99,7 @@ export function burnNft(
       isWritable: true,
       value: input.collectionMetadata ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

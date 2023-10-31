@@ -146,7 +146,7 @@ export function transferV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     token: { index: 0, isWritable: true, value: input.token ?? null },
     tokenOwner: {
       index: 1,
@@ -208,7 +208,7 @@ export function transferV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: TransferV1InstructionArgs = { ...input };

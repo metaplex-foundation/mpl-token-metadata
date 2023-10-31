@@ -143,7 +143,7 @@ export function delegateDataV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     delegateRecord: {
       index: 0,
       isWritable: true,
@@ -190,7 +190,7 @@ export function delegateDataV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: DelegateDataV1InstructionArgs = { ...input };

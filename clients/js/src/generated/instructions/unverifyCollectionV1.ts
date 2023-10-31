@@ -94,7 +94,7 @@ export function unverifyCollectionV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     authority: { index: 0, isWritable: false, value: input.authority ?? null },
     delegateRecord: {
       index: 1,
@@ -122,7 +122,7 @@ export function unverifyCollectionV1(
       isWritable: false,
       value: input.sysvarInstructions ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.authority.value) {
