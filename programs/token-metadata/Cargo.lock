@@ -3382,11 +3382,11 @@ dependencies = [
 
 [[package]]
 name = "shank"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bc647510fc0d94a936f7367a9e3e30edbefd410068747ce4d4084b19b5fdbab"
+checksum = "57c9395612d493b69a522725eef78a095f199d43eeb847f4a4b77ec0cacab535"
 dependencies = [
- "shank_macro 0.2.1",
+ "shank_macro 0.3.0",
 ]
 
 [[package]]
@@ -3415,13 +3415,13 @@ dependencies = [
 
 [[package]]
 name = "shank_macro"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa9ec31d18dcca23f2270ccf69766a99156792da3aed050dc5713af0e778b4f2"
+checksum = "8abef069c02e15f62233679b1e71f3152fac10f90b3ff89ebbad6a25b7497754"
 dependencies = [
  "proc-macro2 1.0.66",
  "quote 1.0.32",
- "shank_macro_impl 0.2.1",
+ "shank_macro_impl 0.3.0",
  "shank_render",
  "syn 1.0.109",
 ]
@@ -3454,9 +3454,9 @@ dependencies = [
 
 [[package]]
 name = "shank_macro_impl"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ccaeb1359cf545507b5d18a637cc5cf192c7dcc8c737dff466013ca2d9e792c7"
+checksum = "64d3d92bfcc6e08f882f2264d774d1a2f46dc36122adc1b76416ba6405a29a9c"
 dependencies = [
  "anyhow",
  "proc-macro2 1.0.66",
@@ -3467,13 +3467,13 @@ dependencies = [
 
 [[package]]
 name = "shank_render"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e63f0b763c4c767dfb462a884d5f5b9b99fdd0a214c910d95792eb02a13b3d69"
+checksum = "5a2ea9c6dd95ea311b3b81e63cf4e9c808ed04b098819e6d2c4b1a467d587203"
 dependencies = [
  "proc-macro2 1.0.66",
  "quote 1.0.32",
- "shank_macro_impl 0.2.1",
+ "shank_macro_impl 0.3.0",
 ]
 
 [[package]]
@@ -5081,12 +5081,12 @@ dependencies = [
  "rooster",
  "serde",
  "serde_with 1.14.0",
- "shank 0.2.1",
+ "shank 0.3.0",
  "solana-program",
  "solana-program-test",
  "solana-sdk",
- "spl-associated-token-account 1.1.3",
- "spl-token 3.5.0",
+ "spl-associated-token-account 2.0.0",
+ "spl-token 4.0.0",
  "thiserror",
 ]
 
