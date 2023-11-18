@@ -106,7 +106,7 @@ export function setAndVerifySizedCollectionItem(
     collection: { index: 5, isWritable: true, value: input.collection ?? null },
     collectionMasterEditionAccount: {
       index: 6,
-      isWritable: true,
+      isWritable: false,
       value: input.collectionMasterEditionAccount ?? null,
     },
     collectionAuthorityRecord: {

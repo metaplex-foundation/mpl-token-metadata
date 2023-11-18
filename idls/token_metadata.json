@@ -2288,7 +2288,7 @@
         },
         {
           "name": "collectionMasterEditionAccount",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "docs": [
             "MasterEdition2 Account of the Collection Token"

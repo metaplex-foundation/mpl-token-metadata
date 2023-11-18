@@ -61,7 +61,7 @@ impl SetAndVerifySizedCollectionItem {
             self.collection,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.collection_master_edition_account,
             false,
         ));
@@ -333,7 +333,7 @@ impl<'a, 'b> SetAndVerifySizedCollectionItemCpi<'a, 'b> {
             *self.collection.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.collection_master_edition_account.key,
             false,
         ));
