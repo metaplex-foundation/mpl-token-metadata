@@ -40,5 +40,5 @@ pub fn assert_edition_is_programmable(edition_data: &[u8]) -> Result<(), MplToke
         }
     }
 
-    Err(MplTokenMetadataError::InvalidTokenStandard)
+    Err(MplTokenMetadataError::InvalidMasterEditionAccountLength)
 }
