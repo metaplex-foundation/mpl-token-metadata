@@ -16,7 +16,7 @@ pub fn clean(value: String) -> String {
 
 /// Checks that the `master_edition` is Programmable NFT master edition.
 pub fn assert_edition_is_programmable(edition_data: &[u8]) -> Result<(), MplTokenMetadataError> {
-    if !edition_data.is_empty() {
+    if edition_data.len() > TOKEN_STANDARD_OFFSET {
         // the first byte is the account key
         let key = Key::deserialize(&mut &edition_data[0..1])
             .map_err(|_error| MplTokenMetadataError::InvalidEditionKey)?;
