@@ -21,23 +21,22 @@ pub fn assert_edition_is_programmable(edition_data: &[u8]) -> Result<(), MplToke
         let key = Key::deserialize(&mut &edition_data[0..1])
             .map_err(|_error| MplTokenMetadataError::InvalidEditionKey)?;
 
-        if matches!(key, Key::MasterEditionV1 | Key::MasterEditionV2) {
-            // the last byte is the token standard
-            let standard = TokenStandard::deserialize(
-                &mut &edition_data[edition_data.len() - TOKEN_STANDARD_OFFSET..],
-            )
-            .map_err(|_error| MplTokenMetadataError::InvalidTokenStandard)?;
+        return match key {
+            Key::MasterEditionV1 | Key::MasterEditionV2 => {
+                // the last byte is the token standard
+                let standard = TokenStandard::deserialize(
+                    &mut &edition_data[edition_data.len() - TOKEN_STANDARD_OFFSET..],
+                )
+                .map_err(|_error| MplTokenMetadataError::InvalidTokenStandard)?;
 
-            return if matches!(
-                standard,
-                TokenStandard::ProgrammableNonFungible
-                    | TokenStandard::ProgrammableNonFungibleEdition
-            ) {
-                Ok(())
-            } else {
-                Err(MplTokenMetadataError::InvalidTokenStandard)
-            };
-        }
+                return match standard {
+                    TokenStandard::ProgrammableNonFungible
+                    | TokenStandard::ProgrammableNonFungibleEdition => Ok(()),
+                    _ => Err(MplTokenMetadataError::InvalidTokenStandard),
+                };
+            }
+            _ => Err(MplTokenMetadataError::InvalidEditionKey),
+        };
     }
 
     Err(MplTokenMetadataError::InvalidMasterEditionAccountLength)
