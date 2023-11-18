@@ -12,8 +12,10 @@ use solana_program::{
 };
 use spl_token_2022::{
     extension::{
+        immutable_owner::ImmutableOwner,
         metadata_pointer::{self, MetadataPointer},
         mint_close_authority::MintCloseAuthority,
+        non_transferable::NonTransferable,
         BaseStateWithExtensions, ExtensionType, StateWithExtensions,
     },
     instruction::initialize_mint_close_authority,
@@ -244,6 +246,17 @@ pub(crate) fn validate_token(
                 }
                 Ok(())
             })?;
+    }
+
+    let mint_data = &mint.data.borrow();
+    let mint = StateWithExtensions::<Mint>::unpack(mint_data)?;
+
+    // if the mint has the NonTransferable extension set, then the token
+    // must have the ImmutableOwner extension set
+    if let Ok(_extension) = mint.get_extension::<NonTransferable>() {
+        if let Err(_err) = token.get_extension::<ImmutableOwner>() {
+            return Err(MetadataError::InvalidTokenExtensionType.into());
+        }
     }
 
     Ok(token.base)
