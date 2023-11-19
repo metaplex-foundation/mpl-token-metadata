@@ -18,15 +18,6 @@ pub(crate) fn burn_nonfungible(ctx: &Context<Burn>, args: BurnNonFungibleArgs) -
         return Err(MetadataError::InvalidParentAccounts.into());
     }
 
-    // If the NFT is a verified part of a collection but the user has not provided the collection
-    // metadata account, we cannot burn it because we need to check if we need to decrement the collection size.
-    if ctx.accounts.collection_metadata_info.is_none()
-        && args.metadata.collection.is_some()
-        && args.metadata.collection.as_ref().unwrap().verified
-    {
-        return Err(MetadataError::MissingCollectionMetadata.into());
-    }
-
     let edition_account_data = edition_info.try_borrow_data()?;
 
     // First byte is the object key.
@@ -107,37 +98,41 @@ pub(crate) fn burn_nonfungible(ctx: &Context<Burn>, args: BurnNonFungibleArgs) -
         Key::MasterEditionV2,
     )?;
 
-    if let Some(collection_metadata_info) = ctx.accounts.collection_metadata_info {
-        // If collection parent is burned or Uninitialized because it stores fees, we don't need to decrement the size.
-        if collection_metadata_info.data_is_empty()
-            || collection_metadata_info.data.borrow()[0] == 0
-        {
-            let Collection {
-                key: expected_collection_mint,
-                ..
-            } = args
-                .metadata
-                .collection
-                .as_ref()
-                .ok_or(MetadataError::CollectionNotFound)?;
+    if let Some(collection) = &args.metadata.collection {
+        // if the NFT is part of a verified collection, we need to validate whether
+        // it is sized collection or not; for sized collections, we need to decrement
+        // collection size
+        if collection.verified {
+            let collection_metadata_info = ctx
+                .accounts
+                .collection_metadata_info
+                .ok_or(MetadataError::MissingCollectionMetadata)?;
 
-            let (expected_collection_metadata_key, _) =
-                find_metadata_account(expected_collection_mint);
+            // if collection parent is burned or Uninitialized because it stores fees,
+            // we don't need to decrement the size but still need to verify that we got
+            // the correct one
+            if collection_metadata_info.data_is_empty()
+                || collection_metadata_info.data.borrow()[0] == 0
+            {
+                let (expected, _) = find_metadata_account(&collection.key);
 
-            // Check that the empty collection account passed in is actually the burned collection nft
-            if expected_collection_metadata_key != *collection_metadata_info.key {
-                return Err(MetadataError::NotAMemberOfCollection.into());
-            }
-        } else {
-            assert_owned_by(collection_metadata_info, &crate::ID)?;
-            let mut collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
+                if expected != *collection_metadata_info.key {
+                    return Err(MetadataError::NotAMemberOfCollection.into());
+                }
+            } else {
+                assert_owned_by(collection_metadata_info, &crate::ID)?;
 
-            // NFT is actually a verified member of the specified collection.
-            assert_verified_member_of_collection(&args.metadata, &collection_metadata)?;
+                let mut collection_metadata =
+                    Metadata::from_account_info(collection_metadata_info)?;
 
-            // Update collection size if it's sized.
-            if collection_metadata.collection_details.is_some() {
-                decrement_collection_size(&mut collection_metadata, collection_metadata_info)?;
+                if collection_metadata.mint != collection.key {
+                    return Err(MetadataError::NotAMemberOfCollection.into());
+                }
+
+                // Update collection size if it's sized.
+                if collection_metadata.collection_details.is_some() {
+                    decrement_collection_size(&mut collection_metadata, collection_metadata_info)?;
+                }
             }
         }
     }
