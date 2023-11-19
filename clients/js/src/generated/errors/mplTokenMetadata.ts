@@ -2857,7 +2857,7 @@ nameToErrorMap.set(
 
 /** InvalidMintExtensionType: Invalid mint extension type */
 export class InvalidMintExtensionTypeError extends ProgramError {
-  readonly name: string = 'InvalidMintExtensionType';
+  override readonly name: string = 'InvalidMintExtensionType';
 
   readonly code: number = 0xc2; // 194
 
@@ -2870,7 +2870,7 @@ nameToErrorMap.set('InvalidMintExtensionType', InvalidMintExtensionTypeError);
 
 /** InvalidMintCloseAuthority: Invalid mint close authority */
 export class InvalidMintCloseAuthorityError extends ProgramError {
-  readonly name: string = 'InvalidMintCloseAuthority';
+  override readonly name: string = 'InvalidMintCloseAuthority';
 
   readonly code: number = 0xc3; // 195
 
@@ -2883,7 +2883,7 @@ nameToErrorMap.set('InvalidMintCloseAuthority', InvalidMintCloseAuthorityError);
 
 /** InvalidMetadataPointer: Invalid metadata pointer */
 export class InvalidMetadataPointerError extends ProgramError {
-  readonly name: string = 'InvalidMetadataPointer';
+  override readonly name: string = 'InvalidMetadataPointer';
 
   readonly code: number = 0xc4; // 196
 
@@ -2896,7 +2896,7 @@ nameToErrorMap.set('InvalidMetadataPointer', InvalidMetadataPointerError);
 
 /** InvalidTokenExtensionType: Invalid token extension type */
 export class InvalidTokenExtensionTypeError extends ProgramError {
-  readonly name: string = 'InvalidTokenExtensionType';
+  override readonly name: string = 'InvalidTokenExtensionType';
 
   readonly code: number = 0xc5; // 197
 

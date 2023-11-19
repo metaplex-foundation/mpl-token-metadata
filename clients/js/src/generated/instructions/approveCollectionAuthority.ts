@@ -90,28 +90,36 @@ export function approveCollectionAuthority(
   const resolvedAccounts = {
     collectionAuthorityRecord: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionAuthorityRecord ?? null,
     },
     newCollectionAuthority: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.newCollectionAuthority ?? null,
     },
     updateAuthority: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.updateAuthority ?? null,
     },
-    payer: { index: 3, isWritable: true, value: input.payer ?? null },
-    metadata: { index: 4, isWritable: false, value: input.metadata ?? null },
-    mint: { index: 5, isWritable: false, value: input.mint ?? null },
+    payer: {
+      index: 3,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
+    metadata: {
+      index: 4,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
+    mint: { index: 5, isWritable: false as boolean, value: input.mint ?? null },
     systemProgram: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 7, isWritable: false, value: input.rent ?? null },
+    rent: { index: 7, isWritable: false as boolean, value: input.rent ?? null },
   } satisfies ResolvedAccountsWithIndices;
 
   // Default values.

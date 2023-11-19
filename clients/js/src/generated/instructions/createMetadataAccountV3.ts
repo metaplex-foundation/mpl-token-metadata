@@ -115,25 +115,33 @@ export function createMetadataAccountV3(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-    mint: { index: 1, isWritable: false, value: input.mint ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    mint: { index: 1, isWritable: false as boolean, value: input.mint ?? null },
     mintAuthority: {
       index: 2,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.mintAuthority ?? null,
     },
-    payer: { index: 3, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 3,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     updateAuthority: {
       index: 4,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
     systemProgram: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 6, isWritable: false, value: input.rent ?? null },
+    rent: { index: 6, isWritable: false as boolean, value: input.rent ?? null },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.

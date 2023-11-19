@@ -109,64 +109,80 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-    edition: { index: 1, isWritable: true, value: input.edition ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    edition: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
     masterEdition: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
-    mint: { index: 3, isWritable: true, value: input.mint ?? null },
+    mint: { index: 3, isWritable: true as boolean, value: input.mint ?? null },
     mintAuthority: {
       index: 4,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.mintAuthority ?? null,
     },
     printingMint: {
       index: 5,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.printingMint ?? null,
     },
     masterTokenAccount: {
       index: 6,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterTokenAccount ?? null,
     },
     editionMarker: {
       index: 7,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMarker ?? null,
     },
     burnAuthority: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.burnAuthority ?? null,
     },
-    payer: { index: 9, isWritable: false, value: input.payer ?? null },
+    payer: {
+      index: 9,
+      isWritable: false as boolean,
+      value: input.payer ?? null,
+    },
     masterUpdateAuthority: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterUpdateAuthority ?? null,
     },
     masterMetadata: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterMetadata ?? null,
     },
     tokenProgram: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     systemProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 14, isWritable: false, value: input.rent ?? null },
+    rent: {
+      index: 14,
+      isWritable: false as boolean,
+      value: input.rent ?? null,
+    },
     reservationList: {
       index: 15,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.reservationList ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

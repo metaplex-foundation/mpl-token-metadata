@@ -88,27 +88,47 @@ export function createEscrowAccount(
 
   // Accounts.
   const resolvedAccounts = {
-    escrow: { index: 0, isWritable: true, value: input.escrow ?? null },
-    metadata: { index: 1, isWritable: true, value: input.metadata ?? null },
-    mint: { index: 2, isWritable: false, value: input.mint ?? null },
+    escrow: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.escrow ?? null,
+    },
+    metadata: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    mint: { index: 2, isWritable: false as boolean, value: input.mint ?? null },
     tokenAccount: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenAccount ?? null,
     },
-    edition: { index: 4, isWritable: false, value: input.edition ?? null },
-    payer: { index: 5, isWritable: true, value: input.payer ?? null },
+    edition: {
+      index: 4,
+      isWritable: false as boolean,
+      value: input.edition ?? null,
+    },
+    payer: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     systemProgram: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
-    authority: { index: 8, isWritable: false, value: input.authority ?? null },
+    authority: {
+      index: 8,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
   } satisfies ResolvedAccountsWithIndices;
 
   // Default values.

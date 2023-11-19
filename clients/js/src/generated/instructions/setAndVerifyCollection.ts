@@ -83,36 +83,44 @@ export function setAndVerifyCollection(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     collectionAuthority: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionAuthority ?? null,
     },
-    payer: { index: 2, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     updateAuthority: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
     collectionMint: {
       index: 4,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMint ?? null,
     },
     collection: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collection ?? null,
     },
     collectionMasterEditionAccount: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMasterEditionAccount ?? null,
     },
     collectionAuthorityRecord: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionAuthorityRecord ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

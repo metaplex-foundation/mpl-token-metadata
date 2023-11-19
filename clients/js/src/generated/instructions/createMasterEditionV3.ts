@@ -105,31 +105,43 @@ export function createMasterEditionV3(
 
   // Accounts.
   const resolvedAccounts = {
-    edition: { index: 0, isWritable: true, value: input.edition ?? null },
-    mint: { index: 1, isWritable: true, value: input.mint ?? null },
+    edition: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
+    mint: { index: 1, isWritable: true as boolean, value: input.mint ?? null },
     updateAuthority: {
       index: 2,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
     mintAuthority: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.mintAuthority ?? null,
     },
-    payer: { index: 4, isWritable: true, value: input.payer ?? null },
-    metadata: { index: 5, isWritable: true, value: input.metadata ?? null },
+    payer: {
+      index: 4,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
+    metadata: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     tokenProgram: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     systemProgram: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 8, isWritable: false, value: input.rent ?? null },
+    rent: { index: 8, isWritable: false as boolean, value: input.rent ?? null },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.

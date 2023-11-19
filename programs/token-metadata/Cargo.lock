@@ -5186,7 +5186,7 @@ dependencies = [
  "solana-program-test",
  "solana-sdk",
  "spl-associated-token-account 2.1.0",
- "spl-token 4.0.0",
+ "spl-token 3.5.0",
  "spl-token-2022 0.8.0",
  "test-case",
  "thiserror",

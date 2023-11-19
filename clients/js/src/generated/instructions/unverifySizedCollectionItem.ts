@@ -84,27 +84,39 @@ export function unverifySizedCollectionItem(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     collectionAuthority: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionAuthority ?? null,
     },
-    payer: { index: 2, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     collectionMint: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMint ?? null,
     },
-    collection: { index: 4, isWritable: true, value: input.collection ?? null },
+    collection: {
+      index: 4,
+      isWritable: true as boolean,
+      value: input.collection ?? null,
+    },
     collectionMasterEditionAccount: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMasterEditionAccount ?? null,
     },
     collectionAuthorityRecord: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionAuthorityRecord ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

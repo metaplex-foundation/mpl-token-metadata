@@ -108,31 +108,51 @@ export function approveUseAuthority(
   const resolvedAccounts = {
     useAuthorityRecord: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.useAuthorityRecord ?? null,
     },
-    owner: { index: 1, isWritable: true, value: input.owner ?? null },
-    payer: { index: 2, isWritable: true, value: input.payer ?? null },
-    user: { index: 3, isWritable: false, value: input.user ?? null },
+    owner: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.owner ?? null,
+    },
+    payer: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
+    user: { index: 3, isWritable: false as boolean, value: input.user ?? null },
     ownerTokenAccount: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.ownerTokenAccount ?? null,
     },
-    metadata: { index: 5, isWritable: false, value: input.metadata ?? null },
-    mint: { index: 6, isWritable: false, value: input.mint ?? null },
-    burner: { index: 7, isWritable: false, value: input.burner ?? null },
+    metadata: {
+      index: 5,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
+    mint: { index: 6, isWritable: false as boolean, value: input.mint ?? null },
+    burner: {
+      index: 7,
+      isWritable: false as boolean,
+      value: input.burner ?? null,
+    },
     tokenProgram: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     systemProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 10, isWritable: false, value: input.rent ?? null },
+    rent: {
+      index: 10,
+      isWritable: false as boolean,
+      value: input.rent ?? null,
+    },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.

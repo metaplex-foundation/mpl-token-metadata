@@ -115,40 +115,60 @@ export function useV1(
 
   // Accounts.
   const resolvedAccounts = {
-    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+    authority: {
+      index: 0,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
     delegateRecord: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.delegateRecord ?? null,
     },
-    token: { index: 2, isWritable: true, value: input.token ?? null },
-    mint: { index: 3, isWritable: false, value: input.mint ?? null },
-    metadata: { index: 4, isWritable: true, value: input.metadata ?? null },
-    edition: { index: 5, isWritable: true, value: input.edition ?? null },
-    payer: { index: 6, isWritable: false, value: input.payer ?? null },
+    token: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
+    mint: { index: 3, isWritable: false as boolean, value: input.mint ?? null },
+    metadata: {
+      index: 4,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    edition: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
+    payer: {
+      index: 6,
+      isWritable: false as boolean,
+      value: input.payer ?? null,
+    },
     systemProgram: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     authorizationRulesProgram: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRulesProgram ?? null,
     },
     authorizationRules: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRules ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

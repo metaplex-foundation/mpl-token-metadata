@@ -14,7 +14,7 @@ pub struct Mint {
     /// Token or Associated Token account
     pub token: solana_program::pubkey::Pubkey,
     /// Owner of the token account
-    pub token_owner: Option<solana_program::pubkey::Pubkey>,
+    pub token_owner: solana_program::pubkey::Pubkey,
     /// Metadata account (pda of ['metadata', program id, mint id])
     pub metadata: solana_program::pubkey::Pubkey,
     /// Master Edition account
@@ -60,17 +60,10 @@ impl Mint {
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.token, false,
         ));
-        if let Some(token_owner) = self.token_owner {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                token_owner,
-                false,
-            ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
-                false,
-            ));
-        }
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.token_owner,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.metadata,
             false,
@@ -218,14 +211,10 @@ impl MintBuilder {
         self.token = Some(token);
         self
     }
-    /// `[optional account]`
     /// Owner of the token account
     #[inline(always)]
-    pub fn token_owner(
-        &mut self,
-        token_owner: Option<solana_program::pubkey::Pubkey>,
-    ) -> &mut Self {
-        self.token_owner = token_owner;
+    pub fn token_owner(&mut self, token_owner: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.token_owner = Some(token_owner);
         self
     }
     /// Metadata account (pda of ['metadata', program id, mint id])
@@ -366,7 +355,7 @@ impl MintBuilder {
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = Mint {
             token: self.token.expect("token is not set"),
-            token_owner: self.token_owner,
+            token_owner: self.token_owner.expect("token_owner is not set"),
             metadata: self.metadata.expect("metadata is not set"),
             master_edition: self.master_edition,
             token_record: self.token_record,
@@ -402,7 +391,7 @@ pub struct MintCpiAccounts<'a, 'b> {
     /// Token or Associated Token account
     pub token: &'b solana_program::account_info::AccountInfo<'a>,
     /// Owner of the token account
-    pub token_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pub token_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account (pda of ['metadata', program id, mint id])
     pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Edition account
@@ -438,7 +427,7 @@ pub struct MintCpi<'a, 'b> {
     /// Token or Associated Token account
     pub token: &'b solana_program::account_info::AccountInfo<'a>,
     /// Owner of the token account
-    pub token_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pub token_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Metadata account (pda of ['metadata', program id, mint id])
     pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master Edition account
@@ -533,17 +522,10 @@ impl<'a, 'b> MintCpi<'a, 'b> {
             *self.token.key,
             false,
         ));
-        if let Some(token_owner) = self.token_owner {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                *token_owner.key,
-                false,
-            ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
-                false,
-            ));
-        }
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.token_owner.key,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.metadata.key,
             false,
@@ -650,9 +632,7 @@ impl<'a, 'b> MintCpi<'a, 'b> {
         let mut account_infos = Vec::with_capacity(15 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.token.clone());
-        if let Some(token_owner) = self.token_owner {
-            account_infos.push(token_owner.clone());
-        }
+        account_infos.push(self.token_owner.clone());
         account_infos.push(self.metadata.clone());
         if let Some(master_edition) = self.master_edition {
             account_infos.push(master_edition.clone());
@@ -723,14 +703,13 @@ impl<'a, 'b> MintCpiBuilder<'a, 'b> {
         self.instruction.token = Some(token);
         self
     }
-    /// `[optional account]`
     /// Owner of the token account
     #[inline(always)]
     pub fn token_owner(
         &mut self,
-        token_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+        token_owner: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.token_owner = token_owner;
+        self.instruction.token_owner = Some(token_owner);
         self
     }
     /// Metadata account (pda of ['metadata', program id, mint id])
@@ -907,7 +886,10 @@ impl<'a, 'b> MintCpiBuilder<'a, 'b> {
 
             token: self.instruction.token.expect("token is not set"),
 
-            token_owner: self.instruction.token_owner,
+            token_owner: self
+                .instruction
+                .token_owner
+                .expect("token_owner is not set"),
 
             metadata: self.instruction.metadata.expect("metadata is not set"),
 

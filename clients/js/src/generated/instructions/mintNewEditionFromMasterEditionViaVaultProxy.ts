@@ -128,65 +128,89 @@ export function mintNewEditionFromMasterEditionViaVaultProxy(
   const resolvedAccounts = {
     newMetadata: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.newMetadata ?? null,
     },
-    newEdition: { index: 1, isWritable: true, value: input.newEdition ?? null },
+    newEdition: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.newEdition ?? null,
+    },
     masterEdition: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
-    newMint: { index: 3, isWritable: true, value: input.newMint ?? null },
+    newMint: {
+      index: 3,
+      isWritable: true as boolean,
+      value: input.newMint ?? null,
+    },
     editionMarkPda: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMarkPda ?? null,
     },
     newMintAuthority: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.newMintAuthority ?? null,
     },
-    payer: { index: 6, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 6,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     vaultAuthority: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.vaultAuthority ?? null,
     },
     safetyDepositStore: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.safetyDepositStore ?? null,
     },
     safetyDepositBox: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.safetyDepositBox ?? null,
     },
-    vault: { index: 10, isWritable: false, value: input.vault ?? null },
+    vault: {
+      index: 10,
+      isWritable: false as boolean,
+      value: input.vault ?? null,
+    },
     newMetadataUpdateAuthority: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.newMetadataUpdateAuthority ?? null,
     },
-    metadata: { index: 12, isWritable: false, value: input.metadata ?? null },
+    metadata: {
+      index: 12,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
     tokenProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     tokenVaultProgram: {
       index: 14,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenVaultProgram ?? null,
     },
     systemProgram: {
       index: 15,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 16, isWritable: false, value: input.rent ?? null },
+    rent: {
+      index: 16,
+      isWritable: false as boolean,
+      value: input.rent ?? null,
+    },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
