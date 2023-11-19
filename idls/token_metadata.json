@@ -2288,7 +2288,7 @@
         },
         {
           "name": "collectionMasterEditionAccount",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "docs": [
             "MasterEdition2 Account of the Collection Token"
@@ -7752,7 +7752,7 @@
   "metadata": {
     "origin": "shank",
     "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
-    "binaryVersion": "0.2.0",
-    "libVersion": "0.2.0"
+    "binaryVersion": "0.3.0",
+    "libVersion": "0.3.0"
   }
 }

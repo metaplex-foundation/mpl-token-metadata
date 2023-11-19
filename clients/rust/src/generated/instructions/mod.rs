@@ -5,226 +5,194 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-pub(crate) mod approve_collection_authority;
-pub(crate) mod approve_use_authority;
-pub(crate) mod bubblegum_set_collection_size;
-pub(crate) mod burn_edition_nft;
-pub(crate) mod burn_nft;
-pub(crate) mod burn_v1;
-pub(crate) mod close_escrow_account;
-pub(crate) mod collect;
-pub(crate) mod convert_master_edition_v1_to_v2;
-pub(crate) mod create_escrow_account;
-pub(crate) mod create_master_edition_v3;
-pub(crate) mod create_metadata_account_v3;
-pub(crate) mod create_v1;
-pub(crate) mod delegate_authority_item_v1;
-pub(crate) mod delegate_collection_item_v1;
-pub(crate) mod delegate_collection_v1;
-pub(crate) mod delegate_data_item_v1;
-pub(crate) mod delegate_data_v1;
-pub(crate) mod delegate_locked_transfer_v1;
-pub(crate) mod delegate_programmable_config_item_v1;
-pub(crate) mod delegate_programmable_config_v1;
-pub(crate) mod delegate_sale_v1;
-pub(crate) mod delegate_staking_v1;
-pub(crate) mod delegate_standard_v1;
-pub(crate) mod delegate_transfer_v1;
-pub(crate) mod delegate_utility_v1;
-pub(crate) mod deprecated_mint_new_edition_from_master_edition_via_printing_token;
-pub(crate) mod freeze_delegated_account;
-pub(crate) mod lock_v1;
-pub(crate) mod migrate;
-pub(crate) mod mint_new_edition_from_master_edition_via_token;
-pub(crate) mod mint_new_edition_from_master_edition_via_vault_proxy;
-pub(crate) mod mint_v1;
-pub(crate) mod print_v1;
-pub(crate) mod puff_metadata;
-pub(crate) mod remove_creator_verification;
-pub(crate) mod revoke_authority_item_v1;
-pub(crate) mod revoke_collection_authority;
-pub(crate) mod revoke_collection_item_v1;
-pub(crate) mod revoke_collection_v1;
-pub(crate) mod revoke_data_item_v1;
-pub(crate) mod revoke_data_v1;
-pub(crate) mod revoke_locked_transfer_v1;
-pub(crate) mod revoke_migration_v1;
-pub(crate) mod revoke_programmable_config_item_v1;
-pub(crate) mod revoke_programmable_config_v1;
-pub(crate) mod revoke_sale_v1;
-pub(crate) mod revoke_staking_v1;
-pub(crate) mod revoke_standard_v1;
-pub(crate) mod revoke_transfer_v1;
-pub(crate) mod revoke_use_authority;
-pub(crate) mod revoke_utility_v1;
-pub(crate) mod set_and_verify_collection;
-pub(crate) mod set_and_verify_sized_collection_item;
-pub(crate) mod set_collection_size;
-pub(crate) mod set_token_standard;
-pub(crate) mod sign_metadata;
-pub(crate) mod thaw_delegated_account;
-pub(crate) mod transfer_out_of_escrow;
-pub(crate) mod transfer_v1;
-pub(crate) mod unlock_v1;
-pub(crate) mod unverify_collection;
-pub(crate) mod unverify_collection_v1;
-pub(crate) mod unverify_creator_v1;
-pub(crate) mod unverify_sized_collection_item;
-pub(crate) mod update_as_authority_item_delegate_v2;
-pub(crate) mod update_as_collection_delegate_v2;
-pub(crate) mod update_as_collection_item_delegate_v2;
-pub(crate) mod update_as_data_delegate_v2;
-pub(crate) mod update_as_data_item_delegate_v2;
-pub(crate) mod update_as_programmable_config_delegate_v2;
-pub(crate) mod update_as_programmable_config_item_delegate_v2;
-pub(crate) mod update_as_update_authority_v2;
-pub(crate) mod update_metadata_account_v2;
-pub(crate) mod update_primary_sale_happened_via_token;
-pub(crate) mod update_v1;
-pub(crate) mod use_v1;
-pub(crate) mod utilize;
-pub(crate) mod verify_collection;
-pub(crate) mod verify_collection_v1;
-pub(crate) mod verify_creator_v1;
-pub(crate) mod verify_sized_collection_item;
+pub(crate) mod r#approve_collection_authority;
+pub(crate) mod r#approve_use_authority;
+pub(crate) mod r#bubblegum_set_collection_size;
+pub(crate) mod r#burn;
+pub(crate) mod r#burn_edition_nft;
+pub(crate) mod r#burn_nft;
+pub(crate) mod r#burn_v1;
+pub(crate) mod r#close_escrow_account;
+pub(crate) mod r#collect;
+pub(crate) mod r#convert_master_edition_v1_to_v2;
+pub(crate) mod r#create;
+pub(crate) mod r#create_escrow_account;
+pub(crate) mod r#create_master_edition_v3;
+pub(crate) mod r#create_metadata_account_v3;
+pub(crate) mod r#create_v1;
+pub(crate) mod r#delegate;
+pub(crate) mod r#delegate_authority_item_v1;
+pub(crate) mod r#delegate_collection_item_v1;
+pub(crate) mod r#delegate_collection_v1;
+pub(crate) mod r#delegate_data_item_v1;
+pub(crate) mod r#delegate_data_v1;
+pub(crate) mod r#delegate_locked_transfer_v1;
+pub(crate) mod r#delegate_programmable_config_item_v1;
+pub(crate) mod r#delegate_programmable_config_v1;
+pub(crate) mod r#delegate_sale_v1;
+pub(crate) mod r#delegate_staking_v1;
+pub(crate) mod r#delegate_standard_v1;
+pub(crate) mod r#delegate_transfer_v1;
+pub(crate) mod r#delegate_utility_v1;
+pub(crate) mod r#deprecated_mint_new_edition_from_master_edition_via_printing_token;
+pub(crate) mod r#freeze_delegated_account;
+pub(crate) mod r#lock;
+pub(crate) mod r#lock_v1;
+pub(crate) mod r#migrate;
+pub(crate) mod r#mint;
+pub(crate) mod r#mint_new_edition_from_master_edition_via_token;
+pub(crate) mod r#mint_new_edition_from_master_edition_via_vault_proxy;
+pub(crate) mod r#mint_v1;
+pub(crate) mod r#print;
+pub(crate) mod r#print_v1;
+pub(crate) mod r#puff_metadata;
+pub(crate) mod r#remove_creator_verification;
+pub(crate) mod r#revoke;
+pub(crate) mod r#revoke_authority_item_v1;
+pub(crate) mod r#revoke_collection_authority;
+pub(crate) mod r#revoke_collection_item_v1;
+pub(crate) mod r#revoke_collection_v1;
+pub(crate) mod r#revoke_data_item_v1;
+pub(crate) mod r#revoke_data_v1;
+pub(crate) mod r#revoke_locked_transfer_v1;
+pub(crate) mod r#revoke_migration_v1;
+pub(crate) mod r#revoke_programmable_config_item_v1;
+pub(crate) mod r#revoke_programmable_config_v1;
+pub(crate) mod r#revoke_sale_v1;
+pub(crate) mod r#revoke_staking_v1;
+pub(crate) mod r#revoke_standard_v1;
+pub(crate) mod r#revoke_transfer_v1;
+pub(crate) mod r#revoke_use_authority;
+pub(crate) mod r#revoke_utility_v1;
+pub(crate) mod r#set_and_verify_collection;
+pub(crate) mod r#set_and_verify_sized_collection_item;
+pub(crate) mod r#set_collection_size;
+pub(crate) mod r#set_token_standard;
+pub(crate) mod r#sign_metadata;
+pub(crate) mod r#thaw_delegated_account;
+pub(crate) mod r#transfer;
+pub(crate) mod r#transfer_out_of_escrow;
+pub(crate) mod r#transfer_v1;
+pub(crate) mod r#unlock;
+pub(crate) mod r#unlock_v1;
+pub(crate) mod r#unverify;
+pub(crate) mod r#unverify_collection;
+pub(crate) mod r#unverify_collection_v1;
+pub(crate) mod r#unverify_creator_v1;
+pub(crate) mod r#unverify_sized_collection_item;
+pub(crate) mod r#update;
+pub(crate) mod r#update_as_authority_item_delegate_v2;
+pub(crate) mod r#update_as_collection_delegate_v2;
+pub(crate) mod r#update_as_collection_item_delegate_v2;
+pub(crate) mod r#update_as_data_delegate_v2;
+pub(crate) mod r#update_as_data_item_delegate_v2;
+pub(crate) mod r#update_as_programmable_config_delegate_v2;
+pub(crate) mod r#update_as_programmable_config_item_delegate_v2;
+pub(crate) mod r#update_as_update_authority_v2;
+pub(crate) mod r#update_metadata_account_v2;
+pub(crate) mod r#update_primary_sale_happened_via_token;
+pub(crate) mod r#update_v1;
+pub(crate) mod r#use;
+pub(crate) mod r#use_v1;
+pub(crate) mod r#utilize;
+pub(crate) mod r#verify;
+pub(crate) mod r#verify_collection;
+pub(crate) mod r#verify_collection_v1;
+pub(crate) mod r#verify_creator_v1;
+pub(crate) mod r#verify_sized_collection_item;
 
-pub use self::approve_collection_authority::*;
-pub use self::approve_use_authority::*;
-pub use self::bubblegum_set_collection_size::*;
-pub use self::burn_edition_nft::*;
-pub use self::burn_nft::*;
-pub use self::burn_v1::*;
-pub use self::close_escrow_account::*;
-pub use self::collect::*;
-pub use self::convert_master_edition_v1_to_v2::*;
-pub use self::create_escrow_account::*;
-pub use self::create_master_edition_v3::*;
-pub use self::create_metadata_account_v3::*;
-pub use self::create_v1::*;
-pub use self::delegate_authority_item_v1::*;
-pub use self::delegate_collection_item_v1::*;
-pub use self::delegate_collection_v1::*;
-pub use self::delegate_data_item_v1::*;
-pub use self::delegate_data_v1::*;
-pub use self::delegate_locked_transfer_v1::*;
-pub use self::delegate_programmable_config_item_v1::*;
-pub use self::delegate_programmable_config_v1::*;
-pub use self::delegate_sale_v1::*;
-pub use self::delegate_staking_v1::*;
-pub use self::delegate_standard_v1::*;
-pub use self::delegate_transfer_v1::*;
-pub use self::delegate_utility_v1::*;
-pub use self::deprecated_mint_new_edition_from_master_edition_via_printing_token::*;
-pub use self::freeze_delegated_account::*;
-pub use self::lock_v1::*;
-pub use self::migrate::*;
-pub use self::mint_new_edition_from_master_edition_via_token::*;
-pub use self::mint_new_edition_from_master_edition_via_vault_proxy::*;
-pub use self::mint_v1::*;
-pub use self::print_v1::*;
-pub use self::puff_metadata::*;
-pub use self::remove_creator_verification::*;
-pub use self::revoke_authority_item_v1::*;
-pub use self::revoke_collection_authority::*;
-pub use self::revoke_collection_item_v1::*;
-pub use self::revoke_collection_v1::*;
-pub use self::revoke_data_item_v1::*;
-pub use self::revoke_data_v1::*;
-pub use self::revoke_locked_transfer_v1::*;
-pub use self::revoke_migration_v1::*;
-pub use self::revoke_programmable_config_item_v1::*;
-pub use self::revoke_programmable_config_v1::*;
-pub use self::revoke_sale_v1::*;
-pub use self::revoke_staking_v1::*;
-pub use self::revoke_standard_v1::*;
-pub use self::revoke_transfer_v1::*;
-pub use self::revoke_use_authority::*;
-pub use self::revoke_utility_v1::*;
-pub use self::set_and_verify_collection::*;
-pub use self::set_and_verify_sized_collection_item::*;
-pub use self::set_collection_size::*;
-pub use self::set_token_standard::*;
-pub use self::sign_metadata::*;
-pub use self::thaw_delegated_account::*;
-pub use self::transfer_out_of_escrow::*;
-pub use self::transfer_v1::*;
-pub use self::unlock_v1::*;
-pub use self::unverify_collection::*;
-pub use self::unverify_collection_v1::*;
-pub use self::unverify_creator_v1::*;
-pub use self::unverify_sized_collection_item::*;
-pub use self::update_as_authority_item_delegate_v2::*;
-pub use self::update_as_collection_delegate_v2::*;
-pub use self::update_as_collection_item_delegate_v2::*;
-pub use self::update_as_data_delegate_v2::*;
-pub use self::update_as_data_item_delegate_v2::*;
-pub use self::update_as_programmable_config_delegate_v2::*;
-pub use self::update_as_programmable_config_item_delegate_v2::*;
-pub use self::update_as_update_authority_v2::*;
-pub use self::update_metadata_account_v2::*;
-pub use self::update_primary_sale_happened_via_token::*;
-pub use self::update_v1::*;
-pub use self::use_v1::*;
-pub use self::utilize::*;
-pub use self::verify_collection::*;
-pub use self::verify_collection_v1::*;
-pub use self::verify_creator_v1::*;
-pub use self::verify_sized_collection_item::*;
-
-#[derive(Clone, Copy)]
-pub enum InstructionAccount {
-    Readonly(solana_program::pubkey::Pubkey),
-    ReadonlySigner(solana_program::pubkey::Pubkey),
-    Writable(solana_program::pubkey::Pubkey),
-    WritableSigner(solana_program::pubkey::Pubkey),
-}
-
-impl InstructionAccount {
-    pub fn to_account_meta(&self) -> solana_program::instruction::AccountMeta {
-        let (pubkey, writable, signer) = match self {
-            InstructionAccount::Readonly(pubkey) => (pubkey, false, false),
-            InstructionAccount::ReadonlySigner(pubkey) => (pubkey, false, true),
-            InstructionAccount::Writable(pubkey) => (pubkey, true, false),
-            InstructionAccount::WritableSigner(pubkey) => (pubkey, true, true),
-        };
-
-        if writable {
-            solana_program::instruction::AccountMeta::new(*pubkey, signer)
-        } else {
-            solana_program::instruction::AccountMeta::new_readonly(*pubkey, signer)
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
-pub enum InstructionAccountInfo<'a, 'b> {
-    Readonly(&'b solana_program::account_info::AccountInfo<'a>),
-    ReadonlySigner(&'b solana_program::account_info::AccountInfo<'a>),
-    Writable(&'b solana_program::account_info::AccountInfo<'a>),
-    WritableSigner(&'b solana_program::account_info::AccountInfo<'a>),
-}
-
-impl<'a, 'b> InstructionAccountInfo<'a, 'b> {
-    pub fn to_account_meta(&self) -> solana_program::instruction::AccountMeta {
-        let (pubkey, writable, signer) = match self {
-            InstructionAccountInfo::Readonly(account_info) => (account_info.key, false, false),
-            InstructionAccountInfo::ReadonlySigner(account_info) => (account_info.key, false, true),
-            InstructionAccountInfo::Writable(account_info) => (account_info.key, true, false),
-            InstructionAccountInfo::WritableSigner(account_info) => (account_info.key, true, true),
-        };
-
-        if writable {
-            solana_program::instruction::AccountMeta::new(*pubkey, signer)
-        } else {
-            solana_program::instruction::AccountMeta::new_readonly(*pubkey, signer)
-        }
-    }
-    pub fn account_info(&self) -> &'b solana_program::account_info::AccountInfo<'a> {
-        match self {
-            InstructionAccountInfo::Readonly(account_info)
-            | InstructionAccountInfo::ReadonlySigner(account_info)
-            | InstructionAccountInfo::Writable(account_info)
-            | InstructionAccountInfo::WritableSigner(account_info) => account_info,
-        }
-    }
-}
+pub use self::r#approve_collection_authority::*;
+pub use self::r#approve_use_authority::*;
+pub use self::r#bubblegum_set_collection_size::*;
+pub use self::r#burn::*;
+pub use self::r#burn_edition_nft::*;
+pub use self::r#burn_nft::*;
+pub use self::r#burn_v1::*;
+pub use self::r#close_escrow_account::*;
+pub use self::r#collect::*;
+pub use self::r#convert_master_edition_v1_to_v2::*;
+pub use self::r#create::*;
+pub use self::r#create_escrow_account::*;
+pub use self::r#create_master_edition_v3::*;
+pub use self::r#create_metadata_account_v3::*;
+pub use self::r#create_v1::*;
+pub use self::r#delegate::*;
+pub use self::r#delegate_authority_item_v1::*;
+pub use self::r#delegate_collection_item_v1::*;
+pub use self::r#delegate_collection_v1::*;
+pub use self::r#delegate_data_item_v1::*;
+pub use self::r#delegate_data_v1::*;
+pub use self::r#delegate_locked_transfer_v1::*;
+pub use self::r#delegate_programmable_config_item_v1::*;
+pub use self::r#delegate_programmable_config_v1::*;
+pub use self::r#delegate_sale_v1::*;
+pub use self::r#delegate_staking_v1::*;
+pub use self::r#delegate_standard_v1::*;
+pub use self::r#delegate_transfer_v1::*;
+pub use self::r#delegate_utility_v1::*;
+pub use self::r#deprecated_mint_new_edition_from_master_edition_via_printing_token::*;
+pub use self::r#freeze_delegated_account::*;
+pub use self::r#lock::*;
+pub use self::r#lock_v1::*;
+pub use self::r#migrate::*;
+pub use self::r#mint::*;
+pub use self::r#mint_new_edition_from_master_edition_via_token::*;
+pub use self::r#mint_new_edition_from_master_edition_via_vault_proxy::*;
+pub use self::r#mint_v1::*;
+pub use self::r#print::*;
+pub use self::r#print_v1::*;
+pub use self::r#puff_metadata::*;
+pub use self::r#remove_creator_verification::*;
+pub use self::r#revoke::*;
+pub use self::r#revoke_authority_item_v1::*;
+pub use self::r#revoke_collection_authority::*;
+pub use self::r#revoke_collection_item_v1::*;
+pub use self::r#revoke_collection_v1::*;
+pub use self::r#revoke_data_item_v1::*;
+pub use self::r#revoke_data_v1::*;
+pub use self::r#revoke_locked_transfer_v1::*;
+pub use self::r#revoke_migration_v1::*;
+pub use self::r#revoke_programmable_config_item_v1::*;
+pub use self::r#revoke_programmable_config_v1::*;
+pub use self::r#revoke_sale_v1::*;
+pub use self::r#revoke_staking_v1::*;
+pub use self::r#revoke_standard_v1::*;
+pub use self::r#revoke_transfer_v1::*;
+pub use self::r#revoke_use_authority::*;
+pub use self::r#revoke_utility_v1::*;
+pub use self::r#set_and_verify_collection::*;
+pub use self::r#set_and_verify_sized_collection_item::*;
+pub use self::r#set_collection_size::*;
+pub use self::r#set_token_standard::*;
+pub use self::r#sign_metadata::*;
+pub use self::r#thaw_delegated_account::*;
+pub use self::r#transfer::*;
+pub use self::r#transfer_out_of_escrow::*;
+pub use self::r#transfer_v1::*;
+pub use self::r#unlock::*;
+pub use self::r#unlock_v1::*;
+pub use self::r#unverify::*;
+pub use self::r#unverify_collection::*;
+pub use self::r#unverify_collection_v1::*;
+pub use self::r#unverify_creator_v1::*;
+pub use self::r#unverify_sized_collection_item::*;
+pub use self::r#update::*;
+pub use self::r#update_as_authority_item_delegate_v2::*;
+pub use self::r#update_as_collection_delegate_v2::*;
+pub use self::r#update_as_collection_item_delegate_v2::*;
+pub use self::r#update_as_data_delegate_v2::*;
+pub use self::r#update_as_data_item_delegate_v2::*;
+pub use self::r#update_as_programmable_config_delegate_v2::*;
+pub use self::r#update_as_programmable_config_item_delegate_v2::*;
+pub use self::r#update_as_update_authority_v2::*;
+pub use self::r#update_metadata_account_v2::*;
+pub use self::r#update_primary_sale_happened_via_token::*;
+pub use self::r#update_v1::*;
+pub use self::r#use::*;
+pub use self::r#use_v1::*;
+pub use self::r#utilize::*;
+pub use self::r#verify::*;
+pub use self::r#verify_collection::*;
+pub use self::r#verify_collection_v1::*;
+pub use self::r#verify_creator_v1::*;
+pub use self::r#verify_sized_collection_item::*;

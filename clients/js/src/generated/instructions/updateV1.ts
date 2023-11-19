@@ -170,7 +170,7 @@ export function updateV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     authority: { index: 0, isWritable: false, value: input.authority ?? null },
     delegateRecord: {
       index: 1,
@@ -202,7 +202,7 @@ export function updateV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: UpdateV1InstructionArgs = { ...input };

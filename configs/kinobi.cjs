@@ -928,5 +928,6 @@ kinobi.accept(
   new k.RenderRustVisitor(rustDir, {
     formatCode: true,
     crateFolder: crateDir,
+    renderParentInstructions: true,
   })
 );

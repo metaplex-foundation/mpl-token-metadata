@@ -105,7 +105,7 @@ export function approveUseAuthority(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     useAuthorityRecord: {
       index: 0,
       isWritable: true,
@@ -133,7 +133,7 @@ export function approveUseAuthority(
       value: input.systemProgram ?? null,
     },
     rent: { index: 10, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: ApproveUseAuthorityInstructionArgs = { ...input };

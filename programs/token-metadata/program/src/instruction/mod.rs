@@ -431,7 +431,7 @@ pub enum MetadataInstruction {
     #[account(3, name="update_authority", desc="Update Authority of Collection NFT and NFT")]
     #[account(4, name="collection_mint", desc="Mint of the Collection")]
     #[account(5, writable, name="collection", desc="Metadata Account of the Collection")]
-    #[account(6, writable, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
+    #[account(6, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(7, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
     #[legacy_optional_accounts_strategy]
     SetAndVerifySizedCollectionItem,

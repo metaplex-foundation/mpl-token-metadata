@@ -39,7 +39,7 @@ One of the main features of the client SDK is to facilitate the creation of inst
 
 ### _Client_ instruction builders
 
-This are intended to be used by off-chain client code. Each instruction is represented by a corresponding struct – e.g., `CreateV1`:
+These are intended to be used by off-chain client code. Each instruction is represented by a corresponding struct – e.g., `CreateV1`:
 
 ```rust
 pub struct CreateV1 {

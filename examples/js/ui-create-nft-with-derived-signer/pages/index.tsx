@@ -25,7 +25,7 @@ import { createDerivedSigner } from "@metaplex-foundation/umi-signer-derived";
 import {
   transferAllSol,
   transferSol,
-} from "@metaplex-foundation/mpl-essentials";
+} from "@metaplex-foundation/mpl-toolbox";
 const inter = Inter({ subsets: ["latin"] });
 
 const WalletMultiButtonDynamic = dynamic(

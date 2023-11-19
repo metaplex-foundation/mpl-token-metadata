@@ -78,7 +78,7 @@ export function thawDelegatedAccount(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     delegate: { index: 0, isWritable: true, value: input.delegate ?? null },
     tokenAccount: {
       index: 1,
@@ -92,7 +92,7 @@ export function thawDelegatedAccount(
       isWritable: false,
       value: input.tokenProgram ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.edition.value) {

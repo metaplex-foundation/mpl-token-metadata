@@ -76,7 +76,7 @@ export function setTokenStandard(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     updateAuthority: {
       index: 1,
@@ -85,7 +85,7 @@ export function setTokenStandard(
     },
     mint: { index: 2, isWritable: false, value: input.mint ?? null },
     edition: { index: 3, isWritable: false, value: input.edition ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

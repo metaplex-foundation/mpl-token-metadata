@@ -14,7 +14,7 @@ use crate::{
     },
     types::{
         Collection, CollectionDetails, Data, Key, ProgrammableConfig, TokenDelegateRole,
-        TokenStandard, TokenState, Uses,
+        TokenStandard, TokenState, UpdateArgs, Uses,
     },
 };
 
@@ -191,5 +191,92 @@ impl TokenRecord {
             delegate_role,
             locked_transfer,
         })
+    }
+}
+
+// UpdateArgs
+
+impl Default for UpdateArgs {
+    fn default() -> Self {
+        Self::V1 {
+            new_update_authority: None,
+            data: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            collection: CollectionToggle::None,
+            collection_details: CollectionDetailsToggle::None,
+            uses: UsesToggle::None,
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
+    }
+}
+
+impl UpdateArgs {
+    pub fn default_as_update_authority() -> Self {
+        Self::AsUpdateAuthorityV2 {
+            new_update_authority: None,
+            data: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            collection: CollectionToggle::None,
+            collection_details: CollectionDetailsToggle::None,
+            uses: UsesToggle::None,
+            rule_set: RuleSetToggle::None,
+            token_standard: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_authority_item_delegate() -> Self {
+        Self::AsAuthorityItemDelegateV2 {
+            new_update_authority: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            token_standard: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_collection_delegate() -> Self {
+        Self::AsCollectionDelegateV2 {
+            collection: CollectionToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_data_delegate() -> Self {
+        Self::AsDataDelegateV2 {
+            data: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_programmable_config_delegate() -> Self {
+        Self::AsProgrammableConfigDelegateV2 {
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_data_item_delegate() -> Self {
+        Self::AsDataItemDelegateV2 {
+            data: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_collection_item_delegate() -> Self {
+        Self::AsCollectionItemDelegateV2 {
+            collection: CollectionToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_programmable_config_item_delegate() -> Self {
+        Self::AsProgrammableConfigItemDelegateV2 {
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
     }
 }

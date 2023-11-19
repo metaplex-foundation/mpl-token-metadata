@@ -114,7 +114,7 @@ export function createMetadataAccountV3(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     mint: { index: 1, isWritable: false, value: input.mint ?? null },
     mintAuthority: {
@@ -134,7 +134,7 @@ export function createMetadataAccountV3(
       value: input.systemProgram ?? null,
     },
     rent: { index: 6, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: CreateMetadataAccountV3InstructionArgs = { ...input };

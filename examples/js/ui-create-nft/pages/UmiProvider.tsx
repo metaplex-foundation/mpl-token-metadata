@@ -14,9 +14,14 @@ export const UmiProvider = ({
   children: ReactNode;
 }) => {
   const wallet = useWallet();
+  let nftStorageToken = process.env.NFTSTORAGE_TOKEN;
+  if (!nftStorageToken || nftStorageToken === 'AddYourTokenHere'){
+    console.error("Add your nft.storage Token to .env!");
+    nftStorageToken = 'AddYourTokenHere';
+  }
   const umi = createUmi(endpoint)
     .use(walletAdapterIdentity(wallet))
-    .use(nftStorageUploader())
+    .use(nftStorageUploader({token: nftStorageToken}))
     .use(mplTokenMetadata());
 
   return <UmiContext.Provider value={{ umi }}>{children}</UmiContext.Provider>;

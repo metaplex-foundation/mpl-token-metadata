@@ -87,7 +87,7 @@ export function approveCollectionAuthority(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     collectionAuthorityRecord: {
       index: 0,
       isWritable: true,
@@ -112,7 +112,7 @@ export function approveCollectionAuthority(
       value: input.systemProgram ?? null,
     },
     rent: { index: 7, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.updateAuthority.value) {

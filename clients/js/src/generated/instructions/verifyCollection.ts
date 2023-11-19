@@ -80,7 +80,7 @@ export function verifyCollection(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
     collectionAuthority: {
       index: 1,
@@ -108,7 +108,7 @@ export function verifyCollection(
       isWritable: false,
       value: input.collectionAuthorityRecord ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.payer.value) {

@@ -132,7 +132,7 @@ export function unlockV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     authority: { index: 0, isWritable: false, value: input.authority ?? null },
     tokenOwner: {
       index: 1,
@@ -174,7 +174,7 @@ export function unlockV1(
       isWritable: false,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: UnlockV1InstructionArgs = { ...input };

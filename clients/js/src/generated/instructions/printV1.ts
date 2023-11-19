@@ -127,7 +127,7 @@ export function printV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     editionMetadata: {
       index: 0,
       isWritable: true,
@@ -210,7 +210,7 @@ export function printV1(
       isWritable: false,
       value: input.systemProgram ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: PrintV1InstructionArgs = { ...input };

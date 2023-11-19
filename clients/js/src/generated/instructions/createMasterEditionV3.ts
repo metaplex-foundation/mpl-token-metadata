@@ -104,7 +104,7 @@ export function createMasterEditionV3(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     edition: { index: 0, isWritable: true, value: input.edition ?? null },
     mint: { index: 1, isWritable: true, value: input.mint ?? null },
     updateAuthority: {
@@ -130,7 +130,7 @@ export function createMasterEditionV3(
       value: input.systemProgram ?? null,
     },
     rent: { index: 8, isWritable: false, value: input.rent ?? null },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: CreateMasterEditionV3InstructionArgs = { ...input };
