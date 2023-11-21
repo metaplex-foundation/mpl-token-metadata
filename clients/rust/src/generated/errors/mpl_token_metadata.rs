@@ -604,6 +604,9 @@ pub enum MplTokenMetadataError {
     /// 197 (0xC5) - Invalid token extension type
     #[error("Invalid token extension type")]
     InvalidTokenExtensionType,
+    /// 198 (0xC6) - Missing immutable owner extension
+    #[error("Missing immutable owner extension")]
+    MissingImmutableOwnerExtension,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

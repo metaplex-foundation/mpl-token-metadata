@@ -779,6 +779,10 @@ pub enum MetadataError {
     /// 197
     #[error("Invalid token extension type")]
     InvalidTokenExtensionType,
+
+    /// 198
+    #[error("Missing immutable owner extension")]
+    MissingImmutableOwnerExtension,
 }
 
 impl PrintProgramError for MetadataError {

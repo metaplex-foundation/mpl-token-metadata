@@ -2907,6 +2907,22 @@ export class InvalidTokenExtensionTypeError extends ProgramError {
 codeToErrorMap.set(0xc5, InvalidTokenExtensionTypeError);
 nameToErrorMap.set('InvalidTokenExtensionType', InvalidTokenExtensionTypeError);
 
+/** MissingImmutableOwnerExtension: Missing immutable owner extension */
+export class MissingImmutableOwnerExtensionError extends ProgramError {
+  override readonly name: string = 'MissingImmutableOwnerExtension';
+
+  readonly code: number = 0xc6; // 198
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing immutable owner extension', program, cause);
+  }
+}
+codeToErrorMap.set(0xc6, MissingImmutableOwnerExtensionError);
+nameToErrorMap.set(
+  'MissingImmutableOwnerExtension',
+  MissingImmutableOwnerExtensionError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
