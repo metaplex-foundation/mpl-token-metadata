@@ -250,4 +250,55 @@ impl TokenManager {
 
         context.banks_client.process_transaction(tx).await
     }
+
+    pub async fn create_token_account_with_extensions(
+        &self,
+        context: &mut ProgramTestContext,
+        owner: &Pubkey,
+        token_account: &Keypair,
+        mint: &Pubkey,
+        extensions: &[ExtensionType],
+    ) -> Result<(), BanksClientError> {
+        let length = ExtensionType::try_calculate_account_len::<Account>(extensions).unwrap();
+        let rent = context.banks_client.get_rent().await.unwrap();
+
+        let mut instructions = vec![];
+
+        instructions.push(system_instruction::create_account(
+            &context.payer.pubkey(),
+            &token_account.pubkey(),
+            rent.minimum_balance(length),
+            length as u64,
+            &self.spl_token_program,
+        ));
+
+        if extensions.contains(&ExtensionType::ImmutableOwner) {
+            instructions.push(
+                spl_token_2022::instruction::initialize_immutable_owner(
+                    &self.spl_token_program,
+                    &token_account.pubkey(),
+                )
+                .unwrap(),
+            );
+        }
+
+        instructions.push(
+            spl_token_2022::instruction::initialize_account3(
+                &self.spl_token_program,
+                &token_account.pubkey(),
+                mint,
+                owner,
+            )
+            .unwrap(),
+        );
+
+        let tx = Transaction::new_signed_with_payer(
+            &instructions,
+            Some(&context.payer.pubkey()),
+            &[&context.payer, token_account],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
+    }
 }

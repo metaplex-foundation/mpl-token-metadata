@@ -1,6 +1,6 @@
 #[cfg(feature = "test-sbf")]
 pub mod setup;
-use setup::*;
+pub use setup::*;
 
 use solana_program::pubkey::Pubkey;
 use solana_program::system_program;
