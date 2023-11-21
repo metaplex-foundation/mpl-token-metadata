@@ -34,7 +34,10 @@ const NON_FUNGIBLE_MINT_EXTENSIONS: &[ExtensionType] = &[
 ];
 /// List of SPL Token-2022 `Account` (token) account extension types that are allowed
 /// on non-fungible assets.
-const NON_FUNGIBLE_TOKEN_EXTENSIONS: &[ExtensionType] = &[ExtensionType::ImmutableOwner];
+const NON_FUNGIBLE_TOKEN_EXTENSIONS: &[ExtensionType] = &[
+    ExtensionType::ImmutableOwner,
+    ExtensionType::NonTransferableAccount,
+];
 
 /// Creates a mint account for the given token standard.
 ///
@@ -255,7 +258,7 @@ pub(crate) fn validate_token(
     // must have the ImmutableOwner extension set
     if let Ok(_extension) = mint.get_extension::<NonTransferable>() {
         if let Err(_err) = token.get_extension::<ImmutableOwner>() {
-            return Err(MetadataError::InvalidTokenExtensionType.into());
+            return Err(MetadataError::MissingImmutableOwnerExtension.into());
         }
     }
 
