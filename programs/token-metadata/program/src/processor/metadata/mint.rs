@@ -3,6 +3,7 @@ use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
     program::{invoke, invoke_signed},
+    program_option::COption,
     pubkey::Pubkey,
 };
 use spl_token_2022::state::{Account, Mint as MintAccount};
@@ -128,7 +129,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
             ],
         )?;
     } else {
-        validate_token(
+        let token = validate_token(
             ctx.accounts.mint_info,
             ctx.accounts.token_info,
             ctx.accounts.token_owner_info,
@@ -136,6 +137,26 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
             metadata.token_standard,
             None, // we already checked the supply of the mint account
         )?;
+
+        // validates that the close authority on the token is either None
+        // or the master edition account for programmable assets
+
+        if let COption::Some(close_authority) = token.close_authority {
+            let invalid = if let Some(master_edition) = ctx.accounts.master_edition_info {
+                close_authority != *master_edition.key
+            } else {
+                // the close authority must match the master edition if there is one set
+                matches!(
+                    metadata.token_standard,
+                    Some(TokenStandard::ProgrammableNonFungible)
+                        | Some(TokenStandard::ProgrammableNonFungibleEdition)
+                )
+            };
+
+            if invalid {
+                return Err(MetadataError::InvalidCloseAuthority.into());
+            }
+        }
     }
 
     let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?;
