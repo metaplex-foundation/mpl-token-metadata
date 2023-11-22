@@ -229,7 +229,53 @@ mod mint_token2022 {
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
     #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
     #[tokio::test]
-    async fn mint_with_non_transferable_mint_and_invalid_token_account(
+    async fn mint_with_non_transferable_mint(token_standard: TokenStandard) {
+        let mut context = program_test().start_with_context().await;
+
+        // given a mint account with extensions and metadata
+
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_default_with_mint_extensions(
+                &mut context,
+                token_standard,
+                &[ExtensionType::NonTransferable],
+            )
+            .await
+            .unwrap();
+
+        // when minting a token
+
+        let token_owner = Keypair::new().pubkey();
+        let payer = context.payer.dirty_clone();
+
+        asset
+            .mint(
+                &mut context,
+                &token_owner,
+                1,
+                &payer,
+                &payer,
+                spl_token_2022::ID,
+            )
+            .await
+            .unwrap();
+
+        // then the token account is created with the correct balance
+
+        let token_account = get_account(&mut context, &asset.token).await;
+        assert_eq!(token_account.owner, spl_token_2022::ID);
+
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
+        assert_eq!(token.amount, 1);
+    }
+
+    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
+    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
+    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
+    #[tokio::test]
+    async fn mint_custom_token_with_non_transferable_mint_and_invalid_token_account(
         token_standard: TokenStandard,
     ) {
         let mut context = program_test().start_with_context().await;
@@ -287,7 +333,7 @@ mod mint_token2022 {
     #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
     #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
     #[tokio::test]
-    async fn mint_with_non_transferable_mint(token_standard: TokenStandard) {
+    async fn mint_custom_token_with_non_transferable_mint(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
         // given a mint account with extensions and metadata
