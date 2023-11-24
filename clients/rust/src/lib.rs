@@ -20,3 +20,9 @@ pub const MAX_CREATOR_LIMIT: usize = 5;
 
 /// Maximum number of bytes used by a creator data.
 pub const MAX_CREATOR_LEN: usize = 32 + 1 + 1;
+
+/// Maximum number of bytes used by a edition marker.
+pub const MAX_EDITION_MARKER_SIZE: usize = 32;
+
+/// Number of bits used by a edition marker.
+pub const EDITION_MARKER_BIT_SIZE: u64 = 248;
