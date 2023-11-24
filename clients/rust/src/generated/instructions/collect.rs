@@ -56,7 +56,12 @@ impl CollectInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `Collect`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[]` pda_account
 #[derive(Default)]
 pub struct CollectBuilder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -210,7 +215,12 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
     }
 }
 
-/// `collect` CPI instruction builder.
+/// Instruction builder for `Collect` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[]` pda_account
 pub struct CollectCpiBuilder<'a, 'b> {
     instruction: Box<CollectCpiBuilderInstruction<'a, 'b>>,
 }

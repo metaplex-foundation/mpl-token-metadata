@@ -173,7 +173,23 @@ pub struct UnlockInstructionArgs {
     pub unlock_args: UnlockArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Unlock`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` token_owner
+///   2. `[writable]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, optional]` token_record
+///   7. `[writable, signer]` payer
+///   8. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   9. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   10. `[optional]` spl_token_program
+///   11. `[optional]` authorization_rules_program
+///   12. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct UnlockBuilder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -624,7 +640,23 @@ impl<'a, 'b> UnlockCpi<'a, 'b> {
     }
 }
 
-/// `unlock` CPI instruction builder.
+/// Instruction builder for `Unlock` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` token_owner
+///   2. `[writable]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, optional]` token_record
+///   7. `[writable, signer]` payer
+///   8. `[]` system_program
+///   9. `[]` sysvar_instructions
+///   10. `[optional]` spl_token_program
+///   11. `[optional]` authorization_rules_program
+///   12. `[optional]` authorization_rules
 pub struct UnlockCpiBuilder<'a, 'b> {
     instruction: Box<UnlockCpiBuilderInstruction<'a, 'b>>,
 }

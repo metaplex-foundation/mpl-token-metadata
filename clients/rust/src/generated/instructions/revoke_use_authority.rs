@@ -98,7 +98,19 @@ impl RevokeUseAuthorityInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `RevokeUseAuthority`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` use_authority_record
+///   1. `[writable, signer]` owner
+///   2. `[]` user
+///   3. `[writable]` owner_token_account
+///   4. `[]` mint
+///   5. `[]` metadata
+///   6. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` rent
 #[derive(Default)]
 pub struct RevokeUseAuthorityBuilder {
     use_authority_record: Option<solana_program::pubkey::Pubkey>,
@@ -400,7 +412,19 @@ impl<'a, 'b> RevokeUseAuthorityCpi<'a, 'b> {
     }
 }
 
-/// `revoke_use_authority` CPI instruction builder.
+/// Instruction builder for `RevokeUseAuthority` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` use_authority_record
+///   1. `[writable, signer]` owner
+///   2. `[]` user
+///   3. `[writable]` owner_token_account
+///   4. `[]` mint
+///   5. `[]` metadata
+///   6. `[]` token_program
+///   7. `[]` system_program
+///   8. `[optional]` rent
 pub struct RevokeUseAuthorityCpiBuilder<'a, 'b> {
     instruction: Box<RevokeUseAuthorityCpiBuilderInstruction<'a, 'b>>,
 }

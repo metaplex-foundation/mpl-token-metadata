@@ -95,7 +95,18 @@ impl SetAndVerifyCollectionInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `SetAndVerifyCollection`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` update_authority
+///   4. `[]` collection_mint
+///   5. `[]` collection
+///   6. `[]` collection_master_edition_account
+///   7. `[optional]` collection_authority_record
 #[derive(Default)]
 pub struct SetAndVerifyCollectionBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -383,7 +394,18 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
     }
 }
 
-/// `set_and_verify_collection` CPI instruction builder.
+/// Instruction builder for `SetAndVerifyCollection` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` update_authority
+///   4. `[]` collection_mint
+///   5. `[]` collection
+///   6. `[]` collection_master_edition_account
+///   7. `[optional]` collection_authority_record
 pub struct SetAndVerifyCollectionCpiBuilder<'a, 'b> {
     instruction: Box<SetAndVerifyCollectionCpiBuilderInstruction<'a, 'b>>,
 }

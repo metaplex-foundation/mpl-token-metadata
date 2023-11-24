@@ -203,33 +203,45 @@ export function createV1(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     masterEdition: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
-    mint: { index: 2, isWritable: true, value: input.mint ?? null },
-    authority: { index: 3, isWritable: false, value: input.authority ?? null },
-    payer: { index: 4, isWritable: true, value: input.payer ?? null },
+    mint: { index: 2, isWritable: true as boolean, value: input.mint ?? null },
+    authority: {
+      index: 3,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
+    payer: {
+      index: 4,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     updateAuthority: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
     systemProgram: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

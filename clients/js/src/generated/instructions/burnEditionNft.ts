@@ -87,46 +87,54 @@ export function burnEditionNft(
 
   // Accounts.
   const resolvedAccounts = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-    owner: { index: 1, isWritable: true, value: input.owner ?? null },
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    owner: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.owner ?? null,
+    },
     printEditionMint: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.printEditionMint ?? null,
     },
     masterEditionMint: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterEditionMint ?? null,
     },
     printEditionTokenAccount: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.printEditionTokenAccount ?? null,
     },
     masterEditionTokenAccount: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterEditionTokenAccount ?? null,
     },
     masterEditionAccount: {
       index: 6,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEditionAccount ?? null,
     },
     printEditionAccount: {
       index: 7,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.printEditionAccount ?? null,
     },
     editionMarkerAccount: {
       index: 8,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMarkerAccount ?? null,
     },
     splTokenProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

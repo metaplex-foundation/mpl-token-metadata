@@ -75,7 +75,15 @@ impl RevokeCollectionAuthorityInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `RevokeCollectionAuthority`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_authority_record
+///   1. `[writable]` delegate_authority
+///   2. `[writable, signer]` revoke_authority
+///   3. `[]` metadata
+///   4. `[]` mint
 #[derive(Default)]
 pub struct RevokeCollectionAuthorityBuilder {
     collection_authority_record: Option<solana_program::pubkey::Pubkey>,
@@ -298,7 +306,15 @@ impl<'a, 'b> RevokeCollectionAuthorityCpi<'a, 'b> {
     }
 }
 
-/// `revoke_collection_authority` CPI instruction builder.
+/// Instruction builder for `RevokeCollectionAuthority` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_authority_record
+///   1. `[writable]` delegate_authority
+///   2. `[writable, signer]` revoke_authority
+///   3. `[]` metadata
+///   4. `[]` mint
 pub struct RevokeCollectionAuthorityCpiBuilder<'a, 'b> {
     instruction: Box<RevokeCollectionAuthorityCpiBuilderInstruction<'a, 'b>>,
 }

@@ -144,7 +144,24 @@ pub struct MintNewEditionFromMasterEditionViaTokenInstructionArgs {
         MintNewEditionFromMasterEditionViaTokenArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `MintNewEditionFromMasterEditionViaToken`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` new_metadata
+///   1. `[writable]` new_edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` new_mint
+///   4. `[writable]` edition_mark_pda
+///   5. `[signer]` new_mint_authority
+///   6. `[writable, signer]` payer
+///   7. `[signer]` token_account_owner
+///   8. `[]` token_account
+///   9. `[]` new_metadata_update_authority
+///   10. `[]` metadata
+///   11. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   12. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   13. `[optional]` rent
 #[derive(Default)]
 pub struct MintNewEditionFromMasterEditionViaTokenBuilder {
     new_metadata: Option<solana_program::pubkey::Pubkey>,
@@ -567,7 +584,24 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaTokenCpi<'a, 'b> {
     }
 }
 
-/// `mint_new_edition_from_master_edition_via_token` CPI instruction builder.
+/// Instruction builder for `MintNewEditionFromMasterEditionViaToken` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` new_metadata
+///   1. `[writable]` new_edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` new_mint
+///   4. `[writable]` edition_mark_pda
+///   5. `[signer]` new_mint_authority
+///   6. `[writable, signer]` payer
+///   7. `[signer]` token_account_owner
+///   8. `[]` token_account
+///   9. `[]` new_metadata_update_authority
+///   10. `[]` metadata
+///   11. `[]` token_program
+///   12. `[]` system_program
+///   13. `[optional]` rent
 pub struct MintNewEditionFromMasterEditionViaTokenCpiBuilder<'a, 'b> {
     instruction: Box<MintNewEditionFromMasterEditionViaTokenCpiBuilderInstruction<'a, 'b>>,
 }

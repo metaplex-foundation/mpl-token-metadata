@@ -166,7 +166,21 @@ pub struct UpdateAsAuthorityItemDelegateV2InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `UpdateAsAuthorityItemDelegateV2`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, signer]` payer
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   9. `[optional]` authorization_rules_program
+///   10. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct UpdateAsAuthorityItemDelegateV2Builder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -599,7 +613,21 @@ impl<'a, 'b> UpdateAsAuthorityItemDelegateV2Cpi<'a, 'b> {
     }
 }
 
-/// `update_as_authority_item_delegate_v2` CPI instruction builder.
+/// Instruction builder for `UpdateAsAuthorityItemDelegateV2` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, signer]` payer
+///   7. `[]` system_program
+///   8. `[]` sysvar_instructions
+///   9. `[optional]` authorization_rules_program
+///   10. `[optional]` authorization_rules
 pub struct UpdateAsAuthorityItemDelegateV2CpiBuilder<'a, 'b> {
     instruction: Box<UpdateAsAuthorityItemDelegateV2CpiBuilderInstruction<'a, 'b>>,
 }

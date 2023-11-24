@@ -64,7 +64,13 @@ impl ConvertMasterEditionV1ToV2InstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `ConvertMasterEditionV1ToV2`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` master_edition
+///   1. `[writable]` one_time_auth
+///   2. `[writable]` printing_mint
 #[derive(Default)]
 pub struct ConvertMasterEditionV1ToV2Builder {
     master_edition: Option<solana_program::pubkey::Pubkey>,
@@ -238,7 +244,13 @@ impl<'a, 'b> ConvertMasterEditionV1ToV2Cpi<'a, 'b> {
     }
 }
 
-/// `convert_master_edition_v1_to_v2` CPI instruction builder.
+/// Instruction builder for `ConvertMasterEditionV1ToV2` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` master_edition
+///   1. `[writable]` one_time_auth
+///   2. `[writable]` printing_mint
 pub struct ConvertMasterEditionV1ToV2CpiBuilder<'a, 'b> {
     instruction: Box<ConvertMasterEditionV1ToV2CpiBuilderInstruction<'a, 'b>>,
 }

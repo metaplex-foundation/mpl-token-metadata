@@ -187,7 +187,24 @@ pub struct BurnInstructionArgs {
     pub burn_args: BurnArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Burn`.
+///
+/// ### Accounts:
+///
+///   0. `[writable, signer]` authority
+///   1. `[writable, optional]` collection_metadata
+///   2. `[writable]` metadata
+///   3. `[writable, optional]` edition
+///   4. `[writable]` mint
+///   5. `[writable]` token
+///   6. `[writable, optional]` master_edition
+///   7. `[optional]` master_edition_mint
+///   8. `[optional]` master_edition_token
+///   9. `[writable, optional]` edition_marker
+///   10. `[writable, optional]` token_record
+///   11. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   12. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   13. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
 #[derive(Default)]
 pub struct BurnBuilder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -675,7 +692,24 @@ impl<'a, 'b> BurnCpi<'a, 'b> {
     }
 }
 
-/// `burn` CPI instruction builder.
+/// Instruction builder for `Burn` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable, signer]` authority
+///   1. `[writable, optional]` collection_metadata
+///   2. `[writable]` metadata
+///   3. `[writable, optional]` edition
+///   4. `[writable]` mint
+///   5. `[writable]` token
+///   6. `[writable, optional]` master_edition
+///   7. `[optional]` master_edition_mint
+///   8. `[optional]` master_edition_token
+///   9. `[writable, optional]` edition_marker
+///   10. `[writable, optional]` token_record
+///   11. `[]` system_program
+///   12. `[]` sysvar_instructions
+///   13. `[]` spl_token_program
 pub struct BurnCpiBuilder<'a, 'b> {
     instruction: Box<BurnCpiBuilderInstruction<'a, 'b>>,
 }

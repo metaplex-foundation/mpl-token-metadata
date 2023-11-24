@@ -127,54 +127,70 @@ export function burnV1(
 
   // Accounts.
   const resolvedAccounts = {
-    authority: { index: 0, isWritable: true, value: input.authority ?? null },
+    authority: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.authority ?? null,
+    },
     collectionMetadata: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionMetadata ?? null,
     },
-    metadata: { index: 2, isWritable: true, value: input.metadata ?? null },
-    edition: { index: 3, isWritable: true, value: input.edition ?? null },
-    mint: { index: 4, isWritable: true, value: input.mint ?? null },
-    token: { index: 5, isWritable: true, value: input.token ?? null },
+    metadata: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    edition: {
+      index: 3,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
+    mint: { index: 4, isWritable: true as boolean, value: input.mint ?? null },
+    token: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
     masterEdition: {
       index: 6,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
     masterEditionMint: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterEditionMint ?? null,
     },
     masterEditionToken: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterEditionToken ?? null,
     },
     editionMarker: {
       index: 9,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMarker ?? null,
     },
     tokenRecord: {
       index: 10,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenRecord ?? null,
     },
     systemProgram: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

@@ -169,7 +169,22 @@ pub struct UseV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `UseV1`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[writable, optional]` delegate_record
+///   2. `[writable, optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[writable, optional]` edition
+///   6. `[signer]` payer
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   9. `[optional]` spl_token_program
+///   10. `[optional]` authorization_rules_program
+///   11. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct UseV1Builder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -599,7 +614,22 @@ impl<'a, 'b> UseV1Cpi<'a, 'b> {
     }
 }
 
-/// `use_v1` CPI instruction builder.
+/// Instruction builder for `UseV1` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[writable, optional]` delegate_record
+///   2. `[writable, optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[writable, optional]` edition
+///   6. `[signer]` payer
+///   7. `[]` system_program
+///   8. `[]` sysvar_instructions
+///   9. `[optional]` spl_token_program
+///   10. `[optional]` authorization_rules_program
+///   11. `[optional]` authorization_rules
 pub struct UseV1CpiBuilder<'a, 'b> {
     instruction: Box<UseV1CpiBuilderInstruction<'a, 'b>>,
 }

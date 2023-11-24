@@ -145,7 +145,25 @@ impl MigrateInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `Migrate`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[writable]` token
+///   3. `[]` token_owner
+///   4. `[]` mint
+///   5. `[writable, signer]` payer
+///   6. `[signer]` authority
+///   7. `[]` collection_metadata
+///   8. `[]` delegate_record
+///   9. `[writable]` token_record
+///   10. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   11. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   12. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   13. `[optional]` authorization_rules_program
+///   14. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct MigrateBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -582,7 +600,25 @@ impl<'a, 'b> MigrateCpi<'a, 'b> {
     }
 }
 
-/// `migrate` CPI instruction builder.
+/// Instruction builder for `Migrate` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[writable]` token
+///   3. `[]` token_owner
+///   4. `[]` mint
+///   5. `[writable, signer]` payer
+///   6. `[signer]` authority
+///   7. `[]` collection_metadata
+///   8. `[]` delegate_record
+///   9. `[writable]` token_record
+///   10. `[]` system_program
+///   11. `[]` sysvar_instructions
+///   12. `[]` spl_token_program
+///   13. `[optional]` authorization_rules_program
+///   14. `[optional]` authorization_rules
 pub struct MigrateCpiBuilder<'a, 'b> {
     instruction: Box<MigrateCpiBuilderInstruction<'a, 'b>>,
 }

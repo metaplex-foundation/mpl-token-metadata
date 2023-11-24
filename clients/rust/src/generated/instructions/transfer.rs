@@ -190,7 +190,27 @@ pub struct TransferInstructionArgs {
     pub transfer_args: TransferArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Transfer`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[]` token_owner
+///   2. `[writable]` destination_token
+///   3. `[]` destination_owner
+///   4. `[]` mint
+///   5. `[writable]` metadata
+///   6. `[optional]` edition
+///   7. `[writable, optional]` token_record
+///   8. `[writable, optional]` destination_token_record
+///   9. `[signer]` authority
+///   10. `[writable, signer]` payer
+///   11. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   12. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   13. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   14. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   15. `[optional]` authorization_rules_program
+///   16. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct TransferBuilder {
     token: Option<solana_program::pubkey::Pubkey>,
@@ -725,7 +745,27 @@ impl<'a, 'b> TransferCpi<'a, 'b> {
     }
 }
 
-/// `transfer` CPI instruction builder.
+/// Instruction builder for `Transfer` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[]` token_owner
+///   2. `[writable]` destination_token
+///   3. `[]` destination_owner
+///   4. `[]` mint
+///   5. `[writable]` metadata
+///   6. `[optional]` edition
+///   7. `[writable, optional]` token_record
+///   8. `[writable, optional]` destination_token_record
+///   9. `[signer]` authority
+///   10. `[writable, signer]` payer
+///   11. `[]` system_program
+///   12. `[]` sysvar_instructions
+///   13. `[]` spl_token_program
+///   14. `[]` spl_ata_program
+///   15. `[optional]` authorization_rules_program
+///   16. `[optional]` authorization_rules
 pub struct TransferCpiBuilder<'a, 'b> {
     instruction: Box<TransferCpiBuilderInstruction<'a, 'b>>,
 }

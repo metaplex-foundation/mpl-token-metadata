@@ -77,17 +77,17 @@ export function convertMasterEditionV1ToV2(
   const resolvedAccounts = {
     masterEdition: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
     oneTimeAuth: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.oneTimeAuth ?? null,
     },
     printingMint: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.printingMint ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

@@ -141,7 +141,26 @@ impl DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `DeprecatedMintNewEditionFromMasterEditionViaPrintingToken`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` mint
+///   4. `[signer]` mint_authority
+///   5. `[writable]` printing_mint
+///   6. `[writable]` master_token_account
+///   7. `[writable]` edition_marker
+///   8. `[signer]` burn_authority
+///   9. `[signer]` payer
+///   10. `[]` master_update_authority
+///   11. `[]` master_metadata
+///   12. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   13. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   14. `[optional]` rent (default to `SysvarRent111111111111111111111111111111111`)
+///   15. `[writable, optional]` reservation_list
 #[derive(Default)]
 pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -579,7 +598,26 @@ impl<'a, 'b> DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpi<'a, 'b
     }
 }
 
-/// `deprecated_mint_new_edition_from_master_edition_via_printing_token` CPI instruction builder.
+/// Instruction builder for `DeprecatedMintNewEditionFromMasterEditionViaPrintingToken` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` mint
+///   4. `[signer]` mint_authority
+///   5. `[writable]` printing_mint
+///   6. `[writable]` master_token_account
+///   7. `[writable]` edition_marker
+///   8. `[signer]` burn_authority
+///   9. `[signer]` payer
+///   10. `[]` master_update_authority
+///   11. `[]` master_metadata
+///   12. `[]` token_program
+///   13. `[]` system_program
+///   14. `[]` rent
+///   15. `[writable, optional]` reservation_list
 pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilder<'a, 'b> {
     instruction:
         Box<DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenCpiBuilderInstruction<'a, 'b>>,
