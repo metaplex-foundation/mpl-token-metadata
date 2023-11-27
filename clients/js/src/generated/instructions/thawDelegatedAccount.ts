@@ -79,17 +79,25 @@ export function thawDelegatedAccount(
 
   // Accounts.
   const resolvedAccounts = {
-    delegate: { index: 0, isWritable: true, value: input.delegate ?? null },
+    delegate: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.delegate ?? null,
+    },
     tokenAccount: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenAccount ?? null,
     },
-    edition: { index: 2, isWritable: false, value: input.edition ?? null },
-    mint: { index: 3, isWritable: false, value: input.mint ?? null },
+    edition: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.edition ?? null,
+    },
+    mint: { index: 3, isWritable: false as boolean, value: input.mint ?? null },
     tokenProgram: {
       index: 4,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;

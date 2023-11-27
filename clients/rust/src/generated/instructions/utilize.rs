@@ -122,7 +122,21 @@ pub struct UtilizeInstructionArgs {
     pub number_of_uses: u64,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Utilize`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` token_account
+///   2. `[writable]` mint
+///   3. `[writable, signer]` use_authority
+///   4. `[]` owner
+///   5. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   6. `[optional]` ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` rent (default to `SysvarRent111111111111111111111111111111111`)
+///   9. `[writable, optional]` use_authority_record
+///   10. `[optional]` burner
 #[derive(Default)]
 pub struct UtilizeBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -481,7 +495,21 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
     }
 }
 
-/// `utilize` CPI instruction builder.
+/// Instruction builder for `Utilize` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` token_account
+///   2. `[writable]` mint
+///   3. `[writable, signer]` use_authority
+///   4. `[]` owner
+///   5. `[]` token_program
+///   6. `[]` ata_program
+///   7. `[]` system_program
+///   8. `[]` rent
+///   9. `[writable, optional]` use_authority_record
+///   10. `[optional]` burner
 pub struct UtilizeCpiBuilder<'a, 'b> {
     instruction: Box<UtilizeCpiBuilderInstruction<'a, 'b>>,
 }

@@ -111,7 +111,19 @@ pub struct CreateMasterEditionV3InstructionArgs {
     pub max_supply: Option<u64>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `CreateMasterEditionV3`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` edition
+///   1. `[writable]` mint
+///   2. `[signer]` update_authority
+///   3. `[signer]` mint_authority
+///   4. `[writable, signer]` payer
+///   5. `[writable]` metadata
+///   6. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` rent
 #[derive(Default)]
 pub struct CreateMasterEditionV3Builder {
     edition: Option<solana_program::pubkey::Pubkey>,
@@ -422,7 +434,19 @@ impl<'a, 'b> CreateMasterEditionV3Cpi<'a, 'b> {
     }
 }
 
-/// `create_master_edition_v3` CPI instruction builder.
+/// Instruction builder for `CreateMasterEditionV3` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` edition
+///   1. `[writable]` mint
+///   2. `[signer]` update_authority
+///   3. `[signer]` mint_authority
+///   4. `[writable, signer]` payer
+///   5. `[writable]` metadata
+///   6. `[]` token_program
+///   7. `[]` system_program
+///   8. `[optional]` rent
 pub struct CreateMasterEditionV3CpiBuilder<'a, 'b> {
     instruction: Box<CreateMasterEditionV3CpiBuilderInstruction<'a, 'b>>,
 }

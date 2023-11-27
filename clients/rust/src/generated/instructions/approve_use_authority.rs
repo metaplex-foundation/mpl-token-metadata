@@ -121,7 +121,21 @@ pub struct ApproveUseAuthorityInstructionArgs {
     pub number_of_uses: u64,
 }
 
-/// Instruction builder.
+/// Instruction builder for `ApproveUseAuthority`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` use_authority_record
+///   1. `[writable, signer]` owner
+///   2. `[writable, signer]` payer
+///   3. `[]` user
+///   4. `[writable]` owner_token_account
+///   5. `[]` metadata
+///   6. `[]` mint
+///   7. `[]` burner
+///   8. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   9. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   10. `[optional]` rent
 #[derive(Default)]
 pub struct ApproveUseAuthorityBuilder {
     use_authority_record: Option<solana_program::pubkey::Pubkey>,
@@ -477,7 +491,21 @@ impl<'a, 'b> ApproveUseAuthorityCpi<'a, 'b> {
     }
 }
 
-/// `approve_use_authority` CPI instruction builder.
+/// Instruction builder for `ApproveUseAuthority` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` use_authority_record
+///   1. `[writable, signer]` owner
+///   2. `[writable, signer]` payer
+///   3. `[]` user
+///   4. `[writable]` owner_token_account
+///   5. `[]` metadata
+///   6. `[]` mint
+///   7. `[]` burner
+///   8. `[]` token_program
+///   9. `[]` system_program
+///   10. `[optional]` rent
 pub struct ApproveUseAuthorityCpiBuilder<'a, 'b> {
     instruction: Box<ApproveUseAuthorityCpiBuilderInstruction<'a, 'b>>,
 }

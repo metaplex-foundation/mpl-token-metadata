@@ -109,55 +109,71 @@ export function transferOutOfEscrow(
 
   // Accounts.
   const resolvedAccounts = {
-    escrow: { index: 0, isWritable: false, value: input.escrow ?? null },
-    metadata: { index: 1, isWritable: true, value: input.metadata ?? null },
-    payer: { index: 2, isWritable: true, value: input.payer ?? null },
+    escrow: {
+      index: 0,
+      isWritable: false as boolean,
+      value: input.escrow ?? null,
+    },
+    metadata: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    payer: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     attributeMint: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.attributeMint ?? null,
     },
     attributeSrc: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.attributeSrc ?? null,
     },
     attributeDst: {
       index: 5,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.attributeDst ?? null,
     },
     escrowMint: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.escrowMint ?? null,
     },
     escrowAccount: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.escrowAccount ?? null,
     },
     systemProgram: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     ataProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.ataProgram ?? null,
     },
     tokenProgram: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     sysvarInstructions: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
-    authority: { index: 12, isWritable: false, value: input.authority ?? null },
+    authority: {
+      index: 12,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.

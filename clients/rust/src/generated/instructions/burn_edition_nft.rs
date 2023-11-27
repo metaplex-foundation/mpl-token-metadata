@@ -103,7 +103,20 @@ impl BurnEditionNftInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `BurnEditionNft`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` owner
+///   2. `[writable]` print_edition_mint
+///   3. `[]` master_edition_mint
+///   4. `[writable]` print_edition_token_account
+///   5. `[]` master_edition_token_account
+///   6. `[writable]` master_edition_account
+///   7. `[writable]` print_edition_account
+///   8. `[writable]` edition_marker_account
+///   9. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
 #[derive(Default)]
 pub struct BurnEditionNftBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -442,7 +455,20 @@ impl<'a, 'b> BurnEditionNftCpi<'a, 'b> {
     }
 }
 
-/// `burn_edition_nft` CPI instruction builder.
+/// Instruction builder for `BurnEditionNft` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` owner
+///   2. `[writable]` print_edition_mint
+///   3. `[]` master_edition_mint
+///   4. `[writable]` print_edition_token_account
+///   5. `[]` master_edition_token_account
+///   6. `[writable]` master_edition_account
+///   7. `[writable]` print_edition_account
+///   8. `[writable]` edition_marker_account
+///   9. `[]` spl_token_program
 pub struct BurnEditionNftCpiBuilder<'a, 'b> {
     instruction: Box<BurnEditionNftCpiBuilderInstruction<'a, 'b>>,
 }

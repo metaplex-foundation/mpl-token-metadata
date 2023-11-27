@@ -84,7 +84,16 @@ impl UnverifyCollectionInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `UnverifyCollection`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[]` collection_mint
+///   3. `[]` collection
+///   4. `[]` collection_master_edition_account
+///   5. `[optional]` collection_authority_record
 #[derive(Default)]
 pub struct UnverifyCollectionBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -333,7 +342,16 @@ impl<'a, 'b> UnverifyCollectionCpi<'a, 'b> {
     }
 }
 
-/// `unverify_collection` CPI instruction builder.
+/// Instruction builder for `UnverifyCollection` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[]` collection_mint
+///   3. `[]` collection
+///   4. `[]` collection_master_edition_account
+///   5. `[optional]` collection_authority_record
 pub struct UnverifyCollectionCpiBuilder<'a, 'b> {
     instruction: Box<UnverifyCollectionCpiBuilderInstruction<'a, 'b>>,
 }

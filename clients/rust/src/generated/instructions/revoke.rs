@@ -185,7 +185,24 @@ pub struct RevokeInstructionArgs {
     pub revoke_args: RevokeArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Revoke`.
+///
+/// ### Accounts:
+///
+///   0. `[writable, optional]` delegate_record
+///   1. `[]` delegate
+///   2. `[writable]` metadata
+///   3. `[optional]` master_edition
+///   4. `[writable, optional]` token_record
+///   5. `[]` mint
+///   6. `[writable, optional]` token
+///   7. `[signer]` authority
+///   8. `[writable, signer]` payer
+///   9. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   10. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   11. `[optional]` spl_token_program
+///   12. `[optional]` authorization_rules_program
+///   13. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct RevokeBuilder {
     delegate_record: Option<solana_program::pubkey::Pubkey>,
@@ -666,7 +683,24 @@ impl<'a, 'b> RevokeCpi<'a, 'b> {
     }
 }
 
-/// `revoke` CPI instruction builder.
+/// Instruction builder for `Revoke` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable, optional]` delegate_record
+///   1. `[]` delegate
+///   2. `[writable]` metadata
+///   3. `[optional]` master_edition
+///   4. `[writable, optional]` token_record
+///   5. `[]` mint
+///   6. `[writable, optional]` token
+///   7. `[signer]` authority
+///   8. `[writable, signer]` payer
+///   9. `[]` system_program
+///   10. `[]` sysvar_instructions
+///   11. `[optional]` spl_token_program
+///   12. `[optional]` authorization_rules_program
+///   13. `[optional]` authorization_rules
 pub struct RevokeCpiBuilder<'a, 'b> {
     instruction: Box<RevokeCpiBuilderInstruction<'a, 'b>>,
 }

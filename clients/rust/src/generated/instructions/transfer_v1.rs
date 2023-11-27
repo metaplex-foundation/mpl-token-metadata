@@ -195,7 +195,27 @@ pub struct TransferV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `TransferV1`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[]` token_owner
+///   2. `[writable]` destination_token
+///   3. `[]` destination_owner
+///   4. `[]` mint
+///   5. `[writable]` metadata
+///   6. `[optional]` edition
+///   7. `[writable, optional]` token_record
+///   8. `[writable, optional]` destination_token_record
+///   9. `[signer]` authority
+///   10. `[writable, signer]` payer
+///   11. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   12. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   13. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   14. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   15. `[optional]` authorization_rules_program
+///   16. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct TransferV1Builder {
     token: Option<solana_program::pubkey::Pubkey>,
@@ -736,7 +756,27 @@ impl<'a, 'b> TransferV1Cpi<'a, 'b> {
     }
 }
 
-/// `transfer_v1` CPI instruction builder.
+/// Instruction builder for `TransferV1` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[]` token_owner
+///   2. `[writable]` destination_token
+///   3. `[]` destination_owner
+///   4. `[]` mint
+///   5. `[writable]` metadata
+///   6. `[optional]` edition
+///   7. `[writable, optional]` token_record
+///   8. `[writable, optional]` destination_token_record
+///   9. `[signer]` authority
+///   10. `[writable, signer]` payer
+///   11. `[]` system_program
+///   12. `[]` sysvar_instructions
+///   13. `[]` spl_token_program
+///   14. `[]` spl_ata_program
+///   15. `[optional]` authorization_rules_program
+///   16. `[optional]` authorization_rules
 pub struct TransferV1CpiBuilder<'a, 'b> {
     instruction: Box<TransferV1CpiBuilderInstruction<'a, 'b>>,
 }

@@ -84,21 +84,25 @@ export function revokeCollectionAuthority(
   const resolvedAccounts = {
     collectionAuthorityRecord: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionAuthorityRecord ?? null,
     },
     delegateAuthority: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.delegateAuthority ?? null,
     },
     revokeAuthority: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.revokeAuthority ?? null,
     },
-    metadata: { index: 3, isWritable: false, value: input.metadata ?? null },
-    mint: { index: 4, isWritable: false, value: input.mint ?? null },
+    metadata: {
+      index: 3,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
+    mint: { index: 4, isWritable: false as boolean, value: input.mint ?? null },
   } satisfies ResolvedAccountsWithIndices;
 
   // Default values.

@@ -89,7 +89,17 @@ impl VerifySizedCollectionItemInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `VerifySizedCollectionItem`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` collection_mint
+///   4. `[writable]` collection
+///   5. `[]` collection_master_edition_account
+///   6. `[optional]` collection_authority_record
 #[derive(Default)]
 pub struct VerifySizedCollectionItemBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -356,7 +366,17 @@ impl<'a, 'b> VerifySizedCollectionItemCpi<'a, 'b> {
     }
 }
 
-/// `verify_sized_collection_item` CPI instruction builder.
+/// Instruction builder for `VerifySizedCollectionItem` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` collection_mint
+///   4. `[writable]` collection
+///   5. `[]` collection_master_edition_account
+///   6. `[optional]` collection_authority_record
 pub struct VerifySizedCollectionItemCpiBuilder<'a, 'b> {
     instruction: Box<VerifySizedCollectionItemCpiBuilderInstruction<'a, 'b>>,
 }

@@ -103,7 +103,17 @@ pub struct CreateMetadataAccountV3InstructionArgs {
     pub collection_details: Option<CollectionDetails>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `CreateMetadataAccountV3`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[]` mint
+///   2. `[signer]` mint_authority
+///   3. `[writable, signer]` payer
+///   4. `[signer]` update_authority
+///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   6. `[optional]` rent
 #[derive(Default)]
 pub struct CreateMetadataAccountV3Builder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -390,7 +400,17 @@ impl<'a, 'b> CreateMetadataAccountV3Cpi<'a, 'b> {
     }
 }
 
-/// `create_metadata_account_v3` CPI instruction builder.
+/// Instruction builder for `CreateMetadataAccountV3` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[]` mint
+///   2. `[signer]` mint_authority
+///   3. `[writable, signer]` payer
+///   4. `[signer]` update_authority
+///   5. `[]` system_program
+///   6. `[optional]` rent
 pub struct CreateMetadataAccountV3CpiBuilder<'a, 'b> {
     instruction: Box<CreateMetadataAccountV3CpiBuilderInstruction<'a, 'b>>,
 }

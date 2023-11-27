@@ -191,7 +191,25 @@ pub struct MintV1InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `MintV1`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[optional]` token_owner
+///   2. `[]` metadata
+///   3. `[writable, optional]` master_edition
+///   4. `[writable, optional]` token_record
+///   5. `[writable]` mint
+///   6. `[signer]` authority
+///   7. `[optional]` delegate_record
+///   8. `[writable, signer]` payer
+///   9. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   10. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   11. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   12. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   13. `[optional]` authorization_rules_program
+///   14. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct MintV1Builder {
     token: Option<solana_program::pubkey::Pubkey>,
@@ -702,7 +720,25 @@ impl<'a, 'b> MintV1Cpi<'a, 'b> {
     }
 }
 
-/// `mint_v1` CPI instruction builder.
+/// Instruction builder for `MintV1` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` token
+///   1. `[optional]` token_owner
+///   2. `[]` metadata
+///   3. `[writable, optional]` master_edition
+///   4. `[writable, optional]` token_record
+///   5. `[writable]` mint
+///   6. `[signer]` authority
+///   7. `[optional]` delegate_record
+///   8. `[writable, signer]` payer
+///   9. `[]` system_program
+///   10. `[]` sysvar_instructions
+///   11. `[]` spl_token_program
+///   12. `[]` spl_ata_program
+///   13. `[optional]` authorization_rules_program
+///   14. `[optional]` authorization_rules
 pub struct MintV1CpiBuilder<'a, 'b> {
     instruction: Box<MintV1CpiBuilderInstruction<'a, 'b>>,
 }

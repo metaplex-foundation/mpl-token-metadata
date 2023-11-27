@@ -75,7 +75,12 @@ pub struct UpdateMetadataAccountV2InstructionArgs {
     pub is_mutable: Option<bool>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `UpdateMetadataAccountV2`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` update_authority
 #[derive(Default)]
 pub struct UpdateMetadataAccountV2Builder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -274,7 +279,12 @@ impl<'a, 'b> UpdateMetadataAccountV2Cpi<'a, 'b> {
     }
 }
 
-/// `update_metadata_account_v2` CPI instruction builder.
+/// Instruction builder for `UpdateMetadataAccountV2` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` update_authority
 pub struct UpdateMetadataAccountV2CpiBuilder<'a, 'b> {
     instruction: Box<UpdateMetadataAccountV2CpiBuilderInstruction<'a, 'b>>,
 }

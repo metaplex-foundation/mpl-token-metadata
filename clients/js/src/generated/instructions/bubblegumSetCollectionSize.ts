@@ -98,27 +98,27 @@ export function bubblegumSetCollectionSize(
   const resolvedAccounts = {
     collectionMetadata: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionMetadata ?? null,
     },
     collectionAuthority: {
       index: 1,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionAuthority ?? null,
     },
     collectionMint: {
       index: 2,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMint ?? null,
     },
     bubblegumSigner: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.bubblegumSigner ?? null,
     },
     collectionAuthorityRecord: {
       index: 4,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionAuthorityRecord ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
