@@ -165,7 +165,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                         return Err(MetadataError::InvalidCloseAuthority.into());
                     }
                 } else {
-                    return Err(MetadataError::MissingMasterEditionAccount.into());
+                    return Err(MetadataError::MissingEditionAccount.into());
                 };
             }
         }
