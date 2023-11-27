@@ -141,20 +141,21 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         // validates that the close authority on the token is either None
         // or the master edition account for programmable assets
 
-        if let COption::Some(close_authority) = token.close_authority {
-            let invalid = if let Some(master_edition) = ctx.accounts.master_edition_info {
-                close_authority != *master_edition.key
-            } else {
+        if matches!(
+            metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+                | Some(TokenStandard::ProgrammableNonFungibleEdition)
+        ) {
+            if let COption::Some(close_authority) = token.close_authority {
                 // the close authority must match the master edition if there is one set
-                matches!(
-                    metadata.token_standard,
-                    Some(TokenStandard::ProgrammableNonFungible)
-                        | Some(TokenStandard::ProgrammableNonFungibleEdition)
-                )
-            };
-
-            if invalid {
-                return Err(MetadataError::InvalidCloseAuthority.into());
+                // on the token account
+                if let Some(master_edition) = ctx.accounts.master_edition_info {
+                    if close_authority != *master_edition.key {
+                        return Err(MetadataError::InvalidCloseAuthority.into());
+                    }
+                } else {
+                    return Err(MetadataError::MissingMasterEditionAccount.into());
+                };
             }
         }
     }

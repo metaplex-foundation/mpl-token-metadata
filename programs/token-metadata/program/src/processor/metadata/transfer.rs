@@ -149,23 +149,24 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             None, // we already checked the supply of the mint account
         )?;
 
-        // validates that the close authority on the destination token is either
-        // None or the master edition account for programmable assets
+        // validates that the close authority on the token is either None
+        // or the master edition account for programmable assets
 
-        if let COption::Some(close_authority) = token.close_authority {
-            let invalid = if let Some(master_edition) = ctx.accounts.edition_info {
-                close_authority != *master_edition.key
-            } else {
+        if matches!(
+            metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+                | Some(TokenStandard::ProgrammableNonFungibleEdition)
+        ) {
+            if let COption::Some(close_authority) = token.close_authority {
                 // the close authority must match the master edition if there is one set
-                matches!(
-                    metadata.token_standard,
-                    Some(TokenStandard::ProgrammableNonFungible)
-                        | Some(TokenStandard::ProgrammableNonFungibleEdition)
-                )
-            };
-
-            if invalid {
-                return Err(MetadataError::InvalidCloseAuthority.into());
+                // on the token account
+                if let Some(edition) = ctx.accounts.edition_info {
+                    if close_authority != *edition.key {
+                        return Err(MetadataError::InvalidCloseAuthority.into());
+                    }
+                } else {
+                    return Err(MetadataError::MissingMasterEditionAccount.into());
+                };
             }
         }
     }
