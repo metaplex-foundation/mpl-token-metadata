@@ -2495,7 +2495,7 @@
         },
         {
           "name": "collectionAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": true,
           "docs": [
             "Collection Update authority"
