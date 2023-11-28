@@ -103,7 +103,7 @@ export function bubblegumSetCollectionSize(
     },
     collectionAuthority: {
       index: 1,
-      isWritable: true as boolean,
+      isWritable: false as boolean,
       value: input.collectionAuthority ?? null,
     },
     collectionMint: {

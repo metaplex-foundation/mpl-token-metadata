@@ -41,7 +41,7 @@ impl BubblegumSetCollectionSize {
             self.collection_metadata,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.collection_authority,
             true,
         ));
@@ -96,7 +96,7 @@ pub struct BubblegumSetCollectionSizeInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[writable]` collection_metadata
-///   1. `[writable, signer]` collection_authority
+///   1. `[signer]` collection_authority
 ///   2. `[]` collection_mint
 ///   3. `[signer]` bubblegum_signer
 ///   4. `[optional]` collection_authority_record
@@ -297,7 +297,7 @@ impl<'a, 'b> BubblegumSetCollectionSizeCpi<'a, 'b> {
             *self.collection_metadata.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.collection_authority.key,
             true,
         ));
@@ -359,7 +359,7 @@ impl<'a, 'b> BubblegumSetCollectionSizeCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[writable]` collection_metadata
-///   1. `[writable, signer]` collection_authority
+///   1. `[signer]` collection_authority
 ///   2. `[]` collection_mint
 ///   3. `[signer]` bubblegum_signer
 ///   4. `[optional]` collection_authority_record
