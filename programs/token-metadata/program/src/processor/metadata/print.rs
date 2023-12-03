@@ -1,7 +1,7 @@
 use mpl_utils::token::get_mint_supply;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
-    program_error::ProgramError, pubkey::Pubkey, sysvar,
+    program_error::ProgramError, program_option::COption, pubkey::Pubkey, sysvar,
 };
 
 use crate::{
@@ -148,7 +148,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             ],
         )?;
     } else {
-        validate_token(
+        let token = validate_token(
             edition_mint_info,
             edition_token_account_info,
             edition_token_account_owner_info,
@@ -156,6 +156,23 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             Some(token_standard),
             Some(1), // we must have a token already
         )?;
+
+        // validates that the close authority on the token is either None
+        // or the master edition account for programmable assets
+
+        if matches!(
+            master_metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+                | Some(TokenStandard::ProgrammableNonFungibleEdition)
+        ) {
+            if let COption::Some(close_authority) = token.close_authority {
+                // the close authority must match the edition if there is one set
+                // on the token account
+                if close_authority != *edition_account_info.key {
+                    return Err(MetadataError::InvalidCloseAuthority.into());
+                }
+            }
+        }
     }
 
     if ata_program.key != &spl_associated_token_account::ID {
