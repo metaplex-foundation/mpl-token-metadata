@@ -407,4 +407,12 @@ test('it can create a new ProgrammableNonFungible with Token-2022', async (t) =>
     supply: 0n,
     maxSupply: some(0n),
   });
+
+  // And the SPL Token-2022 Program is the owner of the mint account.
+  const account = await umi.rpc.getAccount(mint.publicKey);
+  t.true(account.exists);
+
+  if (account.exists) {
+    t.is(account.owner, SPL_TOKEN_2022_PROGRAM_ID);
+  }
 });
