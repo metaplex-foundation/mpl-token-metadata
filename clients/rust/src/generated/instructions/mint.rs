@@ -184,7 +184,7 @@ pub struct MintInstructionArgs {
 /// ### Accounts:
 ///
 ///   0. `[writable]` token
-///   1. `[optional]` token_owner
+///   1. `[]` token_owner
 ///   2. `[]` metadata
 ///   3. `[writable, optional]` master_edition
 ///   4. `[writable, optional]` token_record
@@ -691,7 +691,7 @@ impl<'a, 'b> MintCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[writable]` token
-///   1. `[optional]` token_owner
+///   1. `[]` token_owner
 ///   2. `[]` metadata
 ///   3. `[writable, optional]` master_edition
 ///   4. `[writable, optional]` token_record

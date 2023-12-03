@@ -2,6 +2,7 @@
 import {
   generateSigner,
   percentAmount,
+  publicKey,
   PublicKey,
   Signer,
   transactionBuilder,
@@ -49,6 +50,10 @@ export const FUNGIBLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'FungibleAsset',
   'Fungible',
 ];
+
+export const SPL_TOKEN_2022_PROGRAM_ID: PublicKey = publicKey(
+  'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+);
 
 export const createUmi = async () =>
   (await baseCreateUmi()).use(mplTokenMetadata());
