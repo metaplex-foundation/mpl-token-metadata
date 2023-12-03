@@ -124,7 +124,19 @@ pub struct CreateInstructionArgs {
     pub create_args: CreateArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Create`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, optional]` master_edition
+///   2. `[writable, signer]` mint
+///   3. `[signer]` authority
+///   4. `[writable, signer]` payer
+///   5. `[signer]` update_authority
+///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   7. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   8. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
 #[derive(Default)]
 pub struct CreateBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -458,7 +470,19 @@ impl<'a, 'b> CreateCpi<'a, 'b> {
     }
 }
 
-/// `create` CPI instruction builder.
+/// Instruction builder for `Create` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, optional]` master_edition
+///   2. `[writable, signer]` mint
+///   3. `[signer]` authority
+///   4. `[writable, signer]` payer
+///   5. `[signer]` update_authority
+///   6. `[]` system_program
+///   7. `[]` sysvar_instructions
+///   8. `[]` spl_token_program
 pub struct CreateCpiBuilder<'a, 'b> {
     instruction: Box<CreateCpiBuilderInstruction<'a, 'b>>,
 }

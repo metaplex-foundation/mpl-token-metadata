@@ -56,7 +56,12 @@ impl SignMetadataInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `SignMetadata`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` creator
 #[derive(Default)]
 pub struct SignMetadataBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -210,7 +215,12 @@ impl<'a, 'b> SignMetadataCpi<'a, 'b> {
     }
 }
 
-/// `sign_metadata` CPI instruction builder.
+/// Instruction builder for `SignMetadata` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` creator
 pub struct SignMetadataCpiBuilder<'a, 'b> {
     instruction: Box<SignMetadataCpiBuilderInstruction<'a, 'b>>,
 }

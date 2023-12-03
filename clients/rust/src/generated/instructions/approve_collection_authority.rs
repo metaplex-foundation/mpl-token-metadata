@@ -93,7 +93,18 @@ impl ApproveCollectionAuthorityInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `ApproveCollectionAuthority`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_authority_record
+///   1. `[]` new_collection_authority
+///   2. `[writable, signer]` update_authority
+///   3. `[writable, signer]` payer
+///   4. `[]` metadata
+///   5. `[]` mint
+///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   7. `[optional]` rent
 #[derive(Default)]
 pub struct ApproveCollectionAuthorityBuilder {
     collection_authority_record: Option<solana_program::pubkey::Pubkey>,
@@ -377,7 +388,18 @@ impl<'a, 'b> ApproveCollectionAuthorityCpi<'a, 'b> {
     }
 }
 
-/// `approve_collection_authority` CPI instruction builder.
+/// Instruction builder for `ApproveCollectionAuthority` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_authority_record
+///   1. `[]` new_collection_authority
+///   2. `[writable, signer]` update_authority
+///   3. `[writable, signer]` payer
+///   4. `[]` metadata
+///   5. `[]` mint
+///   6. `[]` system_program
+///   7. `[optional]` rent
 pub struct ApproveCollectionAuthorityCpiBuilder<'a, 'b> {
     instruction: Box<ApproveCollectionAuthorityCpiBuilderInstruction<'a, 'b>>,
 }

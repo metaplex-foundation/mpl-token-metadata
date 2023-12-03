@@ -86,7 +86,17 @@ impl BurnNftInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `BurnNft`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` owner
+///   2. `[writable]` mint
+///   3. `[writable]` token_account
+///   4. `[writable]` master_edition_account
+///   5. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   6. `[writable, optional]` collection_metadata
 #[derive(Default)]
 pub struct BurnNftBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -349,7 +359,17 @@ impl<'a, 'b> BurnNftCpi<'a, 'b> {
     }
 }
 
-/// `burn_nft` CPI instruction builder.
+/// Instruction builder for `BurnNft` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` owner
+///   2. `[writable]` mint
+///   3. `[writable]` token_account
+///   4. `[writable]` master_edition_account
+///   5. `[]` spl_token_program
+///   6. `[writable, optional]` collection_metadata
 pub struct BurnNftCpiBuilder<'a, 'b> {
     instruction: Box<BurnNftCpiBuilderInstruction<'a, 'b>>,
 }

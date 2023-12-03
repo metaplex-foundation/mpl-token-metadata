@@ -62,7 +62,13 @@ impl UpdatePrimarySaleHappenedViaTokenInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `UpdatePrimarySaleHappenedViaToken`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` owner
+///   2. `[]` token
 #[derive(Default)]
 pub struct UpdatePrimarySaleHappenedViaTokenBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -236,7 +242,13 @@ impl<'a, 'b> UpdatePrimarySaleHappenedViaTokenCpi<'a, 'b> {
     }
 }
 
-/// `update_primary_sale_happened_via_token` CPI instruction builder.
+/// Instruction builder for `UpdatePrimarySaleHappenedViaToken` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` owner
+///   2. `[]` token
 pub struct UpdatePrimarySaleHappenedViaTokenCpiBuilder<'a, 'b> {
     instruction: Box<UpdatePrimarySaleHappenedViaTokenCpiBuilderInstruction<'a, 'b>>,
 }

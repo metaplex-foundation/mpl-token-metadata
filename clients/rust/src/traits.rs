@@ -6,7 +6,9 @@ use borsh::BorshDeserialize;
 use solana_program::pubkey::Pubkey;
 
 use crate::{
-    accounts::{MasterEdition, Metadata, TokenRecord},
+    accounts::{
+        CollectionAuthorityRecord, MasterEdition, Metadata, MetadataDelegateRecord, TokenRecord,
+    },
     errors::MplTokenMetadataError,
     generated::{
         types::{CollectionToggle, RuleSetToggle, UsesToggle},
@@ -17,6 +19,38 @@ use crate::{
         TokenStandard, TokenState, UpdateArgs, Uses,
     },
 };
+
+/// safe deserialize default impl
+
+macro_rules! safe_deserialize {
+    ( ($n:tt, $k:tt), $(($name:tt, $key:tt)),+ ) => {
+        safe_deserialize!(($n, $k));
+        safe_deserialize!($( ($name, $key) ),+);
+    };
+    ( ($name:tt, $key:tt) ) => {
+        impl $name {
+            pub fn safe_deserialize(data: &[u8]) -> Result<Self, borsh::maybestd::io::Error> {
+                if data.is_empty() || data[0] != Key::$key as u8 {
+                    return Err(borsh::maybestd::io::Error::new(
+                        ErrorKind::Other,
+                        "DataTypeMismatch",
+                    ));
+                }
+                // mutable "pointer" to the account data
+                let mut data = data;
+                let result = Self::deserialize(&mut data)?;
+
+                Ok(result)
+            }
+        }
+    };
+}
+
+safe_deserialize!(
+    (CollectionAuthorityRecord, CollectionAuthorityRecord),
+    (MasterEdition, MasterEditionV2),
+    (MetadataDelegateRecord, MetadataDelegate)
+);
 
 // UpdateV1InstructionArgs
 
@@ -39,24 +73,6 @@ impl Default for UpdateV1InstructionArgs {
 // Token Standard
 
 impl Copy for TokenStandard {}
-
-// Master Edition
-
-impl MasterEdition {
-    pub fn safe_deserialize(data: &[u8]) -> Result<Self, borsh::maybestd::io::Error> {
-        if data.is_empty() || data[0] != Key::MasterEditionV2 as u8 {
-            return Err(borsh::maybestd::io::Error::new(
-                ErrorKind::Other,
-                "DataTypeMismatch",
-            ));
-        }
-        // mutable "pointer" to the account data
-        let mut data = data;
-        let result = Self::deserialize(&mut data)?;
-
-        Ok(result)
-    }
-}
 
 // Metadata
 

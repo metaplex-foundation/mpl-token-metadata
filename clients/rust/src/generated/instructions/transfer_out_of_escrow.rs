@@ -136,7 +136,23 @@ pub struct TransferOutOfEscrowInstructionArgs {
     pub amount: u64,
 }
 
-/// Instruction builder.
+/// Instruction builder for `TransferOutOfEscrow`.
+///
+/// ### Accounts:
+///
+///   0. `[]` escrow
+///   1. `[writable]` metadata
+///   2. `[writable, signer]` payer
+///   3. `[]` attribute_mint
+///   4. `[writable]` attribute_src
+///   5. `[writable]` attribute_dst
+///   6. `[]` escrow_mint
+///   7. `[]` escrow_account
+///   8. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   9. `[optional]` ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   10. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   11. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   12. `[signer, optional]` authority
 #[derive(Default)]
 pub struct TransferOutOfEscrowBuilder {
     escrow: Option<solana_program::pubkey::Pubkey>,
@@ -526,7 +542,23 @@ impl<'a, 'b> TransferOutOfEscrowCpi<'a, 'b> {
     }
 }
 
-/// `transfer_out_of_escrow` CPI instruction builder.
+/// Instruction builder for `TransferOutOfEscrow` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[]` escrow
+///   1. `[writable]` metadata
+///   2. `[writable, signer]` payer
+///   3. `[]` attribute_mint
+///   4. `[writable]` attribute_src
+///   5. `[writable]` attribute_dst
+///   6. `[]` escrow_mint
+///   7. `[]` escrow_account
+///   8. `[]` system_program
+///   9. `[]` ata_program
+///   10. `[]` token_program
+///   11. `[]` sysvar_instructions
+///   12. `[signer, optional]` authority
 pub struct TransferOutOfEscrowCpiBuilder<'a, 'b> {
     instruction: Box<TransferOutOfEscrowCpiBuilderInstruction<'a, 'b>>,
 }

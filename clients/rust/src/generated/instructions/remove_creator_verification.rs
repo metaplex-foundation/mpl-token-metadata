@@ -58,7 +58,12 @@ impl RemoveCreatorVerificationInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `RemoveCreatorVerification`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` creator
 #[derive(Default)]
 pub struct RemoveCreatorVerificationBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -214,7 +219,12 @@ impl<'a, 'b> RemoveCreatorVerificationCpi<'a, 'b> {
     }
 }
 
-/// `remove_creator_verification` CPI instruction builder.
+/// Instruction builder for `RemoveCreatorVerification` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[signer]` creator
 pub struct RemoveCreatorVerificationCpiBuilder<'a, 'b> {
     instruction: Box<RemoveCreatorVerificationCpiBuilderInstruction<'a, 'b>>,
 }

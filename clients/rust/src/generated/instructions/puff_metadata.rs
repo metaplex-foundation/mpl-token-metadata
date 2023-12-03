@@ -50,7 +50,11 @@ impl PuffMetadataInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `PuffMetadata`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
 #[derive(Default)]
 pub struct PuffMetadataBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -186,7 +190,11 @@ impl<'a, 'b> PuffMetadataCpi<'a, 'b> {
     }
 }
 
-/// `puff_metadata` CPI instruction builder.
+/// Instruction builder for `PuffMetadata` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
 pub struct PuffMetadataCpiBuilder<'a, 'b> {
     instruction: Box<PuffMetadataCpiBuilderInstruction<'a, 'b>>,
 }

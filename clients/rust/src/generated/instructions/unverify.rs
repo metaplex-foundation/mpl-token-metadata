@@ -120,7 +120,17 @@ pub struct UnverifyInstructionArgs {
     pub verification_args: VerificationArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Unverify`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[writable]` metadata
+///   3. `[optional]` collection_mint
+///   4. `[writable, optional]` collection_metadata
+///   5. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   6. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
 #[derive(Default)]
 pub struct UnverifyBuilder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -430,7 +440,17 @@ impl<'a, 'b> UnverifyCpi<'a, 'b> {
     }
 }
 
-/// `unverify` CPI instruction builder.
+/// Instruction builder for `Unverify` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[writable]` metadata
+///   3. `[optional]` collection_mint
+///   4. `[writable, optional]` collection_metadata
+///   5. `[]` system_program
+///   6. `[]` sysvar_instructions
 pub struct UnverifyCpiBuilder<'a, 'b> {
     instruction: Box<UnverifyCpiBuilderInstruction<'a, 'b>>,
 }

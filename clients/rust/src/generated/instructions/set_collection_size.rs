@@ -85,7 +85,14 @@ pub struct SetCollectionSizeInstructionArgs {
     pub set_collection_size_args: SetCollectionSizeArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `SetCollectionSize`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[]` collection_mint
+///   3. `[optional]` collection_authority_record
 #[derive(Default)]
 pub struct SetCollectionSizeBuilder {
     collection_metadata: Option<solana_program::pubkey::Pubkey>,
@@ -319,7 +326,14 @@ impl<'a, 'b> SetCollectionSizeCpi<'a, 'b> {
     }
 }
 
-/// `set_collection_size` CPI instruction builder.
+/// Instruction builder for `SetCollectionSize` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` collection_metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[]` collection_mint
+///   3. `[optional]` collection_authority_record
 pub struct SetCollectionSizeCpiBuilder<'a, 'b> {
     instruction: Box<SetCollectionSizeCpiBuilderInstruction<'a, 'b>>,
 }

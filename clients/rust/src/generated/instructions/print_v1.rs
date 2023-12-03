@@ -174,7 +174,28 @@ pub struct PrintV1InstructionArgs {
     pub edition_number: u64,
 }
 
-/// Instruction builder.
+/// Instruction builder for `PrintV1`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` edition_metadata
+///   1. `[writable]` edition
+///   2. `[writable, signer]` edition_mint
+///   3. `[]` edition_token_account_owner
+///   4. `[writable]` edition_token_account
+///   5. `[signer]` edition_mint_authority
+///   6. `[writable, optional]` edition_token_record
+///   7. `[writable]` master_edition
+///   8. `[writable]` edition_marker_pda
+///   9. `[writable, signer]` payer
+///   10. `[signer]` master_token_account_owner
+///   11. `[]` master_token_account
+///   12. `[]` master_metadata
+///   13. `[]` update_authority
+///   14. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   15. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   16. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   17. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
 pub struct PrintV1Builder {
     edition_metadata: Option<solana_program::pubkey::Pubkey>,
@@ -711,7 +732,28 @@ impl<'a, 'b> PrintV1Cpi<'a, 'b> {
     }
 }
 
-/// `print_v1` CPI instruction builder.
+/// Instruction builder for `PrintV1` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` edition_metadata
+///   1. `[writable]` edition
+///   2. `[writable, signer]` edition_mint
+///   3. `[]` edition_token_account_owner
+///   4. `[writable]` edition_token_account
+///   5. `[signer]` edition_mint_authority
+///   6. `[writable, optional]` edition_token_record
+///   7. `[writable]` master_edition
+///   8. `[writable]` edition_marker_pda
+///   9. `[writable, signer]` payer
+///   10. `[signer]` master_token_account_owner
+///   11. `[]` master_token_account
+///   12. `[]` master_metadata
+///   13. `[]` update_authority
+///   14. `[]` spl_token_program
+///   15. `[]` spl_ata_program
+///   16. `[]` sysvar_instructions
+///   17. `[]` system_program
 pub struct PrintV1CpiBuilder<'a, 'b> {
     instruction: Box<PrintV1CpiBuilderInstruction<'a, 'b>>,
 }

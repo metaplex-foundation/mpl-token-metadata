@@ -124,7 +124,18 @@ impl VerifyCreatorV1InstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `VerifyCreatorV1`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[writable]` metadata
+///   3. `[optional]` collection_mint
+///   4. `[writable, optional]` collection_metadata
+///   5. `[optional]` collection_master_edition
+///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   7. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
 #[derive(Default)]
 pub struct VerifyCreatorV1Builder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -447,7 +458,18 @@ impl<'a, 'b> VerifyCreatorV1Cpi<'a, 'b> {
     }
 }
 
-/// `verify_creator_v1` CPI instruction builder.
+/// Instruction builder for `VerifyCreatorV1` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[writable]` metadata
+///   3. `[optional]` collection_mint
+///   4. `[writable, optional]` collection_metadata
+///   5. `[optional]` collection_master_edition
+///   6. `[]` system_program
+///   7. `[]` sysvar_instructions
 pub struct VerifyCreatorV1CpiBuilder<'a, 'b> {
     instruction: Box<VerifyCreatorV1CpiBuilderInstruction<'a, 'b>>,
 }
