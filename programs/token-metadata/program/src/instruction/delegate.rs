@@ -9,7 +9,7 @@ use solana_program::{
 };
 
 use super::InstructionBuilder;
-use crate::{instruction::MetadataInstruction, processor::AuthorizationData};
+use crate::{instruction::MetadataInstruction, processor::AuthorizationData, state::PrintSupply};
 
 /// Delegate args can specify Metadata delegates and Token delegates.
 #[repr(C)]
@@ -78,6 +78,10 @@ pub enum DelegateArgs {
         /// Required authorization data to validate the request.
         authorization_data: Option<AuthorizationData>,
     },
+    PrintDelegateV1 {
+        /// Required authorization data to validate the request.
+        authorization_data: Option<AuthorizationData>,
+    },
 }
 
 #[repr(C)]
@@ -98,6 +102,7 @@ pub enum RevokeArgs {
     DataItemV1,
     CollectionItemV1,
     ProgrammableConfigItemV1,
+    PrintDelegateV1,
 }
 
 #[repr(C)]
@@ -112,6 +117,7 @@ pub enum MetadataDelegateRole {
     DataItem,
     CollectionItem,
     ProgrammableConfigItem,
+    PrintDelegate,
 }
 
 impl fmt::Display for MetadataDelegateRole {
@@ -125,6 +131,7 @@ impl fmt::Display for MetadataDelegateRole {
             Self::DataItem => "data_item_delegate".to_string(),
             Self::CollectionItem => "collection_item_delegate".to_string(),
             Self::ProgrammableConfigItem => "prog_config_item_delegate".to_string(),
+            Self::PrintDelegate => "print_delegate".to_string(),
         };
 
         write!(f, "{message}")

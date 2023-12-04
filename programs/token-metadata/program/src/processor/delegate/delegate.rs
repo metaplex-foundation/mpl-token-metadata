@@ -44,6 +44,7 @@ impl Display for DelegateScenario {
                 MetadataDelegateRole::ProgrammableConfigItem => {
                     "ProgrammableConfigItem".to_string()
                 }
+                MetadataDelegateRole::PrintDelegate => "PrintDelegate".to_string(),
             },
             Self::Token(role) => match role {
                 TokenDelegateRole::Sale => "Sale".to_string(),
@@ -142,6 +143,9 @@ pub fn delegate<'a>(
             MetadataDelegateRole::ProgrammableConfigItem,
             authorization_data,
         )),
+        DelegateArgs::PrintDelegateV1 { authorization_data } => {
+            Some((MetadataDelegateRole::PrintDelegate, authorization_data))
+        }
 
         // we don't need to fail if did not find a match at this point
         _ => None,

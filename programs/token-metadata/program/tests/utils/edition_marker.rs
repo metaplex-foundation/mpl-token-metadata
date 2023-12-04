@@ -724,6 +724,16 @@ impl EditionMarker {
                 builder.delegate_record(delegate_record);
                 delegate_or_token_record = Some(delegate_record);
             }
+            DelegateArgs::PrintDelegateV1 { .. } => {
+                let (delegate_record, _) = find_metadata_delegate_record_account(
+                    &self.mint.pubkey(),
+                    MetadataDelegateRole::PrintDelegate,
+                    &payer.pubkey(),
+                    &delegate,
+                );
+                builder.delegate_record(delegate_record);
+                delegate_or_token_record = Some(delegate_record);
+            }
         }
 
         // determines if we need to set the rule set
