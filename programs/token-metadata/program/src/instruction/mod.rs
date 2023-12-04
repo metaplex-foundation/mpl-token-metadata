@@ -801,7 +801,7 @@ pub enum MetadataInstruction {
 
     /// Collect fees stored on PDA accounts.
     #[account(0, signer, name="authority", desc="Authority to collect fees")]
-    #[account(1, name="pda_account", desc="PDA to retrieve fees from")]
+    #[account(1, name="recipient", desc="The account to transfer collected fees to")]
     Collect,
 
     /// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token
