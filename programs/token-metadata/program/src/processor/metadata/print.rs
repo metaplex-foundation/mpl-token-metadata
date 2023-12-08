@@ -151,7 +151,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
         let token = validate_token(
             edition_mint_info,
             edition_token_account_info,
-            edition_token_account_owner_info,
+            Some(edition_token_account_owner_info),
             token_program,
             Some(token_standard),
             Some(1), // we must have a token already

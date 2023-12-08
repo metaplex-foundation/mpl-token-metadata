@@ -194,6 +194,9 @@ kinobi.update(
             }
           ),
         },
+        tokenOwner: {
+          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+        },
         token: {
           defaultsTo: ataPdaDefault("mint", "tokenOwner"),
         },
