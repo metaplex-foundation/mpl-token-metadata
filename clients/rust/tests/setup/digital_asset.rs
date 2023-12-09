@@ -92,7 +92,7 @@ impl DigitalAsset {
 
         let mint_ix = MintV1Builder::new()
             .token(self.token)
-            .token_owner(*token_owner)
+            .token_owner(Some(*token_owner))
             .metadata(self.metadata)
             .master_edition(Some(self.master_edition))
             .token_record(Some(token_record))
