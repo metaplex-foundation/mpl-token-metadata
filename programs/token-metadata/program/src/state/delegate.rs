@@ -53,3 +53,55 @@ impl MetadataDelegateRecord {
         Ok(delegate)
     }
 }
+
+#[repr(C)]
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone, ShankAccount)]
+/// SEEDS = [
+///     "metadata",
+///     program id,
+///     mint id,
+///     delegate role,
+///     holder id,
+///     delegate id
+/// ]
+pub struct HolderDelegateRecord {
+    pub key: Key, // 1
+    pub bump: u8, // 1
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
+    pub mint: Pubkey, // 32
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
+    pub delegate: Pubkey, // 32
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
+    pub update_authority: Pubkey, // 32
+}
+
+impl Default for HolderDelegateRecord {
+    fn default() -> Self {
+        Self {
+            key: Key::HolderDelegate,
+            bump: 255,
+            mint: Pubkey::default(),
+            delegate: Pubkey::default(),
+            update_authority: Pubkey::default(),
+        }
+    }
+}
+
+impl TokenMetadataAccount for HolderDelegateRecord {
+    fn key() -> Key {
+        Key::MetadataDelegate
+    }
+
+    fn size() -> usize {
+        SIZE
+    }
+}
+
+impl HolderDelegateRecord {
+    pub fn from_bytes(data: &[u8]) -> Result<HolderDelegateRecord, ProgramError> {
+        let delegate: HolderDelegateRecord =
+            try_from_slice_checked(data, Key::MetadataDelegate, HolderDelegateRecord::size())?;
+        Ok(delegate)
+    }
+}

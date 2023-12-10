@@ -34,14 +34,24 @@ pub fn print<'a>(
     accounts: &'a [AccountInfo<'a>],
     args: PrintArgs,
 ) -> ProgramResult {
-    let context = Print::to_context(accounts)?;
+    let (context, holder_delegate_record_info) = match accounts.len() {
+        18 => (Print::to_context(accounts)?, None),
+        19 => (Print::to_context(&accounts[0..18])?, Some(&accounts[18])),
+        _ => return Err(ProgramError::NotEnoughAccountKeys),
+    };
+    // let context = Print::to_context(accounts)?;
 
     match args {
-        PrintArgs::V1 { .. } => print_v1(program_id, context, args),
+        PrintArgs::V1 { .. } => print_v1(program_id, context, args, holder_delegate_record_info),
     }
 }
 
-fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> ProgramResult {
+fn print_v1(
+    _program_id: &Pubkey,
+    ctx: Context<Print>,
+    args: PrintArgs,
+    holder_delegate_record_info: Option<&AccountInfo>,
+) -> ProgramResult {
     // Get the args for the instruction
     let PrintArgs::V1 { edition } = args;
 
@@ -240,6 +250,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             master_metadata_account_info: master_metadata_info,
             token_program_account_info: token_program,
             system_account_info: system_program,
+            holder_delegate_record_info,
         },
         edition,
     )?;

@@ -18,6 +18,7 @@ use crate::{
         metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
+    instruction::HolderDelegateRole,
     pda::MARKER,
     state::{
         get_reservation_list, DataV2, EditionMarker, EditionMarkerV2, Key, MasterEdition, Metadata,
@@ -40,6 +41,7 @@ pub struct MintNewEditionFromMasterEditionViaTokenLogicArgs<'a> {
     pub master_metadata_account_info: &'a AccountInfo<'a>,
     pub token_program_account_info: &'a AccountInfo<'a>,
     pub system_account_info: &'a AccountInfo<'a>,
+    pub holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
 }
 
 pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
@@ -61,6 +63,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
         master_metadata_account_info,
         token_program_account_info,
         system_account_info,
+        holder_delegate_record_info,
     } = accounts;
 
     assert_token_program_matches_package(token_program_account_info)?;
@@ -77,7 +80,22 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     let master_metadata = Metadata::from_account_info(master_metadata_account_info)?;
     let token_account: Account = assert_initialized(token_account_info)?;
 
-    assert_signer(owner_account_info)?;
+    match holder_delegate_record_info {
+        Some(delegate_record_info) => {
+            assert_owned_by(delegate_record_info, &crate::ID)?;
+            let mut seeds = vec![
+                PREFIX.as_bytes(),
+                program_id.as_ref(),
+                mint_info.key.as_ref(),
+                HolderDelegateRole::PrintDelegate.to_string().as_bytes(),
+                owner_account_info.key.as_ref(),
+                payer_account_info.key.as_ref(),
+            ];
+            assert_derivation(program_id, delegate_record_info, &seeds)?;
+            Ok(())
+        }
+        None => assert_signer(owner_account_info),
+    }?;
 
     if token_account.owner != *owner_account_info.key {
         return Err(MetadataError::InvalidOwner.into());

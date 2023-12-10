@@ -19,12 +19,13 @@ use token_metadata::{
             TransferBuilder, UnlockBuilder, UnverifyBuilder, UpdateBuilder, VerifyBuilder,
         },
         BurnArgs, CollectionDetailsToggle, CollectionToggle, CreateArgs, DelegateArgs,
-        InstructionBuilder, LockArgs, MetadataDelegateRole, MintArgs, RevokeArgs, RuleSetToggle,
-        TransferArgs, UnlockArgs, UpdateArgs, UsesToggle, VerificationArgs,
+        HolderDelegateRole, InstructionBuilder, LockArgs, MetadataDelegateRole, MintArgs,
+        RevokeArgs, RuleSetToggle, TransferArgs, UnlockArgs, UpdateArgs, UsesToggle,
+        VerificationArgs,
     },
     pda::{
-        find_master_edition_account, find_metadata_account, find_metadata_delegate_record_account,
-        find_token_record_account,
+        find_holder_delegate_record_account, find_master_edition_account, find_metadata_account,
+        find_metadata_delegate_record_account, find_token_record_account,
     },
     processor::AuthorizationData,
     state::{
@@ -153,6 +154,7 @@ impl DigitalAsset {
     }
 
     // Note the authority is the payer of the transaction.
+    #[allow(clippy::too_many_arguments)]
     pub async fn verify(
         &mut self,
         context: &mut ProgramTestContext,
@@ -910,9 +912,9 @@ impl DigitalAsset {
             }
 
             RevokeArgs::PrintDelegateV1 => {
-                let (delegate_record, _) = find_metadata_delegate_record_account(
+                let (delegate_record, _) = find_holder_delegate_record_account(
                     &self.mint.pubkey(),
-                    MetadataDelegateRole::PrintDelegate,
+                    HolderDelegateRole::PrintDelegate,
                     &payer.pubkey(),
                     &delegate,
                 );

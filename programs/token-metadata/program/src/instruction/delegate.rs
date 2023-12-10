@@ -9,7 +9,7 @@ use solana_program::{
 };
 
 use super::InstructionBuilder;
-use crate::{instruction::MetadataInstruction, processor::AuthorizationData, state::PrintSupply};
+use crate::{instruction::MetadataInstruction, processor::AuthorizationData};
 
 /// Delegate args can specify Metadata delegates and Token delegates.
 #[repr(C)]
@@ -117,7 +117,6 @@ pub enum MetadataDelegateRole {
     DataItem,
     CollectionItem,
     ProgrammableConfigItem,
-    PrintDelegate,
 }
 
 impl fmt::Display for MetadataDelegateRole {
@@ -131,6 +130,22 @@ impl fmt::Display for MetadataDelegateRole {
             Self::DataItem => "data_item_delegate".to_string(),
             Self::CollectionItem => "collection_item_delegate".to_string(),
             Self::ProgrammableConfigItem => "prog_config_item_delegate".to_string(),
+        };
+
+        write!(f, "{message}")
+    }
+}
+
+#[repr(C)]
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
+pub enum HolderDelegateRole {
+    PrintDelegate,
+}
+
+impl fmt::Display for HolderDelegateRole {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let message = match self {
             Self::PrintDelegate => "print_delegate".to_string(),
         };
 

@@ -1,6 +1,9 @@
 use solana_program::pubkey::Pubkey;
 
-use crate::{instruction::MetadataDelegateRole, state::TOKEN_RECORD_SEED};
+use crate::{
+    instruction::{HolderDelegateRole, MetadataDelegateRole},
+    state::TOKEN_RECORD_SEED,
+};
 
 /// prefix used for PDAs to avoid certain collision attacks:
 /// <https://en.wikipedia.org/wiki/Collision_attack#Chosen-prefix_collision_attack>
@@ -85,6 +88,25 @@ pub fn find_program_as_burner_account() -> (Pubkey, u8) {
 pub fn find_metadata_delegate_record_account(
     mint: &Pubkey,
     role: MetadataDelegateRole,
+    update_authority: &Pubkey,
+    delegate: &Pubkey,
+) -> (Pubkey, u8) {
+    Pubkey::find_program_address(
+        &[
+            PREFIX.as_bytes(),
+            crate::ID.as_ref(),
+            mint.as_ref(),
+            role.to_string().as_bytes(),
+            update_authority.as_ref(),
+            delegate.as_ref(),
+        ],
+        &crate::ID,
+    )
+}
+
+pub fn find_holder_delegate_record_account(
+    mint: &Pubkey,
+    role: HolderDelegateRole,
     update_authority: &Pubkey,
     delegate: &Pubkey,
 ) -> (Pubkey, u8) {
