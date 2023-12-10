@@ -83,11 +83,12 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     match holder_delegate_record_info {
         Some(delegate_record_info) => {
             assert_owned_by(delegate_record_info, &crate::ID)?;
-            let mut seeds = vec![
+            let role = HolderDelegateRole::PrintDelegate.to_string();
+            let seeds = vec![
                 PREFIX.as_bytes(),
                 program_id.as_ref(),
                 mint_info.key.as_ref(),
-                HolderDelegateRole::PrintDelegate.to_string().as_bytes(),
+                role.as_bytes(),
                 owner_account_info.key.as_ref(),
                 payer_account_info.key.as_ref(),
             ];

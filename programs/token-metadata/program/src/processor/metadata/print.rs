@@ -46,11 +46,11 @@ pub fn print<'a>(
     }
 }
 
-fn print_v1(
+fn print_v1<'a>(
     _program_id: &Pubkey,
-    ctx: Context<Print>,
+    ctx: Context<Print<'a>>,
     args: PrintArgs,
-    holder_delegate_record_info: Option<&AccountInfo>,
+    holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
     // Get the args for the instruction
     let PrintArgs::V1 { edition } = args;
