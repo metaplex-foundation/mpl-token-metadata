@@ -4499,11 +4499,11 @@
           ]
         },
         {
-          "name": "pdaAccount",
+          "name": "recipient",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "PDA to retrieve fees from"
+            "The account to transfer collected fees to"
           ]
         }
       ],
