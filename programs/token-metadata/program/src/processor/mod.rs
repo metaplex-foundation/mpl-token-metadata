@@ -3,6 +3,7 @@ mod burn;
 mod collection;
 mod delegate;
 mod edition;
+mod engrave;
 pub(crate) mod escrow;
 mod fee;
 mod freeze;
@@ -164,6 +165,10 @@ pub fn process_instruction<'a>(
         MetadataInstruction::Print(args) => {
             msg!("IX: Print");
             metadata::print(program_id, accounts, args)
+        }
+        MetadataInstruction::Engrave => {
+            msg!("IX: Engrave");
+            engrave::engrave(program_id, accounts)
         }
         _ => {
             // pNFT accounts can only be used by the "new" API; before forwarding

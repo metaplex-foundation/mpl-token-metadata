@@ -34,6 +34,7 @@
     "@ava/typescript": "^3.0.1",
     "@metaplex-foundation/umi": "^0.8.2",
     "@metaplex-foundation/umi-bundle-tests": "^0.8.2",
+    "@metaplex-foundation/mpl-engraver": "^0.2.1",
     "@solana/web3.js": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.46.1",

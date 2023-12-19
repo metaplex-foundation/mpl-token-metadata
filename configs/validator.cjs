@@ -30,6 +30,11 @@ module.exports = {
         programId: "TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SAc2p",
         deployPath: getProgram("mpl_token_extras.so"),
       },
+      {
+        label: "Engraver",
+        programId: "ENGRVY4DL6uKDnNS91hCkJMwzTfcofYpkZH8zsgJfzA3",
+        deployPath: getProgram("mpl_engraver.so"),
+      },
     ],
   },
 };

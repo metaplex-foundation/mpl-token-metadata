@@ -33,6 +33,7 @@ export * from './delegateStandardV1';
 export * from './delegateTransferV1';
 export * from './delegateUtilityV1';
 export * from './deprecatedMintNewEditionFromMasterEditionViaPrintingToken';
+export * from './engrave';
 export * from './freezeDelegatedAccount';
 export * from './lockV1';
 export * from './migrate';

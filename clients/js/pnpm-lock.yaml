@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@metaplex-foundation/mpl-toolbox':
     specifier: ^0.9.0
@@ -9,6 +13,9 @@ devDependencies:
   '@ava/typescript':
     specifier: ^3.0.1
     version: 3.0.1
+  '@metaplex-foundation/mpl-engraver':
+    specifier: ^0.2.1
+    version: 0.2.1(@metaplex-foundation/umi@0.8.2)
   '@metaplex-foundation/umi':
     specifier: ^0.8.2
     version: 0.8.2
@@ -1617,6 +1624,23 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
+    dev: true
+
+  /@metaplex-foundation/mpl-engraver@0.2.1(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-Dl1sHXuktdqz/hxhgAs+Lk5n1yafet3htFFKes7PF/QxmT3UDBI5RmMVFCw7Fyli2SDNYNYcOAY79ZtVq30lnA==}
+    peerDependencies:
+      '@metaplex-foundation/umi': ^0.8.2
+    dependencies:
+      '@metaplex-foundation/mpl-toolbox': 0.8.1(@metaplex-foundation/umi@0.8.2)
+      '@metaplex-foundation/umi': 0.8.2
+    dev: true
+
+  /@metaplex-foundation/mpl-toolbox@0.8.1(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-PYU+qU6hg+h6V42z+MDnBTiWZXTTzWhIn5ieyRZYyszTru/LiJKHdsHGKe1VBfuXEuRdfRhAzivMjquZVaqO4A==}
+    peerDependencies:
+      '@metaplex-foundation/umi': ^0.8.2
+    dependencies:
+      '@metaplex-foundation/umi': 0.8.2
     dev: true
 
   /@metaplex-foundation/mpl-toolbox@0.9.0(@metaplex-foundation/umi@0.8.2):
