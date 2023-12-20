@@ -17,7 +17,7 @@ use spl_token_2022::{
         initialize_mint_close_authority, initialize_non_transferable_mint,
         initialize_permanent_delegate,
     },
-    state::{Account, AccountState},
+    state::{Account, AccountState, Mint},
 };
 
 pub struct TokenManager {
@@ -61,7 +61,7 @@ impl TokenManager {
         decimals: u8,
         extensions: &[ExtensionType],
     ) -> Result<(), BanksClientError> {
-        let account_size = ExtensionType::try_calculate_account_len::<Account>(extensions).unwrap();
+        let account_size = ExtensionType::try_calculate_account_len::<Mint>(extensions).unwrap();
         let rent = context.banks_client.get_rent().await.unwrap();
 
         let (metadata, _) = Metadata::find_pda(&mint.pubkey());
