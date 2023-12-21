@@ -92,7 +92,6 @@ mod process_legacy_instruction {
         assert_custom_error!(error, MetadataError::InstructionNotSupported);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn thaw_programmable_nft(spl_token_program: Pubkey) {

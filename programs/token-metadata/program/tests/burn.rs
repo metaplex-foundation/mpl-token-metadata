@@ -1188,7 +1188,6 @@ mod pnft_edition {
         assert!(print_edition_account.is_none());
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burn_edition_nft_in_separate_wallet(spl_token_program: Pubkey) {
@@ -1605,7 +1604,6 @@ mod pnft_edition {
         assert_custom_error!(err, MetadataError::InvalidEditionMarker);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn master_supply_is_decremented(spl_token_program: Pubkey) {
@@ -1732,7 +1730,6 @@ mod pnft_edition {
         assert!(master_edition_struct.supply == 0);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn edition_mask_changed_correctly(spl_token_program: Pubkey) {
@@ -1825,7 +1822,6 @@ mod pnft_edition {
         assert!(ledger[1] == 0b1100_0000);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn reprint_burned_edition(spl_token_program: Pubkey) {
@@ -2119,7 +2115,6 @@ mod nft {
         da.assert_burned(&mut context).await.unwrap();
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burning_decrements_collection_size(spl_token_program: Pubkey) {
@@ -2258,7 +2253,6 @@ mod nft {
         }
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burn_unsized_collection_item(spl_token_program: Pubkey) {
@@ -2484,7 +2478,6 @@ mod nft {
         .unwrap();
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn fail_to_burn_master_edition_with_existing_prints(spl_token_program: Pubkey) {
@@ -2539,7 +2532,6 @@ mod nft {
         assert_custom_error!(err, MetadataError::MasterEditionHasPrints);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn require_md_account_to_burn_collection_nft(spl_token_program: Pubkey) {
@@ -2663,7 +2655,6 @@ mod nft {
         assert_custom_error!(err, MetadataError::MissingCollectionMetadata);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn only_owner_can_burn(spl_token_program: Pubkey) {
@@ -2725,7 +2716,6 @@ mod nft {
         assert_custom_error!(err, MetadataError::InvalidAuthorityType);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn update_authority_cannot_burn(spl_token_program: Pubkey) {
@@ -2811,7 +2801,6 @@ mod nft {
         assert_custom_error!(err, MetadataError::InvalidAuthorityType);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn cannot_burn_with_invalid_parents(spl_token_program: Pubkey) {
@@ -2885,7 +2874,6 @@ mod nft_edition {
 
     use super::*;
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burn_nonfungible_edition(spl_token_program: Pubkey) {
@@ -2990,7 +2978,6 @@ mod nft_edition {
         assert!(print_edition_account.is_none());
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burn_edition_nft_in_separate_wallet(spl_token_program: Pubkey) {
@@ -3108,7 +3095,6 @@ mod nft_edition {
         assert!(!print_edition.exists_on_chain(&mut context).await);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn only_owner_can_burn_edition(spl_token_program: Pubkey) {
@@ -3169,7 +3155,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::InvalidAuthorityType);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn update_authority_cannot_burn_edition(spl_token_program: Pubkey) {
@@ -3220,7 +3205,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::InvalidAuthorityType);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn no_master_edition(spl_token_program: Pubkey) {
@@ -3265,7 +3249,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::NotAMasterEdition);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn invalid_master_edition(spl_token_program: Pubkey) {
@@ -3339,7 +3322,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::InvalidMasterEdition);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn invalid_print_edition(spl_token_program: Pubkey) {
@@ -3408,7 +3390,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::InvalidPrintEdition);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn invalid_edition_marker(spl_token_program: Pubkey) {
@@ -3477,7 +3458,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::InvalidEditionMarker);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn master_supply_is_decremented(spl_token_program: Pubkey) {
@@ -3594,7 +3574,6 @@ mod nft_edition {
         assert!(master_edition_struct.supply == 0);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn edition_mask_changed_correctly(spl_token_program: Pubkey) {
@@ -3676,7 +3655,6 @@ mod nft_edition {
         assert!(ledger[1] == 0b1100_0000);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     pub async fn reprint_burned_edition(spl_token_program: Pubkey) {
@@ -3766,7 +3744,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn cannot_modify_wrong_master_edition(spl_token_program: Pubkey) {
@@ -3825,7 +3802,6 @@ mod nft_edition {
         assert_custom_error!(err, MetadataError::PrintEditionDoesNotMatchMasterEdition);
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn mint_mismatches(spl_token_program: Pubkey) {

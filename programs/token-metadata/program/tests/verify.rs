@@ -229,8 +229,8 @@ mod verify_collection {
         // See `collections_standard_delegate_cannot_verify()`.
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn metadata_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -299,8 +299,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collection_mint_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -369,8 +369,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collection_metadata_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -439,8 +439,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collection_master_edition_info_wrong_owner(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -508,8 +508,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn missing_collection_mint_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -577,8 +577,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn missing_collection_metadata_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -646,8 +646,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn missing_collection_master_edition_info(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -714,8 +714,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn pass_already_verified(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -808,8 +808,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collection_not_found_on_item(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -875,8 +875,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn item_collection_key_does_not_match_passed_in_collection_mint(
         spl_token_program: Pubkey,
@@ -947,8 +947,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collection_metadata_mint_does_not_match_passed_in_collection_mint(
         spl_token_program: Pubkey,
@@ -1037,7 +1037,6 @@ mod verify_collection {
         );
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn wrong_collection_master_edition(spl_token_program: Pubkey) {
@@ -1165,7 +1164,6 @@ mod verify_collection {
         );
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn fail_collection_master_edition_has_nonzero_max_supply(spl_token_program: Pubkey) {
@@ -1254,8 +1252,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn incorrect_collection_update_authority(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -1332,7 +1330,6 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_unsized_collection_item_nft_collection_nft_both_old_handlers_update_authority(
@@ -1345,7 +1342,6 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_sized_collection_item_nft_collection_nft_both_old_handlers_update_authority(
@@ -1481,7 +1477,6 @@ mod verify_collection {
         );
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_unsized_collection_item_pnft_collection_nft_old_handler_update_authority(
@@ -1494,7 +1489,6 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_sized_collection_item_pnft_collection_nft_old_handler_update_authority(
@@ -1592,8 +1586,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn pass_with_changed_collection_update_authority(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -1664,8 +1658,8 @@ mod verify_collection {
         .await;
     }
 
-    // TODP: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn item_update_authority_cannot_verify(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;

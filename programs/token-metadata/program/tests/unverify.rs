@@ -829,7 +829,7 @@ mod unverify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_with_changed_collection_update_authority(spl_token_program: Pubkey) {
@@ -1845,7 +1845,6 @@ mod unverify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn burned_nft_collections_update_authority_cannot_unverify(spl_token_program: Pubkey) {
@@ -1969,7 +1968,6 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn pass_unverify_burned_nft_parent_using_item_update_authority(
@@ -2093,8 +2091,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn burned_pnft_collections_update_authority_cannot_unverify(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -2179,8 +2177,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn pass_unverify_burned_pnft_parent_using_item_update_authority(
         spl_token_program: Pubkey,
@@ -2254,8 +2252,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn pass_unverify_burned_pnft_parent_using_item_collection_delegate(
         spl_token_program: Pubkey,
@@ -2340,8 +2338,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn pass_unverify_burned_pnft_parent_using_item_collection_item_delegate(
         spl_token_program: Pubkey,
@@ -2426,7 +2424,7 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn collections_collection_delegate_cannot_unverify_burned_pnft_parent(
@@ -2447,7 +2445,7 @@ mod unverify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
     async fn collections_collection_item_delegate_cannot_unverify_burned_pnft_parent(
@@ -2468,8 +2466,8 @@ mod unverify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collections_prgm_config_delegate_cannot_unverify_burned_pnft_parent(
         spl_token_program: Pubkey,
@@ -2489,8 +2487,8 @@ mod unverify_collection {
         .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn items_prgm_config_delegate_cannot_unverify_burned_pnft_parent(
         spl_token_program: Pubkey,
@@ -2605,8 +2603,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn collections_utility_delegate_cannot_unverify_burned_pnft_parent(
         spl_token_program: Pubkey,
@@ -2704,8 +2702,8 @@ mod unverify_collection {
             .await;
     }
 
-    // TODO: test with Token-2022
     #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     async fn items_utility_delegate_cannot_unverify_burned_pnft_parent(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
