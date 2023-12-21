@@ -6,7 +6,7 @@ use crate::{
     utils::{
         fee::{levy, set_fee_flag, LevyArgs},
         process_mint_new_edition_from_master_edition_via_token_logic,
-        MintNewEditionFromMasterEditionViaTokenLogicArgs,
+        MintNewEditionFromMasterEditionViaTokenLogicArgs, SPL_TOKEN_ID,
     },
 };
 
@@ -32,7 +32,8 @@ pub fn process_mint_new_edition_from_master_edition_via_token<'a>(
         system_account_info
     );
 
-    if token_program_account_info.key == &spl_token_2022::ID {
+    // only support SPL tokens
+    if *token_program_account_info.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 
