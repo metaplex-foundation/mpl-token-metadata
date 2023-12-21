@@ -28,6 +28,7 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
   // When we mint one token.
   await mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 1,
     tokenStandard: TokenStandard.NonFungible,
   }).sendAndConfirm(umi);
@@ -45,6 +46,7 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
   // But when we try to mint another token.
   const promise = mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 1,
     tokenStandard: TokenStandard.NonFungible,
   }).sendAndConfirm(umi);
@@ -68,6 +70,7 @@ test('it can mint only one token after a ProgrammableNonFungible is created', as
   // When we mint one token.
   await mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 1,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   }).sendAndConfirm(umi);
@@ -85,6 +88,7 @@ test('it can mint only one token after a ProgrammableNonFungible is created', as
   // But when we try to mint another token.
   const promise = mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 1,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
   }).sendAndConfirm(umi);
@@ -108,6 +112,7 @@ test('it can mint multiple tokens after a Fungible is created', async (t) => {
   // When we mint 42 token.
   await mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 42,
     tokenStandard: TokenStandard.Fungible,
   }).sendAndConfirm(umi);
@@ -138,6 +143,7 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
   // When we mint 42 token.
   await mintV1(umi, {
     mint: mint.publicKey,
+    tokenOwner: umi.identity.publicKey,
     amount: 42,
     tokenStandard: TokenStandard.FungibleAsset,
   }).sendAndConfirm(umi);

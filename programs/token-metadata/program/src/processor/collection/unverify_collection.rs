@@ -12,7 +12,7 @@ use crate::{
     },
     error::MetadataError,
     state::{Metadata, TokenMetadataAccount},
-    utils::clean_write_metadata,
+    utils::{clean_write_metadata, SPL_TOKEN_ID},
 };
 
 pub fn unverify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -27,7 +27,7 @@ pub fn unverify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pro
     // Account validation.
     assert_owned_by(metadata_info, program_id)?;
     assert_signer(collection_authority_info)?;
-    assert_owned_by(collection_mint_info, &spl_token::ID)?;
+    assert_owned_by(collection_mint_info, &SPL_TOKEN_ID)?;
 
     // Deserialize the collection item metadata.
     let mut metadata = Metadata::from_account_info(metadata_info)?;

@@ -8,12 +8,12 @@ use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     pubkey::Pubkey, system_program,
 };
-use spl_token::state::{Account, Mint};
+use spl_token_2022::state::{Account, Mint};
 
 use super::*;
 use crate::{
     assertions::{
-        assert_derivation, assert_initialized, assert_mint_authority_matches_mint, assert_owned_by,
+        assert_derivation, assert_mint_authority_matches_mint, assert_owned_by,
         assert_token_program_matches_package, edition::assert_edition_valid,
         metadata::assert_update_authority_is_correct,
     },
@@ -64,8 +64,8 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     } = accounts;
 
     assert_token_program_matches_package(token_program_account_info)?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
-    assert_owned_by(token_account_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, token_program_account_info.key)?;
+    assert_owned_by(token_account_info, token_program_account_info.key)?;
     assert_owned_by(master_edition_account_info, program_id)?;
     assert_owned_by(master_metadata_account_info, program_id)?;
     assert_signer(payer_account_info)?;
@@ -75,7 +75,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     }
 
     let master_metadata = Metadata::from_account_info(master_metadata_account_info)?;
-    let token_account: Account = assert_initialized(token_account_info)?;
+    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?;
 
     assert_signer(owner_account_info)?;
 
@@ -564,8 +564,8 @@ pub fn create_master_edition<'a>(
     system_account_info: &'a AccountInfo<'a>,
     max_supply: Option<u64>,
 ) -> ProgramResult {
-    let metadata = Metadata::from_account_info(metadata_account_info)?;
-    let mint: Mint = assert_initialized(mint_info)?;
+    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
 
     let bump_seed = assert_derivation(
         program_id,
@@ -581,7 +581,7 @@ pub fn create_master_edition<'a>(
     assert_token_program_matches_package(token_program_info)?;
     assert_mint_authority_matches_mint(&mint.mint_authority, mint_authority_info)?;
     assert_owned_by(metadata_account_info, program_id)?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, token_program_info.key)?;
 
     if metadata.mint != *mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -622,12 +622,11 @@ pub fn create_master_edition<'a>(
     edition.save(edition_account_info)?;
 
     if metadata_account_info.is_writable {
-        let mut metadata_mut = Metadata::from_account_info(metadata_account_info)?;
-        metadata_mut.token_standard = Some(TokenStandard::NonFungible);
-        metadata_mut.save(&mut metadata_account_info.try_borrow_mut_data()?)?;
+        metadata.token_standard = Some(TokenStandard::NonFungible);
+        metadata.save(&mut metadata_account_info.try_borrow_mut_data()?)?;
     }
 
-    // while you can't mint only mint 1 token from your master record, you can
+    // while you can mint only 1 token from your master record, you can
     // mint as many limited editions as you like within your max supply
     transfer_mint_authority(
         edition_account_info.key,

@@ -4,11 +4,14 @@ pub(crate) mod fee;
 pub(crate) mod master_edition;
 pub(crate) mod metadata;
 pub(crate) mod programmable_asset;
+pub(crate) mod token;
 
 pub use collection::*;
 pub use compression::*;
 pub use master_edition::*;
 pub use metadata::*;
+pub(crate) use token::*;
+
 pub use mpl_utils::{
     assert_signer, close_account_raw, create_or_allocate_account_raw,
     resize_or_reallocate_account_raw,
@@ -20,9 +23,14 @@ pub use mpl_utils::{
 pub use programmable_asset::*;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
-    program_error::ProgramError, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
+    program_error::ProgramError, pubkey, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
 };
-use spl_token::instruction::{set_authority, AuthorityType};
+use spl_token_2022::{
+    extension::{BaseState, StateWithExtensions},
+    instruction::{set_authority, AuthorityType},
+};
+
+pub const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
 pub use crate::assertions::{
     assert_delegated_tokens, assert_derivation, assert_freeze_authority_matches_mint,
@@ -41,6 +49,21 @@ use crate::{
         MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
     },
 };
+
+#[inline(always)]
+pub fn unpack<S: BaseState>(account_data: &[u8]) -> Result<S, ProgramError> {
+    Ok(StateWithExtensions::<S>::unpack(account_data)?.base)
+}
+
+pub fn unpack_initialized<S: BaseState>(account_data: &[u8]) -> Result<S, ProgramError> {
+    let unpacked = unpack::<S>(account_data)?;
+
+    if unpacked.is_initialized() {
+        Ok(unpacked)
+    } else {
+        Err(MetadataError::Uninitialized.into())
+    }
+}
 
 pub fn check_token_standard(
     mint_info: &AccountInfo,

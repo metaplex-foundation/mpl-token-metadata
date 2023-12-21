@@ -16,11 +16,15 @@ use utils::*;
 mod print {
 
     use borsh::BorshDeserialize;
+    use solana_program::pubkey::Pubkey;
     use token_metadata::state::{PrintSupply, TokenStandard};
 
     use super::*;
+
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn success() {
+    async fn success(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
         let mut asset = DigitalAsset::default();
         asset
@@ -31,6 +35,7 @@ mod print {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -38,7 +43,8 @@ mod print {
         assert!(asset.token.is_some());
 
         let test_master_edition = MasterEditionV2::new_from_asset(&asset);
-        let test_edition_marker = EditionMarker::new_from_asset(&asset, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
 
         test_edition_marker
             .create_from_asset(&mut context)
@@ -65,8 +71,10 @@ mod print {
         );
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_invalid_token_program() {
+    async fn fail_invalid_token_program(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut asset = DigitalAsset::default();
@@ -78,12 +86,14 @@ mod print {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
 
         let test_master_edition = MasterEditionV2::new_from_asset(&asset);
-        let test_edition_marker = EditionMarker::new_from_asset(&asset, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
 
         let result = test_edition_marker
             .create_from_asset_with_invalid_token_program(&mut context)
@@ -99,8 +109,10 @@ mod print {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_edition_already_initialized() {
+    async fn fail_edition_already_initialized(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
         let mut asset = DigitalAsset::default();
         asset
@@ -111,13 +123,16 @@ mod print {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
 
         let test_master_edition = MasterEditionV2::new_from_asset(&asset);
-        let test_edition_marker = EditionMarker::new_from_asset(&asset, &test_master_edition, 1);
-        let test_edition_marker1 = EditionMarker::new_from_asset(&asset, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
+        let test_edition_marker1 =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
 
         test_edition_marker
             .create_from_asset(&mut context)
@@ -130,8 +145,10 @@ mod print {
         assert_custom_error!(result, MetadataError::AlreadyInitialized);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_to_mint_edition_override_0() {
+    async fn fail_to_mint_edition_override_0(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut asset = DigitalAsset::default();
@@ -143,12 +160,14 @@ mod print {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
 
         let test_master_edition = MasterEditionV2::new_from_asset(&asset);
-        let test_edition_marker = EditionMarker::new_from_asset(&asset, &test_master_edition, 0);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 0, spl_token_program);
 
         let result = test_edition_marker
             .create_from_asset(&mut context)
@@ -157,8 +176,10 @@ mod print {
         assert_custom_error!(result, MetadataError::EditionOverrideCannotBeZero);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_to_mint_edition_num_zero() {
+    async fn fail_to_mint_edition_num_zero(spl_token_program: Pubkey) {
         // Make sure we can't mint 0th edition from a Master Edition with a max supply > 0.
         let mut context = program_test().start_with_context().await;
 
@@ -171,12 +192,14 @@ mod print {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
 
         let test_master_edition = MasterEditionV2::new_from_asset(&asset);
-        let test_edition_marker = EditionMarker::new_from_asset(&asset, &test_master_edition, 0);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 0, spl_token_program);
 
         let result = test_edition_marker
             .create_from_asset(&mut context)
@@ -185,8 +208,10 @@ mod print {
         assert_custom_error!(result, MetadataError::EditionOverrideCannotBeZero);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn increment_master_edition_supply() {
+    async fn increment_master_edition_supply(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
         let mut slot = 1;
 
@@ -199,6 +224,7 @@ mod print {
                 None,
                 1,
                 PrintSupply::Limited(10),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -207,7 +233,8 @@ mod print {
 
         let master_edition = MasterEditionV2::new_from_asset(&original_nft);
 
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 1);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 1, spl_token_program);
         let _result = context.warp_to_slot(slot);
         slot += 1;
         print_edition.create_from_asset(&mut context).await.unwrap();
@@ -224,7 +251,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 5 and supply should go up to 2.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 5);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 5, spl_token_program);
         print_edition.create_from_asset(&mut context).await.unwrap();
         let _result = context.warp_to_slot(slot);
         slot += 1;
@@ -235,7 +263,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 4 and supply should go up to 3.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 4);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 4, spl_token_program);
         print_edition.create_from_asset(&mut context).await.unwrap();
         let _result = context.warp_to_slot(slot);
         slot += 1;
@@ -261,7 +290,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 2, this will succeed but supply will incremement.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 2);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 2, spl_token_program);
         let _result = context.warp_to_slot(slot);
         slot += 1;
         print_edition.create_from_asset(&mut context).await.unwrap();
@@ -274,7 +304,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 10 and supply should increase by 1 to 10.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 10);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 10, spl_token_program);
         print_edition.create_from_asset(&mut context).await.unwrap();
         let _result = context.warp_to_slot(slot);
 
@@ -286,7 +317,8 @@ mod print {
         // Mint another edition and it should succeed, but supply should stay the same since it's already reached max supply.
         // This allows minting missing editions even when the supply has erroneously reached
         // the max supply, since the bit mask is the source of truth for which particular editions have been minted.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 6);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 6, spl_token_program);
         print_edition.create_from_asset(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -295,8 +327,10 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn cannot_mint_edition_num_higher_than_max_supply() {
+    async fn cannot_mint_edition_num_higher_than_max_supply(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut original_nft = DigitalAsset::default();
@@ -308,6 +342,7 @@ mod print {
                 None,
                 1,
                 PrintSupply::Limited(10),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -315,7 +350,8 @@ mod print {
         let master_edition = MasterEditionV2::new_from_asset(&original_nft);
 
         // Mint the first print edition.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 1);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 1, spl_token_program);
         print_edition.create_from_asset(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -323,7 +359,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Try mint edition number 11, this should fail.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 11);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 11, spl_token_program);
         let err = print_edition
             .create_from_asset(&mut context)
             .await
@@ -332,7 +369,8 @@ mod print {
         assert_custom_error!(err, MetadataError::EditionNumberGreaterThanMaxSupply);
 
         // Try mint edition number 999, this should fail.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 999);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 999, spl_token_program);
         let err = print_edition
             .create_from_asset(&mut context)
             .await
@@ -341,8 +379,10 @@ mod print {
         assert_custom_error!(err, MetadataError::EditionNumberGreaterThanMaxSupply);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn cannot_remint_existing_edition() {
+    async fn cannot_remint_existing_edition(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut original_nft = DigitalAsset::default();
@@ -354,6 +394,7 @@ mod print {
                 None,
                 1,
                 PrintSupply::Limited(999),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -361,9 +402,11 @@ mod print {
         let master_edition = MasterEditionV2::new_from_asset(&original_nft);
 
         // Mint a couple non-sequential editions.
-        let edition_1 = EditionMarker::new_from_asset(&original_nft, &master_edition, 1);
+        let edition_1 =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 1, spl_token_program);
         edition_1.create_from_asset(&mut context).await.unwrap();
-        let edition_99 = EditionMarker::new_from_asset(&original_nft, &master_edition, 99);
+        let edition_99 =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 99, spl_token_program);
         edition_99.create_from_asset(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -371,7 +414,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(999));
 
         // Try to remint edition numbers 1 and 99, this should fail.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 1);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 1, spl_token_program);
         let err = print_edition
             .create_from_asset(&mut context)
             .await
@@ -379,7 +423,8 @@ mod print {
 
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
 
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 99);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 99, spl_token_program);
         let err = print_edition
             .create_from_asset(&mut context)
             .await
@@ -388,8 +433,10 @@ mod print {
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn can_mint_out_missing_editions() {
+    async fn can_mint_out_missing_editions(spl_token_program: Pubkey) {
         // Editions with the older override logic could have missing editions even though supply == max_supply.
         // This test ensures that the new logic can mint out missing editions even when supply == max_supply.
         let mut context = program_test().start_with_context().await;
@@ -403,6 +450,7 @@ mod print {
                 None,
                 1,
                 PrintSupply::Limited(10),
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -411,7 +459,8 @@ mod print {
 
         // Start with a supply of 10. Mint out edition number 10 and then artificially set the supply to 10
         // to simulate the old edition override logic.
-        let edition_10 = EditionMarker::new_from_asset(&original_nft, &master_edition, 10);
+        let edition_10 =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 10, spl_token_program);
         edition_10.create_from_asset(&mut context).await.unwrap();
 
         let mut master_edition_struct = master_edition.get_data(&mut context).await;
@@ -430,7 +479,8 @@ mod print {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Try to mint edition number 11, this should fail.
-        let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, 11);
+        let print_edition =
+            EditionMarker::new_from_asset(&original_nft, &master_edition, 11, spl_token_program);
         let err = print_edition
             .create_from_asset(&mut context)
             .await
@@ -441,7 +491,8 @@ mod print {
         // We should be able to mint out missing editions 1-9.
         for i in 1..10 {
             let _result = context.warp_to_slot(i);
-            let print_edition = EditionMarker::new_from_asset(&original_nft, &master_edition, i);
+            let print_edition =
+                EditionMarker::new_from_asset(&original_nft, &master_edition, i, spl_token_program);
             print_edition.create_from_asset(&mut context).await.unwrap();
         }
 

@@ -31,7 +31,8 @@ mod mint_new_edition_from_master_edition_via_token {
         let payer_key = context.payer.pubkey();
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
 
         test_metadata
             .create_v3(
@@ -141,7 +142,8 @@ mod mint_new_edition_from_master_edition_via_token {
             )
             .await
             .unwrap();
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
         test_edition_marker.create(&mut context).await.unwrap();
 
         let edition_marker = test_edition_marker.get_data(&mut context).await;
@@ -155,7 +157,8 @@ mod mint_new_edition_from_master_edition_via_token {
         let mut context = program_test().start_with_context().await;
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
 
         test_metadata.create_v3_default(&mut context).await.unwrap();
 
@@ -176,7 +179,8 @@ mod mint_new_edition_from_master_edition_via_token {
         let mut context = program_test().start_with_context().await;
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
         let fake_mint = Keypair::new();
         let fake_account = Keypair::new();
         let payer_pubkey = context.payer.pubkey();
@@ -188,15 +192,23 @@ mod mint_new_edition_from_master_edition_via_token {
             .await
             .unwrap();
 
-        create_mint(&mut context, &fake_mint, &payer_pubkey, None, 0)
-            .await
-            .unwrap();
+        create_mint(
+            &mut context,
+            &fake_mint,
+            &payer_pubkey,
+            None,
+            0,
+            &spl_token::ID,
+        )
+        .await
+        .unwrap();
 
         create_token_account(
             &mut context,
             &fake_account,
             &fake_mint.pubkey(),
             &payer_pubkey,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -208,6 +220,7 @@ mod mint_new_edition_from_master_edition_via_token {
             1,
             &payer_pubkey,
             None,
+            &spl_token::ID,
         )
         .await
         .unwrap();
@@ -247,8 +260,10 @@ mod mint_new_edition_from_master_edition_via_token {
         let mut context = program_test().start_with_context().await;
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 1);
-        let test_edition_marker1 = EditionMarker::new(&test_metadata, &test_master_edition, 1);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
+        let test_edition_marker1 =
+            EditionMarker::new(&test_metadata, &test_master_edition, 1, spl_token::ID);
 
         test_metadata.create_v3_default(&mut context).await.unwrap();
 
@@ -267,7 +282,8 @@ mod mint_new_edition_from_master_edition_via_token {
         let mut context = program_test().start_with_context().await;
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 0);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 0, spl_token::ID);
 
         test_metadata.create_v3_default(&mut context).await.unwrap();
 
@@ -286,7 +302,8 @@ mod mint_new_edition_from_master_edition_via_token {
         let mut context = program_test().start_with_context().await;
         let test_metadata = Metadata::new();
         let test_master_edition = MasterEditionV2::new(&test_metadata);
-        let test_edition_marker = EditionMarker::new(&test_metadata, &test_master_edition, 0);
+        let test_edition_marker =
+            EditionMarker::new(&test_metadata, &test_master_edition, 0, spl_token::ID);
 
         test_metadata.create_v3_default(&mut context).await.unwrap();
 
@@ -311,7 +328,7 @@ mod mint_new_edition_from_master_edition_via_token {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
@@ -324,7 +341,7 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 5 and supply should go up to 2.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 5);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 5, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -333,7 +350,7 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 4 and supply should go up to 3.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 4);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 4, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let mut master_edition_struct = master_edition.get_data(&mut context).await;
@@ -357,7 +374,7 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 2, this will succeed but supply will incremement.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -366,7 +383,7 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Mint edition number 10 and supply should increase by 1 to 10.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 10);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 10, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -377,7 +394,7 @@ mod mint_new_edition_from_master_edition_via_token {
         // Mint another edition and it should succeed, but supply should stay the same since it's already reached max supply.
         // This allows minting missing editions even when the supply has erroneously reached
         // the max supply, since the bit mask is the source of truth for which particular editions have been minted.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 6);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 6, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -400,7 +417,7 @@ mod mint_new_edition_from_master_edition_via_token {
             .unwrap();
 
         // Mint the first print edition.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -408,13 +425,13 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Try mint edition number 11, this should fail.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 11);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 11, spl_token::ID);
         let err = print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::EditionNumberGreaterThanMaxSupply);
 
         // Try mint edition number 999, this should fail.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 999);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 999, spl_token::ID);
         let err = print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::EditionNumberGreaterThanMaxSupply);
@@ -434,9 +451,9 @@ mod mint_new_edition_from_master_edition_via_token {
             .unwrap();
 
         // Mint a couple non-sequential editions.
-        let edition_1 = EditionMarker::new(&original_nft, &master_edition, 1);
+        let edition_1 = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         edition_1.create(&mut context).await.unwrap();
-        let edition_99 = EditionMarker::new(&original_nft, &master_edition, 99);
+        let edition_99 = EditionMarker::new(&original_nft, &master_edition, 99, spl_token::ID);
         edition_99.create(&mut context).await.unwrap();
 
         let master_edition_struct = master_edition.get_data(&mut context).await;
@@ -444,12 +461,12 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(999));
 
         // Try to remint edition numbers 1 and 99, this should fail.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         let err = print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 99);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 99, spl_token::ID);
         let err = print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
@@ -472,7 +489,7 @@ mod mint_new_edition_from_master_edition_via_token {
 
         // Start with a supply of 10. Mint out edition number 10 and then artificially set the supply to 10
         // to simulate the old edition override logic.
-        let edition_10 = EditionMarker::new(&original_nft, &master_edition, 10);
+        let edition_10 = EditionMarker::new(&original_nft, &master_edition, 10, spl_token::ID);
         edition_10.create(&mut context).await.unwrap();
 
         let mut master_edition_struct = master_edition.get_data(&mut context).await;
@@ -491,14 +508,15 @@ mod mint_new_edition_from_master_edition_via_token {
         assert!(master_edition_struct.max_supply == Some(10));
 
         // Try to mint edition number 11, this should fail.
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 11);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 11, spl_token::ID);
         let err = print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::EditionNumberGreaterThanMaxSupply);
 
         // We should be able to mint out missing editions 1-9.
         for i in 1..10 {
-            let print_edition = EditionMarker::new(&original_nft, &master_edition, i);
+            let print_edition =
+                EditionMarker::new(&original_nft, &master_edition, i, spl_token::ID);
             print_edition.create(&mut context).await.unwrap();
         }
 

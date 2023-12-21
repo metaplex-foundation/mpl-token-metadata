@@ -70,6 +70,10 @@ impl Default for UpdateV1InstructionArgs {
     }
 }
 
+// Token Standard
+
+impl Copy for TokenStandard {}
+
 // Metadata
 
 impl Metadata {

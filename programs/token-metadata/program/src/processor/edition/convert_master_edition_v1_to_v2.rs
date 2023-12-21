@@ -1,11 +1,12 @@
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
-use spl_token::state::Mint;
+use spl_token_2022::state::Mint;
 
 use crate::{
     assertions::{assert_initialized, assert_owned_by},
     error::MetadataError,
     processor::all_account_infos,
     state::{Key, MasterEditionV1, MasterEditionV2, TokenMetadataAccount},
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_convert_master_edition_v1_to_v2(
@@ -20,8 +21,8 @@ pub fn process_convert_master_edition_v1_to_v2(
     );
 
     assert_owned_by(master_edition_info, program_id)?;
-    assert_owned_by(one_time_printing_auth_mint_info, &spl_token::ID)?;
-    assert_owned_by(printing_mint_info, &spl_token::ID)?;
+    assert_owned_by(one_time_printing_auth_mint_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(printing_mint_info, &SPL_TOKEN_ID)?;
     let master_edition = MasterEditionV1::from_account_info(master_edition_info)?;
     let printing_mint: Mint = assert_initialized(printing_mint_info)?;
     let auth_mint: Mint = assert_initialized(one_time_printing_auth_mint_info)?;

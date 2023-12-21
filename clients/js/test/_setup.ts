@@ -2,6 +2,7 @@
 import {
   generateSigner,
   percentAmount,
+  publicKey,
   PublicKey,
   Signer,
   transactionBuilder,
@@ -50,6 +51,10 @@ export const FUNGIBLE_TOKEN_STANDARDS: TokenStandardKeys[] = [
   'Fungible',
 ];
 
+export const SPL_TOKEN_2022_PROGRAM_ID: PublicKey = publicKey(
+  'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+);
+
 export const createUmi = async () =>
   (await baseCreateUmi()).use(mplTokenMetadata());
 
@@ -92,7 +97,7 @@ export const createDigitalAssetWithToken = async (
         authority: input.authority,
         mint: mint.publicKey,
         token: input.token,
-        tokenOwner: input.tokenOwner,
+        tokenOwner: input.tokenOwner ?? umi.identity.publicKey,
         amount: input.amount ?? 1,
         tokenStandard: input.tokenStandard ?? TokenStandard.NonFungible,
       })
@@ -127,6 +132,7 @@ export const createDigitalAssetWithVerifiedCreators = async (
       mintV1(umi, {
         authority: input.authority,
         mint: mint.publicKey,
+        tokenOwner: umi.identity.publicKey,
         amount: 1,
         tokenStandard: TokenStandard.NonFungible,
       })

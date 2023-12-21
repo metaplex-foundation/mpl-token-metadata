@@ -2855,6 +2855,74 @@ nameToErrorMap.set(
   CannotChangeUpdateAuthorityWithDelegateError
 );
 
+/** InvalidMintExtensionType: Invalid mint extension type */
+export class InvalidMintExtensionTypeError extends ProgramError {
+  override readonly name: string = 'InvalidMintExtensionType';
+
+  readonly code: number = 0xc2; // 194
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid mint extension type', program, cause);
+  }
+}
+codeToErrorMap.set(0xc2, InvalidMintExtensionTypeError);
+nameToErrorMap.set('InvalidMintExtensionType', InvalidMintExtensionTypeError);
+
+/** InvalidMintCloseAuthority: Invalid mint close authority */
+export class InvalidMintCloseAuthorityError extends ProgramError {
+  override readonly name: string = 'InvalidMintCloseAuthority';
+
+  readonly code: number = 0xc3; // 195
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid mint close authority', program, cause);
+  }
+}
+codeToErrorMap.set(0xc3, InvalidMintCloseAuthorityError);
+nameToErrorMap.set('InvalidMintCloseAuthority', InvalidMintCloseAuthorityError);
+
+/** InvalidMetadataPointer: Invalid metadata pointer */
+export class InvalidMetadataPointerError extends ProgramError {
+  override readonly name: string = 'InvalidMetadataPointer';
+
+  readonly code: number = 0xc4; // 196
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid metadata pointer', program, cause);
+  }
+}
+codeToErrorMap.set(0xc4, InvalidMetadataPointerError);
+nameToErrorMap.set('InvalidMetadataPointer', InvalidMetadataPointerError);
+
+/** InvalidTokenExtensionType: Invalid token extension type */
+export class InvalidTokenExtensionTypeError extends ProgramError {
+  override readonly name: string = 'InvalidTokenExtensionType';
+
+  readonly code: number = 0xc5; // 197
+
+  constructor(program: Program, cause?: Error) {
+    super('Invalid token extension type', program, cause);
+  }
+}
+codeToErrorMap.set(0xc5, InvalidTokenExtensionTypeError);
+nameToErrorMap.set('InvalidTokenExtensionType', InvalidTokenExtensionTypeError);
+
+/** MissingImmutableOwnerExtension: Missing immutable owner extension */
+export class MissingImmutableOwnerExtensionError extends ProgramError {
+  override readonly name: string = 'MissingImmutableOwnerExtension';
+
+  readonly code: number = 0xc6; // 198
+
+  constructor(program: Program, cause?: Error) {
+    super('Missing immutable owner extension', program, cause);
+  }
+}
+codeToErrorMap.set(0xc6, MissingImmutableOwnerExtensionError);
+nameToErrorMap.set(
+  'MissingImmutableOwnerExtension',
+  MissingImmutableOwnerExtensionError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

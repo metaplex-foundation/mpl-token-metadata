@@ -13,9 +13,10 @@ mod delegate {
 
     use borsh::BorshDeserialize;
     use mpl_token_auth_rules::error::RuleSetError;
+    use mpl_utils::token::unpack;
     use num_traits::FromPrimitive;
-    use solana_program::{program_option::COption, program_pack::Pack};
-    use spl_token::state::Account;
+    use solana_program::{program_option::COption, pubkey::Pubkey};
+    use spl_token_2022::state::Account;
     use token_metadata::{
         error::MetadataError,
         instruction::{DelegateArgs, MetadataDelegateRole},
@@ -28,8 +29,10 @@ mod delegate {
 
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_transfer_delegate_programmable_nonfungible() {
+    async fn set_transfer_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -42,6 +45,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -63,6 +67,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -83,7 +88,9 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = mpl_utils::token::unpack::<Account>(&account.data)
+                .unwrap()
+                .base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -93,8 +100,10 @@ mod delegate {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_transfer_delegate_programmable_nonfungible_edition() {
+    async fn set_transfer_delegate_programmable_nonfungible_edition(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -108,6 +117,7 @@ mod delegate {
                 None,
                 1,
                 PrintSupply::Unlimited,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -115,8 +125,12 @@ mod delegate {
         assert!(master_asset.token.is_some());
 
         let test_master_edition = MasterEditionV2::new_from_asset(&master_asset);
-        let mut test_edition_marker =
-            EditionMarker::new_from_asset(&master_asset, &test_master_edition, 1);
+        let mut test_edition_marker = EditionMarker::new_from_asset(
+            &master_asset,
+            &test_master_edition,
+            1,
+            spl_token_program,
+        );
 
         test_edition_marker
             .create_from_asset(&mut context)
@@ -138,6 +152,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -160,15 +175,17 @@ mod delegate {
         );
 
         let account = get_account(&mut context, &test_edition_marker.token.pubkey()).await;
-        let token_account = Account::unpack(&account.data).unwrap();
+        let token_account = unpack::<Account>(&account.data).unwrap().base;
 
         assert!(token_account.is_frozen());
         assert_eq!(token_account.delegate, COption::Some(user_pubkey));
         assert_eq!(token_account.delegated_amount, 1);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_collection_delegate_programmable_nonfungible() {
+    async fn set_collection_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -181,6 +198,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -207,6 +225,7 @@ mod delegate {
                 DelegateArgs::CollectionV1 {
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -225,8 +244,10 @@ mod delegate {
         assert_eq!(delegate_record.key, Key::MetadataDelegate);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_sale_delegate_programmable_nonfungible() {
+    async fn set_sale_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -239,6 +260,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -260,6 +282,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -277,7 +300,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -287,8 +310,10 @@ mod delegate {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_utility_delegate_programmable_nonfungible() {
+    async fn set_utility_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -301,6 +326,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -322,6 +348,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -339,7 +366,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -355,15 +382,24 @@ mod delegate {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn cannot_set_sale_delegate_nonfungible() {
+    async fn cannot_set_sale_delegate_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
+            .create_and_mint(
+                &mut context,
+                TokenStandard::NonFungible,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -384,6 +420,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap_err();
@@ -393,15 +430,24 @@ mod delegate {
         assert_custom_error_ix!(1, error, MetadataError::InvalidDelegateRole);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_standard_delegate_nonfungible() {
+    async fn set_standard_delegate_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
+            .create_and_mint(
+                &mut context,
+                TokenStandard::NonFungible,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -419,20 +465,30 @@ mod delegate {
                 payer,
                 user_pubkey,
                 DelegateArgs::StandardV1 { amount: 1 },
+                spl_token_program,
             )
             .await
             .unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn cannot_set_utility_delegate_nonfungible() {
+    async fn cannot_set_utility_delegate_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
+            .create_and_mint(
+                &mut context,
+                TokenStandard::NonFungible,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -453,6 +509,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap_err();
@@ -460,9 +517,11 @@ mod delegate {
         assert_custom_error_ix!(1, error, MetadataError::InvalidDelegateRole);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn store_rule_set_revision_on_delegate() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn store_rule_set_revision_on_delegate(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;
@@ -483,6 +542,7 @@ mod delegate {
                 Some(rule_set),
                 Some(auth_data),
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -511,6 +571,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -529,7 +590,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(rule_set));
@@ -539,8 +600,10 @@ mod delegate {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn set_locked_transfer_delegate_programmable_nonfungible() {
+    async fn set_locked_transfer_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -553,6 +616,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -575,6 +639,7 @@ mod delegate {
                     locked_address: asset.metadata,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -596,7 +661,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
 
             assert!(token_account.is_frozen());
             assert_eq!(token_account.delegate, COption::Some(user_pubkey));
@@ -606,9 +671,11 @@ mod delegate {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn delegate_not_in_allow_list() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn delegate_not_in_allow_list(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.set_compute_max_units(400_000);
         let mut context = program_test.start_with_context().await;
@@ -629,6 +696,7 @@ mod delegate {
                 Some(rule_set),
                 Some(auth_data),
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -659,6 +727,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap_err();
@@ -668,8 +737,10 @@ mod delegate {
         assert_custom_error_ix!(1, error, RuleSetError::DataIsEmpty);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn invalid_close_authority_fails() {
+    async fn invalid_close_authority_fails(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -682,6 +753,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -706,6 +778,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap_err();
@@ -713,8 +786,10 @@ mod delegate {
         assert_custom_error_ix!(1, err, MetadataError::InvalidCloseAuthority);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn replace_delegate_programmable_nonfungible() {
+    async fn replace_delegate_programmable_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -727,6 +802,7 @@ mod delegate {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -748,6 +824,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -766,7 +843,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
             assert_eq!(
                 token_account.delegate,
                 COption::Some(transfer_delegate_pubkey)
@@ -790,6 +867,7 @@ mod delegate {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -805,7 +883,7 @@ mod delegate {
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;
-            let token_account = Account::unpack(&account.data).unwrap();
+            let token_account = unpack::<Account>(&account.data).unwrap().base;
             assert_eq!(
                 token_account.delegate,
                 COption::Some(staking_delegate_pubkey)

@@ -5,14 +5,15 @@ pub mod utils;
 use mpl_token_auth_rules::payload::{PayloadType, SeedsVec};
 use num_traits::FromPrimitive;
 use rooster::instruction::DelegateArgs as RoosterDelegateArgs;
-use solana_program::{native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey};
+use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
 use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
     transaction::TransactionError,
 };
-use spl_associated_token_account::get_associated_token_address;
+use spl_associated_token_account::get_associated_token_address_with_program_id;
+use spl_token_2022::{instruction::approve, state::Account};
 use token_metadata::{
     instruction::TransferArgs,
     state::{PayloadKey, TokenStandard},
@@ -21,10 +22,8 @@ use utils::*;
 
 mod standard_transfer {
 
-    use solana_program::{
-        native_token::LAMPORTS_PER_SOL, program_option::COption, program_pack::Pack, pubkey::Pubkey,
-    };
-    use spl_associated_token_account::get_associated_token_address;
+    use mpl_utils::token::unpack;
+    use solana_program::{native_token::LAMPORTS_PER_SOL, program_option::COption, pubkey::Pubkey};
     use token_metadata::{
         error::MetadataError,
         instruction::{DelegateArgs, TransferArgs},
@@ -33,17 +32,30 @@ mod standard_transfer {
 
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_nonfungible() {
+    async fn transfer_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut da = DigitalAsset::new();
-        da.create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
-            .await
-            .unwrap();
+        da.create_and_mint(
+            &mut context,
+            TokenStandard::NonFungible,
+            None,
+            None,
+            1,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let destination_owner = Keypair::new().pubkey();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -66,9 +78,9 @@ mod standard_transfer {
             args,
         };
 
-        da.transfer(params).await.unwrap();
+        da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -77,13 +89,16 @@ mod standard_transfer {
                 .unwrap()
                 .data,
         )
-        .unwrap();
+        .unwrap()
+        .base;
 
         assert_eq!(token_account.amount, 1);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_fungible() {
+    async fn transfer_fungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mint_amount = 10;
@@ -96,12 +111,17 @@ mod standard_transfer {
             None,
             None,
             mint_amount,
+            spl_token_program,
         )
         .await
         .unwrap();
 
         let destination_owner = Keypair::new().pubkey();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -124,9 +144,9 @@ mod standard_transfer {
             args,
         };
 
-        da.transfer(params).await.unwrap();
+        da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -135,13 +155,16 @@ mod standard_transfer {
                 .unwrap()
                 .data,
         )
-        .unwrap();
+        .unwrap()
+        .base;
 
         assert_eq!(token_account.amount, amount);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_fungible_asset() {
+    async fn transfer_fungible_asset(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mint_amount = 100;
@@ -154,12 +177,17 @@ mod standard_transfer {
             None,
             None,
             mint_amount,
+            spl_token_program,
         )
         .await
         .unwrap();
 
         let destination_owner = Pubkey::new_unique();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -182,9 +210,9 @@ mod standard_transfer {
             args,
         };
 
-        da.transfer(params).await.unwrap();
+        da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -193,21 +221,31 @@ mod standard_transfer {
                 .unwrap()
                 .data,
         )
-        .unwrap();
+        .unwrap()
+        .base;
 
         assert_eq!(token_account.amount, transfer_amount);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_with_delegate() {
+    async fn transfer_with_delegate(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let transfer_amount = 1;
 
         let mut da = DigitalAsset::new();
-        da.create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
-            .await
-            .unwrap();
+        da.create_and_mint(
+            &mut context,
+            TokenStandard::NonFungible,
+            None,
+            None,
+            1,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate = Keypair::new();
         airdrop(&mut context, &delegate.pubkey(), LAMPORTS_PER_SOL)
@@ -224,9 +262,15 @@ mod standard_transfer {
             amount: transfer_amount,
         };
 
-        da.delegate(&mut context, authority, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        da.delegate(
+            &mut context,
+            authority,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = da
             .get_token_delegate_role(&mut context, &da.token.unwrap())
@@ -236,15 +280,24 @@ mod standard_transfer {
         assert_eq!(delegate_role, None);
 
         // SPL delegate will exist.
-        let authority_ata = get_associated_token_address(&authority_pubkey, &da.mint.pubkey());
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority_pubkey,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         let authority_token_account = get_account(&mut context, &authority_ata).await;
-        let authority_token: spl_token::state::Account =
-            spl_token::state::Account::unpack(&authority_token_account.data).unwrap();
+        let authority_token = unpack::<Account>(&authority_token_account.data)
+            .unwrap()
+            .base;
 
         assert_eq!(authority_token.delegate, COption::Some(delegate.pubkey()));
 
         let destination_owner = Pubkey::new_unique();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -267,9 +320,9 @@ mod standard_transfer {
             args: args.clone(),
         };
 
-        da.transfer(params).await.unwrap();
+        da.transfer(params, spl_token_program).await.unwrap();
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -278,21 +331,31 @@ mod standard_transfer {
                 .unwrap()
                 .data,
         )
-        .unwrap();
+        .unwrap()
+        .base;
 
         assert_eq!(token_account.amount, transfer_amount);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fake_delegate_fails() {
+    async fn fake_delegate_fails(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let transfer_amount = 1;
 
         let mut da = DigitalAsset::new();
-        da.create_and_mint(&mut context, TokenStandard::NonFungible, None, None, 1)
-            .await
-            .unwrap();
+        da.create_and_mint(
+            &mut context,
+            TokenStandard::NonFungible,
+            None,
+            None,
+            1,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate = Keypair::new();
         airdrop(&mut context, &delegate.pubkey(), LAMPORTS_PER_SOL)
@@ -309,9 +372,15 @@ mod standard_transfer {
             amount: transfer_amount,
         };
 
-        da.delegate(&mut context, authority, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        da.delegate(
+            &mut context,
+            authority,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = da
             .get_token_delegate_role(&mut context, &da.token.unwrap())
@@ -321,15 +390,24 @@ mod standard_transfer {
         assert_eq!(delegate_role, None);
 
         // SPL delegate will exist.
-        let authority_ata = get_associated_token_address(&authority_pubkey, &da.mint.pubkey());
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority_pubkey,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         let authority_token_account = get_account(&mut context, &authority_ata).await;
-        let authority_token: spl_token::state::Account =
-            spl_token::state::Account::unpack(&authority_token_account.data).unwrap();
+        let authority_token = unpack::<Account>(&authority_token_account.data)
+            .unwrap()
+            .base;
 
         assert_eq!(authority_token.delegate, COption::Some(delegate.pubkey()));
 
         let destination_owner = Pubkey::new_unique();
-        let destination_token = get_associated_token_address(&destination_owner, &da.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &da.mint.pubkey(),
+            &spl_token_program,
+        );
         airdrop(&mut context, &destination_owner, LAMPORTS_PER_SOL)
             .await
             .unwrap();
@@ -358,7 +436,7 @@ mod standard_transfer {
             args,
         };
 
-        let err = da.transfer(params).await.unwrap_err();
+        let err = da.transfer(params, spl_token_program).await.unwrap_err();
 
         // Owner does not match.
         assert_custom_error_ix!(1, err, MetadataError::InvalidAuthorityType);
@@ -370,21 +448,23 @@ mod auth_rules_transfer {
     use mpl_token_auth_rules::payload::Payload;
     use solana_sdk::transaction::Transaction;
     use spl_associated_token_account::instruction::create_associated_token_account;
-    use spl_token::instruction::approve;
     use token_metadata::{
         error::MetadataError,
         instruction::DelegateArgs,
         pda::find_token_record_account,
         state::{ProgrammableConfig, TokenDelegateRole, TokenRecord},
+        utils::unpack,
     };
 
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn wallet_to_wallet() {
+    async fn wallet_to_wallet(spl_token_program: Pubkey) {
         // Wallet to wallet should skip royalties rules, for now.
 
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -403,6 +483,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -416,10 +497,10 @@ mod auth_rules_transfer {
         );
 
         if let Some(ProgrammableConfig::V1 {
-            rule_set: Some(rule_set),
+            rule_set: Some(onchain_rule_set),
         }) = metadata.programmable_config
         {
-            assert_eq!(rule_set, rule_set);
+            assert_eq!(rule_set, onchain_rule_set);
         } else {
             panic!("Missing programmable config");
         }
@@ -450,7 +531,7 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        let err = nft.transfer(params).await.unwrap_err();
+        let err = nft.transfer(params, spl_token_program).await.unwrap_err();
 
         assert_custom_error_ix!(
             2,
@@ -475,12 +556,15 @@ mod auth_rules_transfer {
             args,
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let destination_token =
-            get_associated_token_address(&destination_owner, &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
-        let token_account = spl_token::state::Account::unpack(
+        let token_account = unpack::<Account>(
             &context
                 .banks_client
                 .get_account(destination_token)
@@ -498,9 +582,11 @@ mod auth_rules_transfer {
             .unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn fail_transfer_zero_amount() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn fail_transfer_zero_amount(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -519,6 +605,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -530,10 +617,10 @@ mod auth_rules_transfer {
         );
 
         if let Some(ProgrammableConfig::V1 {
-            rule_set: Some(rule_set),
+            rule_set: Some(onchain_rule_set),
         }) = metadata.programmable_config
         {
-            assert_eq!(rule_set, rule_set);
+            assert_eq!(onchain_rule_set, rule_set);
         } else {
             panic!("Missing programmable config");
         }
@@ -559,15 +646,17 @@ mod auth_rules_transfer {
             args,
         };
 
-        let err = nft.transfer(params).await.unwrap_err();
+        let err = nft.transfer(params, spl_token_program).await.unwrap_err();
 
         assert_custom_error_ix!(2, err, token_metadata::error::MetadataError::InvalidAmount);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn owner_transfer() {
+    async fn owner_transfer(spl_token_program: Pubkey) {
         // Tests an owner transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -586,6 +675,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -629,10 +719,10 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
         // Nft.token is updated by transfer to be the new token account where the asset currently
-        let dest_token_account = spl_token::state::Account::unpack(
+        let dest_token_account = unpack::<Account>(
             get_account(&mut context, &nft.token.unwrap())
                 .await
                 .data
@@ -678,12 +768,17 @@ mod auth_rules_transfer {
                 nft.edition.unwrap(),
                 rule_set,
                 payload,
+                spl_token_program,
             )
             .await
             .unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -704,10 +799,12 @@ mod auth_rules_transfer {
         assert!(source_token_record.is_none());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_delegate() {
+    async fn transfer_delegate(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -727,6 +824,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -747,9 +845,15 @@ mod auth_rules_transfer {
             authorization_data: None,
         };
 
-        nft.delegate(&mut context, payer, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = nft
             .get_token_delegate_role(&mut context, &nft.token.unwrap())
@@ -793,10 +897,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -813,6 +921,8 @@ mod auth_rules_transfer {
             authority: authority.pubkey(),
         };
 
+        context.warp_to_slot(1000).unwrap();
+
         // Create new delegate using Rooster
         rooster_manager
             .delegate(
@@ -822,6 +932,7 @@ mod auth_rules_transfer {
                 nft.metadata,
                 nft.edition.unwrap(),
                 Some(rule_set),
+                spl_token_program,
                 rooster_delegate_args,
             )
             .await
@@ -845,6 +956,8 @@ mod auth_rules_transfer {
             amount: transfer_amount,
         };
 
+        context.warp_to_slot(2000).unwrap();
+
         let params = TransferParams {
             context: &mut context,
             authority: &delegate,
@@ -856,10 +969,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -871,10 +988,12 @@ mod auth_rules_transfer {
         assert_eq!(authority_ata_account.amount, 1);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_delegate_wrong_metadata() {
+    async fn transfer_delegate_wrong_metadata(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -894,6 +1013,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -906,6 +1026,7 @@ mod auth_rules_transfer {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -924,9 +1045,15 @@ mod auth_rules_transfer {
             authorization_data: None,
         };
 
-        nft.delegate(&mut context, payer, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = nft
             .get_token_delegate_role(&mut context, &nft.token.unwrap())
@@ -970,14 +1097,16 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
         nft.metadata = nft_naughty.metadata;
-        let err = nft.transfer(params).await.unwrap_err();
+        let err = nft.transfer(params, spl_token_program).await.unwrap_err();
         assert_custom_error_ix!(2, err, MetadataError::MintMismatch);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn sale_delegate() {
+    async fn sale_delegate(spl_token_program: Pubkey) {
         // Tests a delegate transferring from a system wallet to a PDA and vice versa.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -997,6 +1126,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1015,9 +1145,15 @@ mod auth_rules_transfer {
             amount: transfer_amount,
             authorization_data: Some(auth_data.clone()),
         };
-        nft.delegate(&mut context, payer, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = nft
             .get_token_delegate_role(&mut context, &nft.token.unwrap())
@@ -1061,10 +1197,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1090,6 +1230,7 @@ mod auth_rules_transfer {
                 nft.metadata,
                 nft.edition.unwrap(),
                 Some(rule_set),
+                spl_token_program,
                 rooster_delegate_args,
             )
             .await
@@ -1124,10 +1265,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let authority_ata_account = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let authority_ata_account = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -1138,9 +1283,12 @@ mod auth_rules_transfer {
         // Destination now has the token.
         assert_eq!(authority_ata_account.amount, 1);
 
-        let rooster_manager_ata =
-            get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_manager_ata_account = spl_token::state::Account::unpack(
+        let rooster_manager_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_manager_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_manager_ata)
                 .await
                 .data
@@ -1152,13 +1300,15 @@ mod auth_rules_transfer {
         assert!(rooster_manager_ata_account.delegate.is_none());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn transfer_nft_with_utility_delegate_clears_close_authority() {
+    async fn transfer_nft_with_utility_delegate_clears_close_authority(spl_token_program: Pubkey) {
         // UtilityDelegates require setting the token account CloseAuthority to allow
         // the delegate to close the account. This test ensures that the CloseAuthority
         // is cleared after the transfer along with the rest of the delegate data.
 
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1178,6 +1328,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1195,9 +1346,15 @@ mod auth_rules_transfer {
             amount: transfer_amount,
             authorization_data: Some(auth_data.clone()),
         };
-        nft.delegate(&mut context, payer, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let delegate_role = nft
             .get_token_delegate_role(&mut context, &nft.token.unwrap())
@@ -1242,10 +1399,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1257,8 +1418,12 @@ mod auth_rules_transfer {
         assert_eq!(rooster_ata_account.amount, 1);
 
         // Check that the CloseAuthority is cleared.
-        let authority_ata = get_associated_token_address(&authority.pubkey(), &nft.mint.pubkey());
-        let source_token = spl_token::state::Account::unpack(
+        let authority_ata = get_associated_token_address_with_program_id(
+            &authority.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_token = unpack::<Account>(
             get_account(&mut context, &authority_ata)
                 .await
                 .data
@@ -1268,11 +1433,13 @@ mod auth_rules_transfer {
         assert!(source_token.close_authority.is_none());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn no_auth_rules_skips_validation() {
+    async fn no_auth_rules_skips_validation(spl_token_program: Pubkey) {
         // Tests a pNFT with a rule_set of None skipping validation and still being
         // transferred correctly.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1284,6 +1451,7 @@ mod auth_rules_transfer {
             None,
             None,
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1316,13 +1484,15 @@ mod auth_rules_transfer {
         };
 
         // Transfer should succeed because no rule set is present on the NFT.
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn locked_transfer_delegate() {
+    async fn locked_transfer_delegate(spl_token_program: Pubkey) {
         // tests a LockedTransfer delegate, which works similarly to a Transfer delegate
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         program_test.set_compute_max_units(400_000);
@@ -1342,6 +1512,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1364,9 +1535,15 @@ mod auth_rules_transfer {
             authorization_data: None,
         };
 
-        nft.delegate(&mut context, payer, delegate.pubkey(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            delegate.pubkey(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         // asserts (before transfer)
 
@@ -1416,10 +1593,14 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let rooster_ata = get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
-        let rooster_ata_account = spl_token::state::Account::unpack(
+        let rooster_ata = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let rooster_ata_account = unpack::<Account>(
             get_account(&mut context, &rooster_ata)
                 .await
                 .data
@@ -1437,8 +1618,11 @@ mod auth_rules_transfer {
 
         assert_eq!(token_record.rule_set_revision, None);
 
-        let destination_token =
-            get_associated_token_address(&rooster_manager.pda(), &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &rooster_manager.pda(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let (destination_token_record, _bump) =
             find_token_record_account(&nft.mint.pubkey(), &destination_token);
@@ -1448,9 +1632,11 @@ mod auth_rules_transfer {
         assert_eq!(token_record.rule_set_revision, None);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn escrowless_delegate_transfer() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn escrowless_delegate_transfer(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -1475,6 +1661,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1495,9 +1682,15 @@ mod auth_rules_transfer {
             authorization_data: None,
         };
 
-        nft.delegate(&mut context, payer, rooster_manager.pda(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            rooster_manager.pda(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         // makes the transfer
 
@@ -1525,18 +1718,26 @@ mod auth_rules_transfer {
                 nft.mint.pubkey(),
                 rule_set,
                 auth_data.payload,
+                spl_token_program,
             )
             .await
             .unwrap();
 
-        let source_ata = get_associated_token_address(&source_owner, &nft.mint.pubkey());
-        let source_ata_account = spl_token::state::Account::unpack(
-            get_account(&mut context, &source_ata).await.data.as_slice(),
-        )
-        .unwrap();
+        let source_ata = get_associated_token_address_with_program_id(
+            &source_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_ata_account =
+            unpack::<Account>(get_account(&mut context, &source_ata).await.data.as_slice())
+                .unwrap();
 
-        let destination_ata = get_associated_token_address(&destination_owner, &nft.mint.pubkey());
-        let destination_ata_account = spl_token::state::Account::unpack(
+        let destination_ata = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let destination_ata_account = unpack::<Account>(
             get_account(&mut context, &destination_ata)
                 .await
                 .data
@@ -1549,12 +1750,14 @@ mod auth_rules_transfer {
         assert_eq!(source_ata_account.amount, 0);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn destination_token_matches_destination_owner() {
+    async fn destination_token_matches_destination_owner(spl_token_program: Pubkey) {
         // We ensure that the destination owner is linked to the destination token account
         // so that people cannot get around auth rules by passing in an owner that is in an allowlist
         // but doesn't actually correspond to the token account.
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1572,6 +1775,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1579,7 +1783,11 @@ mod auth_rules_transfer {
         // We need a PDA from a program not in the allowlist to be the destination
         // owner.
         let actual_owner = nft.mint.pubkey();
-        let destination_ata = get_associated_token_address(&actual_owner, &nft.mint.pubkey());
+        let destination_ata = get_associated_token_address_with_program_id(
+            &actual_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let payer = context.payer.dirty_clone();
 
@@ -1588,7 +1796,7 @@ mod auth_rules_transfer {
             &payer.dirty_clone().pubkey(),
             &actual_owner,
             &nft.mint.pubkey(),
-            &spl_token::ID,
+            &spl_token_program,
         );
 
         let tx = Transaction::new_signed_with_payer(
@@ -1639,14 +1847,16 @@ mod auth_rules_transfer {
             args: args.clone(),
         };
 
-        let err = nft.transfer(params).await.unwrap_err();
+        let err = nft.transfer(params, spl_token_program).await.unwrap_err();
 
-        assert_custom_error_ix!(1, err, MetadataError::InvalidOwner);
+        assert_custom_error_ix!(1, err, MetadataError::IncorrectOwner);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn invalid_close_authority_fails() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn invalid_close_authority_fails(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1666,6 +1876,7 @@ mod auth_rules_transfer {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -1686,6 +1897,7 @@ mod auth_rules_transfer {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -1715,14 +1927,16 @@ mod auth_rules_transfer {
             args,
         };
 
-        let err = asset.transfer(params).await.unwrap_err();
+        let err = asset.transfer(params, spl_token_program).await.unwrap_err();
 
         assert_custom_error_ix!(2, err, MetadataError::InvalidCloseAuthority);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn clear_delegate_after_holder_transfer() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn clear_delegate_after_holder_transfer(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         program_test.add_program("rooster", rooster::ID, None);
         let mut context = program_test.start_with_context().await;
@@ -1747,6 +1961,7 @@ mod auth_rules_transfer {
             Some(rule_set),
             Some(auth_data.clone()),
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1765,9 +1980,15 @@ mod auth_rules_transfer {
             authorization_data: None,
         };
 
-        nft.delegate(&mut context, payer, rooster_manager.pda(), delegate_args)
-            .await
-            .unwrap();
+        nft.delegate(
+            &mut context,
+            payer,
+            rooster_manager.pda(),
+            delegate_args,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         // makes the transfer
 
@@ -1789,10 +2010,14 @@ mod auth_rules_transfer {
             args,
         };
 
-        nft.transfer(params).await.unwrap();
+        nft.transfer(params, spl_token_program).await.unwrap();
 
-        let destination_ata = get_associated_token_address(&destination_owner, &nft.mint.pubkey());
-        let destination_ata_account = spl_token::state::Account::unpack(
+        let destination_ata = get_associated_token_address_with_program_id(
+            &destination_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let destination_ata_account = unpack::<Account>(
             get_account(&mut context, &destination_ata)
                 .await
                 .data
@@ -1803,19 +2028,24 @@ mod auth_rules_transfer {
         // Destination now has the token.
         assert_eq!(destination_ata_account.amount, 1);
 
-        let source_ata = get_associated_token_address(&source_owner, &nft.mint.pubkey());
-        let source_ata_account = spl_token::state::Account::unpack(
-            get_account(&mut context, &source_ata).await.data.as_slice(),
-        )
-        .unwrap();
+        let source_ata = get_associated_token_address_with_program_id(
+            &source_owner,
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
+        let source_ata_account =
+            unpack::<Account>(get_account(&mut context, &source_ata).await.data.as_slice())
+                .unwrap();
 
         // Source delegate should be cleared.
         assert!(source_ata_account.delegate.is_none());
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn delegate_on_destination_transfer_fails() {
-        let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    async fn delegate_on_destination_transfer_fails(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
         let mut context = program_test.start_with_context().await;
 
@@ -1828,6 +2058,7 @@ mod auth_rules_transfer {
             None,
             None,
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -1838,18 +2069,21 @@ mod auth_rules_transfer {
         let delegate = Pubkey::new_unique();
         let payer = context.payer.dirty_clone();
 
-        let destination_token =
-            get_associated_token_address(&destination_owner.pubkey(), &nft.mint.pubkey());
+        let destination_token = get_associated_token_address_with_program_id(
+            &destination_owner.pubkey(),
+            &nft.mint.pubkey(),
+            &spl_token_program,
+        );
 
         let instructions = vec![
             create_associated_token_account(
                 &payer.pubkey(),
                 &destination_owner.pubkey(),
                 &nft.mint.pubkey(),
-                &spl_token::ID,
+                &spl_token_program,
             ),
             approve(
-                &spl_token::ID,
+                &spl_token_program,
                 &destination_token,
                 &delegate,
                 &destination_owner.pubkey(),
@@ -1888,7 +2122,7 @@ mod auth_rules_transfer {
             args,
         };
 
-        let error = nft.transfer(params).await.unwrap_err();
+        let error = nft.transfer(params, spl_token_program).await.unwrap_err();
         // error indicating that there is an existing delegate on the destination token account
         assert_custom_error_ix!(1, error, MetadataError::DelegateAlreadyExists);
     }
