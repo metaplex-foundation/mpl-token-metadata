@@ -154,7 +154,7 @@ impl MasterEditionV2 {
             print_edition.create(context).await?;
             editions.push(print_edition);
             slot += 5;
-            context.warp_to_slot(slot + (i * 100)).unwrap();
+            context.warp_to_slot(slot).unwrap();
         }
 
         Ok((editions, slot))
