@@ -243,7 +243,7 @@ mod create_token2022 {
     async fn create_from_mint_with_mint_transfer_fees(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -275,7 +275,7 @@ mod create_token2022 {
     async fn fail_from_mint_with_transfer_fees(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         let error = asset
@@ -287,7 +287,7 @@ mod create_token2022 {
             .await
             .unwrap_err();
 
-        // then we expect an error
+        // then we expect an error since the extension is not supported
 
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
@@ -298,7 +298,7 @@ mod create_token2022 {
     async fn create_from_mint_with_default_accout_state(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -330,7 +330,7 @@ mod create_token2022 {
     async fn fail_from_mint_with_default_accout_state(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         let error = asset
@@ -342,7 +342,7 @@ mod create_token2022 {
             .await
             .unwrap_err();
 
-        // then we expect an error
+        // then we expect an error since the extension is not supported
 
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
@@ -355,7 +355,7 @@ mod create_token2022 {
     async fn create_from_mint_with_non_transferable_tokens(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -387,7 +387,7 @@ mod create_token2022 {
     async fn create_from_mint_with_interest_bearing_tokens(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -419,7 +419,7 @@ mod create_token2022 {
     async fn fail_from_mint_with_interest_bearing_tokens(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         let error = asset
@@ -431,7 +431,7 @@ mod create_token2022 {
             .await
             .unwrap_err();
 
-        // then we expect an error
+        // then we expect an error since the extension is not supported
 
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
@@ -442,7 +442,7 @@ mod create_token2022 {
     async fn create_from_mint_with_permanent_delegate(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -474,7 +474,7 @@ mod create_token2022 {
     async fn fail_from_mint_with_permanent_delegate(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         let error = asset
@@ -486,7 +486,7 @@ mod create_token2022 {
             .await
             .unwrap_err();
 
-        // then we expect an error
+        // then we expect an error since the extension is not supported
 
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
@@ -497,7 +497,7 @@ mod create_token2022 {
     async fn create_from_mint_with_transfer_hook(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
@@ -529,7 +529,7 @@ mod create_token2022 {
     async fn fail_from_mint_with_transfer_hook(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         let error = asset
@@ -541,7 +541,7 @@ mod create_token2022 {
             .await
             .unwrap_err();
 
-        // then we expect an error
+        // then we expect an error since the extension is not supported
 
         assert_custom_instruction_error!(0, error, MplTokenMetadataError::InvalidMintExtensionType);
     }
@@ -554,7 +554,7 @@ mod create_token2022 {
     async fn create_from_mint_with_metadata_pointer(token_standard: TokenStandard) {
         let mut context = program_test().start_with_context().await;
 
-        // when we create an asset with the metadta pointer extension
+        // when we create an asset with the metadata pointer extension
 
         let mut asset = DigitalAsset::default();
         asset
