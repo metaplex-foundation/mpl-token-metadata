@@ -829,7 +829,7 @@ pub enum MetadataInstruction {
 
     /// Engrave the Edition Account and Metadata Account using the mpl-engraver program.
     #[account(0, writable, name="metadata", desc="Metadata account")]
-    #[account(1, writable, optional, name="edition", desc="Edition account")]
+    #[account(1, writable, name="edition", desc="Edition account")]
     #[account(2, name="mint", desc="Mint of token asset")]
     #[account(3, writable, signer, name="update_authority", desc="Update authority of the metadata account")]
     #[account(4, name="engraver_program", desc="MPL Engraver program")]

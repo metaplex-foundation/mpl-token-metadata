@@ -21,7 +21,7 @@ import {
   struct,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { findMetadataPda } from '../accounts';
+import { findMasterEditionPda, findMetadataPda } from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
@@ -113,6 +113,11 @@ export function engrave(
   // Default values.
   if (!resolvedAccounts.metadata.value) {
     resolvedAccounts.metadata.value = findMetadataPda(context, {
+      mint: expectPublicKey(resolvedAccounts.mint.value),
+    });
+  }
+  if (!resolvedAccounts.edition.value) {
+    resolvedAccounts.edition.value = findMasterEditionPda(context, {
       mint: expectPublicKey(resolvedAccounts.mint.value),
     });
   }

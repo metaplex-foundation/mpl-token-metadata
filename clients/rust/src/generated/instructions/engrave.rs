@@ -13,7 +13,7 @@ pub struct Engrave {
     /// Metadata account
     pub metadata: solana_program::pubkey::Pubkey,
     /// Edition account
-    pub edition: Option<solana_program::pubkey::Pubkey>,
+    pub edition: solana_program::pubkey::Pubkey,
     /// Mint of token asset
     pub mint: solana_program::pubkey::Pubkey,
     /// Update authority of the metadata account
@@ -40,16 +40,10 @@ impl Engrave {
             self.metadata,
             false,
         ));
-        if let Some(edition) = self.edition {
-            accounts.push(solana_program::instruction::AccountMeta::new(
-                edition, false,
-            ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
-                false,
-            ));
-        }
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.edition,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.mint, false,
         ));
@@ -96,7 +90,7 @@ impl EngraveInstructionData {
 /// ### Accounts:
 ///
 ///   0. `[writable]` metadata
-///   1. `[writable, optional]` edition
+///   1. `[writable]` edition
 ///   2. `[]` mint
 ///   3. `[writable, signer]` update_authority
 ///   4. `[]` engraver_program
@@ -124,11 +118,10 @@ impl EngraveBuilder {
         self.metadata = Some(metadata);
         self
     }
-    /// `[optional account]`
     /// Edition account
     #[inline(always)]
-    pub fn edition(&mut self, edition: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
-        self.edition = edition;
+    pub fn edition(&mut self, edition: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.edition = Some(edition);
         self
     }
     /// Mint of token asset
@@ -194,7 +187,7 @@ impl EngraveBuilder {
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = Engrave {
             metadata: self.metadata.expect("metadata is not set"),
-            edition: self.edition,
+            edition: self.edition.expect("edition is not set"),
             mint: self.mint.expect("mint is not set"),
             update_authority: self.update_authority.expect("update_authority is not set"),
             engraver_program: self.engraver_program.expect("engraver_program is not set"),
@@ -215,7 +208,7 @@ pub struct EngraveCpiAccounts<'a, 'b> {
     /// Metadata account
     pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority of the metadata account
@@ -235,7 +228,7 @@ pub struct EngraveCpi<'a, 'b> {
     /// Metadata account
     pub metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition account
-    pub edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// Update authority of the metadata account
@@ -302,17 +295,10 @@ impl<'a, 'b> EngraveCpi<'a, 'b> {
             *self.metadata.key,
             false,
         ));
-        if let Some(edition) = self.edition {
-            accounts.push(solana_program::instruction::AccountMeta::new(
-                *edition.key,
-                false,
-            ));
-        } else {
-            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-                crate::MPL_TOKEN_METADATA_ID,
-                false,
-            ));
-        }
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.edition.key,
+            false,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.mint.key,
             false,
@@ -350,9 +336,7 @@ impl<'a, 'b> EngraveCpi<'a, 'b> {
         let mut account_infos = Vec::with_capacity(7 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.metadata.clone());
-        if let Some(edition) = self.edition {
-            account_infos.push(edition.clone());
-        }
+        account_infos.push(self.edition.clone());
         account_infos.push(self.mint.clone());
         account_infos.push(self.update_authority.clone());
         account_infos.push(self.engraver_program.clone());
@@ -375,7 +359,7 @@ impl<'a, 'b> EngraveCpi<'a, 'b> {
 /// ### Accounts:
 ///
 ///   0. `[writable]` metadata
-///   1. `[writable, optional]` edition
+///   1. `[writable]` edition
 ///   2. `[]` mint
 ///   3. `[writable, signer]` update_authority
 ///   4. `[]` engraver_program
@@ -409,14 +393,13 @@ impl<'a, 'b> EngraveCpiBuilder<'a, 'b> {
         self.instruction.metadata = Some(metadata);
         self
     }
-    /// `[optional account]`
     /// Edition account
     #[inline(always)]
     pub fn edition(
         &mut self,
-        edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+        edition: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.edition = edition;
+        self.instruction.edition = Some(edition);
         self
     }
     /// Mint of token asset
@@ -507,7 +490,7 @@ impl<'a, 'b> EngraveCpiBuilder<'a, 'b> {
 
             metadata: self.instruction.metadata.expect("metadata is not set"),
 
-            edition: self.instruction.edition,
+            edition: self.instruction.edition.expect("edition is not set"),
 
             mint: self.instruction.mint.expect("mint is not set"),
 

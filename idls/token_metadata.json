@@ -4690,7 +4690,6 @@
           "name": "edition",
           "isMut": true,
           "isSigner": false,
-          "isOptional": true,
           "docs": [
             "Edition account"
           ]
