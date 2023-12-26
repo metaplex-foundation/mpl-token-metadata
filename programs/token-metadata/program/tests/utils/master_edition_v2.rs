@@ -150,7 +150,7 @@ impl MasterEditionV2 {
         let mut slot = start_slot;
 
         for i in 1..=number {
-            let print_edition = EditionMarker::new(nft, self, i);
+            let print_edition = EditionMarker::new(nft, self, i, spl_token::ID);
             print_edition.create(context).await?;
             editions.push(print_edition);
             slot += 5;
@@ -171,7 +171,7 @@ impl MasterEditionV2 {
         let mut slot = start_slot;
 
         for i in 1..=number {
-            let print_edition = EditionMarker::new_from_asset(nft, self, i);
+            let print_edition = EditionMarker::new_from_asset(nft, self, i, spl_token::ID);
             print_edition.create_from_asset(context).await?;
             editions.push(print_edition);
             slot += 5;

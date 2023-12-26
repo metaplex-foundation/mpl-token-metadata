@@ -38,6 +38,7 @@ import {
   resolveCreators,
   resolveDecimals,
   resolveIsNonFungible,
+  resolveIsNonFungibleOrIsMintSigner,
   resolvePrintSupply,
 } from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../accounts';
@@ -297,11 +298,21 @@ export function createV1(
     );
   }
   if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
-      'splToken',
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-    );
-    resolvedAccounts.splTokenProgram.isWritable = false;
+    if (
+      resolveIsNonFungibleOrIsMintSigner(
+        context,
+        resolvedAccounts,
+        resolvedArgs,
+        programId,
+        false
+      )
+    ) {
+      resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      );
+      resolvedAccounts.splTokenProgram.isWritable = false;
+    }
   }
   if (!resolvedArgs.isCollection) {
     resolvedArgs.isCollection = false;

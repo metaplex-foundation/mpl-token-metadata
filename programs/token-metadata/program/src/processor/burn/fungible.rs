@@ -1,7 +1,15 @@
-use super::*;
+use mpl_utils::token::{spl_token_burn, spl_token_close, TokenBurnParams, TokenCloseParams};
+use solana_program::entrypoint::ProgramResult;
+use spl_token_2022::state::Account;
+
+use crate::{
+    error::MetadataError,
+    instruction::{Burn, Context},
+    utils::unpack,
+};
 
 pub(crate) fn burn_fungible(ctx: &Context<Burn>, amount: u64) -> ProgramResult {
-    let token = TokenAccount::unpack(&ctx.accounts.token_info.data.borrow())?;
+    let token = unpack::<Account>(&ctx.accounts.token_info.data.borrow())?;
 
     if amount > token.amount {
         return Err(MetadataError::InsufficientTokenBalance.into());

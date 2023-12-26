@@ -29,8 +29,10 @@ mod fees {
         md.assert_create_fees_charged(&mut context).await.unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn charge_create() {
+    async fn charge_create(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let mut nft = DigitalAsset::new();
@@ -38,6 +40,7 @@ mod fees {
             &mut context,
             token_metadata::state::TokenStandard::NonFungible,
             None,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -46,8 +49,10 @@ mod fees {
         nft.assert_create_fees_charged(&mut context).await.unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn update_does_not_overwrite_flag() {
+    async fn update_does_not_overwrite_flag(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         let update_authority = context.payer.dirty_clone();
@@ -57,6 +62,7 @@ mod fees {
             &mut context,
             token_metadata::state::TokenStandard::NonFungible,
             None,
+            spl_token_program,
         )
         .await
         .unwrap();
@@ -77,10 +83,12 @@ mod fees {
         nft.assert_create_fees_charged(&mut context).await.unwrap();
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     // Used for local QA testing and requires a keypair so excluded from CI.
     #[ignore]
-    async fn collect_fees_max_accounts() {
+    async fn collect_fees_max_accounts(spl_token_program: Pubkey) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
 
@@ -105,6 +113,7 @@ mod fees {
                 &mut context,
                 token_metadata::state::TokenStandard::NonFungible,
                 None,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -139,10 +148,12 @@ mod fees {
         }
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
     // Used for local QA testing and requires a keypair so excluded from CI.
     #[ignore]
-    async fn collect_fees_burned_account() {
+    async fn collect_fees_burned_account(spl_token_program: Pubkey) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
 
@@ -167,15 +178,23 @@ mod fees {
             None,
             None,
             1,
+            spl_token_program,
         )
         .await
         .unwrap();
 
         let args = BurnArgs::V1 { amount: 1 };
 
-        nft.burn(&mut context, nft_authority, args, None, None)
-            .await
-            .unwrap();
+        nft.burn(
+            &mut context,
+            nft_authority,
+            args,
+            None,
+            None,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
 
         let ix = collect_fees(recipient.pubkey(), vec![nft.metadata]);
         let tx = Transaction::new_signed_with_payer(

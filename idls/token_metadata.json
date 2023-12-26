@@ -3120,6 +3120,7 @@
           "name": "splTokenProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Token program"
           ]
@@ -7793,6 +7794,31 @@
       "code": 193,
       "name": "CannotChangeUpdateAuthorityWithDelegate",
       "msg": "Cannot change the update authority with a delegate"
+    },
+    {
+      "code": 194,
+      "name": "InvalidMintExtensionType",
+      "msg": "Invalid mint extension type"
+    },
+    {
+      "code": 195,
+      "name": "InvalidMintCloseAuthority",
+      "msg": "Invalid mint close authority"
+    },
+    {
+      "code": 196,
+      "name": "InvalidMetadataPointer",
+      "msg": "Invalid metadata pointer"
+    },
+    {
+      "code": 197,
+      "name": "InvalidTokenExtensionType",
+      "msg": "Invalid token extension type"
+    },
+    {
+      "code": 198,
+      "name": "MissingImmutableOwnerExtension",
+      "msg": "Missing immutable owner extension"
     }
   ],
   "metadata": {

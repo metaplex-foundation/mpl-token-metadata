@@ -34,7 +34,7 @@ pub struct CreateV1 {
     /// Instructions sysvar account
     pub sysvar_instructions: solana_program::pubkey::Pubkey,
     /// SPL Token program
-    pub spl_token_program: solana_program::pubkey::Pubkey,
+    pub spl_token_program: Option<solana_program::pubkey::Pubkey>,
 }
 
 impl CreateV1 {
@@ -89,10 +89,17 @@ impl CreateV1 {
             self.sysvar_instructions,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.spl_token_program,
-            false,
-        ));
+        if let Some(spl_token_program) = self.spl_token_program {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                spl_token_program,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.extend_from_slice(remaining_accounts);
         let mut data = CreateV1InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
@@ -152,7 +159,7 @@ pub struct CreateV1InstructionArgs {
 ///   5. `[signer]` update_authority
 ///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   7. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
-///   8. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   8. `[optional]` spl_token_program
 #[derive(Default)]
 pub struct CreateV1Builder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -246,14 +253,14 @@ impl CreateV1Builder {
         self.sysvar_instructions = Some(sysvar_instructions);
         self
     }
-    /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
+    /// `[optional account]`
     /// SPL Token program
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: solana_program::pubkey::Pubkey,
+        spl_token_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.spl_token_program = Some(spl_token_program);
+        self.spl_token_program = spl_token_program;
         self
     }
     #[inline(always)]
@@ -369,9 +376,7 @@ impl CreateV1Builder {
             sysvar_instructions: self.sysvar_instructions.unwrap_or(solana_program::pubkey!(
                 "Sysvar1nstructions1111111111111111111111111"
             )),
-            spl_token_program: self.spl_token_program.unwrap_or(solana_program::pubkey!(
-                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-            )),
+            spl_token_program: self.spl_token_program,
         };
         let args = CreateV1InstructionArgs {
             name: self.name.clone().expect("name is not set"),
@@ -419,7 +424,7 @@ pub struct CreateV1CpiAccounts<'a, 'b> {
     /// Instructions sysvar account
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token program
-    pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
+    pub spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
 /// `create_v1` CPI instruction.
@@ -443,7 +448,7 @@ pub struct CreateV1Cpi<'a, 'b> {
     /// Instructions sysvar account
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Token program
-    pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
+    pub spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
     pub __args: CreateV1InstructionArgs,
 }
@@ -541,10 +546,17 @@ impl<'a, 'b> CreateV1Cpi<'a, 'b> {
             *self.sysvar_instructions.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.spl_token_program.key,
-            false,
-        ));
+        if let Some(spl_token_program) = self.spl_token_program {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *spl_token_program.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
@@ -573,7 +585,9 @@ impl<'a, 'b> CreateV1Cpi<'a, 'b> {
         account_infos.push(self.update_authority.0.clone());
         account_infos.push(self.system_program.clone());
         account_infos.push(self.sysvar_instructions.clone());
-        account_infos.push(self.spl_token_program.clone());
+        if let Some(spl_token_program) = self.spl_token_program {
+            account_infos.push(spl_token_program.clone());
+        }
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -598,7 +612,7 @@ impl<'a, 'b> CreateV1Cpi<'a, 'b> {
 ///   5. `[signer]` update_authority
 ///   6. `[]` system_program
 ///   7. `[]` sysvar_instructions
-///   8. `[]` spl_token_program
+///   8. `[optional]` spl_token_program
 pub struct CreateV1CpiBuilder<'a, 'b> {
     instruction: Box<CreateV1CpiBuilderInstruction<'a, 'b>>,
 }
@@ -706,13 +720,14 @@ impl<'a, 'b> CreateV1CpiBuilder<'a, 'b> {
         self.instruction.sysvar_instructions = Some(sysvar_instructions);
         self
     }
+    /// `[optional account]`
     /// SPL Token program
     #[inline(always)]
     pub fn spl_token_program(
         &mut self,
-        spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
+        spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.spl_token_program = Some(spl_token_program);
+        self.instruction.spl_token_program = spl_token_program;
         self
     }
     #[inline(always)]
@@ -892,10 +907,7 @@ impl<'a, 'b> CreateV1CpiBuilder<'a, 'b> {
                 .sysvar_instructions
                 .expect("sysvar_instructions is not set"),
 
-            spl_token_program: self
-                .instruction
-                .spl_token_program
-                .expect("spl_token_program is not set"),
+            spl_token_program: self.instruction.spl_token_program,
             __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(

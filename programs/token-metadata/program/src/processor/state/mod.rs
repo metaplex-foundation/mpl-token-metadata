@@ -2,19 +2,19 @@ mod lock;
 mod unlock;
 
 pub use lock::*;
-use mpl_utils::assert_signer;
+use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
-    program_error::ProgramError, program_pack::Pack, pubkey::Pubkey, system_program, sysvar,
+    program_error::ProgramError, pubkey::Pubkey, system_program, sysvar,
 };
-use spl_token::{
+use spl_token_2022::{
     instruction::{freeze_account, thaw_account},
     state::{Account, Mint},
 };
 pub use unlock::*;
 
 use crate::{
-    assertions::{assert_keys_equal, metadata::assert_state},
+    assertions::{assert_keys_equal, assert_owner_in, metadata::assert_state},
     error::MetadataError,
     pda::find_token_record_account,
     state::{
@@ -22,8 +22,8 @@ use crate::{
         TokenMetadataAccount, TokenRecord, TokenStandard, TokenState,
     },
     utils::{
-        assert_delegated_tokens, assert_freeze_authority_matches_mint, assert_initialized,
-        assert_owned_by, freeze, thaw,
+        assert_delegated_tokens, assert_freeze_authority_matches_mint, assert_owned_by,
+        assert_token_program_matches_package, freeze, thaw, unpack, unpack_initialized,
     },
 };
 
@@ -54,8 +54,8 @@ pub(crate) fn toggle_asset_state(
     // ownership
 
     assert_owned_by(accounts.metadata_info, program_id)?;
-    assert_owned_by(accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(accounts.token_info, &spl_token::ID)?;
+    assert_owner_in(accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
+    assert_owner_in(accounts.token_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     // key match
 
@@ -73,7 +73,7 @@ pub(crate) fn toggle_asset_state(
         return Err(MetadataError::MintMismatch.into());
     }
 
-    let token = Account::unpack(&accounts.token_info.try_borrow_data()?)?;
+    let token = unpack::<Account>(&accounts.token_info.try_borrow_data()?)?;
     // token mint must match mint account key
     if token.mint != *accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -147,7 +147,7 @@ pub(crate) fn toggle_asset_state(
     } else {
         let spl_token_program_info = match accounts.spl_token_program_info {
             Some(spl_token_program_info) => {
-                assert_keys_equal(spl_token_program_info.key, &spl_token::ID)?;
+                assert_token_program_matches_package(spl_token_program_info)?;
                 spl_token_program_info
             }
             None => {
@@ -159,13 +159,13 @@ pub(crate) fn toggle_asset_state(
         // a token standard set; for non-fungibles, the (master) edition is the freeze
         // authority and we allow lock/unlock if the authority is a delegate; for
         // fungibles, the authority must match the freeze authority of the mint
-
         if let Some(edition_info) = accounts.edition_info {
             // check whether the authority is an spl-token delegate or not
             assert_delegated_tokens(
                 accounts.authority_info,
                 accounts.mint_info,
                 accounts.token_info,
+                spl_token_program_info.key,
             )
             .map_err(|error| {
                 let custom: ProgramError = MetadataError::InvalidDelegate.into();
@@ -201,7 +201,7 @@ pub(crate) fn toggle_asset_state(
             }
         } else {
             // fungibles: the authority must be the mint freeze authority
-            let mint: Mint = assert_initialized(accounts.mint_info)?;
+            let mint = unpack_initialized::<Mint>(&accounts.mint_info.data.borrow())?;
 
             assert_freeze_authority_matches_mint(&mint.freeze_authority, accounts.authority_info)
                 .map_err(|_| MetadataError::InvalidAuthorityType)?;

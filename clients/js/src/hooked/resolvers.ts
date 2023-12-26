@@ -3,6 +3,7 @@ import {
   ACCOUNT_HEADER_SIZE,
   Context,
   Option,
+  isSigner,
   none,
   some,
 } from '@metaplex-foundation/umi';
@@ -90,3 +91,12 @@ export const resolveOptionalTokenOwner = (
   accounts.token.value
     ? { value: null }
     : { value: context.identity.publicKey };
+
+export const resolveIsNonFungibleOrIsMintSigner = (
+  context: any,
+  accounts: ResolvedAccountsWithIndices,
+  args: { tokenStandard?: TokenStandard },
+  ...rest: any[]
+): boolean =>
+  isNonFungible(expectSome(args.tokenStandard)) ||
+  isSigner(expectSome(accounts.mint.value));

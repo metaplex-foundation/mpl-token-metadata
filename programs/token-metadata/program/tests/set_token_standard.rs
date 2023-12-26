@@ -74,7 +74,7 @@ async fn successfully_update_nonfungible_edition() {
         .await
         .unwrap();
 
-    let edition = EditionMarker::new(&test_nft, &master_edition, 1);
+    let edition = EditionMarker::new(&test_nft, &master_edition, 1, spl_token::ID);
     edition.create(&mut context).await.unwrap();
 
     let mut md_account = get_account(&mut context, &edition.new_metadata_pubkey).await;

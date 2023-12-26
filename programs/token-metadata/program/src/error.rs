@@ -763,6 +763,26 @@ pub enum MetadataError {
     /// 193
     #[error("Cannot change the update authority with a delegate")]
     CannotChangeUpdateAuthorityWithDelegate,
+
+    /// 194
+    #[error("Invalid mint extension type")]
+    InvalidMintExtensionType,
+
+    /// 195
+    #[error("Invalid mint close authority")]
+    InvalidMintCloseAuthority,
+
+    /// 196
+    #[error("Invalid metadata pointer")]
+    InvalidMetadataPointer,
+
+    /// 197
+    #[error("Invalid token extension type")]
+    InvalidTokenExtensionType,
+
+    /// 198
+    #[error("Missing immutable owner extension")]
+    MissingImmutableOwnerExtension,
 }
 
 impl PrintProgramError for MetadataError {

@@ -111,7 +111,7 @@ mod burn_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
@@ -166,7 +166,7 @@ mod burn_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.

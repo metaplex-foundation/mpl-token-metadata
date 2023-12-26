@@ -16,7 +16,7 @@ use crate::{
     state::{
         EscrowAuthority, Key, Metadata, TokenMetadataAccount, TokenOwnedEscrow, TokenStandard,
     },
-    utils::check_token_standard,
+    utils::{check_token_standard, SPL_TOKEN_ID},
 };
 
 pub fn process_create_escrow_account(
@@ -34,10 +34,10 @@ pub fn process_create_escrow_account(
     assert_owned_by(metadata_account_info, &crate::ID)?;
 
     let mint_account_info = next_account_info(account_info_iter)?;
-    assert_owned_by(mint_account_info, &spl_token::ID)?;
+    assert_owned_by(mint_account_info, &SPL_TOKEN_ID)?;
 
     let token_account_info = next_account_info(account_info_iter)?;
-    assert_owned_by(token_account_info, &spl_token::ID)?;
+    assert_owned_by(token_account_info, &SPL_TOKEN_ID)?;
 
     let edition_account_info = next_account_info(account_info_iter)?;
     assert_owned_by(edition_account_info, &crate::ID)?;
@@ -94,7 +94,7 @@ pub fn process_create_escrow_account(
     let creator = maybe_authority_info.unwrap_or(payer_account_info);
     assert_signer(creator)?;
 
-    let token_account: spl_token::state::Account = assert_initialized(token_account_info)?;
+    let token_account: spl_token_2022::state::Account = assert_initialized(token_account_info)?;
 
     if token_account.mint != *mint_account_info.key {
         return Err(MetadataError::MintMismatch.into());

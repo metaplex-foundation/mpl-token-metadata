@@ -1,12 +1,11 @@
 #[cfg(feature = "test-sbf")]
 pub mod setup;
-use setup::*;
+pub use setup::*;
 
-use solana_program::program_pack::Pack;
+use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
 use solana_sdk::signature::{Keypair, Signer};
 use solana_sdk::transaction::Transaction;
-use spl_token::state::Account;
 
 use mpl_token_metadata::instructions::DelegateStandardV1Builder;
 use mpl_token_metadata::instructions::LockV1Builder;
@@ -14,10 +13,14 @@ use mpl_token_metadata::types::TokenStandard;
 
 mod lock {
 
+    use spl_token_2022::state::Account;
+
     use super::*;
 
+    #[test_case::test_case(spl_token::ID ; "spl-token")]
+    #[test_case::test_case(spl_token_2022::ID ; "spl-token-2022")]
     #[tokio::test]
-    async fn delegate_lock_nonfungible() {
+    async fn delegate_lock_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // given a non-fungible asset and a token
@@ -35,6 +38,7 @@ mod lock {
                 &token_owner.pubkey(),
                 1,
                 &payer,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -50,7 +54,7 @@ mod lock {
             .mint(asset.mint.pubkey())
             .delegate(delegate.pubkey())
             .authority(token_owner.pubkey())
-            .spl_token_program(Some(spl_token::ID))
+            .spl_token_program(Some(spl_token_program))
             .payer(payer.pubkey())
             .amount(1)
             .instruction();
@@ -71,7 +75,7 @@ mod lock {
             .edition(Some(asset.master_edition))
             .mint(asset.mint.pubkey())
             .token(asset.token)
-            .spl_token_program(Some(spl_token::ID))
+            .spl_token_program(Some(spl_token_program))
             .payer(payer.pubkey())
             .instruction();
 
@@ -86,7 +90,7 @@ mod lock {
         // then the token is frozen
 
         let token_account = get_account(&mut context, &asset.token).await;
-        let token = Account::unpack(&token_account.data).unwrap();
+        let token = unpack::<Account>(&token_account.data).unwrap().base;
         assert!(token.is_frozen());
 
         // and the delegate is set

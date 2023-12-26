@@ -29,7 +29,9 @@ pub const DEFAULT_COLLECTION_DETAILS: Option<CollectionDetails> = {
 };
 
 pub fn program_test() -> ProgramTest {
-    ProgramTest::new("token_metadata", token_metadata::ID, None)
+    let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
+    program_test.add_program("spl_token_2022", spl_token_2022::ID, None);
+    program_test
 }
 
 pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> Account {
@@ -96,6 +98,7 @@ pub async fn burn(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn burn_edition(
     context: &mut ProgramTestContext,
     metadata: Pubkey,
@@ -139,6 +142,7 @@ pub async fn mint_tokens(
     amount: u64,
     owner: &Pubkey,
     additional_signer: Option<&Keypair>,
+    spl_token_program: &Pubkey,
 ) -> Result<(), BanksClientError> {
     let mut signing_keypairs = vec![&context.payer];
     if let Some(signer) = additional_signer {
@@ -146,10 +150,15 @@ pub async fn mint_tokens(
     }
 
     let tx = Transaction::new_signed_with_payer(
-        &[
-            spl_token::instruction::mint_to(&spl_token::ID, mint, account, owner, &[], amount)
-                .unwrap(),
-        ],
+        &[spl_token_2022::instruction::mint_to(
+            spl_token_program,
+            mint,
+            account,
+            owner,
+            &[],
+            amount,
+        )
+        .unwrap()],
         Some(&context.payer.pubkey()),
         &signing_keypairs,
         context.last_blockhash,
@@ -163,6 +172,7 @@ pub async fn create_token_account(
     account: &Keypair,
     mint: &Pubkey,
     manager: &Pubkey,
+    spl_token_program: &Pubkey,
 ) -> Result<(), BanksClientError> {
     let rent = context.banks_client.get_rent().await.unwrap();
 
@@ -171,12 +181,12 @@ pub async fn create_token_account(
             system_instruction::create_account(
                 &context.payer.pubkey(),
                 &account.pubkey(),
-                rent.minimum_balance(spl_token::state::Account::LEN),
-                spl_token::state::Account::LEN as u64,
-                &spl_token::ID,
+                rent.minimum_balance(spl_token_2022::state::Account::LEN),
+                spl_token_2022::state::Account::LEN as u64,
+                spl_token_program,
             ),
-            spl_token::instruction::initialize_account(
-                &spl_token::ID,
+            spl_token_2022::instruction::initialize_account(
+                spl_token_program,
                 &account.pubkey(),
                 mint,
                 manager,
@@ -197,6 +207,7 @@ pub async fn create_mint(
     manager: &Pubkey,
     freeze_authority: Option<&Pubkey>,
     decimals: u8,
+    spl_token_program: &Pubkey,
 ) -> Result<(), BanksClientError> {
     let rent = context.banks_client.get_rent().await.unwrap();
 
@@ -207,10 +218,10 @@ pub async fn create_mint(
                 &mint.pubkey(),
                 rent.minimum_balance(spl_token::state::Mint::LEN),
                 spl_token::state::Mint::LEN as u64,
-                &spl_token::ID,
+                spl_token_program,
             ),
-            spl_token::instruction::initialize_mint(
-                &spl_token::ID,
+            spl_token_2022::instruction::initialize_mint(
+                spl_token_program,
                 &mint.pubkey(),
                 manager,
                 freeze_authority,
