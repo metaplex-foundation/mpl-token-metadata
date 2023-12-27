@@ -5508,19 +5508,10 @@
       }
     },
     {
-      "name": "LeafInfo",
+      "name": "ProofInfo",
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "leaf",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
           {
             "name": "proof",
             "type": {
@@ -6727,7 +6718,7 @@
             "name": "MerkleProof",
             "fields": [
               {
-                "defined": "LeafInfo"
+                "defined": "ProofInfo"
               }
             ]
           },
