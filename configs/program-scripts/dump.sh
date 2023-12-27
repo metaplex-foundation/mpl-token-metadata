@@ -15,7 +15,7 @@ EXTERNAL_ID=("auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg" "SysExL2WDyJi9aRZrXor
 EXTERNAL_SO=("mpl_token_auth_rules.so" "mpl_system_extras.so" "mpl_token_extras.so" "rooster.so" "spl_token_2022.so" "mpl_engraver.so")
 
 if [ -z ${RPC+x} ]; then
-    RPC="https://api.mainnet-beta.solana.com"
+    RPC="https://api.devnet.solana.com"
 fi
 
 if [ -z "$OUTPUT" ]; then
