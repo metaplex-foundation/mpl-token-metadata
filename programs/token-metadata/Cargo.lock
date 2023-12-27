@@ -2121,7 +2121,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dc316a209852299bc5244a365284915a7040cc372aea963116fc6147e0277b2"
 dependencies = [
  "borsh 0.10.3",
- "num-derive",
+ "num-derive 0.3.3",
  "num-traits",
  "solana-program",
  "thiserror",

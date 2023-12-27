@@ -12,7 +12,7 @@ use crate::{
     error::MetadataError,
     instruction::{Context, Engrave},
     state::{Metadata, TokenMetadataAccount, TokenStandard, EDITION, PREFIX},
-    utils::{assert_derivation, assert_owned_by, check_token_standard},
+    utils::{assert_derivation, assert_owned_by, check_token_standard, SPL_TOKEN_ID},
 };
 
 pub fn engrave<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
@@ -29,7 +29,7 @@ fn engrave_v1(_program_id: &Pubkey, ctx: Context<Engrave>) -> ProgramResult {
 
     // Assert program ownership
 
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
+    assert_owned_by(ctx.accounts.mint_info, &SPL_TOKEN_ID)?;
     assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
 
     assert_owned_by(ctx.accounts.edition_info, &crate::ID)?;
