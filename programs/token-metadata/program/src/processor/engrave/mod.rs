@@ -9,6 +9,7 @@ use solana_program::{
 };
 
 use crate::{
+    assertions::assert_keys_equal,
     error::MetadataError,
     instruction::{Context, Engrave},
     state::{Metadata, TokenMetadataAccount, TokenStandard, EDITION, PREFIX},
@@ -53,6 +54,11 @@ fn engrave_v1(_program_id: &Pubkey, ctx: Context<Engrave>) -> ProgramResult {
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
+
+    assert_keys_equal(
+        &metadata.update_authority,
+        ctx.accounts.update_authority_info.key,
+    )?;
 
     let _metadata_bump = assert_derivation(
         &crate::ID,
