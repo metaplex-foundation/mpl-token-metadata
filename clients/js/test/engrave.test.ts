@@ -50,8 +50,9 @@ test('it can mint and engrave a NonFungible', async (t) => {
     mint: mint.publicKey,
     updateAuthority: umi.identity,
     engraverProgram: MPL_ENGRAVER_PROGRAM_ID,
-  }).prepend(setComputeUnitLimit(umi, { units: 1000000 }))
-  .sendAndConfirm(umi, { send: {skipPreflight: true}});
+  })
+    .prepend(setComputeUnitLimit(umi, { units: 1000000 }))
+    .sendAndConfirm(umi, { send: { skipPreflight: true } });
 });
 
 test('it can mint and engrave a ProgrammableNonFungible', async (t) => {
@@ -85,6 +86,7 @@ test('it can mint and engrave a ProgrammableNonFungible', async (t) => {
     mint: mint.publicKey,
     updateAuthority: umi.identity,
     engraverProgram: MPL_ENGRAVER_PROGRAM_ID,
-  }).prepend(setComputeUnitLimit(umi, { units: 1000000 }))
-  .sendAndConfirm(umi, { send: {skipPreflight: true}});
+  })
+    .prepend(setComputeUnitLimit(umi, { units: 1000000 }))
+    .sendAndConfirm(umi, { send: { skipPreflight: true } });
 });
