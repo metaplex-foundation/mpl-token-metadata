@@ -806,6 +806,10 @@ kinobi.update(
                   "mint",
                   k.argumentValueNode("masterEditionMint")
                 ),
+                k.pdaSeedValueNode(
+                  "editionNumber",
+                  k.argumentValueNode("editionNumber")
+                ),
               ]
             ),
           }),
@@ -854,7 +858,7 @@ kinobi.update(
             ifTrue: k.pdaValueNode("tokenRecord", [
               k.pdaSeedValueNode("mint", k.accountValueNode("editionMint")),
               k.pdaSeedValueNode(
-                "editionMint",
+                "token",
                 k.accountValueNode("editionTokenAccount")
               ),
             ]),
