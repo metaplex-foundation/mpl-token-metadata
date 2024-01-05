@@ -9,7 +9,7 @@ const idlDir = path.join(__dirname, "..", "idls");
 const kinobi = k.createFromIdls([path.join(idlDir, "token_metadata.json")]);
 
 kinobi.update(
-  new k.UpdateProgramsVisitor({
+  k.updateProgramsVisitor({
     tokenMetadata: {
       name: "mplTokenMetadata",
     },
@@ -18,12 +18,16 @@ kinobi.update(
 
 // Update Accounts.
 const metadataSeeds = [
-  k.stringConstantSeed("metadata"),
-  k.programSeed(),
-  k.publicKeySeed("mint", "The address of the mint account"),
+  k.constantPdaSeedNodeFromString("metadata"),
+  k.programIdPdaSeedNode(),
+  k.variablePdaSeedNode(
+    "mint",
+    k.publicKeyTypeNode(),
+    "The address of the mint account"
+  ),
 ];
 kinobi.update(
-  new k.UpdateAccountsVisitor({
+  k.updateAccountsVisitor({
     metadata: {
       size: null,
       seeds: metadataSeeds,
@@ -31,14 +35,15 @@ kinobi.update(
     masterEditionV2: {
       size: null,
       name: "masterEdition",
-      seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
+      seeds: [...metadataSeeds, k.constantPdaSeedNodeFromString("edition")],
     },
     editionMarker: {
       seeds: [
         ...metadataSeeds,
-        k.stringConstantSeed("edition"),
-        k.stringSeed(
+        k.constantPdaSeedNodeFromString("edition"),
+        k.variablePdaSeedNode(
           "editionMarker",
+          k.stringTypeNode({ size: k.remainderSizeNode() }),
           "The floor of the edition number divided by 248 as a string. I.e. ⌊edition/248⌋."
         ),
       ],
@@ -46,17 +51,18 @@ kinobi.update(
     editionMarkerV2: {
       seeds: [
         ...metadataSeeds,
-        k.stringConstantSeed("edition"),
-        k.stringConstantSeed("marker"),
+        k.constantPdaSeedNodeFromString("edition"),
+        k.constantPdaSeedNodeFromString("marker"),
       ],
     },
     tokenRecord: {
       size: 80,
       seeds: [
         ...metadataSeeds,
-        k.stringConstantSeed("token_record"),
-        k.publicKeySeed(
+        k.constantPdaSeedNodeFromString("token_record"),
+        k.variablePdaSeedNode(
           "token",
+          k.publicKeyTypeNode(),
           "The address of the token account (ata or not)"
         ),
       ],
@@ -65,24 +71,30 @@ kinobi.update(
       size: 98,
       seeds: [
         ...metadataSeeds,
-        k.variableSeed(
+        k.variablePdaSeedNode(
           "delegateRole",
-          k.linkTypeNode("metadataDelegateRoleSeed", { importFrom: "hooked" }),
+          k.definedTypeLinkNode("metadataDelegateRoleSeed", "hooked"),
           "The role of the metadata delegate"
         ),
-        k.publicKeySeed(
+        k.variablePdaSeedNode(
           "updateAuthority",
+          k.publicKeyTypeNode(),
           "The address of the metadata's update authority"
         ),
-        k.publicKeySeed("delegate", "The address of the delegate authority"),
+        k.variablePdaSeedNode(
+          "delegate",
+          k.publicKeyTypeNode(),
+          "The address of the delegate authority"
+        ),
       ],
     },
     collectionAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        k.stringConstantSeed("collection_authority"),
-        k.publicKeySeed(
+        k.constantPdaSeedNodeFromString("collection_authority"),
+        k.variablePdaSeedNode(
           "collectionAuthority",
+          k.publicKeyTypeNode(),
           "The address of the collection authority"
         ),
       ],
@@ -90,8 +102,12 @@ kinobi.update(
     useAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
-        k.stringConstantSeed("user"),
-        k.publicKeySeed("useAuthority", "The address of the use authority"),
+        k.constantPdaSeedNodeFromString("user"),
+        k.variablePdaSeedNode(
+          "useAuthority",
+          k.publicKeyTypeNode(),
+          "The address of the use authority"
+        ),
       ],
     },
     // Deprecated nodes.
@@ -103,32 +119,32 @@ kinobi.update(
 
 // Set default values for instruction accounts.
 kinobi.update(
-  new k.SetInstructionAccountDefaultValuesVisitor([
+  k.setInstructionaccountValueNodeValuesVisitor([
     {
       account: "updateAuthority",
       ignoreIfOptional: true,
-      ...k.identityDefault(),
+      defaultValue: k.identityValueNode(),
     },
     {
       account: "metadata",
       ignoreIfOptional: true,
-      ...k.pdaDefault("metadata"),
+      defaultValue: k.pdaValueNode("metadata"),
     },
     {
       account: "tokenRecord",
       ignoreIfOptional: true,
-      ...k.pdaDefault("tokenRecord"),
+      defaultValue: k.pdaValueNode("tokenRecord"),
     },
     {
       account: /^edition|masterEdition$/,
       ignoreIfOptional: true,
-      ...k.pdaDefault("masterEdition"),
+      defaultValue: k.pdaValueNode("masterEdition"),
     },
     {
       account: "authorizationRulesProgram",
-      ...k.conditionalDefault("account", "authorizationRules", {
-        ifTrue: k.programDefault(
-          "mplTokenAuthRules",
+      defaultValue: k.conditionalValueNode({
+        condition: k.accountValueNode("authorizationRules"),
+        ifTrue: k.publicKeyValueNode(
           "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg"
         ),
       }),
@@ -138,313 +154,284 @@ kinobi.update(
 
 // Update Instructions.
 const ataPdaDefault = (mint = "mint", owner = "owner") =>
-  k.pdaDefault("associatedToken", {
-    importFrom: "mplToolbox",
-    seeds: { mint: k.accountDefault(mint), owner: k.accountDefault(owner) },
-  });
+  k.pdaValueNode(k.pdaLinkNode("associatedToken", "mplToolbox"), [
+    k.pdaSeedValueNode("mint", k.accountValueNode(mint)),
+    k.pdaSeedValueNode("owner", k.accountValueNode(owner)),
+  ]);
 kinobi.update(
-  new k.UpdateInstructionsVisitor({
+  k.updateInstructionsVisitor({
     create: {
-      bytesCreatedOnChain: k.bytesFromNumber(
-        82 + // Mint account.
-          679 + // Metadata account.
-          282 + // Master edition account.
-          128 * 3, // 3 account headers.
-        false
-      ),
+      byteDeltas: [
+        k.instructionByteDeltaNode(
+          k.numberValueNode(
+            82 + // Mint account.
+              679 + // Metadata account.
+              282 + // Master edition account.
+              128 * 3 // 3 account headers.
+          ),
+          { withHeader: false }
+        ),
+      ],
       accounts: {
         mint: { isSigner: "either" },
         updateAuthority: {
           isSigner: "either",
-          defaultsTo: k.accountDefault("authority"),
+          defaultValue: k.accountValueNode("authority"),
         },
         splTokenProgram: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungibleOrIsMintSigner", [
-              k.dependsOnAccount("mint"),
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.programDefault(
-                "splToken",
-                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-              ),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode(
+              "resolveIsNonFungibleOrIsMintSigner",
+              {
+                dependsOn: [
+                  k.accountValueNode("mint"),
+                  k.argumentValueNode("tokenStandard"),
+                ],
+              }
+            ),
+            ifTrue: k.publicKeyValueNode(
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+            ),
+          }),
         },
       },
     },
     mint: {
-      bytesCreatedOnChain: k.bytesFromNumber(
-        165 + // Token account.
-          47 + // Token Record account.
-          128 * 2, // 2 account headers.
-        false
-      ),
+      byteDeltas: [
+        k.instructionByteDeltaNode(
+          k.numberValueNode(
+            165 + // Token account.
+              47 + // Token Record account.
+              128 * 2 // 2 account headers.
+          ),
+          { withHeader: false }
+        ),
+      ],
       accounts: {
         masterEdition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+          defaultValue: k.resolverValueNode("resolveOptionalTokenOwner"),
         },
         token: {
-          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+          defaultValue: ataPdaDefault("mint", "tokenOwner"),
         },
         tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
       },
       args: {
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     transfer: {
       accounts: {
         token: {
-          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+          defaultValue: ataPdaDefault("mint", "tokenOwner"),
         },
         tokenOwner: {
-          defaultsTo: k.identityDefault(),
+          defaultValue: k.identityValueNode(),
         },
         edition: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("masterEdition", {
-              seeds: { mint: k.accountDefault("mint") },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
           }),
         },
         ownerTokenRecord: {
           name: "tokenRecord",
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
         destination: {
           name: "destinationToken",
-          defaultsTo: ataPdaDefault("mint", "destinationOwner"),
+          defaultValue: ataPdaDefault("mint", "destinationOwner"),
         },
         destinationTokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("destinationToken"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord", [
+              // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
+              k.pdaSeedValueNode(
+                "token",
+                k.accountValueNode("destinationToken")
+              ),
+            ]),
           }),
         },
       },
       args: {
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     delegate: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
       },
       args: {
         tokenStandard: {
-          type: k.linkTypeNode("tokenStandard"),
+          type: k.definedTypeLinkNode("tokenStandard"),
         },
       },
     },
     revoke: {
       accounts: {
         masterEdition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
       },
       args: {
         tokenStandard: {
-          type: k.linkTypeNode("tokenStandard"),
+          type: k.definedTypeLinkNode("tokenStandard"),
         },
       },
     },
     lock: {
       accounts: {
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+          defaultValue: k.resolverValueNode("resolveOptionalTokenOwner"),
         },
         token: {
-          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+          defaultValue: ataPdaDefault("mint", "tokenOwner"),
         },
         edition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
         tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
         splTokenProgram: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifFalse: k.programDefault(
-              "splToken",
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.publicKeyValueNode(
               "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             ),
           }),
         },
       },
       args: {
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     unlock: {
       accounts: {
         tokenOwner: {
-          defaultsTo: k.resolverDefault("resolveOptionalTokenOwner", []),
+          defaultValue: k.resolverValueNode("resolveOptionalTokenOwner"),
         },
         token: {
-          defaultsTo: ataPdaDefault("mint", "tokenOwner"),
+          defaultValue: ataPdaDefault("mint", "tokenOwner"),
         },
         edition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
         tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
         splTokenProgram: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifFalse: k.programDefault(
-              "splToken",
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifFalse: k.publicKeyValueNode(
               "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             ),
           }),
         },
       },
       args: {
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     burn: {
       accounts: {
         token: {
           isOptional: false,
-          defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplToolbox",
-            seeds: {
-              mint: k.accountDefault("mint"),
-              owner: k.argDefault("tokenOwner"),
-            },
-          }),
-        },
-        edition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
+          defaultValue: k.pdaValueNode(
+            k.pdaLinkNode("associatedToken", "mplToolbox"),
+            [
+              // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
+              k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner")),
+            ]
           ),
         },
-        masterEdition: {
-          defaultsTo: k.conditionalDefault("account", "masterEditionMint", {
-            ifTrue: k.pdaDefault("masterEdition", {
-              seeds: { mint: k.accountDefault("masterEditionMint") },
+        edition: {
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
+            ifTrue: k.pdaValueNode("masterEdition"),
+          }),
+        },
+        masterEdition: {
+          defaultValue: k.conditionalValueNode({
+            condition: k.accountValueNode("masterEditionMint"),
+            ifTrue: k.pdaValueNode("masterEdition", [
+              k.pdaSeedValueNode(
+                "mint",
+                k.accountValueNode("masterEditionMint")
+              ),
+            ]),
           }),
         },
         tokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("mint"),
-                token: k.accountDefault("token"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
       },
       args: {
         tokenOwner: {
           type: k.publicKeyTypeNode(),
-          defaultsTo: k.identityDefault(),
+          defaultValue: k.identityValueNode(),
         },
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     updateMetadataAccountV2: {
@@ -466,10 +453,10 @@ kinobi.update(
 // Set account discriminators.
 const key = (name) => ({
   field: "key",
-  value: k.vEnum("Key", name),
+  value: k.enumValueNode("Key", name),
 });
 kinobi.update(
-  new k.SetAccountDiscriminatorFromFieldVisitor({
+  k.setAccountDiscriminatorFromFieldVisitor({
     Edition: key("EditionV1"),
     Metadata: key("MetadataV1"),
     MasterEdition: key("MasterEditionV2"),
@@ -484,47 +471,50 @@ kinobi.update(
 
 // Wrap leaves.
 kinobi.update(
-  new k.SetNumberWrappersVisitor({
+  k.setNumberWrappersVisitor({
     "AssetData.sellerFeeBasisPoints": {
       kind: "Amount",
-      identifier: "%",
       decimals: 2,
+      unit: "%",
     },
   })
 );
 
 // Set struct default values.
 kinobi.update(
-  new k.SetStructDefaultValuesVisitor({
+  k.setStructDefaultValuesVisitor({
     assetData: {
-      symbol: k.vScalar(""),
-      isMutable: k.vScalar(true),
-      primarySaleHappened: k.vScalar(false),
-      collection: k.vNone(),
-      uses: k.vNone(),
-      collectionDetails: k.vNone(),
-      ruleSet: k.vNone(),
+      symbol: k.stringValueNode(""),
+      isMutable: k.booleanValueNode(true),
+      primarySaleHappened: k.booleanValueNode(false),
+      collection: k.noneValueNode(),
+      uses: k.noneValueNode(),
+      collectionDetails: k.noneValueNode(),
+      ruleSet: k.noneValueNode(),
     },
-    "updateArgs.AsUpdateAuthorityV2": { tokenStandard: k.vNone() },
-    "updateArgs.AsAuthorityItemDelegateV2": { tokenStandard: k.vNone() },
+    "updateArgs.AsUpdateAuthorityV2": { tokenStandard: k.noneValueNode() },
+    "updateArgs.AsAuthorityItemDelegateV2": {
+      tokenStandard: k.noneValueNode(),
+    },
   })
 );
 
 // Set more struct default values dynamically.
 kinobi.update(
-  new k.TransformNodesVisitor([
+  k.bottomUpTransformerVisitor([
     {
-      selector: { kind: "structFieldTypeNode", name: "amount" },
-      transformer: (node) => {
-        k.assertStructFieldTypeNode(node);
+      select: "[structFieldTypeNode]amount",
+      transform: (node) => {
+        k.assertIsNode(node, "structFieldTypeNode");
         return k.structFieldTypeNode({
           ...node,
-          defaultsTo: { strategy: "optional", value: k.vScalar(1) },
+          defaultValueStrategy: "optional",
+          defaultValue: k.numberValueNode(1),
         });
       },
     },
     {
-      selector: (node) => {
+      select: (node) => {
         const names = [
           "authorizationData",
           "decimals",
@@ -535,21 +525,22 @@ kinobi.update(
           "isMutable",
         ];
         return (
-          k.isStructFieldTypeNode(node) &&
-          k.isOptionTypeNode(node.child) &&
+          k.isNode(node, "structFieldTypeNode") &&
+          k.isNode(node.type, "optionTypeNode") &&
           names.includes(node.name)
         );
       },
-      transformer: (node) => {
-        k.assertStructFieldTypeNode(node);
+      transform: (node) => {
+        k.assertIsNode(node, "structFieldTypeNode");
         return k.structFieldTypeNode({
           ...node,
-          defaultsTo: { strategy: "optional", value: k.vNone() },
+          defaultValueStrategy: "optional",
+          defaultValue: k.noneValueNode(),
         });
       },
     },
     {
-      selector: (node) => {
+      select: (node) => {
         const toggles = [
           "collectionToggle",
           "collectionDetailsToggle",
@@ -557,19 +548,17 @@ kinobi.update(
           "ruleSetToggle",
         ];
         return (
-          k.isStructFieldTypeNode(node) &&
-          k.isLinkTypeNode(node.child) &&
-          toggles.includes(node.child.name)
+          k.isNode(node, "structFieldTypeNode") &&
+          k.isNode(node.type, "definedTypeLinkNode") &&
+          toggles.includes(node.type.name)
         );
       },
-      transformer: (node) => {
-        k.assertStructFieldTypeNode(node);
+      transform: (node) => {
+        k.assertIsNode(node, "structFieldTypeNode");
         return k.structFieldTypeNode({
           ...node,
-          defaultsTo: {
-            strategy: "optional",
-            value: k.vEnum(node.child.name, "None", "empty"),
-          },
+          defaultValueStrategy: "optional",
+          defaultValue: k.enumValueNode(node.type.name, "None"),
         });
       },
     },
@@ -577,10 +566,10 @@ kinobi.update(
 );
 
 // Unwrap types and structs.
-kinobi.update(new k.UnwrapDefinedTypesVisitor(["AssetData"]));
-kinobi.update(new k.UnwrapTypeDefinedLinksVisitor(["metadata.data"]));
+kinobi.update(k.unwrapDefinedTypesVisitor(["AssetData"]));
+kinobi.update(k.unwrapTypeDefinedLinksVisitor(["metadata.data"]));
 kinobi.update(
-  new k.FlattenStructVisitor({
+  k.flattenStructVisitor({
     Metadata: ["data"],
     "CreateArgs.V1": ["assetData"],
   })
@@ -588,7 +577,7 @@ kinobi.update(
 
 // Create versioned instructions.
 kinobi.update(
-  new k.CreateSubInstructionsFromEnumArgsVisitor({
+  k.createSubInstructionsFromEnumArgsVisitor({
     burn: "burnArgs",
     create: "createArgs",
     delegate: "delegateArgs",
@@ -611,29 +600,24 @@ const tokenDelegateDefaults = {
   accounts: {
     token: {
       isOptional: false,
-      defaultsTo: k.pdaDefault("associatedToken", {
-        importFrom: "mplToolbox",
-        seeds: {
-          mint: k.accountDefault("mint"),
-          owner: k.argDefault("tokenOwner"),
-        },
-      }),
+      defaultValue: k.pdaValueNode(
+        k.pdaLinkNode("associatedToken", "mplToolbox"),
+        [
+          k.pdaSeedValueNode("mint", k.accountValueNode("mint")),
+          k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner")),
+        ]
+      ),
     },
     tokenRecord: {
-      defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-        value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-        ifTrue: k.pdaDefault("tokenRecord", {
-          seeds: {
-            mint: k.accountDefault("mint"),
-            token: k.accountDefault("token"),
-          },
-        }),
+      defaultValue: k.conditionalValueNode({
+        condition: k.argumentValueNode("tokenStandard"),
+        value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+        ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
       }),
     },
-    delegateRecord: { defaultsTo: k.pdaDefault("tokenRecord") },
+    delegateRecord: { defaultValue: k.pdaValueNode("tokenRecord") },
     splTokenProgram: {
-      defaultsTo: k.programDefault(
-        "splToken",
+      defaultValue: k.publicKeyValueNode(
         "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
       ),
     },
@@ -641,142 +625,152 @@ const tokenDelegateDefaults = {
   args: {
     tokenOwner: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.identityDefault(),
+      defaultValue: k.identityValueNode(),
     },
   },
 };
 const metadataDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
-      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
-        seeds: {
-          mint: k.accountDefault("mint"),
-          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
-          updateAuthority: k.argDefault("updateAuthority"),
-          delegate: k.accountDefault("delegate"),
-        },
-      }),
+      defaultValue: k.pdaValueNode("metadataDelegateRecord", [
+        // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
+        k.pdaSeedValueNode(
+          "delegateRole",
+          k.enumValueNode("MetadataDelegateRole", role)
+        ),
+        k.pdaSeedValueNode(
+          "updateAuthority",
+          k.argumentValueNode("updateAuthority")
+        ),
+        k.pdaSeedValueNode("delegate", k.accountValueNode("authority")),
+      ]),
     },
   },
   args: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.accountDefault("authority"),
+      defaultValue: k.accountValueNode("authority"),
     },
   },
 });
 const updateAsMetadataDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
-      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
-        seeds: {
-          mint: k.accountDefault("mint"),
-          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
-          updateAuthority: k.argDefault("updateAuthority"),
-          delegate: k.accountDefault("authority"),
-        },
-      }),
+      defaultValue: k.pdaValueNode("metadataDelegateRecord", [
+        // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
+        k.pdaSeedValueNode(
+          "delegateRole",
+          k.enumValueNode("MetadataDelegateRole", role)
+        ),
+        k.pdaSeedValueNode(
+          "updateAuthority",
+          k.argumentValueNode("updateAuthority")
+        ),
+        k.pdaSeedValueNode("delegate", k.accountValueNode("authority")),
+      ]),
     },
     token:
       role === "ProgrammableConfigItem"
-        ? { isOptional: false, defaultsTo: null }
+        ? { isOptional: false, defaultValue: null }
         : undefined,
   },
   args: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.identityDefault(),
+      defaultValue: k.identityValueNode(),
     },
   },
 });
 const updateAsMetadataCollectionDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
-      defaultsTo: k.pdaDefault("metadataDelegateRecord", {
-        seeds: {
-          mint: k.argDefault("delegateMint"),
-          delegateRole: k.valueDefault(k.vEnum("MetadataDelegateRole", role)),
-          updateAuthority: k.argDefault("delegateUpdateAuthority"),
-          delegate: k.accountDefault("authority"),
-        },
-      }),
+      defaultValue: k.pdaValueNode("metadataDelegateRecord", [
+        k.pdaSeedValueNode("mint", k.argumentValueNode("delegateMint")),
+        k.pdaSeedValueNode(
+          "delegateRole",
+          k.enumValueNode("MetadataDelegateRole", role)
+        ),
+        k.pdaSeedValueNode(
+          "updateAuthority",
+          k.argumentValueNode("delegateUpdateAuthority")
+        ),
+        k.pdaSeedValueNode("delegate", k.accountValueNode("authority")),
+      ]),
     },
     token:
       role === "ProgrammableConfig"
-        ? { isOptional: false, defaultsTo: null }
+        ? { isOptional: false, defaultValue: null }
         : undefined,
   },
   args: {
     delegateMint: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.accountDefault("mint"),
+      defaultValue: k.accountValueNode("mint"),
     },
     delegateUpdateAuthority: {
       type: k.publicKeyTypeNode(),
-      defaultsTo: k.identityDefault(),
+      defaultValue: k.identityValueNode(),
     },
   },
 });
 const verifyCollectionDefaults = {
   accounts: {
-    collectionMint: { isOptional: false, defaultsTo: null },
+    collectionMint: { isOptional: false, defaultValue: null },
     collectionMetadata: {
-      defaultsTo: k.pdaDefault("metadata", {
-        seeds: { mint: k.accountDefault("collectionMint") },
-      }),
+      defaultValue: k.pdaValueNode("metadata", [
+        k.pdaSeedValueNode("mint", k.accountValueNode("collectionMint")),
+      ]),
     },
     collectionMasterEdition: {
-      defaultsTo: k.pdaDefault("masterEdition", {
-        seeds: { mint: k.accountDefault("collectionMint") },
-      }),
+      defaultValue: k.pdaValueNode("masterEdition", [
+        k.pdaSeedValueNode("mint", k.accountValueNode("collectionMint")),
+      ]),
     },
   },
 };
 kinobi.update(
-  new k.UpdateInstructionsVisitor({
+  k.updateInstructionsVisitor({
     createV1: {
-      bytesCreatedOnChain: k.bytesFromResolver("resolveCreateV1Bytes"),
+      byteDeltas: [
+        k.instructionByteDeltaNode(k.resolverValueNode("resolveCreateV1Bytes")),
+      ],
       accounts: {
         masterEdition: {
-          defaultsTo: k.conditionalResolverDefault(
-            k.resolverDefault("resolveIsNonFungible", [
-              k.dependsOnArg("tokenStandard"),
-            ]),
-            {
-              ifTrue: k.pdaDefault("masterEdition", {
-                seeds: { mint: k.accountDefault("mint") },
-              }),
-            }
-          ),
+          defaultValue: k.conditionalValueNode({
+            condition: k.resolverValueNode("resolveIsNonFungible", {
+              dependsOn: [k.argumentValueNode("tokenStandard")],
+            }),
+            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+          }),
         },
       },
       args: {
         isCollection: {
-          type: k.boolTypeNode(),
-          defaultsTo: k.valueDefault(k.vScalar(false)),
+          type: k.booleanTypeNode(),
+          defaultValue: k.booleanValueNode(false),
         },
         tokenStandard: {
-          defaultsTo: k.valueDefault(k.vEnum("TokenStandard", "NonFungible")),
+          defaultValue: k.enumValueNode("TokenStandard", "NonFungible"),
         },
         collectionDetails: {
-          defaultsTo: k.resolverDefault("resolveCollectionDetails", [
-            k.dependsOnArg("isCollection"),
-          ]),
+          defaultValue: k.resolverValueNode("resolveCollectionDetails", {
+            dependsOn: [k.argumentValueNode("isCollection")],
+          }),
         },
         decimals: {
-          defaultsTo: k.resolverDefault("resolveDecimals", [
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultValue: k.resolverValueNode("resolveDecimals", {
+            dependsOn: [k.argumentValueNode("tokenStandard")],
+          }),
         },
         printSupply: {
-          defaultsTo: k.resolverDefault("resolvePrintSupply", [
-            k.dependsOnArg("tokenStandard"),
-          ]),
+          defaultValue: k.resolverValueNode("resolvePrintSupply", {
+            dependsOn: [k.argumentValueNode("tokenStandard")],
+          }),
         },
         creators: {
-          defaultsTo: k.resolverDefault("resolveCreators", [
-            k.dependsOnAccount("authority"),
-          ]),
+          defaultValue: k.resolverValueNode("resolveCreators", {
+            dependsOn: [k.accountValueNode("authority")],
+          }),
         },
       },
     },
@@ -784,73 +778,100 @@ kinobi.update(
       accounts: {
         editionMint: { isSigner: "either" },
         editionMintAuthority: {
-          defaultsTo: k.accountDefault("masterTokenAccountOwner"),
+          defaultValue: k.accountValueNode("masterTokenAccountOwner"),
         },
-        masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
-        editionTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        masterTokenAccountOwner: { defaultValue: k.identityValueNode() },
+        editionTokenAccountOwner: { defaultValue: k.identityValueNode() },
         editionMetadata: {
-          defaultsTo: k.pdaDefault("metadata", {
-            seeds: { mint: k.accountDefault("editionMint") },
-          }),
+          defaultValue: k.pdaValueNode("metadata", [
+            k.pdaSeedValueNode("mint", k.accountValueNode("editionMint")),
+          ]),
         },
         edition: {
-          defaultsTo: k.pdaDefault("masterEdition", {
-            seeds: { mint: k.accountDefault("editionMint") },
-          }),
+          defaultValue: k.pdaValueNode("masterEdition", [
+            k.pdaSeedValueNode("mint", k.accountValueNode("editionMint")),
+          ]),
         },
         editionMarkerPda: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("editionMarkerV2", {
-              seeds: { mint: k.argDefault("masterEditionMint") },
-            }),
-            ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
-              importFrom: "hooked",
-              seeds: {
-                mint: k.argDefault("masterEditionMint"),
-                editionNumber: k.argDefault("editionNumber"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("editionMarkerV2", [
+              k.pdaSeedValueNode(
+                "mint",
+                k.accountValueNode("masterEditionMint")
+              ),
+            ]),
+            ifFalse: k.pdaValueNode(
+              k.pdaLinkNode("editionMarkerFromEditionNumber", "hooked"),
+              [
+                k.pdaSeedValueNode(
+                  "mint",
+                  k.accountValueNode("masterEditionMint")
+                ),
+                // k.pdaSeedValueNode(
+                //   "editionNumber",
+                //   k.argumentValueNode("editionNumber")
+                // ), // TODO: add seeds if it break.
+              ]
+            ),
           }),
         },
         editionTokenAccount: {
-          defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
+          defaultValue: ataPdaDefault(
+            "editionMint",
+            "editionTokenAccountOwner"
+          ),
         },
         masterTokenAccount: {
-          defaultsTo: k.pdaDefault("associatedToken", {
-            importFrom: "mplToolbox",
-            seeds: {
-              mint: k.argDefault("masterEditionMint"),
-              owner: k.accountDefault("masterTokenAccountOwner"),
-            },
-          }),
+          defaultValue: k.pdaValueNode(
+            k.pdaLinkNode("associatedToken", "mplToolbox"),
+            [
+              k.pdaSeedValueNode(
+                "mint",
+                k.accountValueNode("masterEditionMint")
+              ),
+              k.pdaSeedValueNode(
+                "owner",
+                k.accountValueNode("masterTokenAccountOwner")
+              ),
+            ]
+          ),
         },
         masterMetadata: {
-          defaultsTo: k.pdaDefault("metadata", {
-            seeds: { mint: k.argDefault("masterEditionMint") },
-          }),
+          defaultValue: k.pdaValueNode("metadata", [
+            k.pdaSeedValueNode(
+              "mint",
+              k.argumentValueNode("masterEditionMint")
+            ),
+          ]),
         },
         masterEdition: {
-          defaultsTo: k.pdaDefault("masterEdition", {
-            seeds: { mint: k.argDefault("masterEditionMint") },
-          }),
+          defaultValue: k.pdaValueNode("masterEdition", [
+            k.pdaSeedValueNode(
+              "mint",
+              k.argumentValueNode("masterEditionMint")
+            ),
+          ]),
         },
         editionTokenRecord: {
-          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
-            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaDefault("tokenRecord", {
-              seeds: {
-                mint: k.accountDefault("editionMint"),
-                token: k.accountDefault("editionTokenAccount"),
-              },
-            }),
+          defaultValue: k.conditionalValueNode({
+            condition: k.argumentValueNode("tokenStandard"),
+            value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord", [
+              k.pdaSeedValueNode("mint", k.accountValueNode("editionMint")),
+              k.pdaSeedValueNode(
+                "editionMint",
+                k.accountValueNode("editionTokenAccount")
+              ),
+            ]),
           }),
         },
       },
       args: {
         edition: { name: "editionNumber" },
         masterEditionMint: { type: k.publicKeyTypeNode() },
-        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+        tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
     // Update.
@@ -878,7 +899,7 @@ kinobi.update(
       ...tokenDelegateDefaults,
       accounts: {
         ...tokenDelegateDefaults.accounts,
-        tokenRecord: { defaultsTo: k.programIdDefault() },
+        tokenRecord: { defaultValue: k.programIdValueNode() },
       },
     },
     delegateLockedTransferV1: tokenDelegateDefaults,
@@ -901,7 +922,7 @@ kinobi.update(
       ...tokenDelegateDefaults,
       accounts: {
         ...tokenDelegateDefaults.accounts,
-        tokenRecord: { defaultsTo: k.programIdDefault() },
+        tokenRecord: { defaultValue: k.programIdValueNode() },
       },
     },
     revokeLockedTransferV1: tokenDelegateDefaults,
@@ -922,13 +943,13 @@ kinobi.update(
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
-kinobi.accept(new k.RenderJavaScriptVisitor(jsDir, { prettier }));
+kinobi.accept(k.renderJavaScriptVisitor(jsDir, { prettier }));
 
 // Render Rust.
 const crateDir = path.join(clientDir, "rust");
 const rustDir = path.join(clientDir, "rust", "src", "generated");
 kinobi.accept(
-  new k.RenderRustVisitor(rustDir, {
+  k.renderRustVisitor(rustDir, {
     formatCode: true,
     crateFolder: crateDir,
     renderParentInstructions: true,
