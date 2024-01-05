@@ -119,7 +119,7 @@ kinobi.update(
 
 // Set default values for instruction accounts.
 kinobi.update(
-  k.setInstructionaccountValueNodeValuesVisitor([
+  k.setInstructionAccountDefaultValuesVisitor([
     {
       account: "updateAuthority",
       ignoreIfOptional: true,
@@ -799,7 +799,7 @@ kinobi.update(
             ifTrue: k.pdaValueNode("editionMarkerV2", [
               k.pdaSeedValueNode(
                 "mint",
-                k.accountValueNode("masterEditionMint")
+                k.argumentValueNode("masterEditionMint")
               ),
             ]),
             ifFalse: k.pdaValueNode(
@@ -807,7 +807,7 @@ kinobi.update(
               [
                 k.pdaSeedValueNode(
                   "mint",
-                  k.accountValueNode("masterEditionMint")
+                  k.argumentValueNode("masterEditionMint")
                 ),
                 // k.pdaSeedValueNode(
                 //   "editionNumber",
@@ -829,7 +829,7 @@ kinobi.update(
             [
               k.pdaSeedValueNode(
                 "mint",
-                k.accountValueNode("masterEditionMint")
+                k.argumentValueNode("masterEditionMint")
               ),
               k.pdaSeedValueNode(
                 "owner",
