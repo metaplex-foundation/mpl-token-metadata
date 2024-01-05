@@ -285,6 +285,7 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
       },
@@ -301,6 +302,7 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
       },
@@ -323,12 +325,14 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
         tokenRecord: {
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"),
           }),
         },
         splTokenProgram: {
@@ -358,12 +362,14 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
         tokenRecord: {
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"),
           }),
         },
         splTokenProgram: {
@@ -386,7 +392,10 @@ kinobi.update(
           isOptional: false,
           defaultValue: k.pdaValueNode(
             k.pdaLinkNode("associatedToken", "mplToolbox"),
-            [k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner"))]
+            [
+              k.pdaSeedValueNode("mint", k.accountValueNode("mint")),
+              k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner")),
+            ]
           ),
         },
         edition: {
@@ -412,6 +421,7 @@ kinobi.update(
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaValueNode("tokenRecord"),
           }),
         },
       },
@@ -601,6 +611,7 @@ const tokenDelegateDefaults = {
       defaultValue: k.conditionalValueNode({
         condition: k.argumentValueNode("tokenStandard"),
         value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
+        ifTrue: k.pdaValueNode("tokenRecord"),
       }),
     },
     delegateRecord: { defaultValue: k.pdaValueNode("tokenRecord") },
