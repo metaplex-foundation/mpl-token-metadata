@@ -213,7 +213,7 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
         tokenOwner: {
@@ -226,7 +226,7 @@ kinobi.update(
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
+            ifTrue: k.pdaValueNode("tokenRecord"),
           }),
         },
       },
@@ -246,7 +246,7 @@ kinobi.update(
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
         ownerTokenRecord: {
@@ -254,7 +254,7 @@ kinobi.update(
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
+            ifTrue: k.pdaValueNode("tokenRecord"),
           }),
         },
         destination: {
@@ -266,7 +266,6 @@ kinobi.update(
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
             ifTrue: k.pdaValueNode("tokenRecord", [
-              // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
               k.pdaSeedValueNode(
                 "token",
                 k.accountValueNode("destinationToken")
@@ -286,7 +285,6 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
           }),
         },
       },
@@ -303,7 +301,6 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
           }),
         },
       },
@@ -326,14 +323,12 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
           }),
         },
         tokenRecord: {
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
         splTokenProgram: {
@@ -363,14 +358,12 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
           }),
         },
         tokenRecord: {
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
         splTokenProgram: {
@@ -393,10 +386,7 @@ kinobi.update(
           isOptional: false,
           defaultValue: k.pdaValueNode(
             k.pdaLinkNode("associatedToken", "mplToolbox"),
-            [
-              // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
-              k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner")),
-            ]
+            [k.pdaSeedValueNode("owner", k.argumentValueNode("tokenOwner"))]
           ),
         },
         edition: {
@@ -422,7 +412,6 @@ kinobi.update(
           defaultValue: k.conditionalValueNode({
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-            ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
           }),
         },
       },
@@ -612,7 +601,6 @@ const tokenDelegateDefaults = {
       defaultValue: k.conditionalValueNode({
         condition: k.argumentValueNode("tokenStandard"),
         value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
-        ifTrue: k.pdaValueNode("tokenRecord"), // TODO: add seeds if it break.
       }),
     },
     delegateRecord: { defaultValue: k.pdaValueNode("tokenRecord") },
@@ -633,7 +621,6 @@ const metadataDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
       defaultValue: k.pdaValueNode("metadataDelegateRecord", [
-        // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
         k.pdaSeedValueNode(
           "delegateRole",
           k.enumValueNode("MetadataDelegateRole", role)
@@ -657,7 +644,6 @@ const updateAsMetadataDelegateDefaults = (role) => ({
   accounts: {
     delegateRecord: {
       defaultValue: k.pdaValueNode("metadataDelegateRecord", [
-        // k.pdaSeedValueNode("mint", k.accountValueNode("mint")), // TODO: add seeds if it break.
         k.pdaSeedValueNode(
           "delegateRole",
           k.enumValueNode("MetadataDelegateRole", role)
@@ -740,7 +726,7 @@ kinobi.update(
             condition: k.resolverValueNode("resolveIsNonFungible", {
               dependsOn: [k.argumentValueNode("tokenStandard")],
             }),
-            ifTrue: k.pdaValueNode("masterEdition"), // TODO: add seeds if it break.
+            ifTrue: k.pdaValueNode("masterEdition"),
           }),
         },
       },
@@ -809,10 +795,6 @@ kinobi.update(
                   "mint",
                   k.argumentValueNode("masterEditionMint")
                 ),
-                // k.pdaSeedValueNode(
-                //   "editionNumber",
-                //   k.argumentValueNode("editionNumber")
-                // ), // TODO: add seeds if it break.
               ]
             ),
           }),
