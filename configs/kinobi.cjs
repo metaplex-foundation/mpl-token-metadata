@@ -524,18 +524,21 @@ kinobi.update(
           "isMutable",
         ];
         return (
-          k.isNode(node, "structFieldTypeNode") &&
+          k.isNode(node, ["structFieldTypeNode", "instructionArgumentNode"]) &&
           k.isNode(node.type, "optionTypeNode") &&
           names.includes(node.name)
         );
       },
       transform: (node) => {
-        k.assertIsNode(node, "structFieldTypeNode");
-        return k.structFieldTypeNode({
+        k.assertIsNode(node, [
+          "structFieldTypeNode",
+          "instructionArgumentNode",
+        ]);
+        return {
           ...node,
           defaultValueStrategy: "optional",
           defaultValue: k.noneValueNode(),
-        });
+        };
       },
     },
     {
