@@ -230,7 +230,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
@@ -274,7 +274,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
@@ -289,7 +289,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: {
           type: k.definedTypeLinkNode("tokenStandard"),
         },
@@ -306,7 +306,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: {
           type: k.definedTypeLinkNode("tokenStandard"),
         },
@@ -345,7 +345,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
@@ -382,7 +382,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
       },
     },
@@ -425,7 +425,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         tokenOwner: {
           type: k.publicKeyTypeNode(),
           defaultValue: k.identityValueNode(),
@@ -434,7 +434,7 @@ kinobi.update(
       },
     },
     updateMetadataAccountV2: {
-      args: { updateAuthority: { name: "newUpdateAuthority" } },
+      arguments: { updateAuthority: { name: "newUpdateAuthority" } },
     },
     // Deprecated instructions.
     createMetadataAccount: { delete: true },
@@ -636,7 +636,7 @@ const tokenDelegateDefaults = {
       ),
     },
   },
-  args: {
+  arguments: {
     tokenOwner: {
       type: k.publicKeyTypeNode(),
       defaultValue: k.identityValueNode(),
@@ -658,7 +658,7 @@ const metadataDelegateDefaults = (role) => ({
       ]),
     },
   },
-  args: {
+  arguments: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
       defaultValue: k.accountValueNode("authority"),
@@ -685,7 +685,7 @@ const updateAsMetadataDelegateDefaults = (role) => ({
         ? { isOptional: false, defaultValue: null }
         : undefined,
   },
-  args: {
+  arguments: {
     updateAuthority: {
       type: k.publicKeyTypeNode(),
       defaultValue: k.identityValueNode(),
@@ -713,7 +713,7 @@ const updateAsMetadataCollectionDelegateDefaults = (role) => ({
         ? { isOptional: false, defaultValue: null }
         : undefined,
   },
-  args: {
+  arguments: {
     delegateMint: {
       type: k.publicKeyTypeNode(),
       defaultValue: k.accountValueNode("mint"),
@@ -755,7 +755,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         isCollection: {
           type: k.booleanTypeNode(),
           defaultValue: k.booleanValueNode(false),
@@ -879,7 +879,7 @@ kinobi.update(
           }),
         },
       },
-      args: {
+      arguments: {
         edition: { name: "editionNumber" },
         masterEditionMint: { type: k.publicKeyTypeNode() },
         tokenStandard: { type: k.definedTypeLinkNode("tokenStandard") },
