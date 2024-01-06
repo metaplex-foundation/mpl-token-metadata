@@ -513,6 +513,17 @@ kinobi.update(
       },
     },
     {
+      select: "[instructionArgumentNode]amount",
+      transform: (node) => {
+        k.assertIsNode(node, "instructionArgumentNode");
+        return k.instructionArgumentNode({
+          ...node,
+          defaultValueStrategy: "optional",
+          defaultValue: k.numberValueNode(1),
+        });
+      },
+    },
+    {
       select: (node) => {
         const names = [
           "authorizationData",
@@ -644,7 +655,6 @@ const metadataDelegateDefaults = (role) => ({
           "updateAuthority",
           k.argumentValueNode("updateAuthority")
         ),
-        k.pdaSeedValueNode("delegate", k.accountValueNode("authority")),
       ]),
     },
   },
