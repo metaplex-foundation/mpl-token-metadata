@@ -502,25 +502,17 @@ kinobi.update(
 kinobi.update(
   k.bottomUpTransformerVisitor([
     {
-      select: "[structFieldTypeNode]amount",
+      select: "[structFieldTypeNode|instructionArgumentNode]amount",
       transform: (node) => {
-        k.assertIsNode(node, "structFieldTypeNode");
-        return k.structFieldTypeNode({
+        k.assertIsNode(node, [
+          "structFieldTypeNode",
+          "instructionArgumentNode",
+        ]);
+        return {
           ...node,
           defaultValueStrategy: "optional",
           defaultValue: k.numberValueNode(1),
-        });
-      },
-    },
-    {
-      select: "[instructionArgumentNode]amount",
-      transform: (node) => {
-        k.assertIsNode(node, "instructionArgumentNode");
-        return k.instructionArgumentNode({
-          ...node,
-          defaultValueStrategy: "optional",
-          defaultValue: k.numberValueNode(1),
-        });
+        };
       },
     },
     {
