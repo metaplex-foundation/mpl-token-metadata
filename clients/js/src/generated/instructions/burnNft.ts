@@ -12,6 +12,7 @@ import {
   PublicKey,
   Signer,
   TransactionBuilder,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -116,11 +117,9 @@ export function burnNft(
     });
   }
   if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
-      'splToken',
+    resolvedAccounts.splTokenProgram.value = publicKey(
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
-    resolvedAccounts.splTokenProgram.isWritable = false;
   }
 
   // Accounts in order.

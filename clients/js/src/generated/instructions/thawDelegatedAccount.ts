@@ -12,6 +12,7 @@ import {
   PublicKey,
   Signer,
   TransactionBuilder,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -109,11 +110,9 @@ export function thawDelegatedAccount(
     });
   }
   if (!resolvedAccounts.tokenProgram.value) {
-    resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
-      'splToken',
+    resolvedAccounts.tokenProgram.value = publicKey(
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
-    resolvedAccounts.tokenProgram.isWritable = false;
   }
 
   // Accounts in order.

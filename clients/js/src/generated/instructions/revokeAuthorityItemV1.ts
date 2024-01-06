@@ -214,9 +214,9 @@ export function revokeAuthorityItemV1(
     resolvedAccounts.delegateRecord.value = findMetadataDelegateRecordPda(
       context,
       {
-        mint: expectPublicKey(resolvedAccounts.mint.value),
         delegateRole: MetadataDelegateRole.AuthorityItem,
         updateAuthority: expectSome(resolvedArgs.updateAuthority),
+        mint: expectPublicKey(resolvedAccounts.mint.value),
         delegate: expectPublicKey(resolvedAccounts.delegate.value),
       }
     );
@@ -245,11 +245,9 @@ export function revokeAuthorityItemV1(
     resolvedAccounts.payer.value = context.payer;
   }
   if (!resolvedAccounts.systemProgram.value) {
-    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
-      'splSystem',
+    resolvedAccounts.systemProgram.value = publicKey(
       '11111111111111111111111111111111'
     );
-    resolvedAccounts.systemProgram.isWritable = false;
   }
   if (!resolvedAccounts.sysvarInstructions.value) {
     resolvedAccounts.sysvarInstructions.value = publicKey(
@@ -258,12 +256,9 @@ export function revokeAuthorityItemV1(
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
     if (resolvedAccounts.authorizationRules.value) {
-      resolvedAccounts.authorizationRulesProgram.value =
-        context.programs.getPublicKey(
-          'mplTokenAuthRules',
-          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
-        );
-      resolvedAccounts.authorizationRulesProgram.isWritable = false;
+      resolvedAccounts.authorizationRulesProgram.value = publicKey(
+        'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
+      );
     }
   }
 

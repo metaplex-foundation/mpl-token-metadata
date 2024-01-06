@@ -12,6 +12,7 @@ import {
   PublicKey,
   Signer,
   TransactionBuilder,
+  publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import {
@@ -135,11 +136,9 @@ export function approveCollectionAuthority(
     });
   }
   if (!resolvedAccounts.systemProgram.value) {
-    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
-      'splSystem',
+    resolvedAccounts.systemProgram.value = publicKey(
       '11111111111111111111111111111111'
     );
-    resolvedAccounts.systemProgram.isWritable = false;
   }
 
   // Accounts in order.

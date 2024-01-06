@@ -142,11 +142,9 @@ export function verifyCreatorV1(
     resolvedAccounts.authority.value = context.identity;
   }
   if (!resolvedAccounts.systemProgram.value) {
-    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
-      'splSystem',
+    resolvedAccounts.systemProgram.value = publicKey(
       '11111111111111111111111111111111'
     );
-    resolvedAccounts.systemProgram.isWritable = false;
   }
   if (!resolvedAccounts.sysvarInstructions.value) {
     resolvedAccounts.sysvarInstructions.value = publicKey(
