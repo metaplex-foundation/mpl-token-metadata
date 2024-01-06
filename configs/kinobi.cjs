@@ -554,10 +554,11 @@ kinobi.update(
       },
       transform: (node) => {
         k.assertIsNode(node, "structFieldTypeNode");
+        k.assertIsNode(node.type, "definedTypeLinkNode");
         return k.structFieldTypeNode({
           ...node,
           defaultValueStrategy: "optional",
-          defaultValue: k.enumValueNode(node.type.name, "None"),
+          defaultValue: k.enumValueNode(node.type, "None"),
         });
       },
     },
