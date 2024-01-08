@@ -588,7 +588,6 @@ kinobi.update(
     create: "createArgs",
     delegate: "delegateArgs",
     lock: "lockArgs",
-    migrate: "migrateArgs",
     mint: "mintArgs",
     print: "printArgs",
     revoke: "revokeArgs",
