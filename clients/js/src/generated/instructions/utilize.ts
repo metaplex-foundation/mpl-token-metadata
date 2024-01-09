@@ -155,19 +155,25 @@ export function utilize(
     });
   }
   if (!resolvedAccounts.tokenProgram.value) {
-    resolvedAccounts.tokenProgram.value = publicKey(
+    resolvedAccounts.tokenProgram.value = context.programs.getPublicKey(
+      'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
+    resolvedAccounts.tokenProgram.isWritable = false;
   }
   if (!resolvedAccounts.ataProgram.value) {
-    resolvedAccounts.ataProgram.value = publicKey(
+    resolvedAccounts.ataProgram.value = context.programs.getPublicKey(
+      'splAssociatedToken',
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
     );
+    resolvedAccounts.ataProgram.isWritable = false;
   }
   if (!resolvedAccounts.systemProgram.value) {
-    resolvedAccounts.systemProgram.value = publicKey(
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
       '11111111111111111111111111111111'
     );
+    resolvedAccounts.systemProgram.isWritable = false;
   }
   if (!resolvedAccounts.rent.value) {
     resolvedAccounts.rent.value = publicKey(

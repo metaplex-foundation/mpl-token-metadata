@@ -287,9 +287,11 @@ export function transferV1(
     resolvedAccounts.payer.value = context.payer;
   }
   if (!resolvedAccounts.systemProgram.value) {
-    resolvedAccounts.systemProgram.value = publicKey(
+    resolvedAccounts.systemProgram.value = context.programs.getPublicKey(
+      'splSystem',
       '11111111111111111111111111111111'
     );
+    resolvedAccounts.systemProgram.isWritable = false;
   }
   if (!resolvedAccounts.sysvarInstructions.value) {
     resolvedAccounts.sysvarInstructions.value = publicKey(
@@ -297,14 +299,18 @@ export function transferV1(
     );
   }
   if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram.value = publicKey(
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'splToken',
       'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
+    resolvedAccounts.splTokenProgram.isWritable = false;
   }
   if (!resolvedAccounts.splAtaProgram.value) {
-    resolvedAccounts.splAtaProgram.value = publicKey(
+    resolvedAccounts.splAtaProgram.value = context.programs.getPublicKey(
+      'splAssociatedToken',
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
     );
+    resolvedAccounts.splAtaProgram.isWritable = false;
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
     if (resolvedAccounts.authorizationRules.value) {
