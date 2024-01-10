@@ -265,8 +265,8 @@ export function revokeUtilityV1(
   }
   if (!resolvedAccounts.splTokenProgram.value) {
     resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
-      'tokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-      'splToken'
+      'splToken',
+      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     resolvedAccounts.splTokenProgram.isWritable = false;
   }
@@ -274,8 +274,8 @@ export function revokeUtilityV1(
     if (resolvedAccounts.authorizationRules.value) {
       resolvedAccounts.authorizationRulesProgram.value =
         context.programs.getPublicKey(
-          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg',
-          'mplTokenAuthRules'
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
         );
       resolvedAccounts.authorizationRulesProgram.isWritable = false;
     }

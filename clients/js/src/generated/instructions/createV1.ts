@@ -306,8 +306,8 @@ export function createV1(
       )
     ) {
       resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
-        'tokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-        'splToken'
+        'splToken',
+        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
       );
       resolvedAccounts.splTokenProgram.isWritable = false;
     }

@@ -145,8 +145,8 @@ kinobi.update(
       defaultValue: k.conditionalValueNode({
         condition: k.accountValueNode("authorizationRules"),
         ifTrue: k.publicKeyValueNode(
-          "mplTokenAuthRules",
-          "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg"
+          "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg",
+          "mplTokenAuthRules"
         ),
       }),
     },
@@ -191,8 +191,8 @@ kinobi.update(
               }
             ),
             ifTrue: k.publicKeyValueNode(
-              "splToken",
-              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "splToken"
             ),
           }),
         },
@@ -342,8 +342,8 @@ kinobi.update(
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
             ifFalse: k.publicKeyValueNode(
-              "splToken",
-              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "splToken"
             ),
           }),
         },
@@ -380,8 +380,8 @@ kinobi.update(
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
             ifFalse: k.publicKeyValueNode(
-              "splToken",
-              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "splToken"
             ),
           }),
         },
@@ -627,8 +627,8 @@ const tokenDelegateDefaults = {
     delegateRecord: { defaultValue: k.pdaValueNode("tokenRecord") },
     splTokenProgram: {
       defaultValue: k.publicKeyValueNode(
-        "splToken",
-        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+        "splToken"
       ),
     },
   },

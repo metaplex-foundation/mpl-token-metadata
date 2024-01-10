@@ -297,8 +297,8 @@ export function mintV1(
     if (resolvedAccounts.authorizationRules.value) {
       resolvedAccounts.authorizationRulesProgram.value =
         context.programs.getPublicKey(
-          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg',
-          'mplTokenAuthRules'
+          'mplTokenAuthRules',
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
         );
       resolvedAccounts.authorizationRulesProgram.isWritable = false;
     }

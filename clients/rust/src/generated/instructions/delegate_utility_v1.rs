@@ -202,7 +202,7 @@ pub struct DelegateUtilityV1InstructionArgs {
 ///   8. `[writable, signer]` payer
 ///   9. `[optional]` system_program (default to `11111111111111111111111111111111`)
 ///   10. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
-///   11. `[optional]` spl_token_program (default to `splToken`)
+///   11. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
 ///   12. `[optional]` authorization_rules_program
 ///   13. `[optional]` authorization_rules
 #[derive(Default)]
