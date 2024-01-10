@@ -305,9 +305,11 @@ export function createV1(
         false
       )
     ) {
-      resolvedAccounts.splTokenProgram.value = publicKey(
-        'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+      resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+        'tokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+        'splToken'
       );
+      resolvedAccounts.splTokenProgram.isWritable = false;
     }
   }
   if (!resolvedArgs.creators) {

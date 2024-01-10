@@ -284,15 +284,20 @@ export function delegateUtilityV1(
     );
   }
   if (!resolvedAccounts.splTokenProgram.value) {
-    resolvedAccounts.splTokenProgram.value = publicKey(
-      'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
+      'tokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+      'splToken'
     );
+    resolvedAccounts.splTokenProgram.isWritable = false;
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
     if (resolvedAccounts.authorizationRules.value) {
-      resolvedAccounts.authorizationRulesProgram.value = publicKey(
-        'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
-      );
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg',
+          'mplTokenAuthRules'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
     }
   }
 

@@ -260,9 +260,12 @@ export function revokeProgrammableConfigItemV1(
   }
   if (!resolvedAccounts.authorizationRulesProgram.value) {
     if (resolvedAccounts.authorizationRules.value) {
-      resolvedAccounts.authorizationRulesProgram.value = publicKey(
-        'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg'
-      );
+      resolvedAccounts.authorizationRulesProgram.value =
+        context.programs.getPublicKey(
+          'auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg',
+          'mplTokenAuthRules'
+        );
+      resolvedAccounts.authorizationRulesProgram.isWritable = false;
     }
   }
 
