@@ -1,3 +1,5 @@
+use spl_token_2022::state::Account;
+
 use super::*;
 use crate::{
     assertions::{
@@ -102,7 +104,7 @@ impl Metadata {
         args: UpdateArgs,
         update_authority: &AccountInfo<'a>,
         metadata: &AccountInfo<'a>,
-        token: Option<TokenAccount>,
+        token: Option<Account>,
         token_standard: TokenStandard,
     ) -> ProgramResult {
         // Update the token standard if it is changed.

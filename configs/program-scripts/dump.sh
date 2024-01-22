@@ -10,8 +10,8 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 cd $(dirname $(dirname $SCRIPT_DIR))
 
 OUTPUT=$1
-EXTERNAL_ID=("auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg" "SysExL2WDyJi9aRZrXorrjHJut3JwHQ7R9bTyctbNNG" "TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SAc2p" "Roostrnex2Z9Y2XZC49sFAdZARP8E4iFpEnZC5QJWdz")
-EXTERNAL_SO=("mpl_token_auth_rules.so" "mpl_system_extras.so" "mpl_token_extras.so" "rooster.so")
+EXTERNAL_ID=("auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg" "SysExL2WDyJi9aRZrXorrjHJut3JwHQ7R9bTyctbNNG" "TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SAc2p" "Roostrnex2Z9Y2XZC49sFAdZARP8E4iFpEnZC5QJWdz" "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb")
+EXTERNAL_SO=("mpl_token_auth_rules.so" "mpl_system_extras.so" "mpl_token_extras.so" "rooster.so" "spl_token_2022.so")
 
 if [ -z ${RPC+x} ]; then
     RPC="https://api.mainnet-beta.solana.com"

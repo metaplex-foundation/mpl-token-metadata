@@ -1,5 +1,3 @@
-use super::*;
-
 use mpl_utils::assert_signer;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
@@ -7,11 +5,14 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
 };
+use spl_token_2022::state::Account;
 
+use super::*;
 use crate::{
     assertions::assert_owned_by,
     instruction::{Burn, Context},
     state::{Metadata, TokenMetadataAccount},
+    utils::{unpack_initialized, SPL_TOKEN_ID},
 };
 
 use super::nonfungible::{burn_nonfungible, BurnNonFungibleArgs};
@@ -36,17 +37,17 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
     // Assert program ownership.
     assert_owned_by(metadata_info, program_id)?;
     assert_owned_by(edition_info, program_id)?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
-    assert_owned_by(token_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(token_info, &SPL_TOKEN_ID)?;
 
     // Check program IDs.
-    if spl_token_program_info.key != &spl_token::ID {
+    if spl_token_program_info.key != &SPL_TOKEN_ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
     // Deserialize accounts.
     let metadata = Metadata::from_account_info(metadata_info)?;
-    let token: TokenAccount = assert_initialized(token_info)?;
+    let token = unpack_initialized::<Account>(&token_info.data.borrow())?;
 
     // Validate relationships between accounts.
 

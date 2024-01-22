@@ -30,6 +30,11 @@ module.exports = {
         programId: "TokExjvjJmhKaRBShsBAsbSvEWMA1AgUNK7ps4SAc2p",
         deployPath: getProgram("mpl_token_extras.so"),
       },
+      {
+        label: "SPL Token-2022",
+        programId: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+        deployPath: getProgram("spl_token_2022.so"),
+      },
     ],
   },
 };

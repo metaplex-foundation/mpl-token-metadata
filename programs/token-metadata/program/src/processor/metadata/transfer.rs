@@ -1,24 +1,20 @@
 use std::fmt::Display;
 
-use mpl_utils::{assert_signer, cmp_pubkeys, token::TokenTransferParams};
+use mpl_utils::{assert_signer, cmp_pubkeys, token::TokenTransferCheckedParams};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
     program::invoke,
     program_error::ProgramError,
     program_option::COption,
-    program_pack::Pack,
     pubkey::Pubkey,
     system_program,
     sysvar::{self, instructions::get_instruction_relative},
 };
-use spl_token::state::Account;
+use spl_token_2022::state::{Account, Mint};
 
 use crate::{
-    assertions::{
-        assert_keys_equal, assert_owned_by, assert_token_matches_owner_and_mint,
-        metadata::assert_holding_amount,
-    },
+    assertions::{assert_keys_equal, assert_owned_by, metadata::assert_holding_amount},
     error::MetadataError,
     instruction::{Context, Transfer, TransferArgs},
     pda::find_token_record_account,
@@ -27,9 +23,9 @@ use crate::{
         TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard,
     },
     utils::{
-        auth_rules_validate, clear_close_authority, close_program_account,
-        create_token_record_account, frozen_transfer, AuthRulesValidateParams,
-        ClearCloseAuthorityParams,
+        assert_token_program_matches_package, auth_rules_validate, clear_close_authority,
+        close_program_account, create_token_record_account, frozen_transfer, unpack,
+        validate_token, AuthRulesValidateParams, ClearCloseAuthorityParams,
     },
 };
 
@@ -105,8 +101,14 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
 
     // Assert program ownership.
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(ctx.accounts.token_info, &spl_token::ID)?;
+    assert_owned_by(
+        ctx.accounts.mint_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
+    assert_owned_by(
+        ctx.accounts.token_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
     if let Some(owner_token_record_info) = ctx.accounts.owner_token_record_info {
         assert_owned_by(owner_token_record_info, program_id)?;
     }
@@ -117,6 +119,9 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         assert_owned_by(authorization_rules, &mpl_token_auth_rules::ID)?;
     }
 
+    // Deserialize metadata.
+    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+
     // Check if the destination exists.
     if ctx.accounts.destination_info.data_is_empty() {
         // creating the associated token account
@@ -125,7 +130,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 ctx.accounts.payer_info.key,
                 ctx.accounts.destination_owner_info.key,
                 ctx.accounts.mint_info.key,
-                &spl_token::ID,
+                ctx.accounts.spl_token_program_info.key,
             ),
             &[
                 ctx.accounts.payer_info.clone(),
@@ -135,19 +140,40 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             ],
         )?;
     } else {
-        assert_owned_by(ctx.accounts.destination_info, &spl_token::ID)?;
-        assert_token_matches_owner_and_mint(
+        let token = validate_token(
+            ctx.accounts.mint_info,
             ctx.accounts.destination_info,
-            ctx.accounts.destination_owner_info.key,
-            ctx.accounts.mint_info.key,
+            Some(ctx.accounts.destination_owner_info),
+            ctx.accounts.spl_token_program_info,
+            metadata.token_standard,
+            None, // we already checked the supply of the mint account
         )?;
+
+        // validates that the close authority on the token is either None
+        // or the master edition account for programmable assets
+
+        if matches!(
+            metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+                | Some(TokenStandard::ProgrammableNonFungibleEdition)
+        ) {
+            if let COption::Some(close_authority) = token.close_authority {
+                // the close authority must match the master edition if there is one set
+                // on the token account
+                if let Some(edition) = ctx.accounts.edition_info {
+                    if close_authority != *edition.key {
+                        return Err(MetadataError::InvalidCloseAuthority.into());
+                    }
+                } else {
+                    return Err(MetadataError::MissingEditionAccount.into());
+                };
+            }
+        }
     }
 
     // Check program IDs.
 
-    if ctx.accounts.spl_token_program_info.key != &spl_token::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
+    assert_token_program_matches_package(ctx.accounts.spl_token_program_info)?;
 
     if ctx.accounts.spl_ata_program_info.key != &spl_associated_token_account::ID {
         return Err(ProgramError::IncorrectProgramId);
@@ -169,9 +195,6 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
 
     let mut is_wallet_to_wallet = false;
 
-    // Deserialize metadata.
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
-
     // Must be the actual current owner of the token where
     // mint, token, owner and metadata accounts all match up.
     assert_holding_amount(
@@ -184,7 +207,8 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         amount,
     )?;
 
-    let token_transfer_params: TokenTransferParams = TokenTransferParams {
+    let mint = unpack::<Mint>(&ctx.accounts.mint_info.data.borrow())?;
+    let token_transfer_params = TokenTransferCheckedParams {
         mint: ctx.accounts.mint_info.clone(),
         source: ctx.accounts.token_info.clone(),
         destination: ctx.accounts.destination_info.clone(),
@@ -192,10 +216,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         authority: ctx.accounts.authority_info.clone(),
         authority_signer_seeds: None,
         token_program: ctx.accounts.spl_token_program_info.clone(),
+        decimals: mint.decimals,
     };
 
     let token_standard = metadata.token_standard;
-    let token = Account::unpack(&ctx.accounts.token_info.try_borrow_data()?)?;
+    let token = unpack::<Account>(&ctx.accounts.token_info.try_borrow_data()?)?;
 
     let AuthorityResponse { authority_type, .. } =
         AuthorityType::get_authority_type(AuthorityRequest {
@@ -309,7 +334,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             // we do not allow the transfer to proceed since we do not know the type of the delegate
             // to complete the information on the token record.
             let destination_token =
-                Account::unpack(&ctx.accounts.destination_info.try_borrow_data()?)?;
+                unpack::<Account>(&ctx.accounts.destination_info.data.borrow())?;
 
             if let COption::Some(delegate) = destination_token.delegate {
                 if destination_token_record_info.data_is_empty() {
@@ -411,7 +436,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                     && owner_token_record.delegate.is_some()
                 {
                     invoke(
-                        &spl_token::instruction::revoke(
+                        &spl_token_2022::instruction::revoke(
                             ctx.accounts.spl_token_program_info.key,
                             ctx.accounts.token_info.key,
                             ctx.accounts.authority_info.key,
@@ -434,7 +459,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 )?;
             }
         }
-        _ => mpl_utils::token::spl_token_transfer(token_transfer_params).unwrap(),
+        _ => mpl_utils::token::spl_token_transfer_checked(token_transfer_params).unwrap(),
     }
 
     Ok(())

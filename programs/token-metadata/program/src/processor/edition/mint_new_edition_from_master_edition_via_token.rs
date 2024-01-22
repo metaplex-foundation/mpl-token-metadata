@@ -1,11 +1,12 @@
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
+    error::MetadataError,
     processor::all_account_infos,
     utils::{
         fee::{levy, set_fee_flag, LevyArgs},
         process_mint_new_edition_from_master_edition_via_token_logic,
-        MintNewEditionFromMasterEditionViaTokenLogicArgs,
+        MintNewEditionFromMasterEditionViaTokenLogicArgs, SPL_TOKEN_ID,
     },
 };
 
@@ -30,6 +31,11 @@ pub fn process_mint_new_edition_from_master_edition_via_token<'a>(
         token_program_account_info,
         system_account_info
     );
+
+    // only support SPL tokens
+    if *token_program_account_info.key != SPL_TOKEN_ID {
+        return Err(MetadataError::InvalidTokenProgram.into());
+    }
 
     // Levy fees first, to fund the metadata account with rent + fee amount.
     levy(LevyArgs {

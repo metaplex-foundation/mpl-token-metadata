@@ -2,7 +2,7 @@ use mpl_utils::assert_signer;
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, pubkey::Pubkey,
 };
-use spl_token::{instruction::freeze_account, state::Mint};
+use spl_token_2022::{instruction::freeze_account, state::Mint};
 
 use crate::{
     assertions::{
@@ -12,6 +12,7 @@ use crate::{
     error::MetadataError,
     processor::all_account_infos,
     state::{EDITION, PREFIX},
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_freeze_delegated_account(
@@ -27,7 +28,7 @@ pub fn process_freeze_delegated_account(
         token_program_account_info
     );
 
-    if *token_program_account_info.key != spl_token::ID {
+    if *token_program_account_info.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 
@@ -38,7 +39,12 @@ pub fn process_freeze_delegated_account(
 
     // assert delegate is signer and delegated tokens
     assert_signer(delegate_info)?;
-    assert_delegated_tokens(delegate_info, mint_info, token_account_info)?;
+    assert_delegated_tokens(
+        delegate_info,
+        mint_info,
+        token_account_info,
+        token_program_account_info.key,
+    )?;
 
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),

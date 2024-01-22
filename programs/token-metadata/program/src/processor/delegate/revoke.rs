@@ -1,13 +1,14 @@
-use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys};
+use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
     account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_option::COption,
-    program_pack::Pack, pubkey::Pubkey, system_program, sysvar,
+    pubkey::Pubkey, system_program, sysvar,
 };
-use spl_token::state::Account;
+use spl_token_2022::state::Account;
 
 use crate::{
     assertions::{
-        assert_keys_equal, assert_owned_by, metadata::assert_update_authority_is_correct,
+        assert_keys_equal, assert_owned_by, assert_owner_in,
+        metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
     instruction::{Context, HolderDelegateRole, MetadataDelegateRole, Revoke, RevokeArgs},
@@ -19,7 +20,10 @@ use crate::{
         HolderDelegateRecord, Metadata, MetadataDelegateRecord, Resizable, TokenDelegateRole,
         TokenMetadataAccount, TokenRecord, TokenStandard,
     },
-    utils::{clear_close_authority, freeze, thaw, ClearCloseAuthorityParams},
+    utils::{
+        assert_token_program_matches_package, clear_close_authority, freeze, thaw, unpack,
+        ClearCloseAuthorityParams,
+    },
 };
 
 /// Revoke a delegation of the token.
@@ -100,7 +104,7 @@ fn revoke_metadata_delegate_v1(
     // ownership
 
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
+    assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     // key match
 
@@ -283,8 +287,8 @@ fn revoke_persistent_delegate_v1(
     // ownership
 
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(token_info, &spl_token::ID)?;
+    assert_owned_by(ctx.accounts.mint_info, spl_token_program_info.key)?;
+    assert_owned_by(token_info, spl_token_program_info.key)?;
 
     // key match
 
@@ -293,7 +297,7 @@ fn revoke_persistent_delegate_v1(
         ctx.accounts.sysvar_instructions_info.key,
         &sysvar::instructions::ID,
     )?;
-    assert_keys_equal(spl_token_program_info.key, &spl_token::ID)?;
+    assert_token_program_matches_package(spl_token_program_info)?;
 
     // account relationships
 
@@ -304,7 +308,7 @@ fn revoke_persistent_delegate_v1(
 
     // authority must be the owner of the token account: spl-token required the
     // token owner to revoke a delegate
-    let token = Account::unpack(&token_info.try_borrow_data()?).unwrap();
+    let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
     if token.owner != *ctx.accounts.authority_info.key {
         return Err(MetadataError::IncorrectOwner.into());
     }
@@ -398,7 +402,7 @@ fn revoke_persistent_delegate_v1(
 
     // revokes the spl-token delegate
     invoke(
-        &spl_token::instruction::revoke(
+        &spl_token_2022::instruction::revoke(
             spl_token_program_info.key,
             token_info.key,
             ctx.accounts.authority_info.key,

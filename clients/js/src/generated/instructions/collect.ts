@@ -30,8 +30,8 @@ import {
 export type CollectInstructionAccounts = {
   /** Authority to collect fees */
   authority?: Signer;
-  /** PDA to retrieve fees from */
-  pdaAccount: PublicKey | Pda;
+  /** The account to transfer collected fees to */
+  recipient: PublicKey | Pda;
 };
 
 // Data.
@@ -69,10 +69,10 @@ export function collect(
       isWritable: false as boolean,
       value: input.authority ?? null,
     },
-    pdaAccount: {
+    recipient: {
       index: 1,
       isWritable: false as boolean,
-      value: input.pdaAccount ?? null,
+      value: input.recipient ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
 

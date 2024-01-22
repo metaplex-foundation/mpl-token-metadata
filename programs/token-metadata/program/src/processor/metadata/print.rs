@@ -1,16 +1,8 @@
 use mpl_utils::token::get_mint_supply;
 use solana_program::{
-    account_info::AccountInfo,
-    entrypoint::ProgramResult,
-    program::invoke,
-    program_error::ProgramError,
-    program_pack::Pack,
-    pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::{self, Sysvar},
+    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
+    program_error::ProgramError, program_option::COption, pubkey::Pubkey, sysvar,
 };
-use spl_token::state::Mint;
 
 use crate::{
     assertions::assert_keys_equal,
@@ -22,10 +14,10 @@ use crate::{
         TOKEN_STANDARD_INDEX_EDITION,
     },
     utils::{
-        assert_initialized, assert_owned_by, create_token_record_account,
+        assert_owned_by, create_mint, create_token_record_account,
         fee::{levy, set_fee_flag, LevyArgs},
-        freeze, process_mint_new_edition_from_master_edition_via_token_logic,
-        MintNewEditionFromMasterEditionViaTokenLogicArgs,
+        freeze, process_mint_new_edition_from_master_edition_via_token_logic, validate_mint,
+        validate_token, MintNewEditionFromMasterEditionViaTokenLogicArgs,
     },
 };
 
@@ -93,6 +85,12 @@ fn print_v1<'a>(
         token_metadata_pda_info: edition_metadata_info,
     })?;
 
+    // Deserialize the master edition's metadata so we can determine token type
+    let master_metadata = Metadata::from_account_info(master_metadata_info)?;
+    let token_standard = master_metadata
+        .token_standard
+        .unwrap_or(TokenStandard::NonFungible);
+
     // if the account does not exist, we will allocate a new mint
     if edition_mint_info.data_is_empty() {
         // mint account must be a signer in the transaction
@@ -100,36 +98,18 @@ fn print_v1<'a>(
             return Err(MetadataError::MintIsNotSigner.into());
         }
 
-        invoke(
-            &system_instruction::create_account(
-                payer_info.key,
-                edition_mint_info.key,
-                Rent::get()?.minimum_balance(spl_token::state::Mint::LEN),
-                spl_token::state::Mint::LEN as u64,
-                &spl_token::ID,
-            ),
-            &[payer_info.clone(), edition_mint_info.clone()],
-        )?;
-
-        // initializing the mint account
-        invoke(
-            &spl_token::instruction::initialize_mint2(
-                token_program.key,
-                edition_mint_info.key,
-                edition_mint_authority_info.key,
-                Some(edition_mint_authority_info.key),
-                0,
-            )?,
-            &[
-                edition_mint_info.clone(),
-                edition_mint_authority_info.clone(),
-            ],
+        create_mint(
+            edition_mint_info,
+            edition_metadata_info,
+            edition_mint_authority_info,
+            payer_info,
+            token_standard,
+            None,
+            token_program,
         )?;
     } else {
-        // validates the existing mint account
-
-        let mint: Mint = assert_initialized(edition_mint_info)?;
-        // NonFungible assets must have decimals == 0 and supply no greater than 1
+        let mint = validate_mint(edition_mint_info, edition_metadata_info, token_standard)?;
+        // non-fungibles must have decimals == 0 and supply no greater than 1
         if mint.decimals > 0 || mint.supply > 1 {
             return Err(MetadataError::InvalidMintForTokenStandard.into());
         }
@@ -151,7 +131,7 @@ fn print_v1<'a>(
                 payer_info.key,
                 edition_token_account_owner_info.key,
                 edition_mint_info.key,
-                &spl_token::id(),
+                token_program.key,
             ),
             &[
                 payer_info.clone(),
@@ -163,8 +143,8 @@ fn print_v1<'a>(
 
         // mint one token to the associated token account
         invoke(
-            &spl_token::instruction::mint_to(
-                &spl_token::id(),
+            &spl_token_2022::instruction::mint_to(
+                token_program.key,
                 edition_mint_info.key,
                 edition_token_account_info.key,
                 edition_mint_authority_info.key,
@@ -178,11 +158,30 @@ fn print_v1<'a>(
             ],
         )?;
     } else {
-        assert_owned_by(edition_token_account_info, &spl_token::id())?;
-        let edition_token_account: spl_token::state::Account =
-            assert_initialized(edition_token_account_info)?;
-        if edition_token_account.amount < 1 {
-            return Err(MetadataError::NotEnoughTokens.into());
+        let token = validate_token(
+            edition_mint_info,
+            edition_token_account_info,
+            Some(edition_token_account_owner_info),
+            token_program,
+            Some(token_standard),
+            Some(1), // we must have a token already
+        )?;
+
+        // validates that the close authority on the token is either None
+        // or the master edition account for programmable assets
+
+        if matches!(
+            master_metadata.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+                | Some(TokenStandard::ProgrammableNonFungibleEdition)
+        ) {
+            if let COption::Some(close_authority) = token.close_authority {
+                // the close authority must match the edition if there is one set
+                // on the token account
+                if close_authority != *edition_account_info.key {
+                    return Err(MetadataError::InvalidCloseAuthority.into());
+                }
+            }
         }
     }
 
@@ -193,12 +192,6 @@ fn print_v1<'a>(
     if sysvar_instructions.key != &sysvar::instructions::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-
-    // Deserialize the master edition's metadata so we can determine token type
-    let master_metadata = Metadata::from_account_info(master_metadata_info)?;
-    let token_standard = master_metadata
-        .token_standard
-        .unwrap_or(TokenStandard::NonFungible);
 
     match token_standard {
         TokenStandard::NonFungible => {}

@@ -585,7 +585,7 @@ pub enum MetadataInstruction {
     #[account(5, name="update_authority", desc="Update authority for the metadata account")]
     #[account(6, name="system_program", desc="System program")]
     #[account(7, name="sysvar_instructions", desc="Instructions sysvar account")]
-    #[account(8, name="spl_token_program", desc="SPL Token program")]
+    #[account(8, optional, name="spl_token_program", desc="SPL Token program")]
     #[args(initialize_mint: bool)]
     #[args(update_authority_as_signer: bool)]
     Create(CreateArgs),
@@ -801,7 +801,7 @@ pub enum MetadataInstruction {
 
     /// Collect fees stored on PDA accounts.
     #[account(0, signer, name="authority", desc="Authority to collect fees")]
-    #[account(1, name="pda_account", desc="PDA to retrieve fees from")]
+    #[account(1, name="recipient", desc="The account to transfer collected fees to")]
     Collect,
 
     /// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token

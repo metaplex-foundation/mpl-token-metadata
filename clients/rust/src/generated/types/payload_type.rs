@@ -5,7 +5,7 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use crate::generated::types::LeafInfo;
+use crate::generated::types::ProofInfo;
 use crate::generated::types::SeedsVec;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
@@ -16,6 +16,6 @@ use solana_program::pubkey::Pubkey;
 pub enum PayloadType {
     Pubkey(Pubkey),
     Seeds(SeedsVec),
-    MerkleProof(LeafInfo),
+    MerkleProof(ProofInfo),
     Number(u64),
 }

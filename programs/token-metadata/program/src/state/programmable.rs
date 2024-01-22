@@ -9,7 +9,7 @@ use solana_program::{
     account_info::AccountInfo, instruction::AccountMeta, program_error::ProgramError,
     program_option::COption, pubkey::Pubkey,
 };
-use spl_token::state::Account;
+use spl_token_2022::state::Account;
 
 use super::*;
 use crate::{

@@ -18,6 +18,7 @@ use crate::{
         AssetData, Collection, CollectionDetails, Creator, Data, DataV2, PrintSupply,
         TokenStandard, Uses,
     },
+    utils::SPL_TOKEN_ID,
 };
 
 //----------------------+
@@ -648,7 +649,7 @@ impl InstructionBuilder for super::builders::Create {
             AccountMeta::new_readonly(self.update_authority, self.update_authority_as_signer),
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
-            AccountMeta::new_readonly(self.spl_token_program, false),
+            AccountMeta::new_readonly(self.spl_token_program.unwrap_or(SPL_TOKEN_ID), false),
         ];
 
         Instruction {
