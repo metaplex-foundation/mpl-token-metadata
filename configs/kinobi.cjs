@@ -87,6 +87,22 @@ kinobi.update(
         ),
       ],
     },
+    holderDelegateRecord: {
+      size: 98,
+      seeds: [
+        ...metadataSeeds,
+        k.variableSeed(
+          "delegateRole",
+          k.linkTypeNode("holderDelegateRoleSeed", { importFrom: "hooked" }),
+          "The role of the holder delegate"
+        ),
+        k.publicKeySeed(
+          "owner",
+          "The address of the owner of the token"
+        ),
+        k.publicKeySeed("delegate", "The address of the delegate authority"),
+      ],
+    },
     useAuthorityRecord: {
       seeds: [
         ...metadataSeeds,
@@ -147,9 +163,9 @@ kinobi.update(
     create: {
       bytesCreatedOnChain: k.bytesFromNumber(
         82 + // Mint account.
-          679 + // Metadata account.
-          282 + // Master edition account.
-          128 * 3, // 3 account headers.
+        679 + // Metadata account.
+        282 + // Master edition account.
+        128 * 3, // 3 account headers.
         false
       ),
       accounts: {
@@ -177,8 +193,8 @@ kinobi.update(
     mint: {
       bytesCreatedOnChain: k.bytesFromNumber(
         165 + // Token account.
-          47 + // Token Record account.
-          128 * 2, // 2 account headers.
+        47 + // Token Record account.
+        128 * 2, // 2 account headers.
         false
       ),
       accounts: {
@@ -479,6 +495,7 @@ kinobi.update(
     TokenOwnedEscrow: key("TokenOwnedEscrow"),
     TokenRecord: key("TokenRecord"),
     MetadataDelegate: key("MetadataDelegate"),
+    HolderDelegate: key("HolderDelegate"),
   })
 );
 

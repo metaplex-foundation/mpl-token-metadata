@@ -69,7 +69,8 @@ export type DelegateArgs =
   | {
       __kind: 'ProgrammableConfigItemV1';
       authorizationData: Option<AuthorizationData>;
-    };
+    }
+  | { __kind: 'PrintDelegateV1'; authorizationData: Option<AuthorizationData> };
 
 export type DelegateArgsArgs =
   | {
@@ -125,6 +126,10 @@ export type DelegateArgsArgs =
     }
   | {
       __kind: 'ProgrammableConfigItemV1';
+      authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
+    }
+  | {
+      __kind: 'PrintDelegateV1';
       authorizationData?: OptionOrNullable<AuthorizationDataArgs>;
     };
 
@@ -350,6 +355,22 @@ export function getDelegateArgsSerializer(): Serializer<
           })
         ),
       ],
+      [
+        'PrintDelegateV1',
+        mapSerializer<
+          GetDataEnumKindContent<DelegateArgsArgs, 'PrintDelegateV1'>,
+          any,
+          GetDataEnumKindContent<DelegateArgs, 'PrintDelegateV1'>
+        >(
+          struct<GetDataEnumKindContent<DelegateArgs, 'PrintDelegateV1'>>([
+            ['authorizationData', option(getAuthorizationDataSerializer())],
+          ]),
+          (value) => ({
+            ...value,
+            authorizationData: value.authorizationData ?? none(),
+          })
+        ),
+      ],
     ],
     { description: 'DelegateArgs' }
   ) as Serializer<DelegateArgsArgs, DelegateArgs>;
@@ -408,6 +429,10 @@ export function delegateArgs(
   kind: 'ProgrammableConfigItemV1',
   data: GetDataEnumKindContent<DelegateArgsArgs, 'ProgrammableConfigItemV1'>
 ): GetDataEnumKind<DelegateArgsArgs, 'ProgrammableConfigItemV1'>;
+export function delegateArgs(
+  kind: 'PrintDelegateV1',
+  data: GetDataEnumKindContent<DelegateArgsArgs, 'PrintDelegateV1'>
+): GetDataEnumKind<DelegateArgsArgs, 'PrintDelegateV1'>;
 export function delegateArgs<K extends DelegateArgsArgs['__kind']>(
   kind: K,
   data?: any

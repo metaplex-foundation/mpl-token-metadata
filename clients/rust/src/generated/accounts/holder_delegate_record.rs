@@ -6,22 +6,41 @@
 //!
 
 use crate::generated::types::Key;
+use crate::hooked::HolderDelegateRoleSeed;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 use solana_program::pubkey::Pubkey;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct CollectionAuthorityRecord {
+pub struct HolderDelegateRecord {
     pub key: Key,
     pub bump: u8,
-    pub update_authority: Option<Pubkey>,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub mint: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub delegate: Pubkey,
+    #[cfg_attr(
+        feature = "serde",
+        serde(with = "serde_with::As::<serde_with::DisplayFromStr>")
+    )]
+    pub update_authority: Pubkey,
 }
 
-impl CollectionAuthorityRecord {
+impl HolderDelegateRecord {
+    pub const LEN: usize = 98;
+
     pub fn create_pda(
         mint: Pubkey,
-        collection_authority: Pubkey,
+        delegate_role: HolderDelegateRoleSeed,
+        owner: Pubkey,
+        delegate: Pubkey,
         bump: u8,
     ) -> Result<solana_program::pubkey::Pubkey, solana_program::pubkey::PubkeyError> {
         solana_program::pubkey::Pubkey::create_program_address(
@@ -29,8 +48,9 @@ impl CollectionAuthorityRecord {
                 "metadata".as_bytes(),
                 crate::MPL_TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
-                "collection_authority".as_bytes(),
-                collection_authority.as_ref(),
+                delegate_role.to_string().as_ref(),
+                owner.as_ref(),
+                delegate.as_ref(),
                 &[bump],
             ],
             &crate::MPL_TOKEN_METADATA_ID,
@@ -39,15 +59,18 @@ impl CollectionAuthorityRecord {
 
     pub fn find_pda(
         mint: &Pubkey,
-        collection_authority: &Pubkey,
+        delegate_role: HolderDelegateRoleSeed,
+        owner: &Pubkey,
+        delegate: &Pubkey,
     ) -> (solana_program::pubkey::Pubkey, u8) {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
                 "metadata".as_bytes(),
                 crate::MPL_TOKEN_METADATA_ID.as_ref(),
                 mint.as_ref(),
-                "collection_authority".as_bytes(),
-                collection_authority.as_ref(),
+                delegate_role.to_string().as_ref(),
+                owner.as_ref(),
+                delegate.as_ref(),
             ],
             &crate::MPL_TOKEN_METADATA_ID,
         )
@@ -60,7 +83,7 @@ impl CollectionAuthorityRecord {
     }
 }
 
-impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for CollectionAuthorityRecord {
+impl<'a> TryFrom<&solana_program::account_info::AccountInfo<'a>> for HolderDelegateRecord {
     type Error = std::io::Error;
 
     fn try_from(

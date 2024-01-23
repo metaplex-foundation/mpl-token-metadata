@@ -25,4 +25,5 @@ pub enum RevokeArgs {
     DataItemV1,
     CollectionItemV1,
     ProgrammableConfigItemV1,
+    PrintDelegateV1,
 }

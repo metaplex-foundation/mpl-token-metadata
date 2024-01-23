@@ -87,7 +87,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
             let seeds = vec![
                 PREFIX.as_bytes(),
                 program_id.as_ref(),
-                mint_info.key.as_ref(),
+                master_metadata.mint.as_ref(),
                 role.as_bytes(),
                 owner_account_info.key.as_ref(),
                 payer_account_info.key.as_ref(),

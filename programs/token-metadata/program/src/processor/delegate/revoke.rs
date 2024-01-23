@@ -186,9 +186,8 @@ fn revoke_holder_delegate_v1(
     // ownership
 
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(token_info, &spl_token::ID)?;
-
+    assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
+    assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
     // key match
 
     assert_keys_equal(ctx.accounts.system_program_info.key, &system_program::ID)?;
@@ -213,7 +212,7 @@ fn revoke_holder_delegate_v1(
 
     // authority must be the owner of the token account: spl-token required the
     // token owner to revoke a delegate
-    let token = Account::unpack(&token_info.try_borrow_data()?).unwrap();
+    let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
     if token.owner != *ctx.accounts.authority_info.key {
         return Err(MetadataError::IncorrectOwner.into());
     }

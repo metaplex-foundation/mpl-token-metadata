@@ -20,16 +20,6 @@ pub struct UseAuthorityRecord {
 
 impl UseAuthorityRecord {
     pub const LEN: usize = 10;
-    /// Prefix values used to generate a PDA for this account.
-    ///
-    /// Values are positional and appear in the following order:
-    ///
-    ///   0. `UseAuthorityRecord::PREFIX.0`
-    ///   1. `crate::MPL_TOKEN_METADATA_ID`
-    ///   2. mint (`Pubkey`)
-    ///   3. `UseAuthorityRecord::PREFIX.1`
-    ///   4. use_authority (`Pubkey`)
-    pub const PREFIX: (&'static [u8], &'static [u8]) = ("metadata".as_bytes(), "user".as_bytes());
 
     pub fn create_pda(
         mint: Pubkey,

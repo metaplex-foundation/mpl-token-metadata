@@ -10,20 +10,6 @@ use borsh::BorshSerialize;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq, PartialOrd, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum Key {
-    Uninitialized,
-    EditionV1,
-    MasterEditionV1,
-    ReservationListV1,
-    MetadataV1,
-    ReservationListV2,
-    MasterEditionV2,
-    EditionMarker,
-    UseAuthorityRecord,
-    CollectionAuthorityRecord,
-    TokenOwnedEscrow,
-    TokenRecord,
-    MetadataDelegate,
-    EditionMarkerV2,
-    HolderDelegate,
+pub enum HolderDelegateRole {
+    PrintDelegate,
 }

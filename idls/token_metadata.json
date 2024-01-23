@@ -4733,6 +4733,36 @@
       }
     },
     {
+      "name": "HolderDelegateRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": "Key"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "delegate",
+            "type": "publicKey"
+          },
+          {
+            "name": "updateAuthority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
       "name": "Edition",
       "type": {
         "kind": "struct",
@@ -5777,6 +5807,19 @@
                 }
               }
             ]
+          },
+          {
+            "name": "PrintDelegateV1",
+            "fields": [
+              {
+                "name": "authorization_data",
+                "type": {
+                  "option": {
+                    "defined": "AuthorizationData"
+                  }
+                }
+              }
+            ]
           }
         ]
       }
@@ -5827,6 +5870,9 @@
           },
           {
             "name": "ProgrammableConfigItemV1"
+          },
+          {
+            "name": "PrintDelegateV1"
           }
         ]
       }
@@ -5859,6 +5905,17 @@
           },
           {
             "name": "ProgrammableConfigItem"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderDelegateRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "PrintDelegate"
           }
         ]
       }
@@ -6497,6 +6554,9 @@
           },
           {
             "name": "EditionMarkerV2"
+          },
+          {
+            "name": "HolderDelegate"
           }
         ]
       }
