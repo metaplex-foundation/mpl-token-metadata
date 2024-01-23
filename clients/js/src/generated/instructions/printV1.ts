@@ -311,7 +311,7 @@ export function printV1(
   }
   if (!resolvedAccounts.splAtaProgram.value) {
     resolvedAccounts.splAtaProgram.value = context.programs.getPublicKey(
-      'splAssociatedToken',
+      'splAssociatedTokenProgram',
       'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
     );
     resolvedAccounts.splAtaProgram.isWritable = false;

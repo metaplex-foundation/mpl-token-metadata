@@ -3246,6 +3246,7 @@
           "name": "splAtaProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Associated Token Account program"
           ]
@@ -4062,6 +4063,7 @@
           "name": "splAtaProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Associated Token Account program"
           ]
@@ -4642,6 +4644,7 @@
           "name": "splAtaProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Associated Token Account program"
           ]

@@ -64,7 +64,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
     let update_authority_info = ctx.accounts.update_authority_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let token_program = ctx.accounts.spl_token_program_info;
-    let ata_program = ctx.accounts.spl_ata_program_info;
+    let _ata_program = ctx.accounts.spl_ata_program_info;
     let sysvar_instructions = ctx.accounts.sysvar_instructions_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let system_program = ctx.accounts.system_program_info;
@@ -173,10 +173,6 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
                 }
             }
         }
-    }
-
-    if ata_program.key != &spl_associated_token_account::ID {
-        return Err(ProgramError::IncorrectProgramId);
     }
 
     if sysvar_instructions.key != &sysvar::instructions::ID {

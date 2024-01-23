@@ -175,10 +175,6 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
 
     assert_token_program_matches_package(ctx.accounts.spl_token_program_info)?;
 
-    if ctx.accounts.spl_ata_program_info.key != &spl_associated_token_account::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
-
     if ctx.accounts.system_program_info.key != &system_program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }

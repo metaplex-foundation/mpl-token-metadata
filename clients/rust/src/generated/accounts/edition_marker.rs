@@ -19,17 +19,6 @@ pub struct EditionMarker {
 
 impl EditionMarker {
     pub const LEN: usize = 32;
-    /// Prefix values used to generate a PDA for this account.
-    ///
-    /// Values are positional and appear in the following order:
-    ///
-    ///   0. `EditionMarker::PREFIX.0`
-    ///   1. `crate::MPL_TOKEN_METADATA_ID`
-    ///   2. mint (`Pubkey`)
-    ///   3. `EditionMarker::PREFIX.1`
-    ///   4. edition_marker (`&str`)
-    pub const PREFIX: (&'static [u8], &'static [u8]) =
-        ("metadata".as_bytes(), "edition".as_bytes());
 
     pub fn create_pda(
         mint: Pubkey,

@@ -42,7 +42,7 @@ pub struct Print {
     /// Token program
     pub spl_token_program: solana_program::pubkey::Pubkey,
     /// SPL Associated Token Account program
-    pub spl_ata_program: solana_program::pubkey::Pubkey,
+    pub spl_ata_program: Option<solana_program::pubkey::Pubkey>,
     /// Instructions sysvar account
     pub sysvar_instructions: solana_program::pubkey::Pubkey,
     /// System program
@@ -129,10 +129,17 @@ impl Print {
             self.spl_token_program,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.spl_ata_program,
-            false,
-        ));
+        if let Some(spl_ata_program) = self.spl_ata_program {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                spl_ata_program,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.sysvar_instructions,
             false,
@@ -346,14 +353,14 @@ impl PrintBuilder {
         self.spl_token_program = Some(spl_token_program);
         self
     }
-    /// `[optional account, default to 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL']`
+    /// `[optional account]`
     /// SPL Associated Token Account program
     #[inline(always)]
     pub fn spl_ata_program(
         &mut self,
-        spl_ata_program: solana_program::pubkey::Pubkey,
+        spl_ata_program: Option<solana_program::pubkey::Pubkey>,
     ) -> &mut Self {
-        self.spl_ata_program = Some(spl_ata_program);
+        self.spl_ata_program = spl_ata_program;
         self
     }
     /// `[optional account, default to 'Sysvar1nstructions1111111111111111111111111']`
@@ -428,9 +435,7 @@ impl PrintBuilder {
             spl_token_program: self.spl_token_program.unwrap_or(solana_program::pubkey!(
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             )),
-            spl_ata_program: self.spl_ata_program.unwrap_or(solana_program::pubkey!(
-                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
-            )),
+            spl_ata_program: self.spl_ata_program,
             sysvar_instructions: self.sysvar_instructions.unwrap_or(solana_program::pubkey!(
                 "Sysvar1nstructions1111111111111111111111111"
             )),
@@ -479,7 +484,7 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// Token program
     pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Associated Token Account program
-    pub spl_ata_program: &'b solana_program::account_info::AccountInfo<'a>,
+    pub spl_ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Instructions sysvar account
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
@@ -521,7 +526,7 @@ pub struct PrintCpi<'a, 'b> {
     /// Token program
     pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Associated Token Account program
-    pub spl_ata_program: &'b solana_program::account_info::AccountInfo<'a>,
+    pub spl_ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Instructions sysvar account
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
@@ -660,10 +665,17 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             *self.spl_token_program.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.spl_ata_program.key,
-            false,
-        ));
+        if let Some(spl_ata_program) = self.spl_ata_program {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *spl_ata_program.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.sysvar_instructions.key,
             false,
@@ -707,7 +719,9 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         account_infos.push(self.master_metadata.clone());
         account_infos.push(self.update_authority.clone());
         account_infos.push(self.spl_token_program.clone());
-        account_infos.push(self.spl_ata_program.clone());
+        if let Some(spl_ata_program) = self.spl_ata_program {
+            account_infos.push(spl_ata_program.clone());
+        }
         account_infos.push(self.sysvar_instructions.clone());
         account_infos.push(self.system_program.clone());
         remaining_accounts
@@ -741,7 +755,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
 ///   12. `[]` master_metadata
 ///   13. `[]` update_authority
 ///   14. `[]` spl_token_program
-///   15. `[]` spl_ata_program
+///   15. `[optional]` spl_ata_program
 ///   16. `[]` sysvar_instructions
 ///   17. `[]` system_program
 pub struct PrintCpiBuilder<'a, 'b> {
@@ -908,13 +922,14 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         self.instruction.spl_token_program = Some(spl_token_program);
         self
     }
+    /// `[optional account]`
     /// SPL Associated Token Account program
     #[inline(always)]
     pub fn spl_ata_program(
         &mut self,
-        spl_ata_program: &'b solana_program::account_info::AccountInfo<'a>,
+        spl_ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     ) -> &mut Self {
-        self.instruction.spl_ata_program = Some(spl_ata_program);
+        self.instruction.spl_ata_program = spl_ata_program;
         self
     }
     /// Instructions sysvar account
@@ -1057,10 +1072,7 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
                 .spl_token_program
                 .expect("spl_token_program is not set"),
 
-            spl_ata_program: self
-                .instruction
-                .spl_ata_program
-                .expect("spl_ata_program is not set"),
+            spl_ata_program: self.instruction.spl_ata_program,
 
             sysvar_instructions: self
                 .instruction

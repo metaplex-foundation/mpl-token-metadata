@@ -133,6 +133,13 @@ kinobi.update(
         ),
       }),
     },
+    {
+      account: "splAtaProgram",
+      ...k.programDefault(
+        "splAssociatedTokenProgram",
+        "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+      ),
+    },
   ])
 );
 
@@ -147,9 +154,9 @@ kinobi.update(
     create: {
       bytesCreatedOnChain: k.bytesFromNumber(
         82 + // Mint account.
-          679 + // Metadata account.
-          282 + // Master edition account.
-          128 * 3, // 3 account headers.
+        679 + // Metadata account.
+        282 + // Master edition account.
+        128 * 3, // 3 account headers.
         false
       ),
       accounts: {
@@ -177,8 +184,8 @@ kinobi.update(
     mint: {
       bytesCreatedOnChain: k.bytesFromNumber(
         165 + // Token account.
-          47 + // Token Record account.
-          128 * 2, // 2 account headers.
+        47 + // Token Record account.
+        128 * 2, // 2 account headers.
         false
       ),
       accounts: {

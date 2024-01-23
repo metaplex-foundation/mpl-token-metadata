@@ -704,7 +704,11 @@ impl InstructionBuilder for super::builders::Mint {
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
             AccountMeta::new_readonly(self.spl_token_program, false),
-            AccountMeta::new_readonly(self.spl_ata_program, false),
+            if let Some(spl_ata_program) = self.spl_ata_program {
+                AccountMeta::new_readonly(spl_ata_program, false)
+            } else {
+                AccountMeta::new_readonly(crate::ID, false)
+            },
         ];
         // Optional authorization rules accounts
         if let Some(rules) = &self.authorization_rules {
@@ -771,7 +775,11 @@ impl InstructionBuilder for super::builders::Transfer {
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
             AccountMeta::new_readonly(self.spl_token_program, false),
-            AccountMeta::new_readonly(self.spl_ata_program, false),
+            if let Some(spl_ata_program) = self.spl_ata_program {
+                AccountMeta::new_readonly(spl_ata_program, false)
+            } else {
+                AccountMeta::new_readonly(crate::ID, false)
+            },
         ];
         // Optional authorization rules accounts
         if let Some(rules) = &self.authorization_rules {
@@ -888,7 +896,11 @@ impl InstructionBuilder for super::builders::Print {
             AccountMeta::new_readonly(self.master_metadata, false),
             AccountMeta::new_readonly(self.update_authority, false),
             AccountMeta::new_readonly(self.spl_token_program, false),
-            AccountMeta::new_readonly(self.spl_ata_program, false),
+            if let Some(spl_ata_program) = self.spl_ata_program {
+                AccountMeta::new_readonly(spl_ata_program, false)
+            } else {
+                AccountMeta::new_readonly(crate::ID, false)
+            },
             AccountMeta::new_readonly(self.sysvar_instructions, false),
             AccountMeta::new_readonly(self.system_program, false),
         ];

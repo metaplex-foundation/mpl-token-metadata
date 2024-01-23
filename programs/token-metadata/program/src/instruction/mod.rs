@@ -608,7 +608,7 @@ pub enum MetadataInstruction {
     #[account(9, name="system_program", desc="System program")]
     #[account(10, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(11, name="spl_token_program", desc="SPL Token program")]
-    #[account(12, name="spl_ata_program", desc="SPL Associated Token Account program")]
+    #[account(12, optional, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(13, optional, name="authorization_rules_program", desc="Token Authorization Rules program")]
     #[account(14, optional, name="authorization_rules", desc="Token Authorization Rules account")]
     Mint(MintArgs),
@@ -730,7 +730,7 @@ pub enum MetadataInstruction {
     #[account(11, name="system_program", desc="System Program")]
     #[account(12, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(13, name="spl_token_program", desc="SPL Token Program")]
-    #[account(14, name="spl_ata_program", desc="SPL Associated Token Account program")]
+    #[account(14, optional, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(15, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
     #[account(16, optional, name="authorization_rules", desc="Token Authorization Rules account")]
     Transfer(TransferArgs),
@@ -821,7 +821,7 @@ pub enum MetadataInstruction {
     #[account(12, name="master_metadata", desc="Master record metadata account")]
     #[account(13, name="update_authority", desc="The update authority of the master edition.")]
     #[account(14, name="spl_token_program", desc="Token program")]
-    #[account(15, name="spl_ata_program", desc="SPL Associated Token Account program")]
+    #[account(15, optional, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(16, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(17, name="system_program", desc="System program")]
     #[args(initialize_mint: bool)]
