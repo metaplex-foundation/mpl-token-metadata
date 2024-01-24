@@ -161,7 +161,7 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
   t.like(tokenAccount, <Token>{ publicKey: publicKey(token), amount: 42n });
 });
 
-test.only('it can mint a new ProgrammableNonFungible with Token-2022', async (t) => {
+test('it can mint a new ProgrammableNonFungible with Token-2022', async (t) => {
   // Given a new mint Signer.
   const umi = await createUmi();
   const mint = generateSigner(umi);
