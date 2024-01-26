@@ -280,7 +280,11 @@ test('it can delegate the authority to print a new edition', async (t) => {
     delegate: delegate.publicKey,
   });
 
-  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(umi, originalMint.publicKey, originalOwner.publicKey);
+  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    originalMint.publicKey,
+    originalOwner.publicKey
+  );
   // const tokenAccount = await fetchToken(umi, digitalAssetWithToken.token.publicKey);
 
   await delegatePrintDelegateV1(umi, {
@@ -370,7 +374,11 @@ test('it can delegate multiple authorities to print new editions', async (t) => 
     delegate: delegate1.publicKey,
   });
 
-  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(umi, originalMint.publicKey, originalOwner.publicKey);
+  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    originalMint.publicKey,
+    originalOwner.publicKey
+  );
   // const tokenAccount = await fetchToken(umi, digitalAssetWithToken.token.publicKey);
 
   await delegatePrintDelegateV1(umi, {
@@ -499,7 +507,11 @@ test('it can print a new owner as the master holder after delegating the authori
     delegate: delegate.publicKey,
   });
 
-  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(umi, originalMint.publicKey, originalOwner.publicKey);
+  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    originalMint.publicKey,
+    originalOwner.publicKey
+  );
   // const tokenAccount = await fetchToken(umi, digitalAssetWithToken.token.publicKey);
 
   await delegatePrintDelegateV1(umi, {

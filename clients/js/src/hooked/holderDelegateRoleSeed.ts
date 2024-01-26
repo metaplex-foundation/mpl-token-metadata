@@ -6,8 +6,7 @@ import {
 import { TokenMetadataError } from '../errors';
 import { HolderDelegateRole } from '../generated/types/holderDelegateRole';
 
-export type HolderDelegateRoleSeed =
-  | 'print_delegate';
+export type HolderDelegateRoleSeed = 'print_delegate';
 
 export type HolderDelegateRoleSeedArgs =
   | HolderDelegateRoleSeed
