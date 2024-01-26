@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@metaplex-foundation/mpl-toolbox':
     specifier: ^0.9.0
@@ -9,6 +13,9 @@ devDependencies:
   '@ava/typescript':
     specifier: ^3.0.1
     version: 3.0.1
+  '@metaplex-foundation/mpl-token-auth-rules':
+    specifier: ^3.0.2
+    version: 3.0.2(@metaplex-foundation/umi@0.8.2)
   '@metaplex-foundation/umi':
     specifier: ^0.8.2
     version: 0.8.2
@@ -1619,6 +1626,15 @@ packages:
       - supports-color
     dev: true
 
+  /@metaplex-foundation/mpl-token-auth-rules@3.0.2(@metaplex-foundation/umi@0.8.2):
+    resolution: {integrity: sha512-d4adyNG0UXxJ73K+O9xRTF5cgF47Xntf0mAIUTkBEwqV37HAuqF6oAJnQnBHzqa2IwoCFYFq6LR79BUc6vZpkA==}
+    peerDependencies:
+      '@metaplex-foundation/umi': ^0.8.2
+    dependencies:
+      '@metaplex-foundation/umi': 0.8.2
+      '@msgpack/msgpack': 2.8.0
+    dev: true
+
   /@metaplex-foundation/mpl-toolbox@0.9.0(@metaplex-foundation/umi@0.8.2):
     resolution: {integrity: sha512-FnzwA3rKLcwm/6DztDGSVfmabVMJDsEWOOpUMKtQG7iXNwtA1z5wICIzD13+P/uaEJX5tCSC4kHstJ7rDW5/7Q==}
     peerDependencies:
@@ -1762,6 +1778,11 @@ packages:
       '@metaplex-foundation/umi-options': 0.8.2
       '@metaplex-foundation/umi-public-keys': 0.8.2
       '@metaplex-foundation/umi-serializers': 0.8.2
+
+  /@msgpack/msgpack@2.8.0:
+    resolution: {integrity: sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==}
+    engines: {node: '>= 10'}
+    dev: true
 
   /@noble/curves@1.1.0:
     resolution: {integrity: sha512-091oBExgENk/kGj3AZmtBDMpxQPDtxQABR2B9lb1JbVTs6ytdzZNwvhxQ4MWasRNEzlbEH8jCWFCwhF/Obj5AA==}

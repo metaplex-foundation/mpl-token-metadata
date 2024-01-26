@@ -335,6 +335,11 @@ fn create_persistent_delegate_v1(
                     &mpl_token_auth_rules::ID,
                 )?;
 
+                let sysvar_instructions_info = match ctx.accounts.authorization_rules_info {
+                    Some(_) => Some(ctx.accounts.sysvar_instructions_info),
+                    None => None,
+                };
+
                 let auth_rules_validate_params = AuthRulesValidateParams {
                     mint_info: ctx.accounts.mint_info,
                     owner_info: None,
@@ -352,6 +357,7 @@ fn create_persistent_delegate_v1(
                     rule_set_revision: token_record
                         .rule_set_revision
                         .map(|revision| revision as usize),
+                    sysvar_instructions_info,
                 };
 
                 auth_rules_validate(auth_rules_validate_params)?;

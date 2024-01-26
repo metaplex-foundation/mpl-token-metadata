@@ -175,6 +175,7 @@ pub struct AuthRulesValidateParams<'a> {
     pub operation: Operation,
     pub is_wallet_to_wallet: bool,
     pub rule_set_revision: Option<usize>,
+    pub sysvar_instructions_info: Option<&'a AccountInfo<'a>>,
 }
 
 pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
@@ -191,11 +192,12 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
         operation,
         is_wallet_to_wallet,
         rule_set_revision,
+        sysvar_instructions_info,
     } = params;
 
-    if is_wallet_to_wallet {
-        return Ok(());
-    }
+    // if is_wallet_to_wallet {
+    //     return Ok(());
+    // }
 
     if let Operation::Transfer { scenario } = &operation {
         // Migration delegate is allowed to skip auth rules to guarantee that
@@ -219,6 +221,10 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
                 AuthorizationData::new_empty()
             };
 
+            auth_data
+                .payload
+                .insert("caller".to_string(), PayloadType::Pubkey(crate::ID));
+
             let mut additional_rule_accounts = vec![];
             if let Some(source_info) = source_info {
                 additional_rule_accounts.push(source_info);
@@ -231,6 +237,9 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
             }
             if let Some(owner_info) = owner_info {
                 additional_rule_accounts.push(owner_info);
+            }
+            if let Some(sysvar_instructions_info) = sysvar_instructions_info {
+                additional_rule_accounts.push(sysvar_instructions_info);
             }
 
             // Insert auth rules for the operation type.

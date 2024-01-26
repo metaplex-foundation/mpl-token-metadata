@@ -379,6 +379,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 _ => return Err(MetadataError::InvalidTransferAuthority.into()),
             };
 
+            let sysvar_instructions_info = match ctx.accounts.authorization_rules_info {
+                Some(_) => Some(ctx.accounts.sysvar_instructions_info),
+                None => None,
+            };
+
             // Build our auth rules params.
             let auth_rules_validate_params = AuthRulesValidateParams {
                 mint_info: ctx.accounts.mint_info,
@@ -395,6 +400,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 rule_set_revision: owner_token_record
                     .rule_set_revision
                     .map(|revision| revision as usize),
+                sysvar_instructions_info,
             };
 
             auth_rules_validate(auth_rules_validate_params)?;

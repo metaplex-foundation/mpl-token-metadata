@@ -35,17 +35,6 @@ pub struct MetadataDelegateRecord {
 
 impl MetadataDelegateRecord {
     pub const LEN: usize = 98;
-    /// Prefix values used to generate a PDA for this account.
-    ///
-    /// Values are positional and appear in the following order:
-    ///
-    ///   0. `MetadataDelegateRecord::PREFIX`
-    ///   1. `crate::MPL_TOKEN_METADATA_ID`
-    ///   2. mint (`Pubkey`)
-    ///   3. delegate_role (`MetadataDelegateRoleSeed`)
-    ///   4. update_authority (`Pubkey`)
-    ///   5. delegate (`Pubkey`)
-    pub const PREFIX: &'static [u8] = "metadata".as_bytes();
 
     pub fn create_pda(
         mint: Pubkey,

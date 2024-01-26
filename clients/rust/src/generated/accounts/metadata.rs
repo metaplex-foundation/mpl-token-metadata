@@ -46,15 +46,6 @@ pub struct Metadata {
 }
 
 impl Metadata {
-    /// Prefix values used to generate a PDA for this account.
-    ///
-    /// Values are positional and appear in the following order:
-    ///
-    ///   0. `Metadata::PREFIX`
-    ///   1. `crate::MPL_TOKEN_METADATA_ID`
-    ///   2. mint (`Pubkey`)
-    pub const PREFIX: &'static [u8] = "metadata".as_bytes();
-
     pub fn create_pda(
         mint: Pubkey,
         bump: u8,

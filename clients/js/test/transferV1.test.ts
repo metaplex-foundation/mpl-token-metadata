@@ -1,5 +1,6 @@
 import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
-import { generateSigner, publicKey } from '@metaplex-foundation/umi';
+import { RuleSetRevisionV2, findRuleSetPda, createOrUpdateV1 } from '@metaplex-foundation/mpl-token-auth-rules';
+import { generateSigner, publicKey, sol, some } from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
@@ -83,6 +84,128 @@ test('it can transfer a ProgrammableNonFungible', async (t) => {
         owner: ownerB,
       })[0],
       owner: ownerB,
+      amount: 1n,
+    },
+    tokenRecord: {
+      state: TokenState.Unlocked,
+    },
+  });
+});
+
+test('it can transfer a ProgrammableNonFungible between two wallets', async (t) => {
+  // Given a ProgrammableNonFungible that belongs to owner A.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi);
+  await umi.rpc.airdrop(ownerA.publicKey, sol(10));
+
+  const ruleSetName = 'transfer_test';
+  const revision: RuleSetRevisionV2 = {
+    libVersion: 2,
+    name: ruleSetName,
+    owner: ownerA.publicKey,
+    operations: JSON.parse('{"Transfer:Owner": {"type": "IsWallet", "field": "Destination"}}')
+  };
+
+  const ruleSetPda = findRuleSetPda(umi, { owner: ownerA.publicKey, name: ruleSetName });
+  await createOrUpdateV1(umi, {
+    payer: ownerA,
+    ruleSetPda,
+    ruleSetRevision: some(revision),
+  }).sendAndConfirm(umi);
+
+  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+    tokenOwner: ownerA.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    ruleSet: ruleSetPda[0],
+  });
+
+  // When we transfer the asset to owner B.
+  const ownerB = generateSigner(umi).publicKey;
+
+  await transferV1(umi, {
+    mint,
+    authority: ownerA,
+    tokenOwner: ownerA.publicKey,
+    destinationOwner: ownerB,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    authorizationRules: ruleSetPda,
+  }).sendAndConfirm(umi);
+
+  // Then the asset is now owned by owner B.
+  const da = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerB);
+  t.like(da, <DigitalAssetWithToken>{
+    mint: {
+      publicKey: publicKey(mint),
+      supply: 1n,
+    },
+    token: {
+      publicKey: findAssociatedTokenPda(umi, {
+        mint,
+        owner: ownerB,
+      })[0],
+      owner: ownerB,
+      amount: 1n,
+    },
+    tokenRecord: {
+      state: TokenState.Unlocked,
+    },
+  });
+});
+
+test('it can\'t transfer a ProgrammableNonFungible to a program - owned wallet with isWallet', async (t) => {
+  // Given a ProgrammableNonFungible that belongs to owner A.
+  const umi = await createUmi();
+  const ownerA = generateSigner(umi);
+  await umi.rpc.airdrop(ownerA.publicKey, sol(10));
+
+  const ruleSetName = 'transfer_test';
+  const revision: RuleSetRevisionV2 = {
+    libVersion: 2,
+    name: ruleSetName,
+    owner: ownerA.publicKey,
+    operations: JSON.parse('{"Transfer:Owner": {"type": "IsWallet", "field": "Destination"}}')
+  };
+
+  const ruleSetPda = findRuleSetPda(umi, { owner: ownerA.publicKey, name: ruleSetName });
+  await createOrUpdateV1(umi, {
+    payer: ownerA,
+    ruleSetPda,
+    ruleSetRevision: some(revision),
+  }).sendAndConfirm(umi);
+
+  const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+    tokenOwner: ownerA.publicKey,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    ruleSet: ruleSetPda[0],
+  });
+
+  // When we transfer the asset to owner B.
+  const ownerB = generateSigner(umi).publicKey;
+
+  const promise = transferV1(umi, {
+    mint,
+    authority: ownerA,
+    tokenOwner: ownerA.publicKey,
+    destinationOwner: mint,
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+    authorizationRules: ruleSetPda,
+  }).sendAndConfirm(umi);
+
+  await t.throwsAsync(promise, { name: 'AuthorizationTokenAccountOwnerMismatch' });
+
+  // Then the asset is now owned by owner B.
+  const da = await fetchDigitalAssetWithAssociatedToken(umi, mint, ownerA.publicKey);
+  t.like(da, <DigitalAssetWithToken>{
+    mint: {
+      publicKey: publicKey(mint),
+      supply: 1n,
+    },
+    token: {
+      publicKey: findAssociatedTokenPda(umi, {
+        mint,
+        owner: ownerA.publicKey,
+      })[0],
+      owner: ownerA.publicKey,
       amount: 1n,
     },
     tokenRecord: {
