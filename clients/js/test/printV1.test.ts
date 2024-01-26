@@ -10,6 +10,7 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import test from 'ava';
+import { printAsDelegate } from 'src/printHelpers';
 import {
   DigitalAsset,
   DigitalAssetWithToken,
@@ -294,8 +295,8 @@ test('it can delegate the authority to print a new edition', async (t) => {
   // When the delegate prints a new edition of the asset.
   const editionMint = generateSigner(umi);
   const editionOwner = generateSigner(umi);
-  await printV1(umi, {
-    masterTokenAccountOwner: originalOwner,
+  await printAsDelegate(umi, {
+    masterTokenAccountOwner: originalOwner.publicKey,
     masterEditionMint: originalMint.publicKey,
     editionMint,
     editionTokenAccountOwner: editionOwner.publicKey,
@@ -303,9 +304,7 @@ test('it can delegate the authority to print a new edition', async (t) => {
     tokenStandard: TokenStandard.NonFungible,
     masterTokenAccount: digitalAssetWithToken.token.publicKey,
     payer: delegate,
-  })
-    .addRemainingAccounts({ pubkey: holderDelegateRecord[0], isSigner: false, isWritable: true })
-    .sendAndConfirm(umi);
+  }).sendAndConfirm(umi);
 
   // Then the original NFT was updated.
   const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);
@@ -395,8 +394,8 @@ test('it can delegate multiple authorities to print new editions', async (t) => 
   // When the delegate prints a new edition of the asset.
   const editionMint0 = generateSigner(umi);
   const editionOwner0 = generateSigner(umi);
-  await printV1(umi, {
-    masterTokenAccountOwner: originalOwner,
+  await printAsDelegate(umi, {
+    masterTokenAccountOwner: originalOwner.publicKey,
     masterEditionMint: originalMint.publicKey,
     editionMint: editionMint0,
     editionTokenAccountOwner: editionOwner0.publicKey,
@@ -404,15 +403,13 @@ test('it can delegate multiple authorities to print new editions', async (t) => 
     tokenStandard: TokenStandard.NonFungible,
     masterTokenAccount: digitalAssetWithToken.token.publicKey,
     payer: delegate0,
-  })
-    .addRemainingAccounts({ pubkey: holderDelegateRecord0[0], isSigner: false, isWritable: true })
-    .sendAndConfirm(umi);
+  }).sendAndConfirm(umi);
 
   // When the delegate prints a new edition of the asset.
   const editionMint1 = generateSigner(umi);
   const editionOwner1 = generateSigner(umi);
-  await printV1(umi, {
-    masterTokenAccountOwner: originalOwner,
+  await printAsDelegate(umi, {
+    masterTokenAccountOwner: originalOwner.publicKey,
     masterEditionMint: originalMint.publicKey,
     editionMint: editionMint1,
     editionTokenAccountOwner: editionOwner1.publicKey,
@@ -420,9 +417,7 @@ test('it can delegate multiple authorities to print new editions', async (t) => 
     tokenStandard: TokenStandard.NonFungible,
     masterTokenAccount: digitalAssetWithToken.token.publicKey,
     payer: delegate1,
-  })
-    .addRemainingAccounts({ pubkey: holderDelegateRecord1[0], isSigner: false, isWritable: true })
-    .sendAndConfirm(umi);
+  }).sendAndConfirm(umi);
 
   // Then the original NFT was updated.
   const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);

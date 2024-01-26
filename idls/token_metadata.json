@@ -4560,7 +4560,8 @@
         {
           "name": "editionMintAuthority",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
+          "isOptionalSigner": true,
           "docs": [
             "Mint authority of new mint"
           ]
@@ -4601,7 +4602,8 @@
         {
           "name": "masterTokenAccountOwner",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
+          "isOptionalSigner": true,
           "docs": [
             "owner of token account containing master token"
           ]

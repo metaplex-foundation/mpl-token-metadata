@@ -22,7 +22,7 @@ pub struct Print {
     /// Token account of new token
     pub edition_token_account: solana_program::pubkey::Pubkey,
     /// Mint authority of new mint
-    pub edition_mint_authority: solana_program::pubkey::Pubkey,
+    pub edition_mint_authority: (solana_program::pubkey::Pubkey, bool),
     /// Token record account
     pub edition_token_record: Option<solana_program::pubkey::Pubkey>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
@@ -32,7 +32,7 @@ pub struct Print {
     /// payer
     pub payer: solana_program::pubkey::Pubkey,
     /// owner of token account containing master token
-    pub master_token_account_owner: solana_program::pubkey::Pubkey,
+    pub master_token_account_owner: (solana_program::pubkey::Pubkey, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: solana_program::pubkey::Pubkey,
     /// Master record metadata account
@@ -84,8 +84,8 @@ impl Print {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.edition_mint_authority,
-            true,
+            self.edition_mint_authority.0,
+            self.edition_mint_authority.1,
         ));
         if let Some(edition_token_record) = self.edition_token_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -110,8 +110,8 @@ impl Print {
             self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.master_token_account_owner,
-            true,
+            self.master_token_account_owner.0,
+            self.master_token_account_owner.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.master_token_account,
@@ -200,12 +200,12 @@ pub struct PrintBuilder {
     edition_mint: Option<solana_program::pubkey::Pubkey>,
     edition_token_account_owner: Option<solana_program::pubkey::Pubkey>,
     edition_token_account: Option<solana_program::pubkey::Pubkey>,
-    edition_mint_authority: Option<solana_program::pubkey::Pubkey>,
+    edition_mint_authority: Option<(solana_program::pubkey::Pubkey, bool)>,
     edition_token_record: Option<solana_program::pubkey::Pubkey>,
     master_edition: Option<solana_program::pubkey::Pubkey>,
     edition_marker_pda: Option<solana_program::pubkey::Pubkey>,
     payer: Option<solana_program::pubkey::Pubkey>,
-    master_token_account_owner: Option<solana_program::pubkey::Pubkey>,
+    master_token_account_owner: Option<(solana_program::pubkey::Pubkey, bool)>,
     master_token_account: Option<solana_program::pubkey::Pubkey>,
     master_metadata: Option<solana_program::pubkey::Pubkey>,
     update_authority: Option<solana_program::pubkey::Pubkey>,
@@ -265,8 +265,9 @@ impl PrintBuilder {
     pub fn edition_mint_authority(
         &mut self,
         edition_mint_authority: solana_program::pubkey::Pubkey,
+        as_signer: bool,
     ) -> &mut Self {
-        self.edition_mint_authority = Some(edition_mint_authority);
+        self.edition_mint_authority = Some((edition_mint_authority, as_signer));
         self
     }
     /// `[optional account]`
@@ -305,8 +306,9 @@ impl PrintBuilder {
     pub fn master_token_account_owner(
         &mut self,
         master_token_account_owner: solana_program::pubkey::Pubkey,
+        as_signer: bool,
     ) -> &mut Self {
-        self.master_token_account_owner = Some(master_token_account_owner);
+        self.master_token_account_owner = Some((master_token_account_owner, as_signer));
         self
     }
     /// token account containing token from master metadata mint
@@ -459,7 +461,7 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// Token account of new token
     pub edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Token record account
     pub edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
@@ -469,7 +471,7 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
-    pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+    pub master_token_account_owner: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
@@ -501,7 +503,7 @@ pub struct PrintCpi<'a, 'b> {
     /// Token account of new token
     pub edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Token record account
     pub edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
@@ -511,7 +513,7 @@ pub struct PrintCpi<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
-    pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+    pub master_token_account_owner: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
@@ -614,8 +616,8 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.edition_mint_authority.key,
-            true,
+            *self.edition_mint_authority.0.key,
+            self.edition_mint_authority.1,
         ));
         if let Some(edition_token_record) = self.edition_token_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -641,8 +643,8 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.master_token_account_owner.key,
-            true,
+            *self.master_token_account_owner.0.key,
+            self.master_token_account_owner.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.master_token_account.key,
@@ -695,14 +697,14 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         account_infos.push(self.edition_mint.clone());
         account_infos.push(self.edition_token_account_owner.clone());
         account_infos.push(self.edition_token_account.clone());
-        account_infos.push(self.edition_mint_authority.clone());
+        account_infos.push(self.edition_mint_authority.0.clone());
         if let Some(edition_token_record) = self.edition_token_record {
             account_infos.push(edition_token_record.clone());
         }
         account_infos.push(self.master_edition.clone());
         account_infos.push(self.edition_marker_pda.clone());
         account_infos.push(self.payer.clone());
-        account_infos.push(self.master_token_account_owner.clone());
+        account_infos.push(self.master_token_account_owner.0.clone());
         account_infos.push(self.master_token_account.clone());
         account_infos.push(self.master_metadata.clone());
         account_infos.push(self.update_authority.clone());
@@ -825,8 +827,9 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     pub fn edition_mint_authority(
         &mut self,
         edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.edition_mint_authority = Some(edition_mint_authority);
+        self.instruction.edition_mint_authority = Some((edition_mint_authority, as_signer));
         self
     }
     /// `[optional account]`
@@ -868,8 +871,9 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     pub fn master_token_account_owner(
         &mut self,
         master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.master_token_account_owner = Some(master_token_account_owner);
+        self.instruction.master_token_account_owner = Some((master_token_account_owner, as_signer));
         self
     }
     /// token account containing token from master metadata mint
@@ -1087,12 +1091,12 @@ struct PrintCpiBuilderInstruction<'a, 'b> {
     edition_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    edition_mint_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_mint_authority: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_marker_pda: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    master_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_token_account_owner: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     master_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
