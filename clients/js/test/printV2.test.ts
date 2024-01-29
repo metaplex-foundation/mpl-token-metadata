@@ -22,6 +22,7 @@ import {
   findMasterEditionPda,
   printSupply,
   printV1,
+  printV2,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
@@ -42,7 +43,7 @@ test('it can print a new edition from a NonFungible', async (t) => {
   // When we print a new edition of the asset.
   const editionMint = generateSigner(umi);
   const editionOwner = generateSigner(umi);
-  await printV1(umi, {
+  await printV2(umi, {
     masterTokenAccountOwner: originalOwner,
     masterEditionMint: originalMint.publicKey,
     editionMint,
@@ -299,16 +300,16 @@ test('it cannot print a new edition if the initialized edition mint account has 
 //   // When the delegate prints a new edition of the asset.
 //   const editionMint = generateSigner(umi);
 //   const editionOwner = generateSigner(umi);
-//   await printAsDelegate(umi, {
-//     masterTokenAccountOwner: originalOwner.publicKey,
-//     masterEditionMint: originalMint.publicKey,
-//     editionMint,
-//     editionTokenAccountOwner: editionOwner.publicKey,
-//     editionNumber: 1,
-//     tokenStandard: TokenStandard.NonFungible,
-//     masterTokenAccount: digitalAssetWithToken.token.publicKey,
-//     payer: delegate,
-//   }).sendAndConfirm(umi);
+//   // await printAsDelegate(umi, {
+//   //   masterTokenAccountOwner: originalOwner.publicKey,
+//   //   masterEditionMint: originalMint.publicKey,
+//   //   editionMint,
+//   //   editionTokenAccountOwner: editionOwner.publicKey,
+//   //   editionNumber: 1,
+//   //   tokenStandard: TokenStandard.NonFungible,
+//   //   masterTokenAccount: digitalAssetWithToken.token.publicKey,
+//   //   payer: delegate,
+//   // }).sendAndConfirm(umi);
 
 //   // Then the original NFT was updated.
 //   const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);
@@ -402,30 +403,30 @@ test('it cannot print a new edition if the initialized edition mint account has 
 //   // When the delegate prints a new edition of the asset.
 //   const editionMint0 = generateSigner(umi);
 //   const editionOwner0 = generateSigner(umi);
-//   await printAsDelegate(umi, {
-//     masterTokenAccountOwner: originalOwner.publicKey,
-//     masterEditionMint: originalMint.publicKey,
-//     editionMint: editionMint0,
-//     editionTokenAccountOwner: editionOwner0.publicKey,
-//     editionNumber: 1,
-//     tokenStandard: TokenStandard.NonFungible,
-//     masterTokenAccount: digitalAssetWithToken.token.publicKey,
-//     payer: delegate0,
-//   }).sendAndConfirm(umi);
+//   // await printAsDelegate(umi, {
+//   //   masterTokenAccountOwner: originalOwner.publicKey,
+//   //   masterEditionMint: originalMint.publicKey,
+//   //   editionMint: editionMint0,
+//   //   editionTokenAccountOwner: editionOwner0.publicKey,
+//   //   editionNumber: 1,
+//   //   tokenStandard: TokenStandard.NonFungible,
+//   //   masterTokenAccount: digitalAssetWithToken.token.publicKey,
+//   //   payer: delegate0,
+//   // }).sendAndConfirm(umi);
 
 //   // When the delegate prints a new edition of the asset.
 //   const editionMint1 = generateSigner(umi);
 //   const editionOwner1 = generateSigner(umi);
-//   await printAsDelegate(umi, {
-//     masterTokenAccountOwner: originalOwner.publicKey,
-//     masterEditionMint: originalMint.publicKey,
-//     editionMint: editionMint1,
-//     editionTokenAccountOwner: editionOwner1.publicKey,
-//     editionNumber: 2,
-//     tokenStandard: TokenStandard.NonFungible,
-//     masterTokenAccount: digitalAssetWithToken.token.publicKey,
-//     payer: delegate1,
-//   }).sendAndConfirm(umi);
+//   // await printAsDelegate(umi, {
+//   //   masterTokenAccountOwner: originalOwner.publicKey,
+//   //   masterEditionMint: originalMint.publicKey,
+//   //   editionMint: editionMint1,
+//   //   editionTokenAccountOwner: editionOwner1.publicKey,
+//   //   editionNumber: 2,
+//   //   tokenStandard: TokenStandard.NonFungible,
+//   //   masterTokenAccount: digitalAssetWithToken.token.publicKey,
+//   //   payer: delegate1,
+//   // }).sendAndConfirm(umi);
 
 //   // Then the original NFT was updated.
 //   const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);

@@ -806,18 +806,17 @@ pub enum MetadataInstruction {
 
     /// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token
     /// make a new Metadata + Edition that is a child of the master edition denoted by this authority token.
-    /// Account index 18, holder_delegate_record, is optional and only used for escrowless edition printing. It is fetched from the remaining accounts.
     #[account(0, writable, name="edition_metadata", desc="New Metadata key (pda of ['metadata', program id, mint id])")]
     #[account(1, writable, name="edition", desc="New Edition (pda of ['metadata', program id, mint id, 'edition'])")]
     #[account(2, writable, name="edition_mint", desc="Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY")]
     #[account(3, name="edition_token_account_owner", desc="Owner of the token account of new token")]
     #[account(4, writable, name="edition_token_account", desc="Token account of new token")]
-    #[account(5, optional_signer, name="edition_mint_authority", desc="Mint authority of new mint")]
+    #[account(5, signer, name="edition_mint_authority", desc="Mint authority of new mint")]
     #[account(6, optional, writable, name="edition_token_record", desc="Token record account")]
     #[account(7, writable, name="master_edition", desc="Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])")]
     #[account(8, writable, name="edition_marker_pda", desc="Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).")]
     #[account(9, signer, writable, name="payer", desc="payer")]
-    #[account(10, optional_signer, name="master_token_account_owner", desc="owner of token account containing master token")]
+    #[account(10, signer, name="master_token_account_owner", desc="owner of token account containing master token")]
     #[account(11, name="master_token_account", desc="token account containing token from master metadata mint")]
     #[account(12, name="master_metadata", desc="Master record metadata account")]
     #[account(13, name="update_authority", desc="The update authority of the master edition.")]
@@ -825,9 +824,34 @@ pub enum MetadataInstruction {
     #[account(15, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(16, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(17, name="system_program", desc="System program")]
-    // #[account(18, optional, name="holder_delegate_record", desc="The Delegate Record authorizing escrowless edition printing")]
     #[args(initialize_mint: bool)]
     Print(PrintArgs),
+
+    /// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token
+    /// make a new Metadata + Edition that is a child of the master edition denoted by this authority token.
+    /// An optional holder delegate can be used to print the edition without escrowing the master edition token.
+    #[account(0, signer, writable, name="authority", desc="The master edition holder or holder delegate")]
+    #[account(1, optional, name="holder_delegate_record", desc="The Delegate Record authorizing escrowless edition printing")]
+    #[account(2, writable, name="edition_metadata", desc="New Metadata key (pda of ['metadata', program id, mint id])")]
+    #[account(3, writable, name="edition", desc="New Edition (pda of ['metadata', program id, mint id, 'edition'])")]
+    #[account(4, writable, name="edition_mint", desc="Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY")]
+    #[account(5, name="edition_token_account_owner", desc="Owner of the token account of new token")]
+    #[account(6, writable, name="edition_token_account", desc="Token account of new token")]
+    #[account(7, optional_signer, name="edition_mint_authority", desc="Mint authority of new mint")]
+    #[account(8, optional, writable, name="edition_token_record", desc="Token record account")]
+    #[account(9, writable, name="master_edition", desc="Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])")]
+    #[account(10, writable, name="edition_marker_pda", desc="Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).")]
+    #[account(11, optional, name="master_token_account_owner", desc="owner of token account containing master token")]
+    #[account(12, name="master_token_account", desc="token account containing token from master metadata mint")]
+    #[account(13, name="master_metadata", desc="Master record metadata account")]
+    #[account(14, name="update_authority", desc="The update authority of the master edition.")]
+    #[account(15, signer, writable, name="payer", desc="payer")]
+    #[account(16, name="spl_token_program", desc="Token program")]
+    #[account(17, name="spl_ata_program", desc="SPL Associated Token Account program")]
+    #[account(18, name="sysvar_instructions", desc="Instructions sysvar account")]
+    #[account(19, name="system_program", desc="System program")]
+    #[args(initialize_mint: bool)]
+    PrintV2(PrintArgs),
 }
 
 pub struct Context<T> {

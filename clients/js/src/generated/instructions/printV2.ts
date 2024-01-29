@@ -6,7 +6,6 @@
  * @see https://github.com/metaplex-foundation/kinobi
  */
 
-import { findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
 import {
   Context,
   Pda,
@@ -20,55 +19,49 @@ import {
   Serializer,
   mapSerializer,
   struct,
-  u64,
   u8,
 } from '@metaplex-foundation/umi/serializers';
-import { findEditionMarkerFromEditionNumberPda } from '../../hooked';
-import {
-  findEditionMarkerV2Pda,
-  findMasterEditionPda,
-  findMetadataPda,
-  findTokenRecordPda,
-} from '../accounts';
 import {
   ResolvedAccount,
   ResolvedAccountsWithIndices,
-  expectPublicKey,
-  expectSome,
   getAccountMetasAndSigners,
 } from '../shared';
-import { TokenStandard, TokenStandardArgs } from '../types';
+import { PrintArgs, PrintArgsArgs, getPrintArgsSerializer } from '../types';
 
 // Accounts.
-export type PrintV1InstructionAccounts = {
+export type PrintV2InstructionAccounts = {
+  /** The master edition holder or holder delegate */
+  authority?: Signer;
+  /** The Delegate Record authorizing escrowless edition printing */
+  holderDelegateRecord?: PublicKey | Pda;
   /** New Metadata key (pda of ['metadata', program id, mint id]) */
-  editionMetadata?: PublicKey | Pda;
+  editionMetadata: PublicKey | Pda;
   /** New Edition (pda of ['metadata', program id, mint id, 'edition']) */
-  edition?: PublicKey | Pda;
+  edition: PublicKey | Pda;
   /** Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY */
-  editionMint: PublicKey | Pda | Signer;
+  editionMint: PublicKey | Pda;
   /** Owner of the token account of new token */
-  editionTokenAccountOwner?: PublicKey | Pda;
+  editionTokenAccountOwner: PublicKey | Pda;
   /** Token account of new token */
-  editionTokenAccount?: PublicKey | Pda;
+  editionTokenAccount: PublicKey | Pda;
   /** Mint authority of new mint */
-  editionMintAuthority?: Signer;
+  editionMintAuthority: PublicKey | Pda | Signer;
   /** Token record account */
   editionTokenRecord?: PublicKey | Pda;
   /** Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
-  masterEdition?: PublicKey | Pda;
+  masterEdition: PublicKey | Pda;
   /** Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE). */
-  editionMarkerPda?: PublicKey | Pda;
-  /** payer */
-  payer?: Signer;
+  editionMarkerPda: PublicKey | Pda;
   /** owner of token account containing master token */
-  masterTokenAccountOwner?: Signer;
+  masterTokenAccountOwner: PublicKey | Pda;
   /** token account containing token from master metadata mint */
-  masterTokenAccount?: PublicKey | Pda;
+  masterTokenAccount: PublicKey | Pda;
   /** Master record metadata account */
-  masterMetadata?: PublicKey | Pda;
+  masterMetadata: PublicKey | Pda;
   /** The update authority of the master edition. */
   updateAuthority?: PublicKey | Pda;
+  /** payer */
+  payer?: Signer;
   /** Token program */
   splTokenProgram?: PublicKey | Pda;
   /** SPL Associated Token Account program */
@@ -80,45 +73,36 @@ export type PrintV1InstructionAccounts = {
 };
 
 // Data.
-export type PrintV1InstructionData = {
+export type PrintV2InstructionData = {
   discriminator: number;
-  printV1Discriminator: number;
-  editionNumber: bigint;
+  printArgs: PrintArgs;
 };
 
-export type PrintV1InstructionDataArgs = { editionNumber: number | bigint };
+export type PrintV2InstructionDataArgs = { printArgs: PrintArgsArgs };
 
-export function getPrintV1InstructionDataSerializer(): Serializer<
-  PrintV1InstructionDataArgs,
-  PrintV1InstructionData
+export function getPrintV2InstructionDataSerializer(): Serializer<
+  PrintV2InstructionDataArgs,
+  PrintV2InstructionData
 > {
-  return mapSerializer<PrintV1InstructionDataArgs, any, PrintV1InstructionData>(
-    struct<PrintV1InstructionData>(
+  return mapSerializer<PrintV2InstructionDataArgs, any, PrintV2InstructionData>(
+    struct<PrintV2InstructionData>(
       [
         ['discriminator', u8()],
-        ['printV1Discriminator', u8()],
-        ['editionNumber', u64()],
+        ['printArgs', getPrintArgsSerializer()],
       ],
-      { description: 'PrintV1InstructionData' }
+      { description: 'PrintV2InstructionData' }
     ),
-    (value) => ({ ...value, discriminator: 55, printV1Discriminator: 0 })
-  ) as Serializer<PrintV1InstructionDataArgs, PrintV1InstructionData>;
+    (value) => ({ ...value, discriminator: 56 })
+  ) as Serializer<PrintV2InstructionDataArgs, PrintV2InstructionData>;
 }
 
-// Extra Args.
-export type PrintV1InstructionExtraArgs = {
-  masterEditionMint: PublicKey;
-  tokenStandard: TokenStandardArgs;
-};
-
 // Args.
-export type PrintV1InstructionArgs = PrintV1InstructionDataArgs &
-  PrintV1InstructionExtraArgs;
+export type PrintV2InstructionArgs = PrintV2InstructionDataArgs;
 
 // Instruction.
-export function printV1(
-  context: Pick<Context, 'eddsa' | 'identity' | 'payer' | 'programs'>,
-  input: PrintV1InstructionAccounts & PrintV1InstructionArgs
+export function printV2(
+  context: Pick<Context, 'identity' | 'payer' | 'programs'>,
+  input: PrintV2InstructionAccounts & PrintV2InstructionArgs
 ): TransactionBuilder {
   // Program ID.
   const programId = context.programs.getPublicKey(
@@ -128,179 +112,120 @@ export function printV1(
 
   // Accounts.
   const resolvedAccounts = {
-    editionMetadata: {
+    authority: {
       index: 0,
+      isWritable: true as boolean,
+      value: input.authority ?? null,
+    },
+    holderDelegateRecord: {
+      index: 1,
+      isWritable: false as boolean,
+      value: input.holderDelegateRecord ?? null,
+    },
+    editionMetadata: {
+      index: 2,
       isWritable: true as boolean,
       value: input.editionMetadata ?? null,
     },
     edition: {
-      index: 1,
+      index: 3,
       isWritable: true as boolean,
       value: input.edition ?? null,
     },
     editionMint: {
-      index: 2,
+      index: 4,
       isWritable: true as boolean,
       value: input.editionMint ?? null,
     },
     editionTokenAccountOwner: {
-      index: 3,
+      index: 5,
       isWritable: false as boolean,
       value: input.editionTokenAccountOwner ?? null,
     },
     editionTokenAccount: {
-      index: 4,
+      index: 6,
       isWritable: true as boolean,
       value: input.editionTokenAccount ?? null,
     },
     editionMintAuthority: {
-      index: 5,
+      index: 7,
       isWritable: false as boolean,
       value: input.editionMintAuthority ?? null,
     },
     editionTokenRecord: {
-      index: 6,
+      index: 8,
       isWritable: true as boolean,
       value: input.editionTokenRecord ?? null,
     },
     masterEdition: {
-      index: 7,
+      index: 9,
       isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
     editionMarkerPda: {
-      index: 8,
+      index: 10,
       isWritable: true as boolean,
       value: input.editionMarkerPda ?? null,
     },
-    payer: {
-      index: 9,
-      isWritable: true as boolean,
-      value: input.payer ?? null,
-    },
     masterTokenAccountOwner: {
-      index: 10,
+      index: 11,
       isWritable: false as boolean,
       value: input.masterTokenAccountOwner ?? null,
     },
     masterTokenAccount: {
-      index: 11,
+      index: 12,
       isWritable: false as boolean,
       value: input.masterTokenAccount ?? null,
     },
     masterMetadata: {
-      index: 12,
+      index: 13,
       isWritable: false as boolean,
       value: input.masterMetadata ?? null,
     },
     updateAuthority: {
-      index: 13,
+      index: 14,
       isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
+    payer: {
+      index: 15,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     splTokenProgram: {
-      index: 14,
+      index: 16,
       isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     splAtaProgram: {
-      index: 15,
+      index: 17,
       isWritable: false as boolean,
       value: input.splAtaProgram ?? null,
     },
     sysvarInstructions: {
-      index: 16,
+      index: 18,
       isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     systemProgram: {
-      index: 17,
+      index: 19,
       isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
-  const resolvedArgs: PrintV1InstructionArgs = { ...input };
+  const resolvedArgs: PrintV2InstructionArgs = { ...input };
 
   // Default values.
-  if (!resolvedAccounts.editionMetadata.value) {
-    resolvedAccounts.editionMetadata.value = findMetadataPda(context, {
-      mint: expectPublicKey(resolvedAccounts.editionMint.value),
-    });
-  }
-  if (!resolvedAccounts.edition.value) {
-    resolvedAccounts.edition.value = findMasterEditionPda(context, {
-      mint: expectPublicKey(resolvedAccounts.editionMint.value),
-    });
-  }
-  if (!resolvedAccounts.editionTokenAccountOwner.value) {
-    resolvedAccounts.editionTokenAccountOwner.value =
-      context.identity.publicKey;
-  }
-  if (!resolvedAccounts.editionTokenAccount.value) {
-    resolvedAccounts.editionTokenAccount.value = findAssociatedTokenPda(
-      context,
-      {
-        mint: expectPublicKey(resolvedAccounts.editionMint.value),
-        owner: expectPublicKey(resolvedAccounts.editionTokenAccountOwner.value),
-      }
-    );
-  }
-  if (!resolvedAccounts.masterTokenAccountOwner.value) {
-    resolvedAccounts.masterTokenAccountOwner.value = context.identity;
-  }
-  if (!resolvedAccounts.editionMintAuthority.value) {
-    resolvedAccounts.editionMintAuthority.value = expectSome(
-      resolvedAccounts.masterTokenAccountOwner.value
-    );
-  }
-  if (!resolvedAccounts.editionTokenRecord.value) {
-    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
-      resolvedAccounts.editionTokenRecord.value = findTokenRecordPda(context, {
-        mint: expectPublicKey(resolvedAccounts.editionMint.value),
-        token: expectPublicKey(resolvedAccounts.editionTokenAccount.value),
-      });
-    }
-  }
-  if (!resolvedAccounts.masterEdition.value) {
-    resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
-      mint: expectSome(resolvedArgs.masterEditionMint),
-    });
-  }
-  if (!resolvedAccounts.editionMarkerPda.value) {
-    if (resolvedArgs.tokenStandard === TokenStandard.ProgrammableNonFungible) {
-      resolvedAccounts.editionMarkerPda.value = findEditionMarkerV2Pda(
-        context,
-        { mint: expectSome(resolvedArgs.masterEditionMint) }
-      );
-    } else {
-      resolvedAccounts.editionMarkerPda.value =
-        findEditionMarkerFromEditionNumberPda(context, {
-          mint: expectSome(resolvedArgs.masterEditionMint),
-          editionNumber: expectSome(resolvedArgs.editionNumber),
-        });
-    }
-  }
-  if (!resolvedAccounts.payer.value) {
-    resolvedAccounts.payer.value = context.payer;
-  }
-  if (!resolvedAccounts.masterTokenAccount.value) {
-    resolvedAccounts.masterTokenAccount.value = findAssociatedTokenPda(
-      context,
-      {
-        mint: expectSome(resolvedArgs.masterEditionMint),
-        owner: expectPublicKey(resolvedAccounts.masterTokenAccountOwner.value),
-      }
-    );
-  }
-  if (!resolvedAccounts.masterMetadata.value) {
-    resolvedAccounts.masterMetadata.value = findMetadataPda(context, {
-      mint: expectSome(resolvedArgs.masterEditionMint),
-    });
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
   }
   if (!resolvedAccounts.updateAuthority.value) {
     resolvedAccounts.updateAuthority.value = context.identity.publicKey;
+  }
+  if (!resolvedAccounts.payer.value) {
+    resolvedAccounts.payer.value = context.payer;
   }
   if (!resolvedAccounts.splTokenProgram.value) {
     resolvedAccounts.splTokenProgram.value = context.programs.getPublicKey(
@@ -342,8 +267,8 @@ export function printV1(
   );
 
   // Data.
-  const data = getPrintV1InstructionDataSerializer().serialize(
-    resolvedArgs as PrintV1InstructionDataArgs
+  const data = getPrintV2InstructionDataSerializer().serialize(
+    resolvedArgs as PrintV2InstructionDataArgs
   );
 
   // Bytes Created On Chain.

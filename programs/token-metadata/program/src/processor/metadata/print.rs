@@ -7,7 +7,7 @@ use solana_program::{
 use crate::{
     assertions::assert_keys_equal,
     error::MetadataError,
-    instruction::{Context, Print, PrintArgs},
+    instruction::{Context, Print, PrintArgs, PrintV2},
     pda::find_token_record_account,
     state::{
         Metadata, TokenMetadataAccount, TokenStandard, MAX_EDITION_LEN,
@@ -26,21 +26,64 @@ pub fn print<'a>(
     accounts: &'a [AccountInfo<'a>],
     args: PrintArgs,
 ) -> ProgramResult {
-    let (context, holder_delegate_record_info) = match accounts.len() {
-        18 => (Print::to_context(accounts)?, None),
-        19 => (Print::to_context(&accounts[0..18])?, Some(&accounts[18])),
-        _ => return Err(ProgramError::NotEnoughAccountKeys),
-    };
-    // let context = Print::to_context(accounts)?;
+    let context = Print::to_context(accounts)?;
 
     match args {
-        PrintArgs::V1 { .. } => print_v1(program_id, context, args, holder_delegate_record_info),
+        PrintArgs::V1 { .. } => print_v1_v2(program_id, &context, args, None),
     }
 }
 
-fn print_v1<'a>(
+impl<'a> From<Context<PrintV2<'a>>> for Context<Print<'a>> {
+    fn from(ctx: Context<PrintV2<'a>>) -> Self {
+        Context::<Print> {
+            accounts: Print::<'a> {
+                edition_metadata_info: ctx.accounts.edition_metadata_info,
+                edition_info: ctx.accounts.edition_info,
+                edition_mint_info: ctx.accounts.edition_mint_info,
+                edition_token_account_owner_info: ctx.accounts.edition_token_account_owner_info,
+                edition_token_account_info: ctx.accounts.edition_token_account_info,
+                edition_mint_authority_info: ctx.accounts.edition_mint_authority_info,
+                edition_token_record_info: ctx.accounts.edition_token_record_info,
+                master_edition_info: ctx.accounts.master_edition_info,
+                edition_marker_pda_info: ctx.accounts.edition_marker_pda_info,
+                payer_info: ctx.accounts.payer_info,
+                master_token_account_owner_info: ctx
+                    .accounts
+                    .master_token_account_owner_info
+                    .unwrap_or(ctx.accounts.authority_info),
+                master_token_account_info: ctx.accounts.master_token_account_info,
+                master_metadata_info: ctx.accounts.master_metadata_info,
+                update_authority_info: ctx.accounts.update_authority_info,
+                spl_token_program_info: ctx.accounts.spl_token_program_info,
+                spl_ata_program_info: ctx.accounts.spl_ata_program_info,
+                sysvar_instructions_info: ctx.accounts.sysvar_instructions_info,
+                system_program_info: ctx.accounts.system_program_info,
+            },
+        }
+    }
+}
+
+pub fn print_v2<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
+    args: PrintArgs,
+) -> ProgramResult {
+    let context = PrintV2::to_context(accounts)?;
+    let holder_delegate_record_info = context.accounts.holder_delegate_record_info;
+
+    match args {
+        PrintArgs::V1 { .. } => print_v1_v2(
+            program_id,
+            &context.into(),
+            args,
+            holder_delegate_record_info,
+        ),
+    }
+}
+
+fn print_v1_v2<'a>(
     _program_id: &Pubkey,
-    ctx: Context<Print<'a>>,
+    ctx: &Context<Print<'a>>,
     args: PrintArgs,
     holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {

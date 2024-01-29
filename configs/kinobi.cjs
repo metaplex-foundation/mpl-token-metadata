@@ -610,7 +610,6 @@ kinobi.update(
     create: "createArgs",
     delegate: "delegateArgs",
     lock: "lockArgs",
-    migrate: "migrateArgs",
     mint: "mintArgs",
     print: "printArgs",
     revoke: "revokeArgs",
@@ -861,6 +860,81 @@ kinobi.update(
                 token: k.accountDefault("editionTokenAccount"),
               },
             }),
+          }),
+        },
+      },
+      args: {
+        edition: { name: "editionNumber" },
+        masterEditionMint: { type: k.publicKeyTypeNode() },
+        tokenStandard: { type: k.linkTypeNode("tokenStandard") },
+      },
+    },
+    printV2: {
+      accounts: {
+        // authority: { isSigner: true, isWritable: true, isOptional: false },
+        // holderDelegateRecord: { isSigner: false, isWritable: false, isOptional: true },
+        editionMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        edition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.accountDefault("editionMint") },
+          }),
+        },
+        editionMint: { isSigner: "either" },
+        editionTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        editionTokenAccount: {
+          defaultsTo: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
+        },
+        editionMintAuthority: {
+          defaultsTo: k.accountDefault("masterTokenAccountOwner"),
+        },
+        editionTokenRecord: {
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("tokenRecord", {
+              seeds: {
+                mint: k.accountDefault("editionMint"),
+                token: k.accountDefault("editionTokenAccount"),
+              },
+            }),
+          }),
+        },
+        masterEdition: {
+          defaultsTo: k.pdaDefault("masterEdition", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
+          }),
+        },
+        editionMarkerPda: {
+          defaultsTo: k.conditionalDefault("arg", "tokenStandard", {
+            value: k.vEnum("TokenStandard", "ProgrammableNonFungible"),
+            ifTrue: k.pdaDefault("editionMarkerV2", {
+              seeds: { mint: k.argDefault("masterEditionMint") },
+            }),
+            ifFalse: k.pdaDefault("editionMarkerFromEditionNumber", {
+              importFrom: "hooked",
+              seeds: {
+                mint: k.argDefault("masterEditionMint"),
+                editionNumber: k.argDefault("editionNumber"),
+              },
+            }),
+          }),
+        },
+        masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
+        masterTokenAccount: {
+          defaultsTo: k.pdaDefault("associatedToken", {
+            importFrom: "mplToolbox",
+            seeds: {
+              mint: k.argDefault("masterEditionMint"),
+              owner: k.accountDefault("masterTokenAccountOwner"),
+            },
+          }),
+        },
+        masterMetadata: {
+          defaultsTo: k.pdaDefault("metadata", {
+            seeds: { mint: k.argDefault("masterEditionMint") },
           }),
         },
       },

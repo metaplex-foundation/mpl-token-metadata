@@ -4560,8 +4560,7 @@
         {
           "name": "editionMintAuthority",
           "isMut": false,
-          "isSigner": false,
-          "isOptionalSigner": true,
+          "isSigner": true,
           "docs": [
             "Mint authority of new mint"
           ]
@@ -4602,8 +4601,7 @@
         {
           "name": "masterTokenAccountOwner",
           "isMut": false,
-          "isSigner": false,
-          "isOptionalSigner": true,
+          "isSigner": true,
           "docs": [
             "owner of token account containing master token"
           ]
@@ -4676,6 +4674,187 @@
       "discriminant": {
         "type": "u8",
         "value": 55
+      }
+    },
+    {
+      "name": "PrintV2",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The master edition holder or holder delegate"
+          ]
+        },
+        {
+          "name": "holderDelegateRecord",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "The Delegate Record authorizing escrowless edition printing"
+          ]
+        },
+        {
+          "name": "editionMetadata",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "New Metadata key (pda of ['metadata', program id, mint id])"
+          ]
+        },
+        {
+          "name": "edition",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "New Edition (pda of ['metadata', program id, mint id, 'edition'])"
+          ]
+        },
+        {
+          "name": "editionMint",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY"
+          ]
+        },
+        {
+          "name": "editionTokenAccountOwner",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Owner of the token account of new token"
+          ]
+        },
+        {
+          "name": "editionTokenAccount",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Token account of new token"
+          ]
+        },
+        {
+          "name": "editionMintAuthority",
+          "isMut": false,
+          "isSigner": false,
+          "isOptionalSigner": true,
+          "docs": [
+            "Mint authority of new mint"
+          ]
+        },
+        {
+          "name": "editionTokenRecord",
+          "isMut": true,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "Token record account"
+          ]
+        },
+        {
+          "name": "masterEdition",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])"
+          ]
+        },
+        {
+          "name": "editionMarkerPda",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE)."
+          ]
+        },
+        {
+          "name": "masterTokenAccountOwner",
+          "isMut": false,
+          "isSigner": false,
+          "isOptional": true,
+          "docs": [
+            "owner of token account containing master token"
+          ]
+        },
+        {
+          "name": "masterTokenAccount",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "token account containing token from master metadata mint"
+          ]
+        },
+        {
+          "name": "masterMetadata",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Master record metadata account"
+          ]
+        },
+        {
+          "name": "updateAuthority",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The update authority of the master edition."
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "payer"
+          ]
+        },
+        {
+          "name": "splTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token program"
+          ]
+        },
+        {
+          "name": "splAtaProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "SPL Associated Token Account program"
+          ]
+        },
+        {
+          "name": "sysvarInstructions",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Instructions sysvar account"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "printArgs",
+          "type": {
+            "defined": "PrintArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 56
       }
     }
   ],

@@ -10,7 +10,11 @@ use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
 /// Accounts.
-pub struct Print {
+pub struct PrintV2 {
+    /// The master edition holder or holder delegate
+    pub authority: solana_program::pubkey::Pubkey,
+    /// The Delegate Record authorizing escrowless edition printing
+    pub holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
     /// New Metadata key (pda of ['metadata', program id, mint id])
     pub edition_metadata: solana_program::pubkey::Pubkey,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
@@ -22,15 +26,13 @@ pub struct Print {
     /// Token account of new token
     pub edition_token_account: solana_program::pubkey::Pubkey,
     /// Mint authority of new mint
-    pub edition_mint_authority: solana_program::pubkey::Pubkey,
+    pub edition_mint_authority: (solana_program::pubkey::Pubkey, bool),
     /// Token record account
     pub edition_token_record: Option<solana_program::pubkey::Pubkey>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
     pub master_edition: solana_program::pubkey::Pubkey,
     /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
     pub edition_marker_pda: solana_program::pubkey::Pubkey,
-    /// payer
-    pub payer: solana_program::pubkey::Pubkey,
     /// owner of token account containing master token
     pub master_token_account_owner: solana_program::pubkey::Pubkey,
     /// token account containing token from master metadata mint
@@ -39,6 +41,8 @@ pub struct Print {
     pub master_metadata: solana_program::pubkey::Pubkey,
     /// The update authority of the master edition.
     pub update_authority: solana_program::pubkey::Pubkey,
+    /// payer
+    pub payer: solana_program::pubkey::Pubkey,
     /// Token program
     pub spl_token_program: solana_program::pubkey::Pubkey,
     /// SPL Associated Token Account program
@@ -49,20 +53,35 @@ pub struct Print {
     pub system_program: solana_program::pubkey::Pubkey,
 }
 
-impl Print {
+impl PrintV2 {
     pub fn instruction(
         &self,
-        args: PrintInstructionArgs,
+        args: PrintV2InstructionArgs,
     ) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: PrintInstructionArgs,
+        args: PrintV2InstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(18 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(20 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.authority,
+            true,
+        ));
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                holder_delegate_record,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.edition_metadata,
             false,
@@ -84,8 +103,8 @@ impl Print {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.edition_mint_authority,
-            true,
+            self.edition_mint_authority.0,
+            self.edition_mint_authority.1,
         ));
         if let Some(edition_token_record) = self.edition_token_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -106,12 +125,9 @@ impl Print {
             self.edition_marker_pda,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            self.payer, true,
-        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.master_token_account_owner,
-            true,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.master_token_account,
@@ -124,6 +140,9 @@ impl Print {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.update_authority,
             false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.spl_token_program,
@@ -142,7 +161,7 @@ impl Print {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = PrintInstructionData::new().try_to_vec().unwrap();
+        let mut data = PrintV2InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -155,60 +174,64 @@ impl Print {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-struct PrintInstructionData {
+struct PrintV2InstructionData {
     discriminator: u8,
 }
 
-impl PrintInstructionData {
+impl PrintV2InstructionData {
     fn new() -> Self {
-        Self { discriminator: 55 }
+        Self { discriminator: 56 }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct PrintInstructionArgs {
+pub struct PrintV2InstructionArgs {
     pub print_args: PrintArgs,
 }
 
-/// Instruction builder for `Print`.
+/// Instruction builder for `PrintV2`.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable]` edition_metadata
-///   1. `[writable]` edition
-///   2. `[writable]` edition_mint
-///   3. `[]` edition_token_account_owner
-///   4. `[writable]` edition_token_account
-///   5. `[signer]` edition_mint_authority
-///   6. `[writable, optional]` edition_token_record
-///   7. `[writable]` master_edition
-///   8. `[writable]` edition_marker_pda
-///   9. `[writable, signer]` payer
-///   10. `[signer]` master_token_account_owner
-///   11. `[]` master_token_account
-///   12. `[]` master_metadata
-///   13. `[]` update_authority
-///   14. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
-///   15. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
-///   16. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
-///   17. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   0. `[writable, signer]` authority
+///   1. `[optional]` holder_delegate_record
+///   2. `[writable]` edition_metadata
+///   3. `[writable]` edition
+///   4. `[writable]` edition_mint
+///   5. `[]` edition_token_account_owner
+///   6. `[writable]` edition_token_account
+///   7. `[signer]` edition_mint_authority
+///   8. `[writable, optional]` edition_token_record
+///   9. `[writable]` master_edition
+///   10. `[writable]` edition_marker_pda
+///   11. `[]` master_token_account_owner
+///   12. `[]` master_token_account
+///   13. `[]` master_metadata
+///   14. `[]` update_authority
+///   15. `[writable, signer]` payer
+///   16. `[optional]` spl_token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   17. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   18. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   19. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
-pub struct PrintBuilder {
+pub struct PrintV2Builder {
+    authority: Option<solana_program::pubkey::Pubkey>,
+    holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
     edition_metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
     edition_mint: Option<solana_program::pubkey::Pubkey>,
     edition_token_account_owner: Option<solana_program::pubkey::Pubkey>,
     edition_token_account: Option<solana_program::pubkey::Pubkey>,
-    edition_mint_authority: Option<solana_program::pubkey::Pubkey>,
+    edition_mint_authority: Option<(solana_program::pubkey::Pubkey, bool)>,
     edition_token_record: Option<solana_program::pubkey::Pubkey>,
     master_edition: Option<solana_program::pubkey::Pubkey>,
     edition_marker_pda: Option<solana_program::pubkey::Pubkey>,
-    payer: Option<solana_program::pubkey::Pubkey>,
     master_token_account_owner: Option<solana_program::pubkey::Pubkey>,
     master_token_account: Option<solana_program::pubkey::Pubkey>,
     master_metadata: Option<solana_program::pubkey::Pubkey>,
     update_authority: Option<solana_program::pubkey::Pubkey>,
+    payer: Option<solana_program::pubkey::Pubkey>,
     spl_token_program: Option<solana_program::pubkey::Pubkey>,
     spl_ata_program: Option<solana_program::pubkey::Pubkey>,
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
@@ -217,9 +240,25 @@ pub struct PrintBuilder {
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl PrintBuilder {
+impl PrintV2Builder {
     pub fn new() -> Self {
         Self::default()
+    }
+    /// The master edition holder or holder delegate
+    #[inline(always)]
+    pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.authority = Some(authority);
+        self
+    }
+    /// `[optional account]`
+    /// The Delegate Record authorizing escrowless edition printing
+    #[inline(always)]
+    pub fn holder_delegate_record(
+        &mut self,
+        holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.holder_delegate_record = holder_delegate_record;
+        self
     }
     /// New Metadata key (pda of ['metadata', program id, mint id])
     #[inline(always)]
@@ -265,8 +304,9 @@ impl PrintBuilder {
     pub fn edition_mint_authority(
         &mut self,
         edition_mint_authority: solana_program::pubkey::Pubkey,
+        as_signer: bool,
     ) -> &mut Self {
-        self.edition_mint_authority = Some(edition_mint_authority);
+        self.edition_mint_authority = Some((edition_mint_authority, as_signer));
         self
     }
     /// `[optional account]`
@@ -292,12 +332,6 @@ impl PrintBuilder {
         edition_marker_pda: solana_program::pubkey::Pubkey,
     ) -> &mut Self {
         self.edition_marker_pda = Some(edition_marker_pda);
-        self
-    }
-    /// payer
-    #[inline(always)]
-    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.payer = Some(payer);
         self
     }
     /// owner of token account containing master token
@@ -334,6 +368,12 @@ impl PrintBuilder {
         update_authority: solana_program::pubkey::Pubkey,
     ) -> &mut Self {
         self.update_authority = Some(update_authority);
+        self
+    }
+    /// payer
+    #[inline(always)]
+    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.payer = Some(payer);
         self
     }
     /// `[optional account, default to 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']`
@@ -398,7 +438,9 @@ impl PrintBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = Print {
+        let accounts = PrintV2 {
+            authority: self.authority.expect("authority is not set"),
+            holder_delegate_record: self.holder_delegate_record,
             edition_metadata: self.edition_metadata.expect("edition_metadata is not set"),
             edition: self.edition.expect("edition is not set"),
             edition_mint: self.edition_mint.expect("edition_mint is not set"),
@@ -416,7 +458,6 @@ impl PrintBuilder {
             edition_marker_pda: self
                 .edition_marker_pda
                 .expect("edition_marker_pda is not set"),
-            payer: self.payer.expect("payer is not set"),
             master_token_account_owner: self
                 .master_token_account_owner
                 .expect("master_token_account_owner is not set"),
@@ -425,6 +466,7 @@ impl PrintBuilder {
                 .expect("master_token_account is not set"),
             master_metadata: self.master_metadata.expect("master_metadata is not set"),
             update_authority: self.update_authority.expect("update_authority is not set"),
+            payer: self.payer.expect("payer is not set"),
             spl_token_program: self.spl_token_program.unwrap_or(solana_program::pubkey!(
                 "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
             )),
@@ -438,7 +480,7 @@ impl PrintBuilder {
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
         };
-        let args = PrintInstructionArgs {
+        let args = PrintV2InstructionArgs {
             print_args: self.print_args.clone().expect("print_args is not set"),
         };
 
@@ -446,8 +488,12 @@ impl PrintBuilder {
     }
 }
 
-/// `print` CPI accounts.
-pub struct PrintCpiAccounts<'a, 'b> {
+/// `print_v2` CPI accounts.
+pub struct PrintV2CpiAccounts<'a, 'b> {
+    /// The master edition holder or holder delegate
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The Delegate Record authorizing escrowless edition printing
+    pub holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// New Metadata key (pda of ['metadata', program id, mint id])
     pub edition_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
@@ -459,15 +505,13 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// Token account of new token
     pub edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Token record account
     pub edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
     pub master_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
     pub edition_marker_pda: &'b solana_program::account_info::AccountInfo<'a>,
-    /// payer
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
     pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// token account containing token from master metadata mint
@@ -476,6 +520,8 @@ pub struct PrintCpiAccounts<'a, 'b> {
     pub master_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// The update authority of the master edition.
     pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// payer
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
     pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Associated Token Account program
@@ -486,10 +532,14 @@ pub struct PrintCpiAccounts<'a, 'b> {
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
-/// `print` CPI instruction.
-pub struct PrintCpi<'a, 'b> {
+/// `print_v2` CPI instruction.
+pub struct PrintV2Cpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The master edition holder or holder delegate
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The Delegate Record authorizing escrowless edition printing
+    pub holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// New Metadata key (pda of ['metadata', program id, mint id])
     pub edition_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
@@ -501,15 +551,13 @@ pub struct PrintCpi<'a, 'b> {
     /// Token account of new token
     pub edition_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint authority of new mint
-    pub edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint_authority: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Token record account
     pub edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])
     pub master_edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).
     pub edition_marker_pda: &'b solana_program::account_info::AccountInfo<'a>,
-    /// payer
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
     pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// token account containing token from master metadata mint
@@ -518,6 +566,8 @@ pub struct PrintCpi<'a, 'b> {
     pub master_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// The update authority of the master edition.
     pub update_authority: &'b solana_program::account_info::AccountInfo<'a>,
+    /// payer
+    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token program
     pub spl_token_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// SPL Associated Token Account program
@@ -527,17 +577,19 @@ pub struct PrintCpi<'a, 'b> {
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
     /// The arguments for the instruction.
-    pub __args: PrintInstructionArgs,
+    pub __args: PrintV2InstructionArgs,
 }
 
-impl<'a, 'b> PrintCpi<'a, 'b> {
+impl<'a, 'b> PrintV2Cpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: PrintCpiAccounts<'a, 'b>,
-        args: PrintInstructionArgs,
+        accounts: PrintV2CpiAccounts<'a, 'b>,
+        args: PrintV2InstructionArgs,
     ) -> Self {
         Self {
             __program: program,
+            authority: accounts.authority,
+            holder_delegate_record: accounts.holder_delegate_record,
             edition_metadata: accounts.edition_metadata,
             edition: accounts.edition,
             edition_mint: accounts.edition_mint,
@@ -547,11 +599,11 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             edition_token_record: accounts.edition_token_record,
             master_edition: accounts.master_edition,
             edition_marker_pda: accounts.edition_marker_pda,
-            payer: accounts.payer,
             master_token_account_owner: accounts.master_token_account_owner,
             master_token_account: accounts.master_token_account,
             master_metadata: accounts.master_metadata,
             update_authority: accounts.update_authority,
+            payer: accounts.payer,
             spl_token_program: accounts.spl_token_program,
             spl_ata_program: accounts.spl_ata_program,
             sysvar_instructions: accounts.sysvar_instructions,
@@ -592,7 +644,22 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(18 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(20 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.authority.key,
+            true,
+        ));
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *holder_delegate_record.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.edition_metadata.key,
             false,
@@ -614,8 +681,8 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.edition_mint_authority.key,
-            true,
+            *self.edition_mint_authority.0.key,
+            self.edition_mint_authority.1,
         ));
         if let Some(edition_token_record) = self.edition_token_record {
             accounts.push(solana_program::instruction::AccountMeta::new(
@@ -636,13 +703,9 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             *self.edition_marker_pda.key,
             false,
         ));
-        accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.payer.key,
-            true,
-        ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.master_token_account_owner.key,
-            true,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.master_token_account.key,
@@ -655,6 +718,10 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.update_authority.key,
             false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.payer.key,
+            true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.spl_token_program.key,
@@ -679,7 +746,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = PrintInstructionData::new().try_to_vec().unwrap();
+        let mut data = PrintV2InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -688,24 +755,28 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(18 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(20 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
+        account_infos.push(self.authority.clone());
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            account_infos.push(holder_delegate_record.clone());
+        }
         account_infos.push(self.edition_metadata.clone());
         account_infos.push(self.edition.clone());
         account_infos.push(self.edition_mint.clone());
         account_infos.push(self.edition_token_account_owner.clone());
         account_infos.push(self.edition_token_account.clone());
-        account_infos.push(self.edition_mint_authority.clone());
+        account_infos.push(self.edition_mint_authority.0.clone());
         if let Some(edition_token_record) = self.edition_token_record {
             account_infos.push(edition_token_record.clone());
         }
         account_infos.push(self.master_edition.clone());
         account_infos.push(self.edition_marker_pda.clone());
-        account_infos.push(self.payer.clone());
         account_infos.push(self.master_token_account_owner.clone());
         account_infos.push(self.master_token_account.clone());
         account_infos.push(self.master_metadata.clone());
         account_infos.push(self.update_authority.clone());
+        account_infos.push(self.payer.clone());
         account_infos.push(self.spl_token_program.clone());
         account_infos.push(self.spl_ata_program.clone());
         account_infos.push(self.sysvar_instructions.clone());
@@ -722,36 +793,40 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `Print` via CPI.
+/// Instruction builder for `PrintV2` via CPI.
 ///
 /// ### Accounts:
 ///
-///   0. `[writable]` edition_metadata
-///   1. `[writable]` edition
-///   2. `[writable]` edition_mint
-///   3. `[]` edition_token_account_owner
-///   4. `[writable]` edition_token_account
-///   5. `[signer]` edition_mint_authority
-///   6. `[writable, optional]` edition_token_record
-///   7. `[writable]` master_edition
-///   8. `[writable]` edition_marker_pda
-///   9. `[writable, signer]` payer
-///   10. `[signer]` master_token_account_owner
-///   11. `[]` master_token_account
-///   12. `[]` master_metadata
-///   13. `[]` update_authority
-///   14. `[]` spl_token_program
-///   15. `[]` spl_ata_program
-///   16. `[]` sysvar_instructions
-///   17. `[]` system_program
-pub struct PrintCpiBuilder<'a, 'b> {
-    instruction: Box<PrintCpiBuilderInstruction<'a, 'b>>,
+///   0. `[writable, signer]` authority
+///   1. `[optional]` holder_delegate_record
+///   2. `[writable]` edition_metadata
+///   3. `[writable]` edition
+///   4. `[writable]` edition_mint
+///   5. `[]` edition_token_account_owner
+///   6. `[writable]` edition_token_account
+///   7. `[signer]` edition_mint_authority
+///   8. `[writable, optional]` edition_token_record
+///   9. `[writable]` master_edition
+///   10. `[writable]` edition_marker_pda
+///   11. `[]` master_token_account_owner
+///   12. `[]` master_token_account
+///   13. `[]` master_metadata
+///   14. `[]` update_authority
+///   15. `[writable, signer]` payer
+///   16. `[]` spl_token_program
+///   17. `[]` spl_ata_program
+///   18. `[]` sysvar_instructions
+///   19. `[]` system_program
+pub struct PrintV2CpiBuilder<'a, 'b> {
+    instruction: Box<PrintV2CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
+impl<'a, 'b> PrintV2CpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(PrintCpiBuilderInstruction {
+        let instruction = Box::new(PrintV2CpiBuilderInstruction {
             __program: program,
+            authority: None,
+            holder_delegate_record: None,
             edition_metadata: None,
             edition: None,
             edition_mint: None,
@@ -761,11 +836,11 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
             edition_token_record: None,
             master_edition: None,
             edition_marker_pda: None,
-            payer: None,
             master_token_account_owner: None,
             master_token_account: None,
             master_metadata: None,
             update_authority: None,
+            payer: None,
             spl_token_program: None,
             spl_ata_program: None,
             sysvar_instructions: None,
@@ -774,6 +849,25 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
+    }
+    /// The master edition holder or holder delegate
+    #[inline(always)]
+    pub fn authority(
+        &mut self,
+        authority: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.authority = Some(authority);
+        self
+    }
+    /// `[optional account]`
+    /// The Delegate Record authorizing escrowless edition printing
+    #[inline(always)]
+    pub fn holder_delegate_record(
+        &mut self,
+        holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.holder_delegate_record = holder_delegate_record;
+        self
     }
     /// New Metadata key (pda of ['metadata', program id, mint id])
     #[inline(always)]
@@ -825,8 +919,9 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     pub fn edition_mint_authority(
         &mut self,
         edition_mint_authority: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.edition_mint_authority = Some(edition_mint_authority);
+        self.instruction.edition_mint_authority = Some((edition_mint_authority, as_signer));
         self
     }
     /// `[optional account]`
@@ -855,12 +950,6 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         edition_marker_pda: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.edition_marker_pda = Some(edition_marker_pda);
-        self
-    }
-    /// payer
-    #[inline(always)]
-    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.payer = Some(payer);
         self
     }
     /// owner of token account containing master token
@@ -897,6 +986,12 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         update_authority: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
         self.instruction.update_authority = Some(update_authority);
+        self
+    }
+    /// payer
+    #[inline(always)]
+    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
+        self.instruction.payer = Some(payer);
         self
     }
     /// Token program
@@ -981,15 +1076,19 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = PrintInstructionArgs {
+        let args = PrintV2InstructionArgs {
             print_args: self
                 .instruction
                 .print_args
                 .clone()
                 .expect("print_args is not set"),
         };
-        let instruction = PrintCpi {
+        let instruction = PrintV2Cpi {
             __program: self.instruction.__program,
+
+            authority: self.instruction.authority.expect("authority is not set"),
+
+            holder_delegate_record: self.instruction.holder_delegate_record,
 
             edition_metadata: self
                 .instruction
@@ -1030,8 +1129,6 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
                 .edition_marker_pda
                 .expect("edition_marker_pda is not set"),
 
-            payer: self.instruction.payer.expect("payer is not set"),
-
             master_token_account_owner: self
                 .instruction
                 .master_token_account_owner
@@ -1051,6 +1148,8 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
                 .instruction
                 .update_authority
                 .expect("update_authority is not set"),
+
+            payer: self.instruction.payer.expect("payer is not set"),
 
             spl_token_program: self
                 .instruction
@@ -1080,22 +1179,24 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     }
 }
 
-struct PrintCpiBuilderInstruction<'a, 'b> {
+struct PrintV2CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    edition_mint_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_mint_authority: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     edition_token_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_marker_pda: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     spl_token_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     spl_ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,

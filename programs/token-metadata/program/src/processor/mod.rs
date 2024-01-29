@@ -165,6 +165,10 @@ pub fn process_instruction<'a>(
             msg!("IX: Print");
             metadata::print(program_id, accounts, args)
         }
+        MetadataInstruction::PrintV2(args) => {
+            msg!("IX: PrintV2");
+            metadata::print_v2(program_id, accounts, args)
+        }
         _ => {
             // pNFT accounts and SPL Token-2022 program can only be used by the "new" API; before
             // forwarding the transaction to the "legacy" processor we determine whether we are
