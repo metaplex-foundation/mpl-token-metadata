@@ -592,6 +592,21 @@ pub enum MplTokenMetadataError {
     /// 193 (0xC1) - Cannot change the update authority with a delegate
     #[error("Cannot change the update authority with a delegate")]
     CannotChangeUpdateAuthorityWithDelegate,
+    /// 194 (0xC2) - Invalid mint extension type
+    #[error("Invalid mint extension type")]
+    InvalidMintExtensionType,
+    /// 195 (0xC3) - Invalid mint close authority
+    #[error("Invalid mint close authority")]
+    InvalidMintCloseAuthority,
+    /// 196 (0xC4) - Invalid metadata pointer
+    #[error("Invalid metadata pointer")]
+    InvalidMetadataPointer,
+    /// 197 (0xC5) - Invalid token extension type
+    #[error("Invalid token extension type")]
+    InvalidTokenExtensionType,
+    /// 198 (0xC6) - Missing immutable owner extension
+    #[error("Missing immutable owner extension")]
+    MissingImmutableOwnerExtension,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

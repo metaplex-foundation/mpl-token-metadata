@@ -158,6 +158,20 @@ kinobi.update(
           isSigner: "either",
           defaultsTo: k.accountDefault("authority"),
         },
+        splTokenProgram: {
+          defaultsTo: k.conditionalResolverDefault(
+            k.resolverDefault("resolveIsNonFungibleOrIsMintSigner", [
+              k.dependsOnAccount("mint"),
+              k.dependsOnArg("tokenStandard"),
+            ]),
+            {
+              ifTrue: k.programDefault(
+                "splToken",
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+              ),
+            }
+          ),
+        },
       },
     },
     mint: {
@@ -917,5 +931,6 @@ kinobi.accept(
   new k.RenderRustVisitor(rustDir, {
     formatCode: true,
     crateFolder: crateDir,
+    renderParentInstructions: true,
   })
 );

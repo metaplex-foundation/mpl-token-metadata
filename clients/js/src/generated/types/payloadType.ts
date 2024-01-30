@@ -18,24 +18,24 @@ import {
   u64,
 } from '@metaplex-foundation/umi/serializers';
 import {
-  LeafInfo,
-  LeafInfoArgs,
+  ProofInfo,
+  ProofInfoArgs,
   SeedsVec,
   SeedsVecArgs,
-  getLeafInfoSerializer,
+  getProofInfoSerializer,
   getSeedsVecSerializer,
 } from '.';
 
 export type PayloadType =
   | { __kind: 'Pubkey'; fields: [PublicKey] }
   | { __kind: 'Seeds'; fields: [SeedsVec] }
-  | { __kind: 'MerkleProof'; fields: [LeafInfo] }
+  | { __kind: 'MerkleProof'; fields: [ProofInfo] }
   | { __kind: 'Number'; fields: [bigint] };
 
 export type PayloadTypeArgs =
   | { __kind: 'Pubkey'; fields: [PublicKey] }
   | { __kind: 'Seeds'; fields: [SeedsVecArgs] }
-  | { __kind: 'MerkleProof'; fields: [LeafInfoArgs] }
+  | { __kind: 'MerkleProof'; fields: [ProofInfoArgs] }
   | { __kind: 'Number'; fields: [number | bigint] };
 
 export function getPayloadTypeSerializer(): Serializer<
@@ -59,7 +59,7 @@ export function getPayloadTypeSerializer(): Serializer<
       [
         'MerkleProof',
         struct<GetDataEnumKindContent<PayloadType, 'MerkleProof'>>([
-          ['fields', tuple([getLeafInfoSerializer()])],
+          ['fields', tuple([getProofInfoSerializer()])],
         ]),
       ],
       [

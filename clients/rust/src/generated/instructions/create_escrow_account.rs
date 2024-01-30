@@ -37,7 +37,7 @@ impl CreateEscrowAccount {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -75,9 +75,7 @@ impl CreateEscrowAccount {
                 authority, true,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let data = CreateEscrowAccountInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -101,7 +99,19 @@ impl CreateEscrowAccountInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `CreateEscrowAccount`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` escrow
+///   1. `[writable]` metadata
+///   2. `[]` mint
+///   3. `[]` token_account
+///   4. `[]` edition
+///   5. `[writable, signer]` payer
+///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   7. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   8. `[signer, optional]` authority
 #[derive(Default)]
 pub struct CreateEscrowAccountBuilder {
     escrow: Option<solana_program::pubkey::Pubkey>,
@@ -113,7 +123,7 @@ pub struct CreateEscrowAccountBuilder {
     system_program: Option<solana_program::pubkey::Pubkey>,
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
     authority: Option<solana_program::pubkey::Pubkey>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl CreateEscrowAccountBuilder {
@@ -180,13 +190,21 @@ impl CreateEscrowAccountBuilder {
         self.authority = authority;
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -283,7 +301,11 @@ impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -299,7 +321,11 @@ impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(9 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -340,9 +366,13 @@ impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
                 true,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let data = CreateEscrowAccountInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -365,9 +395,9 @@ impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
         if let Some(authority) = self.authority {
             account_infos.push(authority.clone());
         }
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -377,7 +407,19 @@ impl<'a, 'b> CreateEscrowAccountCpi<'a, 'b> {
     }
 }
 
-/// `create_escrow_account` CPI instruction builder.
+/// Instruction builder for `CreateEscrowAccount` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` escrow
+///   1. `[writable]` metadata
+///   2. `[]` mint
+///   3. `[]` token_account
+///   4. `[]` edition
+///   5. `[writable, signer]` payer
+///   6. `[]` system_program
+///   7. `[]` sysvar_instructions
+///   8. `[signer, optional]` authority
 pub struct CreateEscrowAccountCpiBuilder<'a, 'b> {
     instruction: Box<CreateEscrowAccountCpiBuilderInstruction<'a, 'b>>,
 }
@@ -475,18 +517,31 @@ impl<'a, 'b> CreateEscrowAccountCpiBuilder<'a, 'b> {
         self.instruction.authority = authority;
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -551,5 +606,10 @@ struct CreateEscrowAccountCpiBuilderInstruction<'a, 'b> {
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }

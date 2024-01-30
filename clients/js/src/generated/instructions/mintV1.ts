@@ -137,63 +137,79 @@ export function mintV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    token: { index: 0, isWritable: true, value: input.token ?? null },
+  const resolvedAccounts = {
+    token: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
     tokenOwner: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenOwner ?? null,
     },
-    metadata: { index: 2, isWritable: false, value: input.metadata ?? null },
+    metadata: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
     masterEdition: {
       index: 3,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
     tokenRecord: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenRecord ?? null,
     },
-    mint: { index: 5, isWritable: true, value: input.mint ?? null },
-    authority: { index: 6, isWritable: false, value: input.authority ?? null },
+    mint: { index: 5, isWritable: true as boolean, value: input.mint ?? null },
+    authority: {
+      index: 6,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
     delegateRecord: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.delegateRecord ?? null,
     },
-    payer: { index: 8, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 8,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     systemProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     splAtaProgram: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splAtaProgram ?? null,
     },
     authorizationRulesProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRulesProgram ?? null,
     },
     authorizationRules: {
       index: 14,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: MintV1InstructionArgs = { ...input };

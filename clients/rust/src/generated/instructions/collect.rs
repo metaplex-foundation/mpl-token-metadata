@@ -12,8 +12,8 @@ use borsh::BorshSerialize;
 pub struct Collect {
     /// Authority to collect fees
     pub authority: solana_program::pubkey::Pubkey,
-    /// PDA to retrieve fees from
-    pub pda_account: solana_program::pubkey::Pubkey,
+    /// The account to transfer collected fees to
+    pub recipient: solana_program::pubkey::Pubkey,
 }
 
 impl Collect {
@@ -23,7 +23,7 @@ impl Collect {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -31,12 +31,10 @@ impl Collect {
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.pda_account,
+            self.recipient,
             false,
         ));
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let data = CollectInstructionData::new().try_to_vec().unwrap();
 
         solana_program::instruction::Instruction {
@@ -58,12 +56,17 @@ impl CollectInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `Collect`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[]` recipient
 #[derive(Default)]
 pub struct CollectBuilder {
     authority: Option<solana_program::pubkey::Pubkey>,
-    pda_account: Option<solana_program::pubkey::Pubkey>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    recipient: Option<solana_program::pubkey::Pubkey>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl CollectBuilder {
@@ -76,19 +79,27 @@ impl CollectBuilder {
         self.authority = Some(authority);
         self
     }
-    /// PDA to retrieve fees from
+    /// The account to transfer collected fees to
     #[inline(always)]
-    pub fn pda_account(&mut self, pda_account: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.pda_account = Some(pda_account);
+    pub fn recipient(&mut self, recipient: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.recipient = Some(recipient);
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -96,7 +107,7 @@ impl CollectBuilder {
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
         let accounts = Collect {
             authority: self.authority.expect("authority is not set"),
-            pda_account: self.pda_account.expect("pda_account is not set"),
+            recipient: self.recipient.expect("recipient is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
@@ -107,8 +118,8 @@ impl CollectBuilder {
 pub struct CollectCpiAccounts<'a, 'b> {
     /// Authority to collect fees
     pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// PDA to retrieve fees from
-    pub pda_account: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The account to transfer collected fees to
+    pub recipient: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `collect` CPI instruction.
@@ -117,8 +128,8 @@ pub struct CollectCpi<'a, 'b> {
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// Authority to collect fees
     pub authority: &'b solana_program::account_info::AccountInfo<'a>,
-    /// PDA to retrieve fees from
-    pub pda_account: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The account to transfer collected fees to
+    pub recipient: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 impl<'a, 'b> CollectCpi<'a, 'b> {
@@ -129,7 +140,7 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
         Self {
             __program: program,
             authority: accounts.authority,
-            pda_account: accounts.pda_account,
+            recipient: accounts.recipient,
         }
     }
     #[inline(always)]
@@ -139,7 +150,11 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -155,7 +170,11 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(2 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -163,12 +182,16 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.pda_account.key,
+            *self.recipient.key,
             false,
         ));
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let data = CollectInstructionData::new().try_to_vec().unwrap();
 
         let instruction = solana_program::instruction::Instruction {
@@ -179,10 +202,10 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
         let mut account_infos = Vec::with_capacity(2 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.authority.clone());
-        account_infos.push(self.pda_account.clone());
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        account_infos.push(self.recipient.clone());
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -192,7 +215,12 @@ impl<'a, 'b> CollectCpi<'a, 'b> {
     }
 }
 
-/// `collect` CPI instruction builder.
+/// Instruction builder for `Collect` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[]` recipient
 pub struct CollectCpiBuilder<'a, 'b> {
     instruction: Box<CollectCpiBuilderInstruction<'a, 'b>>,
 }
@@ -202,7 +230,7 @@ impl<'a, 'b> CollectCpiBuilder<'a, 'b> {
         let instruction = Box::new(CollectCpiBuilderInstruction {
             __program: program,
             authority: None,
-            pda_account: None,
+            recipient: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -216,27 +244,40 @@ impl<'a, 'b> CollectCpiBuilder<'a, 'b> {
         self.instruction.authority = Some(authority);
         self
     }
-    /// PDA to retrieve fees from
+    /// The account to transfer collected fees to
     #[inline(always)]
-    pub fn pda_account(
+    pub fn recipient(
         &mut self,
-        pda_account: &'b solana_program::account_info::AccountInfo<'a>,
+        recipient: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.pda_account = Some(pda_account);
+        self.instruction.recipient = Some(recipient);
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -258,10 +299,7 @@ impl<'a, 'b> CollectCpiBuilder<'a, 'b> {
 
             authority: self.instruction.authority.expect("authority is not set"),
 
-            pda_account: self
-                .instruction
-                .pda_account
-                .expect("pda_account is not set"),
+            recipient: self.instruction.recipient.expect("recipient is not set"),
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -273,6 +311,11 @@ impl<'a, 'b> CollectCpiBuilder<'a, 'b> {
 struct CollectCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    pda_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    recipient: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }

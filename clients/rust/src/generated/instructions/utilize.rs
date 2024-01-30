@@ -45,7 +45,7 @@ impl Utilize {
     pub fn instruction_with_remaining_accounts(
         &self,
         args: UtilizeInstructionArgs,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -92,9 +92,7 @@ impl Utilize {
                 burner, false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -124,7 +122,21 @@ pub struct UtilizeInstructionArgs {
     pub number_of_uses: u64,
 }
 
-/// Instruction builder.
+/// Instruction builder for `Utilize`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` token_account
+///   2. `[writable]` mint
+///   3. `[writable, signer]` use_authority
+///   4. `[]` owner
+///   5. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   6. `[optional]` ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` rent (default to `SysvarRent111111111111111111111111111111111`)
+///   9. `[writable, optional]` use_authority_record
+///   10. `[optional]` burner
 #[derive(Default)]
 pub struct UtilizeBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -139,7 +151,7 @@ pub struct UtilizeBuilder {
     use_authority_record: Option<solana_program::pubkey::Pubkey>,
     burner: Option<solana_program::pubkey::Pubkey>,
     number_of_uses: Option<u64>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl UtilizeBuilder {
@@ -226,13 +238,21 @@ impl UtilizeBuilder {
         self.number_of_uses = Some(number_of_uses);
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -355,7 +375,11 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -371,7 +395,11 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -422,9 +450,13 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
                 false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let mut data = UtilizeInstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
@@ -451,9 +483,9 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
         if let Some(burner) = self.burner {
             account_infos.push(burner.clone());
         }
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -463,7 +495,21 @@ impl<'a, 'b> UtilizeCpi<'a, 'b> {
     }
 }
 
-/// `utilize` CPI instruction builder.
+/// Instruction builder for `Utilize` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` token_account
+///   2. `[writable]` mint
+///   3. `[writable, signer]` use_authority
+///   4. `[]` owner
+///   5. `[]` token_program
+///   6. `[]` ata_program
+///   7. `[]` system_program
+///   8. `[]` rent
+///   9. `[writable, optional]` use_authority_record
+///   10. `[optional]` burner
 pub struct UtilizeCpiBuilder<'a, 'b> {
     instruction: Box<UtilizeCpiBuilderInstruction<'a, 'b>>,
 }
@@ -585,18 +631,31 @@ impl<'a, 'b> UtilizeCpiBuilder<'a, 'b> {
         self.instruction.number_of_uses = Some(number_of_uses);
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -682,5 +741,10 @@ struct UtilizeCpiBuilderInstruction<'a, 'b> {
     use_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     burner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     number_of_uses: Option<u64>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }

@@ -3,6 +3,7 @@ import {
   ACCOUNT_HEADER_SIZE,
   Context,
   Option,
+  isSigner,
   none,
   some,
 } from '@metaplex-foundation/umi';
@@ -11,7 +12,6 @@ import {
   CollectionDetailsArgs,
   CreatorArgs,
   PrintSupplyArgs,
-  ResolvedAccount,
   ResolvedAccountsWithIndices,
   TokenStandard,
   collectionDetails,
@@ -87,7 +87,16 @@ export const resolveOptionalTokenOwner = (
   context: Pick<Context, 'identity'>,
   accounts: ResolvedAccountsWithIndices,
   ...rest: any[]
-): Partial<ResolvedAccount> =>
+) =>
   accounts.token.value
     ? { value: null }
     : { value: context.identity.publicKey };
+
+export const resolveIsNonFungibleOrIsMintSigner = (
+  context: any,
+  accounts: ResolvedAccountsWithIndices,
+  args: { tokenStandard?: TokenStandard },
+  ...rest: any[]
+): boolean =>
+  isNonFungible(expectSome(args.tokenStandard)) ||
+  isSigner(expectSome(accounts.mint.value));

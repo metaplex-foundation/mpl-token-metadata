@@ -107,14 +107,18 @@ export function updateMetadataAccountV2(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
+  const resolvedAccounts = {
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     updateAuthority: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: UpdateMetadataAccountV2InstructionArgs = { ...input };

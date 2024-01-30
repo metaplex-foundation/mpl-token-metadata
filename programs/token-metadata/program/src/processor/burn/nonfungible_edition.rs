@@ -1,6 +1,9 @@
+use spl_token_2022::state::Account;
+
 use crate::{
     pda::MARKER,
     state::{EditionMarkerV2, MasterEdition, MasterEditionV2, EDITION_MARKER_BIT_SIZE},
+    utils::unpack_initialized,
 };
 
 use super::*;
@@ -57,7 +60,8 @@ pub(crate) fn burn_nonfungible_edition(
     }
 
     // Master Edition token account checks.
-    let master_edition_token_account: TokenAccount = assert_initialized(master_edition_token_info)?;
+    let master_edition_token_account =
+        unpack_initialized::<Account>(&master_edition_token_info.data.borrow())?;
 
     if master_edition_token_account.mint != *master_edition_mint_info.key {
         return Err(MetadataError::MintMismatch.into());

@@ -1,9 +1,4 @@
-use mpl_utils::assert_initialized;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke, program_pack::Pack,
-    pubkey::Pubkey, rent::Rent, system_instruction, sysvar::Sysvar,
-};
-use spl_token::{native_mint::DECIMALS, state::Mint};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
 
 use crate::{
     error::MetadataError,
@@ -13,9 +8,9 @@ use crate::{
         TOKEN_STANDARD_INDEX,
     },
     utils::{
-        create_master_edition,
+        create_master_edition, create_mint,
         fee::{levy, set_fee_flag, LevyArgs},
-        process_create_metadata_accounts_logic, CreateMetadataAccountsLogicArgs,
+        process_create_metadata_accounts_logic, validate_mint, CreateMetadataAccountsLogicArgs,
     },
 };
 
@@ -65,71 +60,44 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
             return Err(MetadataError::MintIsNotSigner.into());
         }
 
-        msg!("Init mint");
+        let spl_token_program = ctx
+            .accounts
+            .spl_token_program_info
+            .ok_or(MetadataError::MissingSplTokenProgram)?;
 
-        invoke(
-            &system_instruction::create_account(
-                ctx.accounts.payer_info.key,
-                ctx.accounts.mint_info.key,
-                Rent::get()?.minimum_balance(spl_token::state::Mint::LEN),
-                spl_token::state::Mint::LEN as u64,
-                &spl_token::ID,
-            ),
-            &[
-                ctx.accounts.payer_info.clone(),
-                ctx.accounts.mint_info.clone(),
-            ],
-        )?;
-
-        let decimals = match asset_data.token_standard {
-            // for NonFungible variants, we ignore the argument and
-            // always use 0 decimals
-            TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => 0,
-            // for Fungile variants, we either use the specified decimals or the default
-            // DECIMALS from spl-token
-            TokenStandard::FungibleAsset | TokenStandard::Fungible => match decimals {
-                Some(decimals) => decimals,
-                // if decimals not provided, use the default
-                None => DECIMALS,
-            },
-            _ => {
-                return Err(MetadataError::InvalidTokenStandard.into());
-            }
-        };
-
-        // initializing the mint account
-        invoke(
-            &spl_token::instruction::initialize_mint2(
-                ctx.accounts.spl_token_program_info.key,
-                ctx.accounts.mint_info.key,
-                ctx.accounts.authority_info.key,
-                Some(ctx.accounts.authority_info.key),
-                decimals,
-            )?,
-            &[
-                ctx.accounts.mint_info.clone(),
-                ctx.accounts.authority_info.clone(),
-            ],
+        create_mint(
+            ctx.accounts.mint_info,
+            ctx.accounts.metadata_info,
+            ctx.accounts.authority_info,
+            ctx.accounts.payer_info,
+            asset_data.token_standard,
+            decimals,
+            spl_token_program,
         )?;
     } else {
-        // validates the existing mint account
+        let mint = validate_mint(
+            ctx.accounts.mint_info,
+            ctx.accounts.metadata_info,
+            asset_data.token_standard,
+        )?;
 
-        let mint: Mint = assert_initialized(ctx.accounts.mint_info, MetadataError::Uninitialized)?;
-        // NonFungible assets must have decimals == 0 and supply no greater than 1
         if matches!(
             asset_data.token_standard,
-            TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible
-        ) && (mint.decimals > 0 || mint.supply > 1)
-        {
-            return Err(MetadataError::InvalidMintForTokenStandard.into());
-        }
-        // Programmable assets must have supply == 0
-        if matches!(
-            asset_data.token_standard,
-            TokenStandard::ProgrammableNonFungible
-        ) && (mint.supply > 0)
-        {
-            return Err(MetadataError::MintSupplyMustBeZero.into());
+            TokenStandard::ProgrammableNonFungible | TokenStandard::NonFungible
+        ) {
+            // NonFungible assets must have decimals == 0 and supply no greater than 1
+            if mint.decimals > 0 || mint.supply > 1 {
+                return Err(MetadataError::InvalidMintForTokenStandard.into());
+            }
+            // Programmable assets must have supply == 0 since there cannot be any
+            // existing token account
+            if matches!(
+                asset_data.token_standard,
+                TokenStandard::ProgrammableNonFungible
+            ) && (mint.supply > 0)
+            {
+                return Err(MetadataError::MintSupplyMustBeZero.into());
+            }
         }
     }
 
@@ -163,6 +131,11 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
         let print_supply = print_supply.ok_or(MetadataError::MissingPrintSupply)?;
 
         if let Some(master_edition) = ctx.accounts.master_edition_info {
+            let spl_token_program = ctx
+                .accounts
+                .spl_token_program_info
+                .ok_or(MetadataError::MissingSplTokenProgram)?;
+
             create_master_edition(
                 program_id,
                 master_edition,
@@ -171,7 +144,7 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
                 ctx.accounts.authority_info,
                 ctx.accounts.payer_info,
                 ctx.accounts.metadata_info,
-                ctx.accounts.spl_token_program_info,
+                spl_token_program,
                 ctx.accounts.system_program_info,
                 print_supply.to_option(),
             )?;

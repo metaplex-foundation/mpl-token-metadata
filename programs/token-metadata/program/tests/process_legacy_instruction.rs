@@ -15,24 +15,32 @@ mod process_legacy_instruction {
 
     use borsh::BorshDeserialize;
     use solana_program::program_pack::Pack;
-    use spl_token::state::Account;
+    use spl_token_2022::state::Account;
     use token_metadata::{
         error::MetadataError,
         instruction::{sign_metadata, DelegateArgs},
         state::{Metadata, TokenStandard},
+        utils::unpack,
     };
 
     use super::*;
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
     #[tokio::test]
-    async fn programmable_nft_in_legacy_processor() {
+    async fn programmable_nft_in_legacy_processor(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
 
         let mut asset = DigitalAsset::default();
         asset
-            .create(&mut context, TokenStandard::ProgrammableNonFungible, None)
+            .create(
+                &mut context,
+                TokenStandard::ProgrammableNonFungible,
+                None,
+                spl_token_program,
+            )
             .await
             .unwrap();
 
@@ -49,7 +57,10 @@ mod process_legacy_instruction {
         );
         asset.token = Some(token);
 
-        asset.mint(&mut context, None, None, 1).await.unwrap();
+        asset
+            .mint(&mut context, None, None, 1, spl_token_program)
+            .await
+            .unwrap();
 
         let metadata_account = get_account(&mut context, &asset.metadata).await;
         let metadata: Metadata = Metadata::deserialize(&mut &metadata_account.data[..]).unwrap();
@@ -81,8 +92,9 @@ mod process_legacy_instruction {
         assert_custom_error!(error, MetadataError::InstructionNotSupported);
     }
 
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
     #[tokio::test]
-    async fn thaw_programmable_nft() {
+    async fn thaw_programmable_nft(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
 
         // asset
@@ -95,6 +107,7 @@ mod process_legacy_instruction {
                 None,
                 None,
                 1,
+                spl_token_program,
             )
             .await
             .unwrap();
@@ -108,7 +121,7 @@ mod process_legacy_instruction {
         );
 
         let account = get_account(&mut context, &asset.token.unwrap()).await;
-        let token_account = Account::unpack(&account.data).unwrap();
+        let token_account = unpack::<Account>(&account.data).unwrap();
 
         assert!(token_account.is_frozen());
         assert_eq!(token_account.amount, 1);
@@ -131,6 +144,7 @@ mod process_legacy_instruction {
                     amount: 1,
                     authorization_data: None,
                 },
+                spl_token_program,
             )
             .await
             .unwrap();

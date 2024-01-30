@@ -47,7 +47,7 @@ impl UpdateAsDataItemDelegateV2 {
     pub fn instruction_with_remaining_accounts(
         &self,
         args: UpdateAsDataItemDelegateV2InstructionArgs,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -125,9 +125,7 @@ impl UpdateAsDataItemDelegateV2 {
                 false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let mut data = UpdateAsDataItemDelegateV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -164,7 +162,21 @@ pub struct UpdateAsDataItemDelegateV2InstructionArgs {
     pub authorization_data: Option<AuthorizationData>,
 }
 
-/// Instruction builder.
+/// Instruction builder for `UpdateAsDataItemDelegateV2`.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, signer]` payer
+///   7. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   8. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
+///   9. `[optional]` authorization_rules_program
+///   10. `[optional]` authorization_rules
 #[derive(Default)]
 pub struct UpdateAsDataItemDelegateV2Builder {
     authority: Option<solana_program::pubkey::Pubkey>,
@@ -180,7 +192,7 @@ pub struct UpdateAsDataItemDelegateV2Builder {
     authorization_rules: Option<solana_program::pubkey::Pubkey>,
     data: Option<Data>,
     authorization_data: Option<AuthorizationData>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl UpdateAsDataItemDelegateV2Builder {
@@ -284,13 +296,21 @@ impl UpdateAsDataItemDelegateV2Builder {
         self.authorization_data = Some(authorization_data);
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -407,7 +427,11 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2Cpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -423,7 +447,11 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2Cpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(11 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -504,9 +532,13 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2Cpi<'a, 'b> {
                 false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let mut data = UpdateAsDataItemDelegateV2InstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -541,9 +573,9 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2Cpi<'a, 'b> {
         if let Some(authorization_rules) = self.authorization_rules {
             account_infos.push(authorization_rules.clone());
         }
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -553,7 +585,21 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2Cpi<'a, 'b> {
     }
 }
 
-/// `update_as_data_item_delegate_v2` CPI instruction builder.
+/// Instruction builder for `UpdateAsDataItemDelegateV2` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[signer]` authority
+///   1. `[optional]` delegate_record
+///   2. `[optional]` token
+///   3. `[]` mint
+///   4. `[writable]` metadata
+///   5. `[optional]` edition
+///   6. `[writable, signer]` payer
+///   7. `[]` system_program
+///   8. `[]` sysvar_instructions
+///   9. `[optional]` authorization_rules_program
+///   10. `[optional]` authorization_rules
 pub struct UpdateAsDataItemDelegateV2CpiBuilder<'a, 'b> {
     instruction: Box<UpdateAsDataItemDelegateV2CpiBuilderInstruction<'a, 'b>>,
 }
@@ -689,18 +735,31 @@ impl<'a, 'b> UpdateAsDataItemDelegateV2CpiBuilder<'a, 'b> {
         self.instruction.authorization_data = Some(authorization_data);
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -775,5 +834,10 @@ struct UpdateAsDataItemDelegateV2CpiBuilderInstruction<'a, 'b> {
     authorization_rules: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     data: Option<Data>,
     authorization_data: Option<AuthorizationData>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }

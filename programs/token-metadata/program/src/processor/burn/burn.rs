@@ -1,12 +1,12 @@
 use solana_program::program_option::COption;
+use spl_token_2022::state::Account;
 
 use super::*;
-
 use crate::{
     pda::find_token_record_account,
     processor::burn::{fungible::burn_fungible, nonfungible_edition::burn_nonfungible_edition},
     state::{AuthorityRequest, AuthorityType, TokenDelegateRole, TokenRecord, TokenState},
-    utils::{check_token_standard, thaw},
+    utils::{assert_token_program_matches_package, check_token_standard, thaw, unpack_initialized},
 };
 
 /// Burn an asset, closing associated accounts.
@@ -57,9 +57,17 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
     assert_signer(ctx.accounts.authority_info)?;
 
     // Assert program ownership.
+    assert_token_program_matches_package(ctx.accounts.spl_token_program_info)?;
+
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
-    assert_owned_by(ctx.accounts.mint_info, &spl_token::ID)?;
-    assert_owned_by(ctx.accounts.token_info, &spl_token::ID)?;
+    assert_owned_by(
+        ctx.accounts.mint_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
+    assert_owned_by(
+        ctx.accounts.token_info,
+        ctx.accounts.spl_token_program_info.key,
+    )?;
 
     if let Some(edition_info) = ctx.accounts.edition_info {
         assert_owned_by(edition_info, program_id)?;
@@ -68,10 +76,13 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
         assert_owned_by(master_edition, program_id)?;
     }
     if let Some(master_edition_mint) = ctx.accounts.master_edition_mint_info {
-        assert_owned_by(master_edition_mint, &spl_token::ID)?;
+        assert_owned_by(master_edition_mint, ctx.accounts.spl_token_program_info.key)?;
     }
     if let Some(master_edition_token) = ctx.accounts.master_edition_token_info {
-        assert_owned_by(master_edition_token, &spl_token::ID)?;
+        assert_owned_by(
+            master_edition_token,
+            ctx.accounts.spl_token_program_info.key,
+        )?;
     }
     if let Some(edition_marker) = ctx.accounts.edition_marker_info {
         assert_owned_by(edition_marker, program_id)?;
@@ -89,13 +100,9 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    if ctx.accounts.spl_token_program_info.key != &spl_token::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
-
     // Deserialize accounts.
     let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
-    let token: TokenAccount = assert_initialized(ctx.accounts.token_info)?;
+    let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?;
 
     let authority_response = AuthorityType::get_authority_type(AuthorityRequest {
         authority: ctx.accounts.authority_info.key,

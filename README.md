@@ -16,7 +16,7 @@
 
 ## Getting Started
 
-The packages below can be use to interact with Token Metadata program.
+The packages below can be used to interact with Token Metadata program.
 
 ### TypeScript
 ```sh
@@ -36,7 +36,7 @@ cargo add mpl-token-metadata
 
 From the root directory of the repository:
 
-- Install the required packges:
+- Install the required packages:
 ```sh
 pnpm install
 ```
@@ -50,7 +50,7 @@ This will create the program binary at `<ROOT>/programs/.bin`
 
 ## Testing
 
-Token Metadata includes two set of tests: BPF and TypeScript.
+Token Metadata includes two sets of tests: BPF and TypeScript.
 
 ### BPF
 

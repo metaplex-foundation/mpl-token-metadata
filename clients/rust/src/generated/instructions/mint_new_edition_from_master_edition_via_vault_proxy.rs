@@ -58,7 +58,7 @@ impl MintNewEditionFromMasterEditionViaVaultProxy {
     pub fn instruction_with_remaining_accounts(
         &self,
         args: MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(17 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -128,9 +128,7 @@ impl MintNewEditionFromMasterEditionViaVaultProxy {
                 rent, false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let mut data = MintNewEditionFromMasterEditionViaVaultProxyInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -163,7 +161,27 @@ pub struct MintNewEditionFromMasterEditionViaVaultProxyInstructionArgs {
         MintNewEditionFromMasterEditionViaTokenArgs,
 }
 
-/// Instruction builder.
+/// Instruction builder for `MintNewEditionFromMasterEditionViaVaultProxy`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` new_metadata
+///   1. `[writable]` new_edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` new_mint
+///   4. `[writable]` edition_mark_pda
+///   5. `[signer]` new_mint_authority
+///   6. `[writable, signer]` payer
+///   7. `[signer]` vault_authority
+///   8. `[]` safety_deposit_store
+///   9. `[]` safety_deposit_box
+///   10. `[]` vault
+///   11. `[]` new_metadata_update_authority
+///   12. `[]` metadata
+///   13. `[optional]` token_program (default to `TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA`)
+///   14. `[]` token_vault_program
+///   15. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   16. `[optional]` rent
 #[derive(Default)]
 pub struct MintNewEditionFromMasterEditionViaVaultProxyBuilder {
     new_metadata: Option<solana_program::pubkey::Pubkey>,
@@ -185,7 +203,7 @@ pub struct MintNewEditionFromMasterEditionViaVaultProxyBuilder {
     rent: Option<solana_program::pubkey::Pubkey>,
     mint_new_edition_from_master_edition_via_token_args:
         Option<MintNewEditionFromMasterEditionViaTokenArgs>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
@@ -327,13 +345,21 @@ impl MintNewEditionFromMasterEditionViaVaultProxyBuilder {
             Some(mint_new_edition_from_master_edition_via_token_args);
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -498,7 +524,11 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -514,7 +544,11 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(17 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -586,9 +620,13 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
                 *rent.key, false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let mut data = MintNewEditionFromMasterEditionViaVaultProxyInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -621,9 +659,9 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
         if let Some(rent) = self.rent {
             account_infos.push(rent.clone());
         }
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -633,7 +671,27 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpi<'a, 'b> {
     }
 }
 
-/// `mint_new_edition_from_master_edition_via_vault_proxy` CPI instruction builder.
+/// Instruction builder for `MintNewEditionFromMasterEditionViaVaultProxy` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` new_metadata
+///   1. `[writable]` new_edition
+///   2. `[writable]` master_edition
+///   3. `[writable]` new_mint
+///   4. `[writable]` edition_mark_pda
+///   5. `[signer]` new_mint_authority
+///   6. `[writable, signer]` payer
+///   7. `[signer]` vault_authority
+///   8. `[]` safety_deposit_store
+///   9. `[]` safety_deposit_box
+///   10. `[]` vault
+///   11. `[]` new_metadata_update_authority
+///   12. `[]` metadata
+///   13. `[]` token_program
+///   14. `[]` token_vault_program
+///   15. `[]` system_program
+///   16. `[optional]` rent
 pub struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a, 'b> {
     instruction: Box<MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a, 'b>>,
 }
@@ -824,18 +882,31 @@ impl<'a, 'b> MintNewEditionFromMasterEditionViaVaultProxyCpiBuilder<'a, 'b> {
             Some(mint_new_edition_from_master_edition_via_token_args);
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -961,5 +1032,10 @@ struct MintNewEditionFromMasterEditionViaVaultProxyCpiBuilderInstruction<'a, 'b>
     rent: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mint_new_edition_from_master_edition_via_token_args:
         Option<MintNewEditionFromMasterEditionViaTokenArgs>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }

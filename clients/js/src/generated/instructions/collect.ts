@@ -30,8 +30,8 @@ import {
 export type CollectInstructionAccounts = {
   /** Authority to collect fees */
   authority?: Signer;
-  /** PDA to retrieve fees from */
-  pdaAccount: PublicKey | Pda;
+  /** The account to transfer collected fees to */
+  recipient: PublicKey | Pda;
 };
 
 // Data.
@@ -63,14 +63,18 @@ export function collect(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    authority: { index: 0, isWritable: false, value: input.authority ?? null },
-    pdaAccount: {
-      index: 1,
-      isWritable: false,
-      value: input.pdaAccount ?? null,
+  const resolvedAccounts = {
+    authority: {
+      index: 0,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
     },
-  };
+    recipient: {
+      index: 1,
+      isWritable: false as boolean,
+      value: input.recipient ?? null,
+    },
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.authority.value) {

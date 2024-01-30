@@ -96,59 +96,79 @@ export function migrate(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-    edition: { index: 1, isWritable: true, value: input.edition ?? null },
-    token: { index: 2, isWritable: true, value: input.token ?? null },
+  const resolvedAccounts = {
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    edition: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
+    token: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
     tokenOwner: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenOwner ?? null,
     },
-    mint: { index: 4, isWritable: false, value: input.mint ?? null },
-    payer: { index: 5, isWritable: true, value: input.payer ?? null },
-    authority: { index: 6, isWritable: false, value: input.authority ?? null },
+    mint: { index: 4, isWritable: false as boolean, value: input.mint ?? null },
+    payer: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
+    authority: {
+      index: 6,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
     collectionMetadata: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMetadata ?? null,
     },
     delegateRecord: {
       index: 8,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.delegateRecord ?? null,
     },
     tokenRecord: {
       index: 9,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenRecord ?? null,
     },
     systemProgram: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     authorizationRulesProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRulesProgram ?? null,
     },
     authorizationRules: {
       index: 14,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

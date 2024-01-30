@@ -9,6 +9,7 @@ use crate::{
         CollectionAuthorityRecord, Key, Metadata, TokenMetadataAccount, COLLECTION_AUTHORITY,
         COLLECTION_AUTHORITY_RECORD_SIZE, PREFIX,
     },
+    utils::SPL_TOKEN_ID,
 };
 
 pub fn process_approve_collection_authority(
@@ -28,7 +29,7 @@ pub fn process_approve_collection_authority(
 
     let metadata = Metadata::from_account_info(metadata_info)?;
     assert_owned_by(metadata_info, program_id)?;
-    assert_owned_by(mint_info, &spl_token::ID)?;
+    assert_owned_by(mint_info, &SPL_TOKEN_ID)?;
     assert_signer(update_authority)?;
     assert_signer(payer)?;
     if metadata.update_authority != *update_authority.key {

@@ -137,54 +137,74 @@ export function delegateStandardV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     delegateRecord: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.delegateRecord ?? null,
     },
-    delegate: { index: 1, isWritable: false, value: input.delegate ?? null },
-    metadata: { index: 2, isWritable: true, value: input.metadata ?? null },
+    delegate: {
+      index: 1,
+      isWritable: false as boolean,
+      value: input.delegate ?? null,
+    },
+    metadata: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     masterEdition: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterEdition ?? null,
     },
     tokenRecord: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenRecord ?? null,
     },
-    mint: { index: 5, isWritable: false, value: input.mint ?? null },
-    token: { index: 6, isWritable: true, value: input.token ?? null },
-    authority: { index: 7, isWritable: false, value: input.authority ?? null },
-    payer: { index: 8, isWritable: true, value: input.payer ?? null },
+    mint: { index: 5, isWritable: false as boolean, value: input.mint ?? null },
+    token: {
+      index: 6,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
+    authority: {
+      index: 7,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
+    payer: {
+      index: 8,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     systemProgram: {
       index: 9,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     authorizationRulesProgram: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRulesProgram ?? null,
     },
     authorizationRules: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: DelegateStandardV1InstructionArgs = { ...input };

@@ -7,7 +7,7 @@ use solana_program::{
     system_program, sysvar,
 };
 
-use crate::instruction::MetadataInstruction;
+use crate::{instruction::MetadataInstruction, utils::SPL_TOKEN_ID};
 
 pub fn close_escrow_account(
     program_id: Pubkey,
@@ -108,7 +108,7 @@ pub fn transfer_out_of_escrow(
         AccountMeta::new_readonly(escrow_account, false),
         AccountMeta::new_readonly(solana_program::system_program::ID, false),
         AccountMeta::new_readonly(spl_associated_token_account::ID, false),
-        AccountMeta::new_readonly(spl_token::ID, false),
+        AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         AccountMeta::new_readonly(sysvar::instructions::ID, false),
     ];
 

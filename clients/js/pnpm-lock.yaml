@@ -58,7 +58,7 @@ devDependencies:
     specifier: ^1.0.0
     version: 1.0.0(typedoc@0.23.25)
   typescript:
-    specifier: ^4.6.2
+    specifier: ^4.9.4
     version: 4.9.5
   vercel:
     specifier: ^28.16.8

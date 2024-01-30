@@ -431,7 +431,7 @@ pub enum MetadataInstruction {
     #[account(3, name="update_authority", desc="Update Authority of Collection NFT and NFT")]
     #[account(4, name="collection_mint", desc="Mint of the Collection")]
     #[account(5, writable, name="collection", desc="Metadata Account of the Collection")]
-    #[account(6, writable, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
+    #[account(6, name="collection_master_edition_account", desc="MasterEdition2 Account of the Collection Token")]
     #[account(7, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
     #[legacy_optional_accounts_strategy]
     SetAndVerifySizedCollectionItem,
@@ -466,7 +466,7 @@ pub enum MetadataInstruction {
     /// Set size of an existing collection using CPI from the Bubblegum program.  This is how
     /// collection size is incremented and decremented for compressed NFTs.
     #[account(0, writable, name="collection_metadata", desc="Collection Metadata account")]
-    #[account(1, signer, writable, name="collection_authority", desc="Collection Update authority")]
+    #[account(1, signer, name="collection_authority", desc="Collection Update authority")]
     #[account(2, name="collection_mint", desc="Mint of the Collection")]
     #[account(3, signer, name="bubblegum_signer", desc="Signing PDA of Bubblegum program")]
     #[account(4, optional, name="collection_authority_record", desc="Collection Authority Record PDA")]
@@ -585,7 +585,7 @@ pub enum MetadataInstruction {
     #[account(5, name="update_authority", desc="Update authority for the metadata account")]
     #[account(6, name="system_program", desc="System program")]
     #[account(7, name="sysvar_instructions", desc="Instructions sysvar account")]
-    #[account(8, name="spl_token_program", desc="SPL Token program")]
+    #[account(8, optional, name="spl_token_program", desc="SPL Token program")]
     #[args(initialize_mint: bool)]
     #[args(update_authority_as_signer: bool)]
     Create(CreateArgs),
@@ -801,7 +801,7 @@ pub enum MetadataInstruction {
 
     /// Collect fees stored on PDA accounts.
     #[account(0, signer, name="authority", desc="Authority to collect fees")]
-    #[account(1, name="pda_account", desc="PDA to retrieve fees from")]
+    #[account(1, name="recipient", desc="The account to transfer collected fees to")]
     Collect,
 
     /// Given a token account containing the master edition token to prove authority, and a brand new non-metadata-ed mint with one token

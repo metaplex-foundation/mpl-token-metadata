@@ -86,33 +86,41 @@ export function revokeUseAuthority(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     useAuthorityRecord: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.useAuthorityRecord ?? null,
     },
-    owner: { index: 1, isWritable: true, value: input.owner ?? null },
-    user: { index: 2, isWritable: false, value: input.user ?? null },
+    owner: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.owner ?? null,
+    },
+    user: { index: 2, isWritable: false as boolean, value: input.user ?? null },
     ownerTokenAccount: {
       index: 3,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.ownerTokenAccount ?? null,
     },
-    mint: { index: 4, isWritable: false, value: input.mint ?? null },
-    metadata: { index: 5, isWritable: false, value: input.metadata ?? null },
+    mint: { index: 4, isWritable: false as boolean, value: input.mint ?? null },
+    metadata: {
+      index: 5,
+      isWritable: false as boolean,
+      value: input.metadata ?? null,
+    },
     tokenProgram: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenProgram ?? null,
     },
     systemProgram: {
       index: 7,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-    rent: { index: 8, isWritable: false, value: input.rent ?? null },
-  };
+    rent: { index: 8, isWritable: false as boolean, value: input.rent ?? null },
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.metadata.value) {

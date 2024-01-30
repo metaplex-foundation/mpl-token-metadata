@@ -29,7 +29,7 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
@@ -116,7 +116,8 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
-        let mut print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let mut print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Transfer to new owner.
@@ -213,7 +214,7 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
@@ -264,7 +265,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
@@ -345,10 +346,11 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
-        let second_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let second_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;
@@ -387,7 +389,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;
@@ -456,7 +458,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;
@@ -485,7 +487,8 @@ mod burn_edition_nft {
         // and has the right data length, so will pass those checks, but will fail with InvalidPrintEdition
         // because the derivation will be incorrect.
 
-        let second_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let second_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
 
         let err = burn_edition(
@@ -519,7 +522,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;
@@ -547,7 +550,8 @@ mod burn_edition_nft {
         // Create a second print edition to try to pass off as the edition marker. It's owned by token metadata
         // so will pass that check but will fail with IncorrectEditionMarker.
 
-        let second_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let second_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
 
         let err = burn_edition(
@@ -581,7 +585,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let master_edition_account = context
@@ -597,7 +601,8 @@ mod burn_edition_nft {
         assert!(master_edition_struct.supply == 1);
         assert!(master_edition_struct.max_supply == Some(10));
 
-        let mut second_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let mut second_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
 
         let master_edition_account = context
@@ -804,11 +809,12 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Print a new edition and transfer to a user.
-        let mut user_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let mut user_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         user_print_edition.create(&mut context).await.unwrap();
 
         let user = Keypair::new();
@@ -869,14 +875,15 @@ mod burn_edition_nft {
         assert!(!user_print_edition.exists_on_chain(&mut context).await);
 
         // Reprint owner's burned edition
-        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
         assert!(print_edition.exists_on_chain(&mut context).await);
 
         // Reprint user's burned edition: this should fail.
-        let user_print_edition = EditionMarker::new(&original_nft, &master_edition, 2);
+        let user_print_edition =
+            EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         let err = user_print_edition.create(&mut context).await.unwrap_err();
 
         assert_custom_error!(err, MetadataError::AlreadyInitialized);
@@ -902,7 +909,8 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let other_print_edition = EditionMarker::new(&other_nft, &other_master_edition, 1);
+        let other_print_edition =
+            EditionMarker::new(&other_nft, &other_master_edition, 1, spl_token::ID);
         other_print_edition.create(&mut context).await.unwrap();
 
         let our_nft = Metadata::new();
@@ -914,7 +922,7 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&our_nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&our_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;
@@ -952,9 +960,9 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
-        let print_edition = EditionMarker::new(&nft, &master_edition, 1);
+        let print_edition = EditionMarker::new(&nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
-        let second_print_edition = EditionMarker::new(&nft, &master_edition, 2);
+        let second_print_edition = EditionMarker::new(&nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
 
         let kpbytes = &context.payer;

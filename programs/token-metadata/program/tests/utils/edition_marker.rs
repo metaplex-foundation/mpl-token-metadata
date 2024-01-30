@@ -66,10 +66,16 @@ pub struct EditionMarker {
     pub edition: u64,
     pub token: Keypair,
     pub metadata_token_pubkey: Pubkey,
+    pub spl_token_program: Pubkey,
 }
 
 impl EditionMarker {
-    pub fn new(metadata: &Metadata, master_edition: &MasterEditionV2, edition: u64) -> Self {
+    pub fn new(
+        metadata: &Metadata,
+        master_edition: &MasterEditionV2,
+        edition: u64,
+        spl_token_program: Pubkey,
+    ) -> Self {
         let mint = Keypair::new();
         let mint_pubkey = mint.pubkey();
         let metadata_mint_pubkey = metadata.mint.pubkey();
@@ -110,6 +116,7 @@ impl EditionMarker {
             new_edition_pubkey,
             metadata_token_pubkey: metadata.token.pubkey(),
             token: Keypair::new(),
+            spl_token_program,
         }
     }
 
@@ -117,6 +124,7 @@ impl EditionMarker {
         asset: &DigitalAsset,
         master_edition: &MasterEditionV2,
         edition: u64,
+        spl_token_program: Pubkey,
     ) -> Self {
         let mint = Keypair::new();
         let mint_pubkey = mint.pubkey();
@@ -156,6 +164,7 @@ impl EditionMarker {
             new_edition_pubkey,
             metadata_token_pubkey: asset.token.unwrap(),
             token: Keypair::new(),
+            spl_token_program,
         }
     }
 
@@ -182,6 +191,7 @@ impl EditionMarker {
             &context.payer.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &self.spl_token_program,
         )
         .await?;
         create_token_account(
@@ -189,6 +199,7 @@ impl EditionMarker {
             &self.token,
             &self.mint.pubkey(),
             &context.payer.pubkey(),
+            &self.spl_token_program,
         )
         .await?;
         mint_tokens(
@@ -198,6 +209,7 @@ impl EditionMarker {
             1,
             &context.payer.pubkey(),
             None,
+            &self.spl_token_program,
         )
         .await?;
 
@@ -241,6 +253,7 @@ impl EditionMarker {
             &context.payer.pubkey(),
             Some(&context.payer.pubkey()),
             0,
+            &self.spl_token_program,
         )
         .await?;
         create_token_account(
@@ -248,6 +261,7 @@ impl EditionMarker {
             &self.token,
             &self.mint.pubkey(),
             &context.payer.pubkey(),
+            &self.spl_token_program,
         )
         .await?;
         mint_tokens(
@@ -257,6 +271,7 @@ impl EditionMarker {
             1,
             &context.payer.pubkey(),
             None,
+            &self.spl_token_program,
         )
         .await?;
 
@@ -296,7 +311,7 @@ impl EditionMarker {
             .master_token_account(self.metadata_token_pubkey)
             .master_metadata(self.metadata_pubkey)
             .update_authority(master_metadata.update_authority)
-            .spl_token_program(spl_token::ID)
+            .spl_token_program(self.spl_token_program)
             .spl_ata_program(spl_associated_token_account::ID)
             .sysvar_instructions(sysvar::instructions::ID)
             .system_program(system_program::ID)
@@ -522,6 +537,7 @@ impl EditionMarker {
         &self,
         context: &mut ProgramTestContext,
         args: BurnPrintArgs<'a>,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         let burn_args = BurnArgs::V1 { amount: 1 };
 
@@ -541,7 +557,8 @@ impl EditionMarker {
                     .unwrap_or(self.metadata_token_pubkey),
             )
             .master_edition(args.master_edition.unwrap_or(self.master_edition_pubkey))
-            .edition_marker(args.edition_marker.unwrap_or(self.pubkey));
+            .edition_marker(args.edition_marker.unwrap_or(self.pubkey))
+            .spl_token_program(spl_token_program);
 
         let burn_ix = builder.build(burn_args).unwrap().instruction();
 
@@ -559,6 +576,7 @@ impl EditionMarker {
         &self,
         context: &mut ProgramTestContext,
         args: BurnPrintArgs<'a>,
+        spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
         let burn_args = BurnArgs::V1 { amount: 1 };
 
@@ -584,7 +602,8 @@ impl EditionMarker {
             )
             .master_edition(args.master_edition.unwrap_or(self.master_edition_pubkey))
             .edition_marker(args.edition_marker.unwrap_or(self.pubkey))
-            .token_record(token_record_pda.0);
+            .token_record(token_record_pda.0)
+            .spl_token_program(spl_token_program);
 
         let burn_ix = builder.build(burn_args).unwrap().instruction();
 
@@ -625,6 +644,7 @@ impl EditionMarker {
         payer: Keypair,
         delegate: Pubkey,
         args: DelegateArgs,
+        spl_token_program: Pubkey,
     ) -> Result<Option<Pubkey>, BanksClientError> {
         let mut builder = DelegateBuilder::new();
         builder
@@ -633,7 +653,7 @@ impl EditionMarker {
             .metadata(self.new_metadata_pubkey)
             .payer(payer.pubkey())
             .authority(payer.pubkey())
-            .spl_token_program(spl_token::ID)
+            .spl_token_program(spl_token_program)
             .master_edition(self.new_edition_pubkey)
             .token(self.token.pubkey());
 

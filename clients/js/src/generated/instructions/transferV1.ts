@@ -146,69 +146,89 @@ export function transferV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    token: { index: 0, isWritable: true, value: input.token ?? null },
+  const resolvedAccounts = {
+    token: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.token ?? null,
+    },
     tokenOwner: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.tokenOwner ?? null,
     },
     destinationToken: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.destinationToken ?? null,
     },
     destinationOwner: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.destinationOwner ?? null,
     },
-    mint: { index: 4, isWritable: false, value: input.mint ?? null },
-    metadata: { index: 5, isWritable: true, value: input.metadata ?? null },
-    edition: { index: 6, isWritable: false, value: input.edition ?? null },
+    mint: { index: 4, isWritable: false as boolean, value: input.mint ?? null },
+    metadata: {
+      index: 5,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    edition: {
+      index: 6,
+      isWritable: false as boolean,
+      value: input.edition ?? null,
+    },
     tokenRecord: {
       index: 7,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.tokenRecord ?? null,
     },
     destinationTokenRecord: {
       index: 8,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.destinationTokenRecord ?? null,
     },
-    authority: { index: 9, isWritable: false, value: input.authority ?? null },
-    payer: { index: 10, isWritable: true, value: input.payer ?? null },
+    authority: {
+      index: 9,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
+    payer: {
+      index: 10,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     systemProgram: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     splTokenProgram: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     splAtaProgram: {
       index: 14,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splAtaProgram ?? null,
     },
     authorizationRulesProgram: {
       index: 15,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRulesProgram ?? null,
     },
     authorizationRules: {
       index: 16,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.authorizationRules ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: TransferV1InstructionArgs = { ...input };

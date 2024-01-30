@@ -127,90 +127,98 @@ export function printV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
+  const resolvedAccounts = {
     editionMetadata: {
       index: 0,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMetadata ?? null,
     },
-    edition: { index: 1, isWritable: true, value: input.edition ?? null },
+    edition: {
+      index: 1,
+      isWritable: true as boolean,
+      value: input.edition ?? null,
+    },
     editionMint: {
       index: 2,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMint ?? null,
     },
     editionTokenAccountOwner: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.editionTokenAccountOwner ?? null,
     },
     editionTokenAccount: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionTokenAccount ?? null,
     },
     editionMintAuthority: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.editionMintAuthority ?? null,
     },
     editionTokenRecord: {
       index: 6,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionTokenRecord ?? null,
     },
     masterEdition: {
       index: 7,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.masterEdition ?? null,
     },
     editionMarkerPda: {
       index: 8,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.editionMarkerPda ?? null,
     },
-    payer: { index: 9, isWritable: true, value: input.payer ?? null },
+    payer: {
+      index: 9,
+      isWritable: true as boolean,
+      value: input.payer ?? null,
+    },
     masterTokenAccountOwner: {
       index: 10,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterTokenAccountOwner ?? null,
     },
     masterTokenAccount: {
       index: 11,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterTokenAccount ?? null,
     },
     masterMetadata: {
       index: 12,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.masterMetadata ?? null,
     },
     updateAuthority: {
       index: 13,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.updateAuthority ?? null,
     },
     splTokenProgram: {
       index: 14,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splTokenProgram ?? null,
     },
     splAtaProgram: {
       index: 15,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.splAtaProgram ?? null,
     },
     sysvarInstructions: {
       index: 16,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
     systemProgram: {
       index: 17,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
   const resolvedArgs: PrintV1InstructionArgs = { ...input };

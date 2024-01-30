@@ -75,11 +75,23 @@ export function updatePrimarySaleHappenedViaToken(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    metadata: { index: 0, isWritable: true, value: input.metadata ?? null },
-    owner: { index: 1, isWritable: false, value: input.owner ?? null },
-    token: { index: 2, isWritable: false, value: input.token ?? null },
-  };
+  const resolvedAccounts = {
+    metadata: {
+      index: 0,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
+    owner: {
+      index: 1,
+      isWritable: false as boolean,
+      value: input.owner ?? null,
+    },
+    token: {
+      index: 2,
+      isWritable: false as boolean,
+      value: input.token ?? null,
+    },
+  } satisfies ResolvedAccountsWithIndices;
 
   // Accounts in order.
   const orderedAccounts: ResolvedAccount[] = Object.values(

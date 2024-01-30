@@ -94,35 +94,43 @@ export function unverifyCollectionV1(
   );
 
   // Accounts.
-  const resolvedAccounts: ResolvedAccountsWithIndices = {
-    authority: { index: 0, isWritable: false, value: input.authority ?? null },
+  const resolvedAccounts = {
+    authority: {
+      index: 0,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
     delegateRecord: {
       index: 1,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.delegateRecord ?? null,
     },
-    metadata: { index: 2, isWritable: true, value: input.metadata ?? null },
+    metadata: {
+      index: 2,
+      isWritable: true as boolean,
+      value: input.metadata ?? null,
+    },
     collectionMint: {
       index: 3,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.collectionMint ?? null,
     },
     collectionMetadata: {
       index: 4,
-      isWritable: true,
+      isWritable: true as boolean,
       value: input.collectionMetadata ?? null,
     },
     systemProgram: {
       index: 5,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.systemProgram ?? null,
     },
     sysvarInstructions: {
       index: 6,
-      isWritable: false,
+      isWritable: false as boolean,
       value: input.sysvarInstructions ?? null,
     },
-  };
+  } satisfies ResolvedAccountsWithIndices;
 
   // Default values.
   if (!resolvedAccounts.authority.value) {

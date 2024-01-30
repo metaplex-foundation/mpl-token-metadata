@@ -1,5 +1,5 @@
 {
-  "version": "1.13.3",
+  "version": "1.14.0",
   "name": "token_metadata",
   "instructions": [
     {
@@ -2288,7 +2288,7 @@
         },
         {
           "name": "collectionMasterEditionAccount",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false,
           "docs": [
             "MasterEdition2 Account of the Collection Token"
@@ -2495,7 +2495,7 @@
         },
         {
           "name": "collectionAuthority",
-          "isMut": true,
+          "isMut": false,
           "isSigner": true,
           "docs": [
             "Collection Update authority"
@@ -3120,6 +3120,7 @@
           "name": "splTokenProgram",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "SPL Token program"
           ]
@@ -4499,11 +4500,11 @@
           ]
         },
         {
-          "name": "pdaAccount",
+          "name": "recipient",
           "isMut": false,
           "isSigner": false,
           "docs": [
-            "PDA to retrieve fees from"
+            "The account to transfer collected fees to"
           ]
         }
       ],
@@ -5507,19 +5508,10 @@
       }
     },
     {
-      "name": "LeafInfo",
+      "name": "ProofInfo",
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "leaf",
-            "type": {
-              "array": [
-                "u8",
-                32
-              ]
-            }
-          },
           {
             "name": "proof",
             "type": {
@@ -6726,7 +6718,7 @@
             "name": "MerkleProof",
             "fields": [
               {
-                "defined": "LeafInfo"
+                "defined": "ProofInfo"
               }
             ]
           },
@@ -7727,12 +7719,37 @@
       "code": 193,
       "name": "CannotChangeUpdateAuthorityWithDelegate",
       "msg": "Cannot change the update authority with a delegate"
+    },
+    {
+      "code": 194,
+      "name": "InvalidMintExtensionType",
+      "msg": "Invalid mint extension type"
+    },
+    {
+      "code": 195,
+      "name": "InvalidMintCloseAuthority",
+      "msg": "Invalid mint close authority"
+    },
+    {
+      "code": 196,
+      "name": "InvalidMetadataPointer",
+      "msg": "Invalid metadata pointer"
+    },
+    {
+      "code": 197,
+      "name": "InvalidTokenExtensionType",
+      "msg": "Invalid token extension type"
+    },
+    {
+      "code": 198,
+      "name": "MissingImmutableOwnerExtension",
+      "msg": "Missing immutable owner extension"
     }
   ],
   "metadata": {
     "origin": "shank",
     "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
-    "binaryVersion": "0.2.0",
-    "libVersion": "0.2.0"
+    "binaryVersion": "0.3.0",
+    "libVersion": "0.3.0"
   }
 }

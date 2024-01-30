@@ -6,7 +6,9 @@ use borsh::BorshDeserialize;
 use solana_program::pubkey::Pubkey;
 
 use crate::{
-    accounts::{MasterEdition, Metadata, TokenRecord},
+    accounts::{
+        CollectionAuthorityRecord, MasterEdition, Metadata, MetadataDelegateRecord, TokenRecord,
+    },
     errors::MplTokenMetadataError,
     generated::{
         types::{CollectionToggle, RuleSetToggle, UsesToggle},
@@ -14,9 +16,43 @@ use crate::{
     },
     types::{
         Collection, CollectionDetails, Data, Key, ProgrammableConfig, TokenDelegateRole,
-        TokenStandard, TokenState, Uses,
+        TokenStandard, TokenState, UpdateArgs, Uses,
     },
 };
+
+/// safe deserialize default impl
+
+macro_rules! safe_deserialize {
+    ( ($n:tt, $k:tt), $(($name:tt, $key:tt)),+ ) => {
+        safe_deserialize!(($n, $k));
+        safe_deserialize!($( ($name, $key) ),+);
+    };
+    ( ($name:tt, $key:tt) ) => {
+        impl $name {
+            pub fn safe_deserialize(data: &[u8]) -> Result<Self, borsh::maybestd::io::Error> {
+                if data.is_empty() || data[0] != Key::$key as u8 {
+                    return Err(borsh::maybestd::io::Error::new(
+                        ErrorKind::Other,
+                        "DataTypeMismatch",
+                    ));
+                }
+                // mutable "pointer" to the account data
+                let mut data = data;
+                let result = Self::deserialize(&mut data)?;
+
+                Ok(result)
+            }
+        }
+    };
+}
+
+safe_deserialize!(
+    (CollectionAuthorityRecord, CollectionAuthorityRecord),
+    (MasterEdition, MasterEditionV2),
+    (MetadataDelegateRecord, MetadataDelegate)
+);
+
+// UpdateV1InstructionArgs
 
 impl Default for UpdateV1InstructionArgs {
     fn default() -> Self {
@@ -34,23 +70,9 @@ impl Default for UpdateV1InstructionArgs {
     }
 }
 
-// Master Edition
+// Token Standard
 
-impl MasterEdition {
-    pub fn safe_deserialize(data: &[u8]) -> Result<Self, borsh::maybestd::io::Error> {
-        if data.is_empty() || data[0] != Key::MasterEditionV2 as u8 {
-            return Err(borsh::maybestd::io::Error::new(
-                ErrorKind::Other,
-                "DataTypeMismatch",
-            ));
-        }
-        // mutable "pointer" to the account data
-        let mut data = data;
-        let result = Self::deserialize(&mut data)?;
-
-        Ok(result)
-    }
-}
+impl Copy for TokenStandard {}
 
 // Metadata
 
@@ -185,5 +207,92 @@ impl TokenRecord {
             delegate_role,
             locked_transfer,
         })
+    }
+}
+
+// UpdateArgs
+
+impl Default for UpdateArgs {
+    fn default() -> Self {
+        Self::V1 {
+            new_update_authority: None,
+            data: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            collection: CollectionToggle::None,
+            collection_details: CollectionDetailsToggle::None,
+            uses: UsesToggle::None,
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
+    }
+}
+
+impl UpdateArgs {
+    pub fn default_as_update_authority() -> Self {
+        Self::AsUpdateAuthorityV2 {
+            new_update_authority: None,
+            data: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            collection: CollectionToggle::None,
+            collection_details: CollectionDetailsToggle::None,
+            uses: UsesToggle::None,
+            rule_set: RuleSetToggle::None,
+            token_standard: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_authority_item_delegate() -> Self {
+        Self::AsAuthorityItemDelegateV2 {
+            new_update_authority: None,
+            primary_sale_happened: None,
+            is_mutable: None,
+            token_standard: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_collection_delegate() -> Self {
+        Self::AsCollectionDelegateV2 {
+            collection: CollectionToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_data_delegate() -> Self {
+        Self::AsDataDelegateV2 {
+            data: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_programmable_config_delegate() -> Self {
+        Self::AsProgrammableConfigDelegateV2 {
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_data_item_delegate() -> Self {
+        Self::AsDataItemDelegateV2 {
+            data: None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_collection_item_delegate() -> Self {
+        Self::AsCollectionItemDelegateV2 {
+            collection: CollectionToggle::None,
+            authorization_data: None,
+        }
+    }
+
+    pub fn default_as_programmable_config_item_delegate() -> Self {
+        Self::AsProgrammableConfigItemDelegateV2 {
+            rule_set: RuleSetToggle::None,
+            authorization_data: None,
+        }
     }
 }

@@ -4,7 +4,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::instruction::MetadataInstruction;
+use crate::{instruction::MetadataInstruction, utils::SPL_TOKEN_ID};
 
 ///# Freeze delegated account
 ///
@@ -30,7 +30,7 @@ pub fn freeze_delegated_account(
             AccountMeta::new(token_account, false),
             AccountMeta::new_readonly(edition, false),
             AccountMeta::new_readonly(mint, false),
-            AccountMeta::new_readonly(spl_token::ID, false),
+            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         ],
         data: MetadataInstruction::FreezeDelegatedAccount
             .try_to_vec()
@@ -62,7 +62,7 @@ pub fn thaw_delegated_account(
             AccountMeta::new(token_account, false),
             AccountMeta::new_readonly(edition, false),
             AccountMeta::new_readonly(mint, false),
-            AccountMeta::new_readonly(spl_token::ID, false),
+            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         ],
         data: MetadataInstruction::ThawDelegatedAccount
             .try_to_vec()

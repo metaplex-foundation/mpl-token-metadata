@@ -35,7 +35,7 @@ impl SetAndVerifyCollection {
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccount],
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -71,9 +71,7 @@ impl SetAndVerifyCollection {
                 false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        accounts.extend_from_slice(remaining_accounts);
         let data = SetAndVerifyCollectionInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -97,7 +95,18 @@ impl SetAndVerifyCollectionInstructionData {
     }
 }
 
-/// Instruction builder.
+/// Instruction builder for `SetAndVerifyCollection`.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` update_authority
+///   4. `[]` collection_mint
+///   5. `[]` collection
+///   6. `[]` collection_master_edition_account
+///   7. `[optional]` collection_authority_record
 #[derive(Default)]
 pub struct SetAndVerifyCollectionBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
@@ -108,7 +117,7 @@ pub struct SetAndVerifyCollectionBuilder {
     collection: Option<solana_program::pubkey::Pubkey>,
     collection_master_edition_account: Option<solana_program::pubkey::Pubkey>,
     collection_authority_record: Option<solana_program::pubkey::Pubkey>,
-    __remaining_accounts: Vec<super::InstructionAccount>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl SetAndVerifyCollectionBuilder {
@@ -179,13 +188,21 @@ impl SetAndVerifyCollectionBuilder {
         self.collection_authority_record = collection_authority_record;
         self
     }
+    /// Add an aditional account to the instruction.
     #[inline(always)]
-    pub fn add_remaining_account(&mut self, account: super::InstructionAccount) -> &mut Self {
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
         self.__remaining_accounts.push(account);
         self
     }
+    /// Add additional accounts to the instruction.
     #[inline(always)]
-    pub fn add_remaining_accounts(&mut self, accounts: &[super::InstructionAccount]) -> &mut Self {
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
         self.__remaining_accounts.extend_from_slice(accounts);
         self
     }
@@ -276,7 +293,11 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
     #[inline(always)]
     pub fn invoke_with_remaining_accounts(
         &self,
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
     }
@@ -292,7 +313,11 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
     pub fn invoke_signed_with_remaining_accounts(
         &self,
         signers_seeds: &[&[&[u8]]],
-        remaining_accounts: &[super::InstructionAccountInfo<'a, '_>],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> solana_program::entrypoint::ProgramResult {
         let mut accounts = Vec::with_capacity(8 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
@@ -329,9 +354,13 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
                 false,
             ));
         }
-        remaining_accounts
-            .iter()
-            .for_each(|remaining_account| accounts.push(remaining_account.to_account_meta()));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
         let data = SetAndVerifyCollectionInstructionData::new()
             .try_to_vec()
             .unwrap();
@@ -353,9 +382,9 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
         if let Some(collection_authority_record) = self.collection_authority_record {
             account_infos.push(collection_authority_record.clone());
         }
-        remaining_accounts.iter().for_each(|remaining_account| {
-            account_infos.push(remaining_account.account_info().clone())
-        });
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
 
         if signers_seeds.is_empty() {
             solana_program::program::invoke(&instruction, &account_infos)
@@ -365,7 +394,18 @@ impl<'a, 'b> SetAndVerifyCollectionCpi<'a, 'b> {
     }
 }
 
-/// `set_and_verify_collection` CPI instruction builder.
+/// Instruction builder for `SetAndVerifyCollection` via CPI.
+///
+/// ### Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable, signer]` collection_authority
+///   2. `[writable, signer]` payer
+///   3. `[]` update_authority
+///   4. `[]` collection_mint
+///   5. `[]` collection
+///   6. `[]` collection_master_edition_account
+///   7. `[optional]` collection_authority_record
 pub struct SetAndVerifyCollectionCpiBuilder<'a, 'b> {
     instruction: Box<SetAndVerifyCollectionCpiBuilderInstruction<'a, 'b>>,
 }
@@ -457,18 +497,31 @@ impl<'a, 'b> SetAndVerifyCollectionCpiBuilder<'a, 'b> {
         self.instruction.collection_authority_record = collection_authority_record;
         self
     }
+    /// Add an additional account to the instruction.
     #[inline(always)]
     pub fn add_remaining_account(
         &mut self,
-        account: super::InstructionAccountInfo<'a, 'b>,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
     ) -> &mut Self {
-        self.instruction.__remaining_accounts.push(account);
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
         self
     }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
     #[inline(always)]
     pub fn add_remaining_accounts(
         &mut self,
-        accounts: &[super::InstructionAccountInfo<'a, 'b>],
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
     ) -> &mut Self {
         self.instruction
             .__remaining_accounts
@@ -533,5 +586,10 @@ struct SetAndVerifyCollectionCpiBuilderInstruction<'a, 'b> {
     collection: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     collection_master_edition_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     collection_authority_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    __remaining_accounts: Vec<super::InstructionAccountInfo<'a, 'b>>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }
