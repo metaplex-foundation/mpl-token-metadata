@@ -7,6 +7,7 @@
  */
 
 export * from './collectionAuthorityRecord';
+export * from './deprecatedMasterEditionV1';
 export * from './edition';
 export * from './editionMarker';
 export * from './editionMarkerV2';
