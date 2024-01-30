@@ -121,13 +121,13 @@ export type CreateV1InstructionDataArgs = {
   creators: OptionOrNullable<Array<CreatorArgs>>;
   primarySaleHappened?: boolean;
   isMutable?: boolean;
-  tokenStandard: TokenStandardArgs;
+  tokenStandard?: TokenStandardArgs;
   collection?: OptionOrNullable<CollectionArgs>;
   uses?: OptionOrNullable<UsesArgs>;
-  collectionDetails?: OptionOrNullable<CollectionDetailsArgs>;
+  collectionDetails: OptionOrNullable<CollectionDetailsArgs>;
   ruleSet?: OptionOrNullable<PublicKey>;
-  decimals?: OptionOrNullable<number>;
-  printSupply?: OptionOrNullable<PrintSupplyArgs>;
+  decimals: OptionOrNullable<number>;
+  printSupply: OptionOrNullable<PrintSupplyArgs>;
 };
 
 export function getCreateV1InstructionDataSerializer(): Serializer<
@@ -167,28 +167,26 @@ export function getCreateV1InstructionDataSerializer(): Serializer<
       symbol: value.symbol ?? '',
       primarySaleHappened: value.primarySaleHappened ?? false,
       isMutable: value.isMutable ?? true,
+      tokenStandard: value.tokenStandard ?? TokenStandard.NonFungible,
       collection: value.collection ?? none(),
       uses: value.uses ?? none(),
-      collectionDetails: value.collectionDetails ?? none(),
       ruleSet: value.ruleSet ?? none(),
-      decimals: value.decimals ?? none(),
-      printSupply: value.printSupply ?? none(),
     })
   ) as Serializer<CreateV1InstructionDataArgs, CreateV1InstructionData>;
 }
 
 // Extra Args.
-export type CreateV1InstructionExtraArgs = { isCollection: boolean };
+export type CreateV1InstructionExtraArgs = { isCollection?: boolean };
 
 // Args.
 export type CreateV1InstructionArgs = PickPartial<
   CreateV1InstructionDataArgs & CreateV1InstructionExtraArgs,
   | 'tokenStandard'
+  | 'creators'
   | 'isCollection'
   | 'collectionDetails'
   | 'decimals'
   | 'printSupply'
-  | 'creators'
 >;
 
 // Instruction.
@@ -314,6 +312,15 @@ export function createV1(
       resolvedAccounts.splTokenProgram.isWritable = false;
     }
   }
+  if (!resolvedArgs.creators) {
+    resolvedArgs.creators = resolveCreators(
+      context,
+      resolvedAccounts,
+      resolvedArgs,
+      programId,
+      false
+    );
+  }
   if (!resolvedArgs.isCollection) {
     resolvedArgs.isCollection = false;
   }
@@ -337,15 +344,6 @@ export function createV1(
   }
   if (!resolvedArgs.printSupply) {
     resolvedArgs.printSupply = resolvePrintSupply(
-      context,
-      resolvedAccounts,
-      resolvedArgs,
-      programId,
-      false
-    );
-  }
-  if (!resolvedArgs.creators) {
-    resolvedArgs.creators = resolveCreators(
       context,
       resolvedAccounts,
       resolvedArgs,

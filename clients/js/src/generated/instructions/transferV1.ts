@@ -274,8 +274,8 @@ export function transferV1(
       resolvedAccounts.destinationTokenRecord.value = findTokenRecordPda(
         context,
         {
-          mint: expectPublicKey(resolvedAccounts.mint.value),
           token: expectPublicKey(resolvedAccounts.destinationToken.value),
+          mint: expectPublicKey(resolvedAccounts.mint.value),
         }
       );
     }

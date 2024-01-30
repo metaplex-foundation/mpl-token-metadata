@@ -302,6 +302,7 @@ impl CreateV1Builder {
         self.is_mutable = Some(is_mutable);
         self
     }
+    /// `[optional argument, defaults to 'TokenStandard::NonFungible']`
     #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.token_standard = Some(token_standard);
@@ -392,7 +393,7 @@ impl CreateV1Builder {
             token_standard: self
                 .token_standard
                 .clone()
-                .expect("token_standard is not set"),
+                .unwrap_or(TokenStandard::NonFungible),
             collection: self.collection.clone(),
             uses: self.uses.clone(),
             collection_details: self.collection_details.clone(),
@@ -769,6 +770,7 @@ impl<'a, 'b> CreateV1CpiBuilder<'a, 'b> {
         self.instruction.is_mutable = Some(is_mutable);
         self
     }
+    /// `[optional argument, defaults to 'TokenStandard::NonFungible']`
     #[inline(always)]
     pub fn token_standard(&mut self, token_standard: TokenStandard) -> &mut Self {
         self.instruction.token_standard = Some(token_standard);
@@ -871,7 +873,7 @@ impl<'a, 'b> CreateV1CpiBuilder<'a, 'b> {
                 .instruction
                 .token_standard
                 .clone()
-                .expect("token_standard is not set"),
+                .unwrap_or(TokenStandard::NonFungible),
             collection: self.instruction.collection.clone(),
             uses: self.instruction.uses.clone(),
             collection_details: self.instruction.collection_details.clone(),

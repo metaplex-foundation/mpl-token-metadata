@@ -210,10 +210,10 @@ export function updateAsCollectionItemDelegateV2(
     resolvedAccounts.delegateRecord.value = findMetadataDelegateRecordPda(
       context,
       {
-        mint: expectPublicKey(resolvedAccounts.mint.value),
         delegateRole: MetadataDelegateRole.CollectionItem,
         updateAuthority: expectSome(resolvedArgs.updateAuthority),
         delegate: expectPublicKey(resolvedAccounts.authority.value),
+        mint: expectPublicKey(resolvedAccounts.mint.value),
       }
     );
   }
