@@ -155,7 +155,7 @@ pub fn delegate<'a>(
     };
 
     if let Some((role, _authorization_data)) = delegate_args {
-        return create_delegate_v1(program_id, context, DelegateScenario::Metadata(role));
+        return create_other_delegate_v1(program_id, context, DelegateScenario::Metadata(role));
     }
 
     // checks if it is a HolderDelegate creation
@@ -169,7 +169,7 @@ pub fn delegate<'a>(
     };
 
     if let Some((role, _authorization_data)) = delegate_args {
-        return create_delegate_v1(program_id, context, DelegateScenario::Holder(role));
+        return create_other_delegate_v1(program_id, context, DelegateScenario::Holder(role));
     }
 
     // this only happens if we did not find a match
@@ -179,20 +179,23 @@ pub fn delegate<'a>(
 /// Creates a `DelegateRole::Collection` delegate.
 ///
 /// There can be multiple collections delegates set at any time.
-fn create_delegate_v1(
+fn create_other_delegate_v1(
     program_id: &Pubkey,
     ctx: Context<Delegate>,
     delegate_scenario: DelegateScenario,
 ) -> ProgramResult {
     // signers
+
     assert_signer(ctx.accounts.payer_info)?;
     assert_signer(ctx.accounts.authority_info)?;
 
     // ownership
+
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
     assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
     // key match
+
     assert_keys_equal(ctx.accounts.system_program_info.key, &system_program::ID)?;
     assert_keys_equal(
         ctx.accounts.sysvar_instructions_info.key,
@@ -200,6 +203,7 @@ fn create_delegate_v1(
     )?;
 
     // account relationships
+
     let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -211,7 +215,7 @@ fn create_delegate_v1(
             assert_update_authority_is_correct(&metadata, ctx.accounts.authority_info)?;
         }
         DelegateScenario::Holder(_) => {
-            // ownership for token
+            // retrieving required optional account
             let token_info = match ctx.accounts.token_info {
                 Some(token_info) => token_info,
                 None => {
@@ -219,6 +223,7 @@ fn create_delegate_v1(
                 }
             };
 
+            // ownership for token
             assert_owner_in(token_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
             // authority must be the owner of the token account: spl-token required the
