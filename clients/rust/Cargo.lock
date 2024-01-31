@@ -2093,7 +2093,7 @@ dependencies = [
 
 [[package]]
 name = "mpl-token-metadata"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "assert_matches",
  "borsh 0.9.3",
