@@ -15,10 +15,13 @@ use token_metadata::{
     instruction::{
         self,
         builders::{BurnBuilder, DelegateBuilder, PrintBuilder, TransferBuilder},
-        BurnArgs, DelegateArgs, InstructionBuilder, MetadataDelegateRole, MetadataInstruction,
-        MintNewEditionFromMasterEditionViaTokenArgs, PrintArgs, TransferArgs,
+        BurnArgs, DelegateArgs, HolderDelegateRole, InstructionBuilder, MetadataDelegateRole,
+        MetadataInstruction, MintNewEditionFromMasterEditionViaTokenArgs, PrintArgs, TransferArgs,
     },
-    pda::{find_metadata_delegate_record_account, find_token_record_account, MARKER},
+    pda::{
+        find_holder_delegate_record_account, find_metadata_delegate_record_account,
+        find_token_record_account, MARKER,
+    },
     state::{ProgrammableConfig, TokenMetadataAccount, EDITION, EDITION_MARKER_BIT_SIZE, PREFIX},
     ID,
 };
@@ -738,6 +741,16 @@ impl EditionMarker {
                 let (delegate_record, _) = find_metadata_delegate_record_account(
                     &self.mint.pubkey(),
                     MetadataDelegateRole::ProgrammableConfigItem,
+                    &payer.pubkey(),
+                    &delegate,
+                );
+                builder.delegate_record(delegate_record);
+                delegate_or_token_record = Some(delegate_record);
+            }
+            DelegateArgs::PrintDelegateV1 { .. } => {
+                let (delegate_record, _) = find_holder_delegate_record_account(
+                    &self.mint.pubkey(),
+                    HolderDelegateRole::PrintDelegate,
                     &payer.pubkey(),
                     &delegate,
                 );

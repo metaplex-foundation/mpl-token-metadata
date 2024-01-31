@@ -12,4 +12,5 @@ use borsh::BorshSerialize;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PrintArgs {
     V1 { edition: u64 },
+    V2 { edition: u64 },
 }

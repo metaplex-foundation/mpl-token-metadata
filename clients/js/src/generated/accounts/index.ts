@@ -11,6 +11,7 @@ export * from './deprecatedMasterEditionV1';
 export * from './edition';
 export * from './editionMarker';
 export * from './editionMarkerV2';
+export * from './holderDelegateRecord';
 export * from './masterEdition';
 export * from './metadata';
 export * from './metadataDelegateRecord';

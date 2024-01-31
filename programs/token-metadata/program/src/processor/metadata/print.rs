@@ -26,16 +26,49 @@ pub fn print<'a>(
     accounts: &'a [AccountInfo<'a>],
     args: PrintArgs,
 ) -> ProgramResult {
-    let context = Print::to_context(accounts)?;
-
     match args {
-        PrintArgs::V1 { .. } => print_v1(program_id, context, args),
+        PrintArgs::V1 { .. } => print_v1(program_id, accounts, args),
+        PrintArgs::V2 { .. } => print_v2(program_id, accounts, args),
     }
 }
 
-fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> ProgramResult {
+pub fn print_v1<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
+    args: PrintArgs,
+) -> ProgramResult {
+    let context = Print::to_context(accounts)?;
+
+    print_logic(program_id, context, args, None)
+}
+
+pub fn print_v2<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
+    args: PrintArgs,
+) -> ProgramResult {
+    let context = Print::to_context(&accounts[0..18])?;
+
+    let holder_delegate_record_info = if accounts[18].key == &crate::ID {
+        None
+    } else {
+        Some(&accounts[18])
+    };
+
+    print_logic(program_id, context, args, holder_delegate_record_info)
+}
+
+fn print_logic<'a>(
+    _program_id: &Pubkey,
+    ctx: Context<Print<'a>>,
+    args: PrintArgs,
+    holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
+) -> ProgramResult {
     // Get the args for the instruction
-    let PrintArgs::V1 { edition } = args;
+    let edition = match args {
+        PrintArgs::V1 { edition } => edition,
+        PrintArgs::V2 { edition } => edition,
+    };
 
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let edition_metadata_info = ctx.accounts.edition_metadata_info;
@@ -233,6 +266,7 @@ fn print_v1(_program_id: &Pubkey, ctx: Context<Print>, args: PrintArgs) -> Progr
             master_metadata_account_info: master_metadata_info,
             token_program_account_info: token_program,
             system_account_info: system_program,
+            holder_delegate_record_info,
         },
         edition,
     )?;

@@ -14,12 +14,12 @@ use crate::{
         metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
-    instruction::{Context, Delegate, DelegateArgs, MetadataDelegateRole},
+    instruction::{Context, Delegate, DelegateArgs, HolderDelegateRole, MetadataDelegateRole},
     pda::{find_token_record_account, PREFIX},
     processor::AuthorizationData,
     state::{
-        Metadata, MetadataDelegateRecord, Operation, ProgrammableConfig, Resizable,
-        TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard, TokenState,
+        HolderDelegateRecord, Metadata, MetadataDelegateRecord, Operation, ProgrammableConfig,
+        Resizable, TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard, TokenState,
     },
     utils::{
         assert_token_program_matches_package, auth_rules_validate, freeze, thaw, unpack,
@@ -30,6 +30,7 @@ use crate::{
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DelegateScenario {
     Metadata(MetadataDelegateRole),
+    Holder(HolderDelegateRole),
     Token(TokenDelegateRole),
 }
 
@@ -47,6 +48,9 @@ impl Display for DelegateScenario {
                 MetadataDelegateRole::ProgrammableConfigItem => {
                     "ProgrammableConfigItem".to_string()
                 }
+            },
+            Self::Holder(role) => match role {
+                HolderDelegateRole::PrintDelegate => "PrintDelegate".to_string(),
             },
             Self::Token(role) => match role {
                 TokenDelegateRole::Sale => "Sale".to_string(),
@@ -151,7 +155,21 @@ pub fn delegate<'a>(
     };
 
     if let Some((role, _authorization_data)) = delegate_args {
-        return create_delegate_v1(program_id, context, args, role);
+        return create_other_delegate_v1(program_id, context, DelegateScenario::Metadata(role));
+    }
+
+    // checks if it is a HolderDelegate creation
+    let delegate_args = match &args {
+        DelegateArgs::PrintDelegateV1 { authorization_data } => {
+            Some((HolderDelegateRole::PrintDelegate, authorization_data))
+        }
+
+        // we don't need to fail if did not find a match at this point
+        _ => None,
+    };
+
+    if let Some((role, _authorization_data)) = delegate_args {
+        return create_other_delegate_v1(program_id, context, DelegateScenario::Holder(role));
     }
 
     // this only happens if we did not find a match
@@ -161,11 +179,10 @@ pub fn delegate<'a>(
 /// Creates a `DelegateRole::Collection` delegate.
 ///
 /// There can be multiple collections delegates set at any time.
-fn create_delegate_v1(
+fn create_other_delegate_v1(
     program_id: &Pubkey,
     ctx: Context<Delegate>,
-    _args: DelegateArgs,
-    role: MetadataDelegateRole,
+    delegate_scenario: DelegateScenario,
 ) -> ProgramResult {
     // signers
 
@@ -188,11 +205,35 @@ fn create_delegate_v1(
     // account relationships
 
     let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
-    // authority must match update authority
-    assert_update_authority_is_correct(&metadata, ctx.accounts.authority_info)?;
-
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
+    }
+
+    match delegate_scenario {
+        DelegateScenario::Metadata(_) => {
+            // authority must match update authority
+            assert_update_authority_is_correct(&metadata, ctx.accounts.authority_info)?;
+        }
+        DelegateScenario::Holder(_) => {
+            // retrieving required optional account
+            let token_info = match ctx.accounts.token_info {
+                Some(token_info) => token_info,
+                None => {
+                    return Err(MetadataError::MissingTokenAccount.into());
+                }
+            };
+
+            // ownership for token
+            assert_owner_in(token_info, &SPL_TOKEN_PROGRAM_IDS)?;
+
+            // authority must be the owner of the token account: spl-token required the
+            // token owner to set a delegate
+            let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
+            if token.owner != *ctx.accounts.authority_info.key {
+                return Err(MetadataError::IncorrectOwner.into());
+            }
+        }
+        _ => return Err(MetadataError::InvalidDelegateRole.into()),
     }
 
     let delegate_record_info = match ctx.accounts.delegate_record_info {
@@ -205,8 +246,6 @@ fn create_delegate_v1(
     // process the delegation creation (the derivation is checked
     // by the create helper)
 
-    let delegate_role = role.to_string();
-
     create_pda_account(
         program_id,
         delegate_record_info,
@@ -215,7 +254,7 @@ fn create_delegate_v1(
         ctx.accounts.authority_info,
         ctx.accounts.payer_info,
         ctx.accounts.system_program_info,
-        &delegate_role,
+        delegate_scenario,
     )
 }
 
@@ -491,9 +530,15 @@ fn create_pda_account<'a>(
     authority_info: &'a AccountInfo<'a>,
     payer_info: &'a AccountInfo<'a>,
     system_program_info: &'a AccountInfo<'a>,
-    delegate_role: &str,
+    delegate_scenario: DelegateScenario,
 ) -> ProgramResult {
     // validates the delegate derivation
+
+    let delegate_role = match delegate_scenario {
+        DelegateScenario::Metadata(role) => role.to_string(),
+        DelegateScenario::Holder(role) => role.to_string(),
+        _ => return Err(MetadataError::InvalidDelegateRole.into()),
+    };
 
     let mut signer_seeds = vec![
         PREFIX.as_bytes(),
@@ -525,14 +570,29 @@ fn create_pda_account<'a>(
         &signer_seeds,
     )?;
 
-    let pda = MetadataDelegateRecord {
-        bump: bump[0],
-        mint: *mint_info.key,
-        delegate: *delegate_info.key,
-        update_authority: *authority_info.key,
-        ..Default::default()
+    match delegate_scenario {
+        DelegateScenario::Metadata(_) => {
+            let pda = MetadataDelegateRecord {
+                bump: bump[0],
+                mint: *mint_info.key,
+                delegate: *delegate_info.key,
+                update_authority: *authority_info.key,
+                ..Default::default()
+            };
+            borsh::to_writer(&mut delegate_record_info.try_borrow_mut_data()?[..], &pda)?;
+        }
+        DelegateScenario::Holder(_) => {
+            let pda = HolderDelegateRecord {
+                bump: bump[0],
+                mint: *mint_info.key,
+                delegate: *delegate_info.key,
+                update_authority: *authority_info.key,
+                ..Default::default()
+            };
+            borsh::to_writer(&mut delegate_record_info.try_borrow_mut_data()?[..], &pda)?;
+        }
+        _ => return Err(MetadataError::InvalidDelegateRole.into()),
     };
-    borsh::to_writer(&mut delegate_record_info.try_borrow_mut_data()?[..], &pda)?;
 
     Ok(())
 }

@@ -19,12 +19,13 @@ use token_metadata::{
             TransferBuilder, UnlockBuilder, UnverifyBuilder, UpdateBuilder, VerifyBuilder,
         },
         BurnArgs, CollectionDetailsToggle, CollectionToggle, CreateArgs, DelegateArgs,
-        InstructionBuilder, LockArgs, MetadataDelegateRole, MintArgs, RevokeArgs, RuleSetToggle,
-        TransferArgs, UnlockArgs, UpdateArgs, UsesToggle, VerificationArgs,
+        HolderDelegateRole, InstructionBuilder, LockArgs, MetadataDelegateRole, MintArgs,
+        RevokeArgs, RuleSetToggle, TransferArgs, UnlockArgs, UpdateArgs, UsesToggle,
+        VerificationArgs,
     },
     pda::{
-        find_master_edition_account, find_metadata_account, find_metadata_delegate_record_account,
-        find_token_record_account,
+        find_holder_delegate_record_account, find_master_edition_account, find_metadata_account,
+        find_metadata_delegate_record_account, find_token_record_account,
     },
     processor::AuthorizationData,
     state::{
@@ -756,6 +757,12 @@ impl DigitalAsset {
                 builder.delegate_record(delegate_record);
                 delegate_or_token_record = Some(delegate_record);
             }
+            DelegateArgs::PrintDelegateV1 { .. } => {
+                let (token_record, _) =
+                    find_token_record_account(&self.mint.pubkey(), &self.token.unwrap());
+                builder.token_record(token_record);
+                delegate_or_token_record = Some(token_record);
+            }
         }
 
         if let Some(edition) = self.edition {
@@ -965,6 +972,16 @@ impl DigitalAsset {
                 let (delegate_record, _) = find_metadata_delegate_record_account(
                     &self.mint.pubkey(),
                     MetadataDelegateRole::ProgrammableConfigItem,
+                    &payer.pubkey(),
+                    &delegate,
+                );
+                builder.delegate_record(delegate_record);
+            }
+
+            RevokeArgs::PrintDelegateV1 => {
+                let (delegate_record, _) = find_holder_delegate_record_account(
+                    &self.mint.pubkey(),
+                    HolderDelegateRole::PrintDelegate,
                     &payer.pubkey(),
                     &delegate,
                 );

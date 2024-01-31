@@ -4601,7 +4601,8 @@
         {
           "name": "masterTokenAccountOwner",
           "isMut": false,
-          "isSigner": true,
+          "isSigner": false,
+          "isOptionalSigner": true,
           "docs": [
             "owner of token account containing master token"
           ]
@@ -4704,6 +4705,36 @@
     },
     {
       "name": "MetadataDelegateRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": "Key"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "delegate",
+            "type": "publicKey"
+          },
+          {
+            "name": "updateAuthority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderDelegateRecord",
       "type": {
         "kind": "struct",
         "fields": [
@@ -5777,6 +5808,19 @@
                 }
               }
             ]
+          },
+          {
+            "name": "PrintDelegateV1",
+            "fields": [
+              {
+                "name": "authorization_data",
+                "type": {
+                  "option": {
+                    "defined": "AuthorizationData"
+                  }
+                }
+              }
+            ]
           }
         ]
       }
@@ -5827,6 +5871,9 @@
           },
           {
             "name": "ProgrammableConfigItemV1"
+          },
+          {
+            "name": "PrintDelegateV1"
           }
         ]
       }
@@ -5859,6 +5906,17 @@
           },
           {
             "name": "ProgrammableConfigItem"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderDelegateRole",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "PrintDelegate"
           }
         ]
       }
@@ -6344,6 +6402,15 @@
                 "type": "u64"
               }
             ]
+          },
+          {
+            "name": "V2",
+            "fields": [
+              {
+                "name": "edition",
+                "type": "u64"
+              }
+            ]
           }
         ]
       }
@@ -6497,6 +6564,9 @@
           },
           {
             "name": "EditionMarkerV2"
+          },
+          {
+            "name": "HolderDelegate"
           }
         ]
       }

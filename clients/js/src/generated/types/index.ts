@@ -19,6 +19,7 @@ export * from './data';
 export * from './dataV2';
 export * from './delegateArgs';
 export * from './escrowAuthority';
+export * from './holderDelegateRole';
 export * from './key';
 export * from './lockArgs';
 export * from './metadataDelegateRole';

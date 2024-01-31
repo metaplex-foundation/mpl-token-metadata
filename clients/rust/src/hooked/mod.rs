@@ -1,2 +1,4 @@
+mod holder_delegate_role_seed;
 mod metadata_delegate_role_seed;
+pub use holder_delegate_role_seed::HolderDelegateRoleSeed;
 pub use metadata_delegate_role_seed::MetadataDelegateRoleSeed;
