@@ -29,6 +29,17 @@ pub struct DeprecatedMasterEditionV1 {
 }
 
 impl DeprecatedMasterEditionV1 {
+    /// Prefix values used to generate a PDA for this account.
+    ///
+    /// Values are positional and appear in the following order:
+    ///
+    ///   0. `DeprecatedMasterEditionV1::PREFIX.0`
+    ///   1. `crate::MPL_TOKEN_METADATA_ID`
+    ///   2. mint (`Pubkey`)
+    ///   3. `DeprecatedMasterEditionV1::PREFIX.1`
+    pub const PREFIX: (&'static [u8], &'static [u8]) =
+        ("metadata".as_bytes(), "edition".as_bytes());
+
     pub fn create_pda(
         mint: Pubkey,
         bump: u8,

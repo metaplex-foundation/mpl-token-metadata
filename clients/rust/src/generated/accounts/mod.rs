@@ -5,28 +5,28 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-pub(crate) mod collection_authority_record;
-pub(crate) mod deprecated_master_edition_v1;
-pub(crate) mod edition;
-pub(crate) mod edition_marker;
-pub(crate) mod edition_marker_v2;
-pub(crate) mod holder_delegate_record;
-pub(crate) mod master_edition;
-pub(crate) mod metadata;
-pub(crate) mod metadata_delegate_record;
-pub(crate) mod token_owned_escrow;
-pub(crate) mod token_record;
-pub(crate) mod use_authority_record;
+pub(crate) mod r#collection_authority_record;
+pub(crate) mod r#deprecated_master_edition_v1;
+pub(crate) mod r#edition;
+pub(crate) mod r#edition_marker;
+pub(crate) mod r#edition_marker_v2;
+pub(crate) mod r#holder_delegate_record;
+pub(crate) mod r#master_edition;
+pub(crate) mod r#metadata;
+pub(crate) mod r#metadata_delegate_record;
+pub(crate) mod r#token_owned_escrow;
+pub(crate) mod r#token_record;
+pub(crate) mod r#use_authority_record;
 
-pub use self::collection_authority_record::*;
-pub use self::deprecated_master_edition_v1::*;
-pub use self::edition::*;
-pub use self::edition_marker::*;
-pub use self::edition_marker_v2::*;
-pub use self::holder_delegate_record::*;
-pub use self::master_edition::*;
-pub use self::metadata::*;
-pub use self::metadata_delegate_record::*;
-pub use self::token_owned_escrow::*;
-pub use self::token_record::*;
-pub use self::use_authority_record::*;
+pub use self::r#collection_authority_record::*;
+pub use self::r#deprecated_master_edition_v1::*;
+pub use self::r#edition::*;
+pub use self::r#edition_marker::*;
+pub use self::r#edition_marker_v2::*;
+pub use self::r#holder_delegate_record::*;
+pub use self::r#master_edition::*;
+pub use self::r#metadata::*;
+pub use self::r#metadata_delegate_record::*;
+pub use self::r#token_owned_escrow::*;
+pub use self::r#token_record::*;
+pub use self::r#use_authority_record::*;

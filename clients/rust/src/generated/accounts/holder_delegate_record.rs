@@ -35,6 +35,17 @@ pub struct HolderDelegateRecord {
 
 impl HolderDelegateRecord {
     pub const LEN: usize = 98;
+    /// Prefix values used to generate a PDA for this account.
+    ///
+    /// Values are positional and appear in the following order:
+    ///
+    ///   0. `HolderDelegateRecord::PREFIX`
+    ///   1. `crate::MPL_TOKEN_METADATA_ID`
+    ///   2. mint (`Pubkey`)
+    ///   3. delegate_role (`HolderDelegateRoleSeed`)
+    ///   4. owner (`Pubkey`)
+    ///   5. delegate (`Pubkey`)
+    pub const PREFIX: &'static [u8] = "metadata".as_bytes();
 
     pub fn create_pda(
         mint: Pubkey,
