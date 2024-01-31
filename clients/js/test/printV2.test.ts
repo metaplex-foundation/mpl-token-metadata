@@ -69,6 +69,7 @@ test('it can print a new edition from a NonFungible', async (t) => {
       symbol: 'MNFT',
       uri: 'https://example.com/nft.json',
       sellerFeeBasisPoints: 542,
+      tokenStandard: some(TokenStandard.NonFungibleEdition),
     },
     token: {
       owner: editionOwner.publicKey,
@@ -284,7 +285,6 @@ test('it can delegate the authority to print a new edition', async (t) => {
     originalMint.publicKey,
     originalOwner.publicKey
   );
-  // const tokenAccount = await fetchToken(umi, digitalAssetWithToken.token.publicKey);
 
   await delegatePrintDelegateV1(umi, {
     delegate: delegate.publicKey,
@@ -487,7 +487,7 @@ test('it can delegate multiple authorities to print new editions', async (t) => 
   });
 });
 
-test('it can print a new owner as the master holder after delegating the authority', async (t) => {
+test('it can still print as the master edition holder even after delegating', async (t) => {
   // Given an existing master edition asset.
   const umi = await createUmi();
   const originalOwner = generateSigner(umi);
@@ -515,7 +515,6 @@ test('it can print a new owner as the master holder after delegating the authori
     originalMint.publicKey,
     originalOwner.publicKey
   );
-  // const tokenAccount = await fetchToken(umi, digitalAssetWithToken.token.publicKey);
 
   await delegatePrintDelegateV1(umi, {
     delegate: delegate.publicKey,
