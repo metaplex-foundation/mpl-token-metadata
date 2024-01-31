@@ -6,7 +6,7 @@ pub mod utils;
 pub use generated::programs::MPL_TOKEN_METADATA_ID as ID;
 pub use generated::*;
 
-/// Maximum number of characters in a meetadata name.
+/// Maximum number of characters in a metadata name.
 pub const MAX_NAME_LENGTH: usize = 32;
 
 /// Maximum number of characters in a metadata symbol.
@@ -26,3 +26,5 @@ pub const MAX_EDITION_MARKER_SIZE: usize = 32;
 
 /// Number of bits used by a edition marker.
 pub const EDITION_MARKER_BIT_SIZE: u64 = 248;
+
+impl Copy for types::Key {}

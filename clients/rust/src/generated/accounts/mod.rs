@@ -6,6 +6,7 @@
 //!
 
 pub(crate) mod collection_authority_record;
+pub(crate) mod deprecated_master_edition_v1;
 pub(crate) mod edition;
 pub(crate) mod edition_marker;
 pub(crate) mod edition_marker_v2;
@@ -17,6 +18,7 @@ pub(crate) mod token_record;
 pub(crate) mod use_authority_record;
 
 pub use self::collection_authority_record::*;
+pub use self::deprecated_master_edition_v1::*;
 pub use self::edition::*;
 pub use self::edition_marker::*;
 pub use self::edition_marker_v2::*;
