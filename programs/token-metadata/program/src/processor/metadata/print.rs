@@ -49,7 +49,13 @@ pub fn print_v2<'a>(
 ) -> ProgramResult {
     let context = Print::to_context(&accounts[0..18])?;
 
-    print_logic(program_id, context, args, Some(&accounts[18]))
+    let holder_delegate_record_info = if accounts[18].key == &crate::ID {
+        None
+    } else {
+        Some(&accounts[18])
+    };
+
+    print_logic(program_id, context, args, holder_delegate_record_info)
 }
 
 fn print_logic<'a>(

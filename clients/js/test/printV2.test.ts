@@ -10,7 +10,6 @@ import {
   transactionBuilder,
 } from '@metaplex-foundation/umi';
 import test from 'ava';
-// import { printAsDelegate } from 'src/printHelpers';
 import {
   DigitalAsset,
   DigitalAssetWithToken,

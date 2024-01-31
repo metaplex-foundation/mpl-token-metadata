@@ -82,7 +82,6 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
 
     match holder_delegate_record_info {
         Some(delegate_record_info) => {
-            solana_program::msg!("Print authority is a delegate");
             assert_owned_by(delegate_record_info, &crate::ID)?;
             let role = HolderDelegateRole::PrintDelegate.to_string();
             let seeds = vec![
@@ -98,7 +97,6 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
         }
         None => assert_signer(owner_account_info),
     }?;
-    solana_program::msg!("Print authority is a signer");
 
     if token_account.owner != *owner_account_info.key {
         return Err(MetadataError::InvalidOwner.into());
