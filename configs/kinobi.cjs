@@ -28,6 +28,11 @@ kinobi.update(
       size: null,
       seeds: metadataSeeds,
     },
+    masterEditionV1: {
+      size: null,
+      name: "deprecatedMasterEditionV1",
+      seeds: [...metadataSeeds, k.stringConstantSeed("edition")],
+    },
     masterEditionV2: {
       size: null,
       name: "masterEdition",
@@ -113,7 +118,6 @@ kinobi.update(
     // Deprecated nodes.
     "mplTokenMetadata.ReservationListV1": { delete: true },
     "mplTokenMetadata.ReservationListV2": { delete: true },
-    "mplTokenMetadata.MasterEditionV1": { delete: true },
   })
 );
 
@@ -548,6 +552,7 @@ kinobi.update(
     TokenOwnedEscrow: key("TokenOwnedEscrow"),
     TokenRecord: key("TokenRecord"),
     MetadataDelegate: key("MetadataDelegate"),
+    DeprecatedMasterEditionV1: key("MasterEditionV1"),
     HolderDelegate: key("HolderDelegate"),
   })
 );
