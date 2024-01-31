@@ -52,7 +52,7 @@ export type PrintV1InstructionAccounts = {
   /** Token account of new token */
   editionTokenAccount?: PublicKey | Pda;
   /** Mint authority of new mint */
-  editionMintAuthority?: PublicKey | Pda | Signer;
+  editionMintAuthority?: Signer;
   /** Token record account */
   editionTokenRecord?: PublicKey | Pda;
   /** Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
@@ -62,7 +62,7 @@ export type PrintV1InstructionAccounts = {
   /** payer */
   payer?: Signer;
   /** owner of token account containing master token */
-  masterTokenAccountOwner?: PublicKey | Pda | Signer;
+  masterTokenAccountOwner?: Signer;
   /** token account containing token from master metadata mint */
   masterTokenAccount?: PublicKey | Pda;
   /** Master record metadata account */

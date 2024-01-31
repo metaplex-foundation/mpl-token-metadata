@@ -812,7 +812,7 @@ pub enum MetadataInstruction {
     #[account(2, writable, name="edition_mint", desc="Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY")]
     #[account(3, name="edition_token_account_owner", desc="Owner of the token account of new token")]
     #[account(4, writable, name="edition_token_account", desc="Token account of new token")]
-    #[account(5, optional_signer, name="edition_mint_authority", desc="Mint authority of new mint")]
+    #[account(5, signer, name="edition_mint_authority", desc="Mint authority of new mint")]
     #[account(6, optional, writable, name="edition_token_record", desc="Token record account")]
     #[account(7, writable, name="master_edition", desc="Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition'])")]
     #[account(8, writable, name="edition_marker_pda", desc="Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master metadata mint id, 'edition', edition_number]) where edition_number is NOT the edition number you pass in args but actually edition_number = floor(edition/EDITION_MARKER_BIT_SIZE).")]

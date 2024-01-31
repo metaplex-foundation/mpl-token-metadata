@@ -52,7 +52,7 @@ export type PrintV2InstructionAccounts = {
   /** Token account of new token */
   editionTokenAccount?: PublicKey | Pda;
   /** Mint authority of new mint */
-  editionMintAuthority?: PublicKey | Pda | Signer;
+  editionMintAuthority?: Signer;
   /** Token record account */
   editionTokenRecord?: PublicKey | Pda;
   /** Master Record Edition V2 (pda of ['metadata', program id, master metadata mint id, 'edition']) */
@@ -257,18 +257,13 @@ export function printV2(
   if (!resolvedAccounts.payer.value) {
     resolvedAccounts.payer.value = context.payer;
   }
-  if (!resolvedAccounts.masterTokenAccountOwner.value) {
-    resolvedAccounts.masterTokenAccountOwner.value = context.identity;
-  }
   if (!resolvedAccounts.editionMintAuthority.value) {
     if (resolvedAccounts.holderDelegateRecord.value) {
       resolvedAccounts.editionMintAuthority.value = expectSome(
         resolvedAccounts.payer.value
       );
     } else {
-      resolvedAccounts.editionMintAuthority.value = expectSome(
-        resolvedAccounts.masterTokenAccountOwner.value
-      );
+      resolvedAccounts.editionMintAuthority.value = context.identity;
     }
   }
   if (!resolvedAccounts.editionTokenRecord.value) {
@@ -296,6 +291,11 @@ export function printV2(
           mint: expectSome(resolvedArgs.masterEditionMint),
           editionNumber: expectSome(resolvedArgs.editionNumber),
         });
+    }
+  }
+  if (!resolvedAccounts.masterTokenAccountOwner.value) {
+    if (!resolvedAccounts.holderDelegateRecord.value) {
+      resolvedAccounts.masterTokenAccountOwner.value = context.identity;
     }
   }
   if (!resolvedAccounts.masterTokenAccount.value) {

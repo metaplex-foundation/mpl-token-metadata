@@ -90,7 +90,7 @@ impl Default for HolderDelegateRecord {
 
 impl TokenMetadataAccount for HolderDelegateRecord {
     fn key() -> Key {
-        Key::MetadataDelegate
+        Key::HolderDelegate
     }
 
     fn size() -> usize {
@@ -101,7 +101,7 @@ impl TokenMetadataAccount for HolderDelegateRecord {
 impl HolderDelegateRecord {
     pub fn from_bytes(data: &[u8]) -> Result<HolderDelegateRecord, ProgramError> {
         let delegate: HolderDelegateRecord =
-            try_from_slice_checked(data, Key::MetadataDelegate, HolderDelegateRecord::size())?;
+            try_from_slice_checked(data, Key::HolderDelegate, HolderDelegateRecord::size())?;
         Ok(delegate)
     }
 }

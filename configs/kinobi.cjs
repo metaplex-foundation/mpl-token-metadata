@@ -466,7 +466,6 @@ kinobi.update(
     print: {
       accounts: {
         editionMint: { isSigner: "either" },
-        masterTokenAccountOwner: { defaultsTo: k.identityDefault() },
         editionTokenAccountOwner: { defaultsTo: k.identityDefault() },
         editionMetadata: {
           defaultsTo: k.pdaDefault("metadata", {
@@ -892,6 +891,9 @@ kinobi.update(
         editionMintAuthority: {
           defaultsTo: k.accountDefault("masterTokenAccountOwner"),
         },
+        masterTokenAccountOwner: {
+          defaultsTo: k.identityDefault(), isSigner: true
+        },
       },
       args: { edition: { name: "editionNumber" }, },
     },
@@ -915,7 +917,12 @@ kinobi.update(
         editionMintAuthority: {
           defaultsTo: k.conditionalDefault("account", "holderDelegateRecord", {
             ifTrue: k.accountDefault("payer"),
-            ifFalse: k.accountDefault("masterTokenAccountOwner"),
+            ifFalse: k.identityDefault(),
+          }),
+        },
+        masterTokenAccountOwner: {
+          defaultsTo: k.conditionalDefault("account", "holderDelegateRecord", {
+            ifFalse: k.identityDefault(),
           }),
         },
       },

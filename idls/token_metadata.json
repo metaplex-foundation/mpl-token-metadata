@@ -4560,8 +4560,7 @@
         {
           "name": "editionMintAuthority",
           "isMut": false,
-          "isSigner": false,
-          "isOptionalSigner": true,
+          "isSigner": true,
           "docs": [
             "Mint authority of new mint"
           ]
