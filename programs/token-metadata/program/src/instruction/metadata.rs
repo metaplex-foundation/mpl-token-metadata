@@ -436,6 +436,7 @@ pub struct UpdateMetadataAccountArgsV2 {
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub enum PrintArgs {
     V1 { edition: u64 },
+    V2 { edition: u64 },
 }
 
 //----------------------+

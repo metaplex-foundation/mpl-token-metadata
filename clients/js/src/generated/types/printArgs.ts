@@ -15,9 +15,13 @@ import {
   u64,
 } from '@metaplex-foundation/umi/serializers';
 
-export type PrintArgs = { __kind: 'V1'; edition: bigint };
+export type PrintArgs =
+  | { __kind: 'V1'; edition: bigint }
+  | { __kind: 'V2'; edition: bigint };
 
-export type PrintArgsArgs = { __kind: 'V1'; edition: number | bigint };
+export type PrintArgsArgs =
+  | { __kind: 'V1'; edition: number | bigint }
+  | { __kind: 'V2'; edition: number | bigint };
 
 export function getPrintArgsSerializer(): Serializer<PrintArgsArgs, PrintArgs> {
   return dataEnum<PrintArgs>(
@@ -25,6 +29,10 @@ export function getPrintArgsSerializer(): Serializer<PrintArgsArgs, PrintArgs> {
       [
         'V1',
         struct<GetDataEnumKindContent<PrintArgs, 'V1'>>([['edition', u64()]]),
+      ],
+      [
+        'V2',
+        struct<GetDataEnumKindContent<PrintArgs, 'V2'>>([['edition', u64()]]),
       ],
     ],
     { description: 'PrintArgs' }
@@ -36,6 +44,10 @@ export function printArgs(
   kind: 'V1',
   data: GetDataEnumKindContent<PrintArgsArgs, 'V1'>
 ): GetDataEnumKind<PrintArgsArgs, 'V1'>;
+export function printArgs(
+  kind: 'V2',
+  data: GetDataEnumKindContent<PrintArgsArgs, 'V2'>
+): GetDataEnumKind<PrintArgsArgs, 'V2'>;
 export function printArgs<K extends PrintArgsArgs['__kind']>(
   kind: K,
   data?: any

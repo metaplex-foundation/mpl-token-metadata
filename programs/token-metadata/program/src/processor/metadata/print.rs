@@ -26,26 +26,43 @@ pub fn print<'a>(
     accounts: &'a [AccountInfo<'a>],
     args: PrintArgs,
 ) -> ProgramResult {
-    let (context, holder_delegate_record_info) = match accounts.len() {
-        18 => (Print::to_context(accounts)?, None),
-        19 => (Print::to_context(&accounts[0..18])?, Some(&accounts[18])),
-        _ => return Err(ProgramError::NotEnoughAccountKeys),
-    };
-    // let context = Print::to_context(accounts)?;
-
     match args {
-        PrintArgs::V1 { .. } => print_v1(program_id, context, args, holder_delegate_record_info),
+        PrintArgs::V1 { .. } => print_v1(program_id, accounts, args),
+        PrintArgs::V2 { .. } => print_v2(program_id, accounts, args),
     }
 }
 
-fn print_v1<'a>(
+pub fn print_v1<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
+    args: PrintArgs,
+) -> ProgramResult {
+    let context = Print::to_context(accounts)?;
+
+    print_logic(program_id, context, args, None)
+}
+
+pub fn print_v2<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
+    args: PrintArgs,
+) -> ProgramResult {
+    let context = Print::to_context(&accounts[0..18])?;
+
+    print_logic(program_id, context, args, Some(&accounts[18]))
+}
+
+fn print_logic<'a>(
     _program_id: &Pubkey,
     ctx: Context<Print<'a>>,
     args: PrintArgs,
     holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
     // Get the args for the instruction
-    let PrintArgs::V1 { edition } = args;
+    let edition = match args {
+        PrintArgs::V1 { edition } => edition,
+        PrintArgs::V2 { edition } => edition,
+    };
 
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let edition_metadata_info = ctx.accounts.edition_metadata_info;

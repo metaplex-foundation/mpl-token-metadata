@@ -41,6 +41,7 @@ export * from './mintNewEditionFromMasterEditionViaToken';
 export * from './mintNewEditionFromMasterEditionViaVaultProxy';
 export * from './mintV1';
 export * from './printV1';
+export * from './printV2';
 export * from './puffMetadata';
 export * from './removeCreatorVerification';
 export * from './revokeAuthorityItemV1';

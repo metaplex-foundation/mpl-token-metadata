@@ -5,12 +5,11 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use crate::generated::types::PrintArgs;
 use borsh::BorshDeserialize;
 use borsh::BorshSerialize;
 
 /// Accounts.
-pub struct Print {
+pub struct PrintV2 {
     /// New Metadata key (pda of ['metadata', program id, mint id])
     pub edition_metadata: solana_program::pubkey::Pubkey,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
@@ -47,22 +46,24 @@ pub struct Print {
     pub sysvar_instructions: solana_program::pubkey::Pubkey,
     /// System program
     pub system_program: solana_program::pubkey::Pubkey,
+    /// The Delegate Record authorizing escrowless edition printing.
+    pub holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
 }
 
-impl Print {
+impl PrintV2 {
     pub fn instruction(
         &self,
-        args: PrintInstructionArgs,
+        args: PrintV2InstructionArgs,
     ) -> solana_program::instruction::Instruction {
         self.instruction_with_remaining_accounts(args, &[])
     }
     #[allow(clippy::vec_init_then_push)]
     pub fn instruction_with_remaining_accounts(
         &self,
-        args: PrintInstructionArgs,
+        args: PrintV2InstructionArgs,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(18 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(19 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.edition_metadata,
             false,
@@ -141,8 +142,19 @@ impl Print {
             self.system_program,
             false,
         ));
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                holder_delegate_record,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = PrintInstructionData::new().try_to_vec().unwrap();
+        let mut data = PrintV2InstructionData::new().try_to_vec().unwrap();
         let mut args = args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -155,23 +167,27 @@ impl Print {
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
-struct PrintInstructionData {
+struct PrintV2InstructionData {
     discriminator: u8,
+    print_v2_discriminator: u8,
 }
 
-impl PrintInstructionData {
+impl PrintV2InstructionData {
     fn new() -> Self {
-        Self { discriminator: 55 }
+        Self {
+            discriminator: 55,
+            print_v2_discriminator: 1,
+        }
     }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct PrintInstructionArgs {
-    pub print_args: PrintArgs,
+pub struct PrintV2InstructionArgs {
+    pub edition_number: u64,
 }
 
-/// Instruction builder for `Print`.
+/// Instruction builder for `PrintV2`.
 ///
 /// ### Accounts:
 ///
@@ -193,8 +209,9 @@ pub struct PrintInstructionArgs {
 ///   15. `[optional]` spl_ata_program (default to `ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL`)
 ///   16. `[optional]` sysvar_instructions (default to `Sysvar1nstructions1111111111111111111111111`)
 ///   17. `[optional]` system_program (default to `11111111111111111111111111111111`)
+///   18. `[optional]` holder_delegate_record
 #[derive(Default)]
-pub struct PrintBuilder {
+pub struct PrintV2Builder {
     edition_metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
     edition_mint: Option<(solana_program::pubkey::Pubkey, bool)>,
@@ -213,11 +230,12 @@ pub struct PrintBuilder {
     spl_ata_program: Option<solana_program::pubkey::Pubkey>,
     sysvar_instructions: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
-    print_args: Option<PrintArgs>,
+    holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
+    edition_number: Option<u64>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
-impl PrintBuilder {
+impl PrintV2Builder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -379,9 +397,19 @@ impl PrintBuilder {
         self.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// The Delegate Record authorizing escrowless edition printing.
     #[inline(always)]
-    pub fn print_args(&mut self, print_args: PrintArgs) -> &mut Self {
-        self.print_args = Some(print_args);
+    pub fn holder_delegate_record(
+        &mut self,
+        holder_delegate_record: Option<solana_program::pubkey::Pubkey>,
+    ) -> &mut Self {
+        self.holder_delegate_record = holder_delegate_record;
+        self
+    }
+    #[inline(always)]
+    pub fn edition_number(&mut self, edition_number: u64) -> &mut Self {
+        self.edition_number = Some(edition_number);
         self
     }
     /// Add an aditional account to the instruction.
@@ -404,7 +432,7 @@ impl PrintBuilder {
     }
     #[allow(clippy::clone_on_copy)]
     pub fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = Print {
+        let accounts = PrintV2 {
             edition_metadata: self.edition_metadata.expect("edition_metadata is not set"),
             edition: self.edition.expect("edition is not set"),
             edition_mint: self.edition_mint.expect("edition_mint is not set"),
@@ -443,17 +471,21 @@ impl PrintBuilder {
             system_program: self
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
+            holder_delegate_record: self.holder_delegate_record,
         };
-        let args = PrintInstructionArgs {
-            print_args: self.print_args.clone().expect("print_args is not set"),
+        let args = PrintV2InstructionArgs {
+            edition_number: self
+                .edition_number
+                .clone()
+                .expect("edition_number is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
     }
 }
 
-/// `print` CPI accounts.
-pub struct PrintCpiAccounts<'a, 'b> {
+/// `print_v2` CPI accounts.
+pub struct PrintV2CpiAccounts<'a, 'b> {
     /// New Metadata key (pda of ['metadata', program id, mint id])
     pub edition_metadata: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
@@ -490,10 +522,12 @@ pub struct PrintCpiAccounts<'a, 'b> {
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The Delegate Record authorizing escrowless edition printing.
+    pub holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
 }
 
-/// `print` CPI instruction.
-pub struct PrintCpi<'a, 'b> {
+/// `print_v2` CPI instruction.
+pub struct PrintV2Cpi<'a, 'b> {
     /// The program to invoke.
     pub __program: &'b solana_program::account_info::AccountInfo<'a>,
     /// New Metadata key (pda of ['metadata', program id, mint id])
@@ -532,15 +566,17 @@ pub struct PrintCpi<'a, 'b> {
     pub sysvar_instructions: &'b solana_program::account_info::AccountInfo<'a>,
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The Delegate Record authorizing escrowless edition printing.
+    pub holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// The arguments for the instruction.
-    pub __args: PrintInstructionArgs,
+    pub __args: PrintV2InstructionArgs,
 }
 
-impl<'a, 'b> PrintCpi<'a, 'b> {
+impl<'a, 'b> PrintV2Cpi<'a, 'b> {
     pub fn new(
         program: &'b solana_program::account_info::AccountInfo<'a>,
-        accounts: PrintCpiAccounts<'a, 'b>,
-        args: PrintInstructionArgs,
+        accounts: PrintV2CpiAccounts<'a, 'b>,
+        args: PrintV2InstructionArgs,
     ) -> Self {
         Self {
             __program: program,
@@ -562,6 +598,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             spl_ata_program: accounts.spl_ata_program,
             sysvar_instructions: accounts.sysvar_instructions,
             system_program: accounts.system_program,
+            holder_delegate_record: accounts.holder_delegate_record,
             __args: args,
         }
     }
@@ -598,7 +635,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(18 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(19 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.edition_metadata.key,
             false,
@@ -678,6 +715,17 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             *self.system_program.key,
             false,
         ));
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *holder_delegate_record.key,
+                false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
@@ -685,7 +733,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
                 is_writable: remaining_account.2,
             })
         });
-        let mut data = PrintInstructionData::new().try_to_vec().unwrap();
+        let mut data = PrintV2InstructionData::new().try_to_vec().unwrap();
         let mut args = self.__args.try_to_vec().unwrap();
         data.append(&mut args);
 
@@ -694,7 +742,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(18 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(19 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.edition_metadata.clone());
         account_infos.push(self.edition.clone());
@@ -716,6 +764,9 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         account_infos.push(self.spl_ata_program.clone());
         account_infos.push(self.sysvar_instructions.clone());
         account_infos.push(self.system_program.clone());
+        if let Some(holder_delegate_record) = self.holder_delegate_record {
+            account_infos.push(holder_delegate_record.clone());
+        }
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -728,7 +779,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
     }
 }
 
-/// Instruction builder for `Print` via CPI.
+/// Instruction builder for `PrintV2` via CPI.
 ///
 /// ### Accounts:
 ///
@@ -750,13 +801,14 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
 ///   15. `[]` spl_ata_program
 ///   16. `[]` sysvar_instructions
 ///   17. `[]` system_program
-pub struct PrintCpiBuilder<'a, 'b> {
-    instruction: Box<PrintCpiBuilderInstruction<'a, 'b>>,
+///   18. `[optional]` holder_delegate_record
+pub struct PrintV2CpiBuilder<'a, 'b> {
+    instruction: Box<PrintV2CpiBuilderInstruction<'a, 'b>>,
 }
 
-impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
+impl<'a, 'b> PrintV2CpiBuilder<'a, 'b> {
     pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-        let instruction = Box::new(PrintCpiBuilderInstruction {
+        let instruction = Box::new(PrintV2CpiBuilderInstruction {
             __program: program,
             edition_metadata: None,
             edition: None,
@@ -776,7 +828,8 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
             spl_ata_program: None,
             sysvar_instructions: None,
             system_program: None,
-            print_args: None,
+            holder_delegate_record: None,
+            edition_number: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -944,9 +997,19 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         self.instruction.system_program = Some(system_program);
         self
     }
+    /// `[optional account]`
+    /// The Delegate Record authorizing escrowless edition printing.
     #[inline(always)]
-    pub fn print_args(&mut self, print_args: PrintArgs) -> &mut Self {
-        self.instruction.print_args = Some(print_args);
+    pub fn holder_delegate_record(
+        &mut self,
+        holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.holder_delegate_record = holder_delegate_record;
+        self
+    }
+    #[inline(always)]
+    pub fn edition_number(&mut self, edition_number: u64) -> &mut Self {
+        self.instruction.edition_number = Some(edition_number);
         self
     }
     /// Add an additional account to the instruction.
@@ -990,14 +1053,14 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
         &self,
         signers_seeds: &[&[&[u8]]],
     ) -> solana_program::entrypoint::ProgramResult {
-        let args = PrintInstructionArgs {
-            print_args: self
+        let args = PrintV2InstructionArgs {
+            edition_number: self
                 .instruction
-                .print_args
+                .edition_number
                 .clone()
-                .expect("print_args is not set"),
+                .expect("edition_number is not set"),
         };
-        let instruction = PrintCpi {
+        let instruction = PrintV2Cpi {
             __program: self.instruction.__program,
 
             edition_metadata: self
@@ -1080,6 +1143,8 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
                 .instruction
                 .system_program
                 .expect("system_program is not set"),
+
+            holder_delegate_record: self.instruction.holder_delegate_record,
             __args: args,
         };
         instruction.invoke_signed_with_remaining_accounts(
@@ -1089,7 +1154,7 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     }
 }
 
-struct PrintCpiBuilderInstruction<'a, 'b> {
+struct PrintV2CpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     edition_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
@@ -1109,7 +1174,8 @@ struct PrintCpiBuilderInstruction<'a, 'b> {
     spl_ata_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     sysvar_instructions: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    print_args: Option<PrintArgs>,
+    holder_delegate_record: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_number: Option<u64>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

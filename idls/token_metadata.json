@@ -6403,6 +6403,15 @@
                 "type": "u64"
               }
             ]
+          },
+          {
+            "name": "V2",
+            "fields": [
+              {
+                "name": "edition",
+                "type": "u64"
+              }
+            ]
           }
         ]
       }
