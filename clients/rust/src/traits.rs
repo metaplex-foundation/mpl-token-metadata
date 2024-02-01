@@ -296,3 +296,7 @@ impl UpdateArgs {
         }
     }
 }
+
+// Key
+
+impl Copy for Key {}
