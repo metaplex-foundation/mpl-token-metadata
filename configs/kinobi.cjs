@@ -694,8 +694,15 @@ kinobi.update(
             k.instructionAccountNode({
               name: "holderDelegateRecord",
               isOptional: true,
-              docs: ["The Delegate Record authorizing escrowless edition printing."],
-            })],
+              docs: ["The Delegate Record authorizing escrowless edition printing"],
+            }),
+            k.instructionAccountNode({
+              name: "delegate",
+              isOptional: true,
+              isSigner: true,
+              docs: ["The authority printing the edition for a delegated print"],
+            })
+          ],
         });
       },
     },
@@ -921,7 +928,10 @@ kinobi.update(
         },
         editionMintAuthority: {
           defaultsTo: k.conditionalDefault("account", "holderDelegateRecord", {
-            ifTrue: k.accountDefault("payer"),
+            ifTrue: k.conditionalDefault("account", "delegate", {
+              ifTrue: k.accountDefault("delegate"),
+              ifFalse: k.accountDefault("payer"),
+            }),
             ifFalse: k.identityDefault(),
           }),
         },

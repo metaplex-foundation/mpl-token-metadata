@@ -77,8 +77,10 @@ export type PrintV2InstructionAccounts = {
   sysvarInstructions?: PublicKey | Pda;
   /** System program */
   systemProgram?: PublicKey | Pda;
-  /** The Delegate Record authorizing escrowless edition printing. */
+  /** The Delegate Record authorizing escrowless edition printing */
   holderDelegateRecord?: PublicKey | Pda;
+  /** The authority printing the edition for a delegated print */
+  delegate?: Signer;
 };
 
 // Data.
@@ -225,6 +227,11 @@ export function printV2(
       isWritable: false as boolean,
       value: input.holderDelegateRecord ?? null,
     },
+    delegate: {
+      index: 19,
+      isWritable: false as boolean,
+      value: input.delegate ?? null,
+    },
   } satisfies ResolvedAccountsWithIndices;
 
   // Arguments.
@@ -259,9 +266,15 @@ export function printV2(
   }
   if (!resolvedAccounts.editionMintAuthority.value) {
     if (resolvedAccounts.holderDelegateRecord.value) {
-      resolvedAccounts.editionMintAuthority.value = expectSome(
-        resolvedAccounts.payer.value
-      );
+      if (resolvedAccounts.delegate.value) {
+        resolvedAccounts.editionMintAuthority.value = expectSome(
+          resolvedAccounts.delegate.value
+        );
+      } else {
+        resolvedAccounts.editionMintAuthority.value = expectSome(
+          resolvedAccounts.payer.value
+        );
+      }
     } else {
       resolvedAccounts.editionMintAuthority.value = context.identity;
     }

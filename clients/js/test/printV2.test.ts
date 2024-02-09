@@ -569,3 +569,91 @@ test('it can still print as the master edition holder even after delegating', as
     },
   });
 });
+
+test('it can delegate the authority to print a new edition with a separate payer', async (t) => {
+  // Given an existing master edition asset.
+  const umi = await createUmi();
+  const originalOwner = generateSigner(umi);
+  const payer = generateSigner(umi);
+  const delegate = generateSigner(umi);
+  umi.rpc.airdrop(payer.publicKey, sol(1));
+  const originalMint = await createDigitalAssetWithToken(umi, {
+    name: 'My NFT',
+    symbol: 'MNFT',
+    uri: 'https://example.com/nft.json',
+    sellerFeeBasisPoints: percentAmount(5.42),
+    tokenOwner: originalOwner.publicKey,
+    printSupply: printSupply('Limited', [10]),
+    tokenStandard: TokenStandard.NonFungible,
+  });
+
+  const holderDelegateRecord = findHolderDelegateRecordPda(umi, {
+    mint: originalMint.publicKey,
+    delegateRole: 'print_delegate',
+    owner: originalOwner.publicKey,
+    delegate: delegate.publicKey,
+  });
+
+  const digitalAssetWithToken = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    originalMint.publicKey,
+    originalOwner.publicKey
+  );
+
+  await delegatePrintDelegateV1(umi, {
+    delegate: delegate.publicKey,
+    mint: originalMint.publicKey,
+    tokenStandard: TokenStandard.NonFungible,
+    token: digitalAssetWithToken.token.publicKey,
+    authority: originalOwner,
+    delegateRecord: holderDelegateRecord[0],
+  }).sendAndConfirm(umi);
+
+  // When the delegate prints a new edition of the asset.
+  const editionMint = generateSigner(umi);
+  const editionOwner = generateSigner(umi);
+
+  await printV2(umi, {
+    masterTokenAccountOwner: originalOwner.publicKey,
+    masterEditionMint: originalMint.publicKey,
+    editionMint,
+    editionTokenAccountOwner: editionOwner.publicKey,
+    editionNumber: 1,
+    tokenStandard: TokenStandard.NonFungible,
+    masterTokenAccount: digitalAssetWithToken.token.publicKey,
+    payer,
+    holderDelegateRecord: holderDelegateRecord[0],
+    delegate,
+  }).sendAndConfirm(umi);
+
+  // Then the original NFT was updated.
+  const originalAsset = await fetchDigitalAsset(umi, originalMint.publicKey);
+  t.like(originalAsset, <DigitalAsset>{
+    edition: { supply: 1n, maxSupply: some(10n) },
+  });
+
+  // And the printed NFT was created with the same data.
+  const editionAsset = await fetchDigitalAssetWithAssociatedToken(
+    umi,
+    editionMint.publicKey,
+    editionOwner.publicKey
+  );
+  t.like(editionAsset, <DigitalAssetWithToken>{
+    publicKey: editionMint.publicKey,
+    metadata: {
+      name: 'My NFT',
+      symbol: 'MNFT',
+      uri: 'https://example.com/nft.json',
+      sellerFeeBasisPoints: 542,
+    },
+    token: {
+      owner: editionOwner.publicKey,
+      amount: 1n,
+    },
+    edition: {
+      isOriginal: false,
+      parent: findMasterEditionPda(umi, { mint: originalMint.publicKey })[0],
+      edition: 1n,
+    },
+  });
+});

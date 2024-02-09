@@ -826,6 +826,7 @@ pub enum MetadataInstruction {
     #[account(16, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(17, name="system_program", desc="System program")]
     // #[account(18, optional, name="holder_delegate_record", desc="The Delegate Record authorizing escrowless edition printing")]
+    // #[account(19, optional, signer, name="delegate", desc="The authority printing the edition for a delegated print")]
     #[args(initialize_mint: bool)]
     Print(PrintArgs),
 }
