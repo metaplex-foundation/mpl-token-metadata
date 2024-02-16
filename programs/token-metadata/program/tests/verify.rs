@@ -1468,6 +1468,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -1769,6 +1770,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.clone().map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         let collection_metadata = collection_parent_nft.get_data(context).await;
@@ -1975,6 +1977,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         collection_parent_da
@@ -2207,6 +2210,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         collection_parent_da

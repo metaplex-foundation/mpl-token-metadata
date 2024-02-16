@@ -90,6 +90,7 @@ mod set_collection_size {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
+                CollectionDetails::V2 { padding: _ } => 0,
             }
         } else {
             panic!("Expected CollectionDetails::V1");
@@ -193,6 +194,7 @@ mod set_collection_size {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
+                CollectionDetails::V2 { padding: _ } => 0,
             }
         } else {
             panic!("Expected CollectionDetails::V1");
@@ -388,6 +390,7 @@ mod set_collection_size {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
+                CollectionDetails::V2 { padding: _ } => 0,
             }
         } else {
             panic!("Expected CollectionDetails::V1");
@@ -456,6 +459,7 @@ mod set_collection_size {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => size,
+                CollectionDetails::V2 { padding: _ } => 0,
             }
         } else {
             panic!("Expected CollectionDetails::V1");
