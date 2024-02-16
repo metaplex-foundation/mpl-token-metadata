@@ -60,6 +60,7 @@ pub enum CollectionDetails {
         note = "The collection size tracking feature is deprecated and will soon be removed."
     )]
     V1 { size: u64 },
+    V2 { padding: [u8; 8] }
 }
 
 #[cfg(test)]

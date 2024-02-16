@@ -56,6 +56,7 @@ pub fn bubblegum_set_collection_size(
         match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => size,
+            CollectionDetails::V2 { padding: _ } => 0,
         }
     } else {
         return Err(MetadataError::NotACollectionParent.into());
