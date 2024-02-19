@@ -20,7 +20,7 @@ pub fn increment_collection_size(
                 clean_write_metadata(metadata, metadata_info)?;
                 Ok(())
             }
-            CollectionDetails::V2 { padding: _ } => Ok(())
+            CollectionDetails::V2 { padding: _ } => Ok(()),
         }
     } else {
         msg!("No collection details. Can't increment.");
@@ -44,7 +44,7 @@ pub fn decrement_collection_size(
                 clean_write_metadata(metadata, metadata_info)?;
                 Ok(())
             }
-            CollectionDetails::V2 { padding: _ } => Ok(())
+            CollectionDetails::V2 { padding: _ } => Ok(()),
         }
     } else {
         msg!("No collection details. Can't decrement.");

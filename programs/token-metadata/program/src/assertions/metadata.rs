@@ -7,6 +7,7 @@ use solana_program::{
 };
 use spl_token_2022::state::Account;
 
+use super::assert_owner_in;
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
@@ -17,8 +18,6 @@ use crate::{
     },
     utils::unpack_initialized,
 };
-
-use super::assert_owner_in;
 
 pub fn assert_data_valid(
     data: &Data,

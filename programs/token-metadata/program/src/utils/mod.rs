@@ -10,8 +10,6 @@ pub use collection::*;
 pub use compression::*;
 pub use master_edition::*;
 pub use metadata::*;
-pub(crate) use token::*;
-
 pub use mpl_utils::{
     assert_signer, close_account_raw, create_or_allocate_account_raw,
     resize_or_reallocate_account_raw,
@@ -29,6 +27,7 @@ use spl_token_2022::{
     extension::{BaseState, StateWithExtensions},
     instruction::{set_authority, AuthorityType},
 };
+pub(crate) use token::*;
 
 pub const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 

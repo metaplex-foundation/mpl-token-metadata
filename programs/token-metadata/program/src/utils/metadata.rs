@@ -164,8 +164,7 @@ pub fn process_create_metadata_accounts_logic(
             }
             CollectionDetails::V2 { padding: _ } => {
                 metadata.collection_details = None;
-
-            },
+            }
         }
     } else {
         metadata.collection_details = None;

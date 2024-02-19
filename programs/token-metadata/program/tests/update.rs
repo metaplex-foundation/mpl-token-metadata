@@ -6,8 +6,7 @@ use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
-    signature::Keypair,
-    signature::Signer,
+    signature::{Keypair, Signer},
     transaction::{Transaction, TransactionError},
 };
 use spl_token_2022::state::Account;
@@ -17,8 +16,10 @@ use token_metadata::{
         builders::UpdateBuilder, CollectionToggle, DelegateArgs, InstructionBuilder, RuleSetToggle,
         TransferArgs, UpdateArgs,
     },
-    state::{Collection, Creator, Data, ProgrammableConfig, TokenStandard},
-    state::{MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH},
+    state::{
+        Collection, Creator, Data, ProgrammableConfig, TokenStandard, MAX_NAME_LENGTH,
+        MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
+    },
     utils::puffed_out_string,
 };
 use utils::{DigitalAsset, *};

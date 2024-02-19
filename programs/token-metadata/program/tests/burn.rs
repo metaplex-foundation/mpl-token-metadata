@@ -2187,7 +2187,7 @@ mod nft {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not set!");
@@ -2217,7 +2217,7 @@ mod nft {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not set!");
@@ -2249,7 +2249,7 @@ mod nft {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not set!");
@@ -2605,7 +2605,7 @@ mod nft {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not set!");
@@ -2634,7 +2634,7 @@ mod nft {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 1);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not set");

@@ -1,12 +1,11 @@
 use spl_token_2022::state::Account;
 
+use super::*;
 use crate::{
     pda::MARKER,
     state::{EditionMarkerV2, MasterEdition, MasterEditionV2, EDITION_MARKER_BIT_SIZE},
     utils::unpack_initialized,
 };
-
-use super::*;
 
 pub(crate) fn burn_nonfungible_edition(
     ctx: &Context<Burn>,

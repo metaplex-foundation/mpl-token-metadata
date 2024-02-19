@@ -520,7 +520,7 @@ mod size_tracking {
                 CollectionDetails::V1 { size } => {
                     assert_eq!(size, 0);
                 }
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not populated!");
@@ -547,7 +547,7 @@ mod size_tracking {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 1),
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not populated!");
@@ -574,7 +574,7 @@ mod size_tracking {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 0),
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not populated!");
@@ -602,7 +602,7 @@ mod size_tracking {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 1),
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not populated!");
@@ -629,7 +629,7 @@ mod size_tracking {
             match details {
                 #[allow(deprecated)]
                 CollectionDetails::V1 { size } => assert_eq!(size, 0),
-                CollectionDetails::V2 { padding: _ } => ()
+                CollectionDetails::V2 { padding: _ } => (),
             }
         } else {
             panic!("CollectionDetails is not populated!");
