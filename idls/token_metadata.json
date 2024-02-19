@@ -6584,6 +6584,20 @@
                 "type": "u64"
               }
             ]
+          },
+          {
+            "name": "V2",
+            "fields": [
+              {
+                "name": "padding",
+                "type": {
+                  "array": [
+                    "u8",
+                    8
+                  ]
+                }
+              }
+            ]
           }
         ]
       }
