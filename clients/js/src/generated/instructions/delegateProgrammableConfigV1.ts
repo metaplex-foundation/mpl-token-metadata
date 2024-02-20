@@ -232,9 +232,9 @@ export function delegateProgrammableConfigV1(
     resolvedAccounts.delegateRecord.value = findMetadataDelegateRecordPda(
       context,
       {
-        mint: expectPublicKey(resolvedAccounts.mint.value),
         delegateRole: MetadataDelegateRole.ProgrammableConfig,
         updateAuthority: expectSome(resolvedArgs.updateAuthority),
+        mint: expectPublicKey(resolvedAccounts.mint.value),
         delegate: expectPublicKey(resolvedAccounts.delegate.value),
       }
     );
