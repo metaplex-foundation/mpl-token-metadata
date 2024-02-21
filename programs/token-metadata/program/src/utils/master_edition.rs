@@ -42,6 +42,7 @@ pub struct MintNewEditionFromMasterEditionViaTokenLogicArgs<'a> {
     pub token_program_account_info: &'a AccountInfo<'a>,
     pub system_account_info: &'a AccountInfo<'a>,
     pub holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
+    pub delegate_info: Option<&'a AccountInfo<'a>>,
 }
 
 pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
@@ -64,6 +65,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
         token_program_account_info,
         system_account_info,
         holder_delegate_record_info,
+        delegate_info,
     } = accounts;
 
     assert_token_program_matches_package(token_program_account_info)?;
@@ -82,6 +84,14 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
 
     match holder_delegate_record_info {
         Some(delegate_record_info) => {
+            let delegate_authority = match delegate_info {
+                Some(delegate) => {
+                    assert_signer(delegate)?;
+                    Ok::<&Pubkey, ProgramError>(delegate.key)
+                }
+                None => Ok(payer_account_info.key),
+            }?;
+
             assert_owned_by(delegate_record_info, &crate::ID)?;
             let role = HolderDelegateRole::PrintDelegate.to_string();
             let seeds = vec![
@@ -90,7 +100,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
                 master_metadata.mint.as_ref(),
                 role.as_bytes(),
                 owner_account_info.key.as_ref(),
-                payer_account_info.key.as_ref(),
+                delegate_authority.as_ref(),
             ];
             assert_derivation(program_id, delegate_record_info, &seeds)?;
             Ok(())

@@ -39,7 +39,7 @@ pub fn print_v1<'a>(
 ) -> ProgramResult {
     let context = Print::to_context(accounts)?;
 
-    print_logic(program_id, context, args, None)
+    print_logic(program_id, context, args, None, None)
 }
 
 pub fn print_v2<'a>(
@@ -49,13 +49,29 @@ pub fn print_v2<'a>(
 ) -> ProgramResult {
     let context = Print::to_context(&accounts[0..18])?;
 
+    if accounts.len() < 19 {
+        return Err(ProgramError::NotEnoughAccountKeys);
+    }
+
     let holder_delegate_record_info = if accounts[18].key == &crate::ID {
         None
     } else {
         Some(&accounts[18])
     };
 
-    print_logic(program_id, context, args, holder_delegate_record_info)
+    let delegate_info = if accounts.len() < 20 || accounts[19].key == &crate::ID {
+        None
+    } else {
+        Some(&accounts[19])
+    };
+
+    print_logic(
+        program_id,
+        context,
+        args,
+        holder_delegate_record_info,
+        delegate_info,
+    )
 }
 
 fn print_logic<'a>(
@@ -63,6 +79,7 @@ fn print_logic<'a>(
     ctx: Context<Print<'a>>,
     args: PrintArgs,
     holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
+    delegate_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
     // Get the args for the instruction
     let edition = match args {
@@ -267,6 +284,7 @@ fn print_logic<'a>(
             token_program_account_info: token_program,
             system_account_info: system_program,
             holder_delegate_record_info,
+            delegate_info,
         },
         edition,
     )?;
