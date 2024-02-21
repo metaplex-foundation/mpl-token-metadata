@@ -6,8 +6,10 @@ use num_traits::FromPrimitive;
 use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program_test::*;
 use solana_sdk::{
-    instruction::InstructionError, signature::Keypair, signer::Signer, transaction::Transaction,
-    transaction::TransactionError,
+    instruction::InstructionError,
+    signature::Keypair,
+    signer::Signer,
+    transaction::{Transaction, TransactionError},
 };
 use token_metadata::{
     error::MetadataError,
@@ -1468,6 +1470,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -1769,6 +1772,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.clone().map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         let collection_metadata = collection_parent_nft.get_data(context).await;
@@ -1975,6 +1979,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         collection_parent_da
@@ -2207,6 +2212,7 @@ mod verify_collection {
         let verified_collection_details = collection_details.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding } => CollectionDetails::V2 { padding },
         });
 
         collection_parent_da

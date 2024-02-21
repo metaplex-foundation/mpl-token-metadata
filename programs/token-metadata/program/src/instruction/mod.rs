@@ -22,7 +22,6 @@ pub use fee::collect_fees;
 pub use freeze::*;
 pub use metadata::*;
 use mpl_token_metadata_context_derive::AccountContext;
-
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
 use shank::ShankInstruction;

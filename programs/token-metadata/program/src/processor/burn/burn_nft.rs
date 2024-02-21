@@ -7,15 +7,16 @@ use solana_program::{
 };
 use spl_token_2022::state::Account;
 
-use super::*;
+use super::{
+    nonfungible::{burn_nonfungible, BurnNonFungibleArgs},
+    *,
+};
 use crate::{
     assertions::assert_owned_by,
     instruction::{Burn, Context},
     state::{Metadata, TokenMetadataAccount},
     utils::{unpack_initialized, SPL_TOKEN_ID},
 };
-
-use super::nonfungible::{burn_nonfungible, BurnNonFungibleArgs};
 
 pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();

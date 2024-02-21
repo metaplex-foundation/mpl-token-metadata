@@ -2,6 +2,7 @@ use mpl_utils::assert_signer;
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token_2022::state::Account as TokenAccount;
 
+use super::nonfungible_edition::burn_nonfungible_edition;
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
@@ -10,8 +11,6 @@ use crate::{
     state::{Metadata, TokenMetadataAccount, TokenStandard},
     utils::{assert_initialized, SPL_TOKEN_ID},
 };
-
-use super::nonfungible_edition::burn_nonfungible_edition;
 
 pub fn process_burn_edition_nft<'a>(
     program_id: &Pubkey,
