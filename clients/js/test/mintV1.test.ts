@@ -1,6 +1,5 @@
 import {
   Mint,
-  SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
   Token,
   fetchMint,
   fetchToken,
@@ -11,7 +10,6 @@ import {
   percentAmount,
   publicKey,
 } from '@metaplex-foundation/umi';
-import { publicKey as publicKeySerializer } from '@metaplex-foundation/umi/serializers';
 import test from 'ava';
 import { TokenStandard, createV1, mintV1 } from '../src';
 import { SPL_TOKEN_2022_PROGRAM_ID, createUmi } from './_setup';
@@ -177,11 +175,11 @@ test('it can mint a new ProgrammableNonFungible with Token-2022', async (t) => {
   }).sendAndConfirm(umi);
 
   // And we derive the associated token account from SPL Token 2022.
-  const [token] = umi.eddsa.findPda(SPL_ASSOCIATED_TOKEN_PROGRAM_ID, [
-    publicKeySerializer().serialize(umi.identity.publicKey),
-    publicKeySerializer().serialize(SPL_TOKEN_2022_PROGRAM_ID),
-    publicKeySerializer().serialize(mint.publicKey),
-  ]);
+  const token = findAssociatedTokenPda(umi, {
+    mint: mint.publicKey,
+    owner: umi.identity.publicKey,
+    tokenProgramId: SPL_TOKEN_2022_PROGRAM_ID,
+  });
 
   // When we mint one token.
   await mintV1(umi, {
