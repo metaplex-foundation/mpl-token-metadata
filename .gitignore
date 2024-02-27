@@ -9,3 +9,4 @@ dist
 .amman
 .crates
 .bin
+.idea
