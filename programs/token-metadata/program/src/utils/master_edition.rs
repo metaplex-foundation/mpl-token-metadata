@@ -527,6 +527,7 @@ pub fn mint_limited_edition<'a>(
         true,
         None, // Not a collection parent
         token_standard_override,
+        master_metadata.programmable_config,
     )?;
     let edition_authority_seeds = &[
         PREFIX.as_bytes(),
