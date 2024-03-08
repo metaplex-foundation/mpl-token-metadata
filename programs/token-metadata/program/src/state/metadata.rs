@@ -258,7 +258,9 @@ impl Metadata {
                 // if the rule_set data is either 'Set' or 'Clear', only allow updating if the
                 // token standard is equal to `ProgrammableNonFungible` and no SPL delegate is set.
                 if matches!(rule_set, RuleSetToggle::Clear | RuleSetToggle::Set(_)) {
-                    if token_standard != TokenStandard::ProgrammableNonFungible {
+                    if token_standard != TokenStandard::ProgrammableNonFungible
+                        && token_standard != TokenStandard::ProgrammableNonFungibleEdition
+                    {
                         return Err(MetadataError::InvalidTokenStandard.into());
                     }
 
