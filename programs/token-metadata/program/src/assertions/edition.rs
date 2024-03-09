@@ -24,12 +24,14 @@ pub fn assert_edition_is_not_mint_authority(mint_account_info: &AccountInfo) -> 
     Ok(())
 }
 
-/// Checks that the `master_edition` is not a pNFT master edition.
-pub fn assert_edition_is_not_programmable(master_edition_info: &AccountInfo) -> ProgramResult {
-    let edition_data = master_edition_info.data.borrow();
+/// Checks that the `edition` is not a pNFT master edition or edition.
+pub fn assert_edition_is_not_programmable(edition_info: &AccountInfo) -> ProgramResult {
+    let edition_data = edition_info.data.borrow();
 
+    // Check if it's a master edition of a pNFT
     if (edition_data.len() > TOKEN_STANDARD_INDEX
         && edition_data[0] == Key::MasterEditionV2 as u8
+        // Check if it's an edition of a pNFT
         && (edition_data[TOKEN_STANDARD_INDEX] == TokenStandard::ProgrammableNonFungible as u8))
         || (edition_data.len() > TOKEN_STANDARD_INDEX_EDITION
             && edition_data[0] == Key::EditionV1 as u8
