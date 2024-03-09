@@ -1,10 +1,12 @@
 import {
   createMintWithAssociatedToken,
+  findAssociatedTokenPda,
   setComputeUnitLimit,
 } from '@metaplex-foundation/mpl-toolbox';
 import {
   generateSigner,
   percentAmount,
+  publicKey,
   some,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -13,11 +15,14 @@ import {
   DigitalAsset,
   DigitalAssetWithToken,
   TokenStandard,
+  delegateSaleV1,
   fetchDigitalAsset,
   fetchDigitalAssetWithAssociatedToken,
   findMasterEditionPda,
+  findTokenRecordPda,
   printSupply,
   printV1,
+  thawDelegatedAccount,
 } from '../src';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
@@ -251,4 +256,65 @@ test('it cannot print a new edition if the initialized edition mint account has 
 
   // Then we expect a program error.
   await t.throwsAsync(promise, { name: 'InvalidMintForTokenStandard' });
+});
+
+test('it cannot thaw the token on a pNFT Edition', async (t) => {
+  // Given an existing master edition PNFT.
+  const umi = await createUmi();
+  const originalOwner = generateSigner(umi);
+  const originalMint = await createDigitalAssetWithToken(umi, {
+    name: 'My PNFT',
+    symbol: 'MPNFT',
+    uri: 'https://example.com/pnft.json',
+    sellerFeeBasisPoints: percentAmount(5.42),
+    tokenOwner: originalOwner.publicKey,
+    printSupply: printSupply('Limited', [10]),
+    tokenStandard: TokenStandard.ProgrammableNonFungible,
+  });
+  const saleDelegate = generateSigner(umi);
+
+  // When we print a new edition of the asset.
+  const editionMint = generateSigner(umi);
+  const editionOwner = generateSigner(umi);
+  const editionTokenAccount = findAssociatedTokenPda(umi, {
+    mint: editionMint.publicKey,
+    owner: editionOwner.publicKey,
+  });
+  const editionTokenRecord = findTokenRecordPda(umi, {
+    mint: editionMint.publicKey,
+    token: publicKey(editionTokenAccount),
+  });
+  await transactionBuilder()
+    .add(setComputeUnitLimit(umi, { units: 400_000 }))
+    .add(
+      printV1(umi, {
+        masterTokenAccountOwner: originalOwner,
+        masterEditionMint: originalMint.publicKey,
+        editionMint,
+        editionTokenAccountOwner: editionOwner.publicKey,
+        editionNumber: 1,
+        tokenStandard: TokenStandard.ProgrammableNonFungible,
+      })
+    )
+    .add(
+      delegateSaleV1(umi, {
+        delegate: saleDelegate.publicKey,
+        mint: editionMint.publicKey,
+        tokenOwner: editionOwner.publicKey,
+        authority: editionOwner,
+        tokenStandard: TokenStandard.ProgrammableNonFungibleEdition,
+        tokenRecord: editionTokenRecord,
+      })
+    )
+    .sendAndConfirm(umi);
+
+  // Try to thaw the token.
+  const result = thawDelegatedAccount(umi, {
+    delegate: saleDelegate,
+    tokenAccount: editionTokenAccount,
+    mint: editionMint.publicKey,
+  }).sendAndConfirm(umi);
+
+  // Then we expect a program error.
+  await t.throwsAsync(result, { name: 'InvalidTokenStandard' });
 });
