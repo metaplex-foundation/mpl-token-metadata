@@ -1,3 +1,6 @@
+use mpl_utils::assert_signer;
+use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
@@ -5,8 +8,6 @@ use crate::{
     state::{Creator, Metadata, TokenMetadataAccount},
     utils::clean_write_metadata,
 };
-use mpl_utils::assert_signer;
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub(crate) fn verify_creator_v1(program_id: &Pubkey, ctx: Context<Verify>) -> ProgramResult {
     // Assert program ownership/signers.

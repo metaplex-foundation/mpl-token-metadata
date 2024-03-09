@@ -898,6 +898,7 @@ mod unverify_collection {
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding: _ } => CollectionDetails::V2 { padding: [0; 8] },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -1005,6 +1006,7 @@ mod unverify_collection {
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding: _ } => CollectionDetails::V2 { padding: [0; 8] },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -1913,6 +1915,7 @@ mod unverify_collection {
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding: _ } => CollectionDetails::V2 { padding: [0; 8] },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -2038,6 +2041,7 @@ mod unverify_collection {
         let verified_collection_details = DEFAULT_COLLECTION_DETAILS.map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding: _ } => CollectionDetails::V2 { padding: [0; 8] },
         });
 
         let collection_metadata = collection_parent_nft.get_data(&mut context).await;
@@ -2914,6 +2918,7 @@ mod unverify_collection {
         let verified_collection_details = collection_details.clone().map(|details| match details {
             #[allow(deprecated)]
             CollectionDetails::V1 { size } => CollectionDetails::V1 { size: size + 1 },
+            CollectionDetails::V2 { padding: _ } => CollectionDetails::V2 { padding: [0; 8] },
         });
 
         collection_parent_da

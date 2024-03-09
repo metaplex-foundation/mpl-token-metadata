@@ -59,6 +59,8 @@ pub fn process_mint_new_edition_from_master_edition_via_token<'a>(
             master_metadata_account_info,
             token_program_account_info,
             system_account_info,
+            holder_delegate_record_info: None,
+            delegate_info: None,
         },
         edition,
     )?;

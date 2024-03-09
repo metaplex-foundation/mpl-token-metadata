@@ -1,3 +1,5 @@
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+
 use crate::{
     instruction::{Unverify, VerificationArgs, Verify},
     processor::verification::{
@@ -5,7 +7,6 @@ use crate::{
         creator::{unverify_creator_v1, verify_creator_v1},
     },
 };
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub fn verify<'a>(
     program_id: &Pubkey,

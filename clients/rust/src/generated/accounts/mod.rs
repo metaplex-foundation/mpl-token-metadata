@@ -6,9 +6,11 @@
 //!
 
 pub(crate) mod r#collection_authority_record;
+pub(crate) mod r#deprecated_master_edition_v1;
 pub(crate) mod r#edition;
 pub(crate) mod r#edition_marker;
 pub(crate) mod r#edition_marker_v2;
+pub(crate) mod r#holder_delegate_record;
 pub(crate) mod r#master_edition;
 pub(crate) mod r#metadata;
 pub(crate) mod r#metadata_delegate_record;
@@ -17,9 +19,11 @@ pub(crate) mod r#token_record;
 pub(crate) mod r#use_authority_record;
 
 pub use self::r#collection_authority_record::*;
+pub use self::r#deprecated_master_edition_v1::*;
 pub use self::r#edition::*;
 pub use self::r#edition_marker::*;
 pub use self::r#edition_marker_v2::*;
+pub use self::r#holder_delegate_record::*;
 pub use self::r#master_edition::*;
 pub use self::r#metadata::*;
 pub use self::r#metadata_delegate_record::*;

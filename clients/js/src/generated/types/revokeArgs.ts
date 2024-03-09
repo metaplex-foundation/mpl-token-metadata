@@ -23,6 +23,7 @@ export enum RevokeArgs {
   DataItemV1,
   CollectionItemV1,
   ProgrammableConfigItemV1,
+  PrintDelegateV1,
 }
 
 export type RevokeArgsArgs = RevokeArgs;

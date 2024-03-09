@@ -143,6 +143,7 @@ pub enum Key {
     TokenRecord,
     MetadataDelegate,
     EditionMarkerV2,
+    HolderDelegate,
 }
 
 #[cfg(feature = "serde-feature")]

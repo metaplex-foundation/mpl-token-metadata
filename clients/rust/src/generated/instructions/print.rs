@@ -16,7 +16,7 @@ pub struct Print {
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
     pub edition: solana_program::pubkey::Pubkey,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub edition_mint: solana_program::pubkey::Pubkey,
+    pub edition_mint: (solana_program::pubkey::Pubkey, bool),
     /// Owner of the token account of new token
     pub edition_token_account_owner: solana_program::pubkey::Pubkey,
     /// Token account of new token
@@ -32,7 +32,7 @@ pub struct Print {
     /// payer
     pub payer: solana_program::pubkey::Pubkey,
     /// owner of token account containing master token
-    pub master_token_account_owner: solana_program::pubkey::Pubkey,
+    pub master_token_account_owner: (solana_program::pubkey::Pubkey, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: solana_program::pubkey::Pubkey,
     /// Master record metadata account
@@ -72,8 +72,8 @@ impl Print {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.edition_mint,
-            false,
+            self.edition_mint.0,
+            self.edition_mint.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.edition_token_account_owner,
@@ -110,8 +110,8 @@ impl Print {
             self.payer, true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.master_token_account_owner,
-            true,
+            self.master_token_account_owner.0,
+            self.master_token_account_owner.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.master_token_account,
@@ -177,7 +177,7 @@ pub struct PrintInstructionArgs {
 ///
 ///   0. `[writable]` edition_metadata
 ///   1. `[writable]` edition
-///   2. `[writable]` edition_mint
+///   2. `[writable, signer]` edition_mint
 ///   3. `[]` edition_token_account_owner
 ///   4. `[writable]` edition_token_account
 ///   5. `[signer]` edition_mint_authority
@@ -197,7 +197,7 @@ pub struct PrintInstructionArgs {
 pub struct PrintBuilder {
     edition_metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
-    edition_mint: Option<solana_program::pubkey::Pubkey>,
+    edition_mint: Option<(solana_program::pubkey::Pubkey, bool)>,
     edition_token_account_owner: Option<solana_program::pubkey::Pubkey>,
     edition_token_account: Option<solana_program::pubkey::Pubkey>,
     edition_mint_authority: Option<solana_program::pubkey::Pubkey>,
@@ -205,7 +205,7 @@ pub struct PrintBuilder {
     master_edition: Option<solana_program::pubkey::Pubkey>,
     edition_marker_pda: Option<solana_program::pubkey::Pubkey>,
     payer: Option<solana_program::pubkey::Pubkey>,
-    master_token_account_owner: Option<solana_program::pubkey::Pubkey>,
+    master_token_account_owner: Option<(solana_program::pubkey::Pubkey, bool)>,
     master_token_account: Option<solana_program::pubkey::Pubkey>,
     master_metadata: Option<solana_program::pubkey::Pubkey>,
     update_authority: Option<solana_program::pubkey::Pubkey>,
@@ -238,8 +238,12 @@ impl PrintBuilder {
     }
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
     #[inline(always)]
-    pub fn edition_mint(&mut self, edition_mint: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.edition_mint = Some(edition_mint);
+    pub fn edition_mint(
+        &mut self,
+        edition_mint: solana_program::pubkey::Pubkey,
+        as_signer: bool,
+    ) -> &mut Self {
+        self.edition_mint = Some((edition_mint, as_signer));
         self
     }
     /// Owner of the token account of new token
@@ -305,8 +309,9 @@ impl PrintBuilder {
     pub fn master_token_account_owner(
         &mut self,
         master_token_account_owner: solana_program::pubkey::Pubkey,
+        as_signer: bool,
     ) -> &mut Self {
-        self.master_token_account_owner = Some(master_token_account_owner);
+        self.master_token_account_owner = Some((master_token_account_owner, as_signer));
         self
     }
     /// token account containing token from master metadata mint
@@ -453,7 +458,7 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
     pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Owner of the token account of new token
     pub edition_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of new token
@@ -469,7 +474,7 @@ pub struct PrintCpiAccounts<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
-    pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+    pub master_token_account_owner: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
@@ -495,7 +500,7 @@ pub struct PrintCpi<'a, 'b> {
     /// New Edition (pda of ['metadata', program id, mint id, 'edition'])
     pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of new token - THIS WILL TRANSFER AUTHORITY AWAY FROM THIS KEY
-    pub edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
+    pub edition_mint: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Owner of the token account of new token
     pub edition_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
     /// Token account of new token
@@ -511,7 +516,7 @@ pub struct PrintCpi<'a, 'b> {
     /// payer
     pub payer: &'b solana_program::account_info::AccountInfo<'a>,
     /// owner of token account containing master token
-    pub master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+    pub master_token_account_owner: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// token account containing token from master metadata mint
     pub master_token_account: &'b solana_program::account_info::AccountInfo<'a>,
     /// Master record metadata account
@@ -602,8 +607,8 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.edition_mint.key,
-            false,
+            *self.edition_mint.0.key,
+            self.edition_mint.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.edition_token_account_owner.key,
@@ -641,8 +646,8 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
             true,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.master_token_account_owner.key,
-            true,
+            *self.master_token_account_owner.0.key,
+            self.master_token_account_owner.1,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.master_token_account.key,
@@ -692,7 +697,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         account_infos.push(self.__program.clone());
         account_infos.push(self.edition_metadata.clone());
         account_infos.push(self.edition.clone());
-        account_infos.push(self.edition_mint.clone());
+        account_infos.push(self.edition_mint.0.clone());
         account_infos.push(self.edition_token_account_owner.clone());
         account_infos.push(self.edition_token_account.clone());
         account_infos.push(self.edition_mint_authority.clone());
@@ -702,7 +707,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
         account_infos.push(self.master_edition.clone());
         account_infos.push(self.edition_marker_pda.clone());
         account_infos.push(self.payer.clone());
-        account_infos.push(self.master_token_account_owner.clone());
+        account_infos.push(self.master_token_account_owner.0.clone());
         account_infos.push(self.master_token_account.clone());
         account_infos.push(self.master_metadata.clone());
         account_infos.push(self.update_authority.clone());
@@ -728,7 +733,7 @@ impl<'a, 'b> PrintCpi<'a, 'b> {
 ///
 ///   0. `[writable]` edition_metadata
 ///   1. `[writable]` edition
-///   2. `[writable]` edition_mint
+///   2. `[writable, signer]` edition_mint
 ///   3. `[]` edition_token_account_owner
 ///   4. `[writable]` edition_token_account
 ///   5. `[signer]` edition_mint_authority
@@ -798,8 +803,9 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     pub fn edition_mint(
         &mut self,
         edition_mint: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.edition_mint = Some(edition_mint);
+        self.instruction.edition_mint = Some((edition_mint, as_signer));
         self
     }
     /// Owner of the token account of new token
@@ -868,8 +874,9 @@ impl<'a, 'b> PrintCpiBuilder<'a, 'b> {
     pub fn master_token_account_owner(
         &mut self,
         master_token_account_owner: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
     ) -> &mut Self {
-        self.instruction.master_token_account_owner = Some(master_token_account_owner);
+        self.instruction.master_token_account_owner = Some((master_token_account_owner, as_signer));
         self
     }
     /// token account containing token from master metadata mint
@@ -1084,7 +1091,7 @@ struct PrintCpiBuilderInstruction<'a, 'b> {
     __program: &'b solana_program::account_info::AccountInfo<'a>,
     edition_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    edition_mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    edition_mint: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     edition_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_mint_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
@@ -1092,7 +1099,7 @@ struct PrintCpiBuilderInstruction<'a, 'b> {
     master_edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition_marker_pda: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    master_token_account_owner: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    master_token_account_owner: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     master_token_account: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     master_metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     update_authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,

@@ -78,6 +78,10 @@ pub enum DelegateArgs {
         /// Required authorization data to validate the request.
         authorization_data: Option<AuthorizationData>,
     },
+    PrintDelegateV1 {
+        /// Required authorization data to validate the request.
+        authorization_data: Option<AuthorizationData>,
+    },
 }
 
 #[repr(C)]
@@ -98,6 +102,7 @@ pub enum RevokeArgs {
     DataItemV1,
     CollectionItemV1,
     ProgrammableConfigItemV1,
+    PrintDelegateV1,
 }
 
 #[repr(C)]
@@ -125,6 +130,23 @@ impl fmt::Display for MetadataDelegateRole {
             Self::DataItem => "data_item_delegate".to_string(),
             Self::CollectionItem => "collection_item_delegate".to_string(),
             Self::ProgrammableConfigItem => "prog_config_item_delegate".to_string(),
+        };
+
+        write!(f, "{message}")
+    }
+}
+
+#[repr(C)]
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone, Copy)]
+pub enum HolderDelegateRole {
+    PrintDelegate,
+}
+
+impl fmt::Display for HolderDelegateRole {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let message = match self {
+            Self::PrintDelegate => "print_delegate".to_string(),
         };
 
         write!(f, "{message}")

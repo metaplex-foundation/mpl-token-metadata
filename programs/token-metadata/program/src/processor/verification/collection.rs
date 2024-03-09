@@ -1,3 +1,6 @@
+use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
+use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+
 use crate::{
     assertions::{
         assert_owned_by, assert_owner_in, collection::assert_collection_verify_is_valid,
@@ -8,8 +11,6 @@ use crate::{
     state::{AuthorityRequest, AuthorityType, Metadata, TokenMetadataAccount},
     utils::{clean_write_metadata, decrement_collection_size, increment_collection_size},
 };
-use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub(crate) fn verify_collection_v1(program_id: &Pubkey, ctx: Context<Verify>) -> ProgramResult {
     // Assert program ownership/signers.

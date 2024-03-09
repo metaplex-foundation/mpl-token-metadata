@@ -25,4 +25,5 @@ pub enum Key {
     TokenRecord,
     MetadataDelegate,
     EditionMarkerV2,
+    HolderDelegate,
 }

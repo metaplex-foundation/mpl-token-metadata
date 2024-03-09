@@ -62,4 +62,7 @@ pub enum DelegateArgs {
     ProgrammableConfigItemV1 {
         authorization_data: Option<AuthorizationData>,
     },
+    PrintDelegateV1 {
+        authorization_data: Option<AuthorizationData>,
+    },
 }

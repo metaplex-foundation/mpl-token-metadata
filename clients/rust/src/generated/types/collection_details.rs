@@ -12,4 +12,5 @@ use borsh::BorshSerialize;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CollectionDetails {
     V1 { size: u64 },
+    V2 { padding: [u8; 8] },
 }

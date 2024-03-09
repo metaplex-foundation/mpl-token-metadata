@@ -1,7 +1,7 @@
 use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_option::COption,
-    pubkey::Pubkey, system_program, sysvar,
+    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
+    program_error::ProgramError, program_option::COption, pubkey::Pubkey, system_program, sysvar,
 };
 use spl_token_2022::state::Account;
 
@@ -11,11 +11,15 @@ use crate::{
         metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
-    instruction::{Context, MetadataDelegateRole, Revoke, RevokeArgs},
-    pda::{find_metadata_delegate_record_account, find_token_record_account},
+    instruction::{Context, HolderDelegateRole, MetadataDelegateRole, Revoke, RevokeArgs},
+    pda::{
+        find_holder_delegate_record_account, find_metadata_delegate_record_account,
+        find_token_record_account,
+    },
+    processor::DelegateScenario,
     state::{
-        Metadata, MetadataDelegateRecord, Resizable, TokenDelegateRole, TokenMetadataAccount,
-        TokenRecord, TokenStandard,
+        HolderDelegateRecord, Metadata, MetadataDelegateRecord, Resizable, TokenDelegateRole,
+        TokenMetadataAccount, TokenRecord, TokenStandard,
     },
     utils::{
         assert_token_program_matches_package, clear_close_authority, freeze, thaw, unpack,
@@ -70,17 +74,28 @@ pub fn revoke<'a>(
     };
 
     if let Some(role) = metadata_delegate {
-        return revoke_delegate_v1(program_id, context, role);
+        return revoke_other_delegate_v1(program_id, context, DelegateScenario::Metadata(role));
+    }
+
+    // checks if it is a HolderDelegate creation
+    let holder_delegate = match &args {
+        RevokeArgs::PrintDelegateV1 => Some(HolderDelegateRole::PrintDelegate),
+        // we don't need to fail if did not find a match at this point
+        _ => None,
+    };
+
+    if let Some(role) = holder_delegate {
+        return revoke_other_delegate_v1(program_id, context, DelegateScenario::Holder(role));
     }
 
     // this only happens if we did not find a match
     Err(MetadataError::InvalidDelegateArgs.into())
 }
 
-fn revoke_delegate_v1(
+fn revoke_other_delegate_v1(
     program_id: &Pubkey,
     ctx: Context<Revoke>,
-    role: MetadataDelegateRole,
+    delegate_scenario: DelegateScenario,
 ) -> ProgramResult {
     // signers
 
@@ -102,6 +117,13 @@ fn revoke_delegate_v1(
 
     // account relationships
 
+    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    if metadata.mint != *ctx.accounts.mint_info.key {
+        return Err(MetadataError::MintMismatch.into());
+    }
+
+    // retrieving required optional account
+
     let delegate_record_info = match ctx.accounts.delegate_record_info {
         Some(delegate_record_info) => delegate_record_info,
         None => {
@@ -109,45 +131,89 @@ fn revoke_delegate_v1(
         }
     };
 
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
     // there are two scenarios here:
     //   1. authority is equal to delegate: delegate as a signer is self-revoking
-    //   2. otherwise we need the update authority as a signer
-    let approver = if cmp_pubkeys(
+    //   2. otherwise for Metadata delegate we need the update authority as a signer or for
+    //      Holder delegate we need the holder as a signer.
+    let self_revoking = cmp_pubkeys(
         ctx.accounts.delegate_info.key,
         ctx.accounts.authority_info.key,
-    ) {
-        match MetadataDelegateRecord::from_account_info(delegate_record_info) {
-            Ok(delegate_record) => {
-                if cmp_pubkeys(&delegate_record.delegate, ctx.accounts.authority_info.key) {
-                    delegate_record.update_authority
-                } else {
-                    return Err(MetadataError::InvalidDelegate.into());
-                }
-            }
-            Err(_) => {
-                return Err(MetadataError::DelegateNotFound.into());
-            }
-        }
+    );
+
+    let approver = if self_revoking {
+        get_delegate_record_update_authority(
+            &delegate_scenario,
+            delegate_record_info,
+            ctx.accounts.authority_info.key,
+        )?
     } else {
-        assert_update_authority_is_correct(&metadata, ctx.accounts.authority_info)?;
-        *ctx.accounts.authority_info.key
+        match delegate_scenario {
+            DelegateScenario::Metadata(_) => {
+                // authority must match update authority
+                assert_update_authority_is_correct(&metadata, ctx.accounts.authority_info)?;
+                *ctx.accounts.authority_info.key
+            }
+
+            DelegateScenario::Holder(_) => {
+                // retrieving required optional account
+                let token_info = match ctx.accounts.token_info {
+                    Some(token_info) => token_info,
+                    None => {
+                        return Err(MetadataError::MissingTokenAccount.into());
+                    }
+                };
+
+                // ownership for token
+                assert_owner_in(token_info, &SPL_TOKEN_PROGRAM_IDS)?;
+
+                // authority must be the owner of the token account: spl-token required the
+                // token owner to set a delegate
+                let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
+                if token.owner != *ctx.accounts.authority_info.key {
+                    return Err(MetadataError::IncorrectOwner.into());
+                }
+                *ctx.accounts.authority_info.key
+            }
+
+            _ => return Err(MetadataError::InvalidDelegateRole.into()),
+        }
     };
 
-    if metadata.mint != *ctx.accounts.mint_info.key {
-        return Err(MetadataError::MintMismatch.into());
-    }
-
     // closes the delegate record
-
-    close_delegate_record(
-        role,
+    close_other_delegate_record(
+        delegate_scenario,
         delegate_record_info,
         ctx.accounts.delegate_info.key,
         ctx.accounts.mint_info.key,
         &approver,
         ctx.accounts.payer_info,
     )
+}
+
+fn get_delegate_record_update_authority(
+    delegate_scenario: &DelegateScenario,
+    delegate_record_info: &AccountInfo,
+    authority: &Pubkey,
+) -> Result<Pubkey, ProgramError> {
+    let delegate_record_update_authority = match delegate_scenario {
+        DelegateScenario::Metadata(_) => {
+            MetadataDelegateRecord::from_account_info(delegate_record_info)
+                .map_err(|_| MetadataError::DelegateNotFound)?
+                .update_authority
+        }
+        DelegateScenario::Holder(_) => {
+            HolderDelegateRecord::from_account_info(delegate_record_info)
+                .map_err(|_| MetadataError::DelegateNotFound)?
+                .update_authority
+        }
+        _ => return Err(MetadataError::InvalidDelegateRole.into()),
+    };
+
+    if cmp_pubkeys(&delegate_record_update_authority, authority) {
+        Ok(delegate_record_update_authority)
+    } else {
+        Err(MetadataError::InvalidDelegate.into())
+    }
 }
 
 fn revoke_persistent_delegate_v1(
@@ -329,8 +395,8 @@ fn revoke_persistent_delegate_v1(
 ///
 /// It checks that the derivation is correct before closing
 /// the delegate record account.
-fn close_delegate_record<'a>(
-    role: MetadataDelegateRole,
+fn close_other_delegate_record<'a>(
+    delegate_scenario: DelegateScenario,
     delegate_record_info: &'a AccountInfo<'a>,
     delegate: &Pubkey,
     mint: &Pubkey,
@@ -341,7 +407,15 @@ fn close_delegate_record<'a>(
         return Err(MetadataError::Uninitialized.into());
     }
 
-    let (pda_key, _) = find_metadata_delegate_record_account(mint, role, approver, delegate);
+    let (pda_key, _) = match delegate_scenario {
+        DelegateScenario::Metadata(role) => {
+            find_metadata_delegate_record_account(mint, role, approver, delegate)
+        }
+        DelegateScenario::Holder(role) => {
+            find_holder_delegate_record_account(mint, role, approver, delegate)
+        }
+        _ => return Err(MetadataError::InvalidDelegateRole.into()),
+    };
 
     if pda_key != *delegate_record_info.key {
         Err(MetadataError::DerivedKeyInvalid.into())

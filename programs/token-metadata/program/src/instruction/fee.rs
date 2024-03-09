@@ -3,9 +3,8 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::state::fee::FEE_AUTHORITY;
-
 use super::*;
+use crate::state::fee::FEE_AUTHORITY;
 
 pub fn collect_fees(recipient: Pubkey, fee_accounts: Vec<Pubkey>) -> Instruction {
     let mut accounts = vec![
