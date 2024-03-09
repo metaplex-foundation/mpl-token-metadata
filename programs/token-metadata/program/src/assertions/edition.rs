@@ -6,7 +6,9 @@ use spl_token_2022::state::Mint;
 use crate::{
     error::MetadataError,
     pda::find_master_edition_account,
-    state::{TokenStandard, EDITION, PREFIX, TOKEN_STANDARD_INDEX},
+    state::{
+        Key, TokenStandard, EDITION, PREFIX, TOKEN_STANDARD_INDEX, TOKEN_STANDARD_INDEX_EDITION,
+    },
     utils::unpack,
 };
 
@@ -26,8 +28,13 @@ pub fn assert_edition_is_not_mint_authority(mint_account_info: &AccountInfo) -> 
 pub fn assert_edition_is_not_programmable(master_edition_info: &AccountInfo) -> ProgramResult {
     let edition_data = master_edition_info.data.borrow();
 
-    if edition_data.len() > TOKEN_STANDARD_INDEX
-        && edition_data[TOKEN_STANDARD_INDEX] == TokenStandard::ProgrammableNonFungible as u8
+    if (edition_data.len() > TOKEN_STANDARD_INDEX
+        && edition_data[0] == Key::MasterEditionV2 as u8
+        && (edition_data[TOKEN_STANDARD_INDEX] == TokenStandard::ProgrammableNonFungible as u8))
+        || (edition_data.len() > TOKEN_STANDARD_INDEX_EDITION
+            && edition_data[0] == Key::EditionV1 as u8
+            && edition_data[TOKEN_STANDARD_INDEX_EDITION]
+                == TokenStandard::ProgrammableNonFungible as u8)
     {
         return Err(MetadataError::InvalidTokenStandard.into());
     }
