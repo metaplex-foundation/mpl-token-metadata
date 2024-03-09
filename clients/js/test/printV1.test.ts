@@ -276,8 +276,14 @@ test('it cannot thaw the token on a pNFT Edition', async (t) => {
   // When we print a new edition of the asset.
   const editionMint = generateSigner(umi);
   const editionOwner = generateSigner(umi);
-  const editionTokenAccount = findAssociatedTokenPda(umi, { mint: editionMint.publicKey, owner: editionOwner.publicKey });
-  const editionTokenRecord = findTokenRecordPda(umi, { mint: editionMint.publicKey, token: publicKey(editionTokenAccount) });
+  const editionTokenAccount = findAssociatedTokenPda(umi, {
+    mint: editionMint.publicKey,
+    owner: editionOwner.publicKey,
+  });
+  const editionTokenRecord = findTokenRecordPda(umi, {
+    mint: editionMint.publicKey,
+    token: publicKey(editionTokenAccount),
+  });
   await transactionBuilder()
     .add(setComputeUnitLimit(umi, { units: 400_000 }))
     .add(
@@ -290,14 +296,16 @@ test('it cannot thaw the token on a pNFT Edition', async (t) => {
         tokenStandard: TokenStandard.ProgrammableNonFungible,
       })
     )
-    .add(delegateSaleV1(umi, {
-      delegate: saleDelegate.publicKey,
-      mint: editionMint.publicKey,
-      tokenOwner: editionOwner.publicKey,
-      authority: editionOwner,
-      tokenStandard: TokenStandard.ProgrammableNonFungibleEdition,
-      tokenRecord: editionTokenRecord,
-    }))
+    .add(
+      delegateSaleV1(umi, {
+        delegate: saleDelegate.publicKey,
+        mint: editionMint.publicKey,
+        tokenOwner: editionOwner.publicKey,
+        authority: editionOwner,
+        tokenStandard: TokenStandard.ProgrammableNonFungibleEdition,
+        tokenRecord: editionTokenRecord,
+      })
+    )
     .sendAndConfirm(umi);
 
   // Try to thaw the token.
