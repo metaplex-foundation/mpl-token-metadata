@@ -49,6 +49,7 @@ pub fn process_create_metadata_accounts_v3<'a>(
         true,
         collection_details,
         None,
+        None,
     )?;
 
     // Set fee flag after metadata account is created.

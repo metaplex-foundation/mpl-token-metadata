@@ -229,7 +229,10 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
     };
 
     // For pNFTs, we need to validate the authorization rules.
-    if matches!(token_standard, TokenStandard::ProgrammableNonFungible) {
+    if matches!(
+        token_standard,
+        TokenStandard::ProgrammableNonFungible | TokenStandard::ProgrammableNonFungibleEdition
+    ) {
         // If the metadata account has a current rule set, we validate that
         // the current rule set account is passed in and matches value on the
         // metadata.

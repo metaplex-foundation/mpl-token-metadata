@@ -17,7 +17,11 @@ mod print {
 
     use borsh::BorshDeserialize;
     use solana_program::pubkey::Pubkey;
-    use token_metadata::state::{PrintSupply, TokenStandard};
+    use solana_sdk::{signature::Keypair, signer::Signer};
+    use token_metadata::{
+        instruction::{builders::UpdateBuilder, RuleSetToggle, UpdateArgs},
+        state::{PrintSupply, ProgrammableConfig, TokenStandard},
+    };
 
     use super::*;
 
@@ -69,6 +73,59 @@ mod print {
             edition_metadata.token_standard,
             Some(TokenStandard::ProgrammableNonFungibleEdition)
         );
+    }
+
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
+    #[tokio::test]
+    async fn pnft_editions_rule_set_inheritance_success(spl_token_program: Pubkey) {
+        let mut context = program_test().start_with_context().await;
+        let rule_set_key = Keypair::new().pubkey();
+        let mut asset = DigitalAsset::default();
+        asset
+            .create_and_mint_with_supply(
+                &mut context,
+                TokenStandard::ProgrammableNonFungible,
+                Some(rule_set_key),
+                None,
+                1,
+                PrintSupply::Unlimited,
+                spl_token_program,
+            )
+            .await
+            .unwrap();
+
+        assert!(asset.token.is_some());
+
+        let test_master_edition = MasterEditionV2::new_from_asset(&asset);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
+
+        test_edition_marker
+            .create_from_asset(&mut context)
+            .await
+            .unwrap();
+
+        let edition_marker = test_edition_marker.get_data_v2(&mut context).await;
+
+        assert_eq!(edition_marker.ledger[0], 64);
+        assert_eq!(edition_marker.key, Key::EditionMarkerV2);
+
+        let edition_metadata_account = context
+            .banks_client
+            .get_account(test_edition_marker.new_metadata_pubkey)
+            .await
+            .unwrap()
+            .unwrap();
+        let edition_metadata: token_metadata::state::Metadata =
+            token_metadata::state::Metadata::deserialize(&mut &edition_metadata_account.data[..])
+                .unwrap();
+
+        if let Some(ProgrammableConfig::V1 { rule_set }) = edition_metadata.programmable_config {
+            assert_eq!(rule_set, Some(rule_set_key));
+        } else {
+            panic!("No rule set was specified")
+        };
     }
 
     #[test_case::test_case(spl_token::id() ; "Token Program")]

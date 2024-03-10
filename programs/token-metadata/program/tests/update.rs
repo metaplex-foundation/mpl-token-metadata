@@ -26,7 +26,9 @@ use utils::{DigitalAsset, *};
 
 mod update {
 
+    use borsh::BorshDeserialize;
     use mpl_utils::token::unpack;
+    use token_metadata::state::PrintSupply;
 
     use super::*;
 
@@ -4055,5 +4057,83 @@ mod update {
         } else {
             panic!("Missing rule set programmable config");
         }
+    }
+
+    #[test_case::test_case(spl_token::id() ; "Token Program")]
+    #[test_case::test_case(spl_token_2022::id() ; "Token-2022 Program")]
+    #[tokio::test]
+    async fn success_printed_pnft_rule_set_update(spl_token_program: Pubkey) {
+        let mut program_test = program_test();
+        program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
+        let mut context = &mut program_test.start_with_context().await;
+
+        let mut asset = DigitalAsset::new();
+        asset
+            .create_and_mint_with_supply(
+                &mut context,
+                TokenStandard::ProgrammableNonFungible,
+                None,
+                None,
+                1,
+                PrintSupply::Unlimited,
+                spl_token_program,
+            )
+            .await
+            .unwrap();
+
+        let test_master_edition = MasterEditionV2::new_from_asset(&asset);
+        let test_edition_marker =
+            EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
+
+        test_edition_marker
+            .create_from_asset(&mut context)
+            .await
+            .unwrap();
+
+        let mut args = UpdateArgs::default_as_programmable_config_item_delegate();
+        let rule_set_authority = Keypair::new();
+        match &mut args {
+            UpdateArgs::AsProgrammableConfigItemDelegateV2 { rule_set, .. } => {
+                *rule_set = RuleSetToggle::Set(rule_set_authority.pubkey())
+            }
+            _ => panic!("Unexpected enum variant"),
+        }
+
+        let mut builder = UpdateBuilder::new();
+        let authority = context.payer.pubkey();
+        builder
+            .authority(authority)
+            .metadata(test_edition_marker.new_metadata_pubkey)
+            .token(test_edition_marker.token.pubkey())
+            .mint(test_edition_marker.mint.pubkey())
+            .payer(authority);
+
+        let update_ix = builder.build(args).unwrap().instruction();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[update_ix],
+            Some(&authority),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await.unwrap();
+
+        let edition_metadata_account = context
+            .banks_client
+            .get_account(test_edition_marker.new_metadata_pubkey)
+            .await
+            .unwrap()
+            .unwrap();
+
+        let edition_metadata: token_metadata::state::Metadata =
+            token_metadata::state::Metadata::deserialize(&mut &edition_metadata_account.data[..])
+                .unwrap();
+
+        if let Some(ProgrammableConfig::V1 { rule_set }) = edition_metadata.programmable_config {
+            assert_eq!(rule_set, Some(rule_set_authority.pubkey()));
+        } else {
+            panic!("No rule set was specified")
+        };
     }
 }
