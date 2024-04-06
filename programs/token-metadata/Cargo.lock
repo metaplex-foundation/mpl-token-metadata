@@ -2143,7 +2143,7 @@ dependencies = [
  "borsh 0.9.3",
  "mpl-token-auth-rules",
  "mpl-token-metadata-context-derive 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "mpl-utils",
+ "mpl-utils 0.3.2",
  "num-derive 0.3.3",
  "num-traits",
  "shank 0.0.11",
@@ -2190,6 +2190,15 @@ dependencies = [
  "arrayref",
  "solana-program",
  "spl-token-2022 0.8.0",
+]
+
+[[package]]
+name = "mpl-utils"
+version = "0.3.3"
+dependencies = [
+ "arrayref",
+ "solana-program",
+ "spl-token-2022 0.6.1",
 ]
 
 [[package]]
@@ -3013,7 +3022,7 @@ source = "git+https://github.com/metaplex-foundation/rooster#e424745fd5abfe1442f
 dependencies = [
  "borsh 0.9.3",
  "mpl-token-metadata",
- "mpl-utils",
+ "mpl-utils 0.3.2",
  "num-derive 0.3.3",
  "num-traits",
  "shank 0.0.10",
@@ -5174,7 +5183,7 @@ dependencies = [
  "borsh 0.9.3",
  "mpl-token-auth-rules",
  "mpl-token-metadata-context-derive 0.3.0",
- "mpl-utils",
+ "mpl-utils 0.3.3",
  "num-derive 0.3.3",
  "num-traits",
  "rmp-serde",

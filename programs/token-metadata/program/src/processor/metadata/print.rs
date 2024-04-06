@@ -295,6 +295,7 @@ fn print_logic<'a>(
             edition_token_account_info.clone(),
             edition_account_info.clone(),
             token_program.clone(),
+            None,
         )?;
 
         // for pNFTs, we store the token standard value at the end of the

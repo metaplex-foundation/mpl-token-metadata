@@ -211,6 +211,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
                 ctx.accounts.token_info.clone(),
                 edition_info.clone(),
                 ctx.accounts.spl_token_program_info.clone(),
+                metadata.edition_nonce,
             )?;
 
             let mut args = BurnNonFungibleArgs {
@@ -269,6 +270,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
                 ctx.accounts.token_info.clone(),
                 edition_info.clone(),
                 ctx.accounts.spl_token_program_info.clone(),
+                metadata.edition_nonce,
             )?;
 
             let mut is_close_auth = false;

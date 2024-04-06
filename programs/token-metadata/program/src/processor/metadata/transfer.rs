@@ -217,6 +217,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         authority_signer_seeds: None,
         token_program: ctx.accounts.spl_token_program_info.clone(),
         decimals: mint.decimals,
+        edition_bump: metadata.edition_nonce,
     };
 
     let token_standard = metadata.token_standard;
@@ -408,10 +409,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             clear_close_authority(ClearCloseAuthorityParams {
                 token_info: ctx.accounts.token_info,
                 mint_info: ctx.accounts.mint_info,
-                token,
+                token: &token,
                 master_edition_info,
                 authority_info: master_edition_info,
                 spl_token_program_info: ctx.accounts.spl_token_program_info,
+                edition_bump: metadata.edition_nonce,
             })?;
 
             // If the token record account for the destination owner doesn't exist,

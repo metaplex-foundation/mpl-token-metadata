@@ -334,6 +334,7 @@ fn revoke_persistent_delegate_v1(
                     token_info.clone(),
                     master_edition_info.clone(),
                     spl_token_program_info.clone(),
+                    metadata.edition_nonce,
                 )?;
 
                 // Clear the close authority if it's a Utility Delegate.
@@ -341,10 +342,11 @@ fn revoke_persistent_delegate_v1(
                     clear_close_authority(ClearCloseAuthorityParams {
                         token_info,
                         mint_info: ctx.accounts.mint_info,
-                        token,
+                        token: &token,
                         master_edition_info,
                         authority_info: master_edition_info,
                         spl_token_program_info,
+                        edition_bump: metadata.edition_nonce,
                     })?;
                 }
             } else {
@@ -380,6 +382,7 @@ fn revoke_persistent_delegate_v1(
                 token_info.clone(),
                 master_edition_info.clone(),
                 spl_token_program_info.clone(),
+                metadata.edition_nonce,
             )?;
         } else {
             // sanity check: this should not happen at this point since the master

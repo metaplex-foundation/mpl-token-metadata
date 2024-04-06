@@ -1,4 +1,4 @@
-use mpl_utils::{assert_signer, cmp_pubkeys};
+use mpl_utils::{assert_derivation_with_bump, assert_signer, cmp_pubkeys};
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::ProgramResult,
@@ -212,17 +212,23 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                     .edition_nonce
                     .ok_or(MetadataError::NotAMasterEdition)?],
             ];
-            let master_edition_key =
-                Pubkey::create_program_address(master_edition_seeds, program_id)?;
+            // let master_edition_key =
+            //     Pubkey::create_program_address(master_edition_seeds, program_id)?;
 
             let master_edition_info = ctx
                 .accounts
                 .master_edition_info
                 .ok_or(MetadataError::MissingMasterEditionAccount)?;
 
-            if !cmp_pubkeys(master_edition_info.key, &master_edition_key) {
-                return Err(MetadataError::InvalidMasterEdition.into());
-            }
+            // if !cmp_pubkeys(master_edition_info.key, &master_edition_key) {
+            //     return Err(MetadataError::InvalidMasterEdition.into());
+            // }
+            assert_derivation_with_bump(
+                &crate::ID,
+                master_edition_info,
+                master_edition_seeds,
+                MetadataError::MissingMasterEditionAccount,
+            )?;
 
             // thaw the token account for programmable assets; the account
             // is not frozen if we just initialized it
@@ -236,6 +242,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                     ctx.accounts.token_info.clone(),
                     master_edition_info.clone(),
                     ctx.accounts.spl_token_program_info.clone(),
+                    metadata.edition_nonce,
                 )?;
             }
 
@@ -244,7 +251,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                     ctx.accounts.spl_token_program_info.key,
                     ctx.accounts.mint_info.key,
                     ctx.accounts.token_info.key,
-                    &master_edition_key,
+                    master_edition_info.key,
                     &[],
                     amount,
                 )?,
@@ -266,6 +273,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                     ctx.accounts.token_info.clone(),
                     master_edition_info.clone(),
                     ctx.accounts.spl_token_program_info.clone(),
+                    metadata.edition_nonce,
                 )?;
             }
         }

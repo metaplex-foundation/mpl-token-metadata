@@ -436,6 +436,7 @@ fn create_persistent_delegate_v1(
                     token_info.clone(),
                     master_edition_info.clone(),
                     spl_token_program_info.clone(),
+                    metadata.edition_nonce,
                 )?;
             } else {
                 return Err(MetadataError::MissingEditionAccount.into());
@@ -510,6 +511,7 @@ fn create_persistent_delegate_v1(
                 token_info.clone(),
                 master_edition_info.clone(),
                 spl_token_program_info.clone(),
+                metadata.edition_nonce,
             )?;
         } else {
             // sanity check: this should not happen at this point since the master
