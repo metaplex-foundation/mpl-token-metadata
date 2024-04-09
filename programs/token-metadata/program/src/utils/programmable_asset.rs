@@ -333,9 +333,9 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
 
 pub fn frozen_transfer<'a>(
     params: TokenTransferCheckedParams<'a, '_>,
+    edition_bump: Option<u8>,
     edition_opt_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
-    let edition_bump = params.edition_bump;
     if edition_opt_info.is_none() {
         return Err(MetadataError::MissingEditionAccount.into());
     }

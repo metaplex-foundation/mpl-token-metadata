@@ -217,7 +217,6 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
         authority_signer_seeds: None,
         token_program: ctx.accounts.spl_token_program_info.clone(),
         decimals: mint.decimals,
-        edition_bump: metadata.edition_nonce,
     };
 
     let token_standard = metadata.token_standard;
@@ -399,7 +398,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             };
 
             auth_rules_validate(auth_rules_validate_params)?;
-            frozen_transfer(token_transfer_params, ctx.accounts.edition_info)?;
+            frozen_transfer(
+                token_transfer_params,
+                metadata.edition_nonce,
+                ctx.accounts.edition_info,
+            )?;
 
             let master_edition_info = ctx
                 .accounts
