@@ -101,7 +101,7 @@ pub fn freeze<'a>(
         }
         None => assert_derivation(&crate::ID, &edition, &edition_info_path),
     }?;
-    let mut edition_info_seeds = edition_info_path.clone();
+    let mut edition_info_seeds = edition_info_path;
     let binding = [bump];
     edition_info_seeds.push(&binding);
 
@@ -143,9 +143,8 @@ pub fn thaw<'a>(
         }
         None => assert_derivation(&crate::ID, &edition_info, &edition_info_path),
     }?;
-    let mut edition_info_seeds = edition_info_path.clone();
     let binding = [bump];
-    edition_info_seeds.push(&binding);
+    let edition_info_seeds = [edition_info_path, vec![&binding]].concat();
 
     invoke_signed(
         &thaw_account(
@@ -394,18 +393,23 @@ pub(crate) fn clear_close_authority(params: ClearCloseAuthorityParams) -> Progra
             return Err(MetadataError::InvalidCloseAuthority.into());
         }
 
-        let path = vec![
-            "metadata".as_bytes(),
-            crate::ID.as_ref(),
-            mint_info.key.as_ref(),
-            "edition".as_bytes(),
-        ];
-        let bump = edition_bump.unwrap_or(Pubkey::find_program_address(&path, &crate::ID).1);
+        let bump = edition_bump.unwrap_or(
+            Pubkey::find_program_address(
+                &[
+                    PREFIX.as_bytes(),
+                    crate::ID.as_ref(),
+                    mint_info.key.as_ref(),
+                    EDITION.as_bytes(),
+                ],
+                &crate::ID,
+            )
+            .1,
+        );
         let seeds = &[
-            "metadata".as_bytes(),
+            PREFIX.as_bytes(),
             crate::ID.as_ref(),
             mint_info.key.as_ref(),
-            "edition".as_bytes(),
+            EDITION.as_bytes(),
             &[bump],
         ];
 
