@@ -43,8 +43,8 @@ export type DigitalAsset = {
   mint: Mint;
   metadata: Metadata;
   edition?:
-  | ({ isOriginal: true } & MasterEdition)
-  | ({ isOriginal: false } & Edition);
+    | ({ isOriginal: true } & MasterEdition)
+    | ({ isOriginal: false } & Edition);
 };
 
 export async function fetchDigitalAsset(

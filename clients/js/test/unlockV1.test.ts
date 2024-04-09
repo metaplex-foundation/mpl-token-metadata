@@ -1,5 +1,12 @@
-import { setComputeUnitLimit, TokenState as SplTokenState } from '@metaplex-foundation/mpl-toolbox';
-import { generateSigner, percentAmount, transactionBuilder } from '@metaplex-foundation/umi';
+import {
+  setComputeUnitLimit,
+  TokenState as SplTokenState,
+} from '@metaplex-foundation/mpl-toolbox';
+import {
+  generateSigner,
+  percentAmount,
+  transactionBuilder,
+} from '@metaplex-foundation/umi';
 import test from 'ava';
 import {
   DigitalAssetWithToken,
@@ -40,7 +47,7 @@ test('it can unlock a ProgrammableNonFungible', async (t) => {
     .sendAndConfirm(umi);
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
-    >{ tokenRecord: { state: TokenState.Locked } });
+  >{ tokenRecord: { state: TokenState.Locked } });
 
   // When the utility delegate unlocks the asset.
   await unlockV1(umi, {
@@ -52,7 +59,7 @@ test('it can unlock a ProgrammableNonFungible', async (t) => {
   // Then the token state was successfully updated.
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
-    >{ tokenRecord: { state: TokenState.Unlocked } });
+  >{ tokenRecord: { state: TokenState.Unlocked } });
 });
 
 test('it can unlock a ProgrammableNonFungibleEdition', async (t) => {
@@ -80,9 +87,13 @@ test('it can unlock a ProgrammableNonFungibleEdition', async (t) => {
     editionTokenAccountOwner: editionOwner.publicKey,
     editionNumber: 1,
     tokenStandard: TokenStandard.ProgrammableNonFungible,
-  }).prepend(setComputeUnitLimit(umi, {
-    units: 400000,
-  })).sendAndConfirm(umi);
+  })
+    .prepend(
+      setComputeUnitLimit(umi, {
+        units: 400000,
+      })
+    )
+    .sendAndConfirm(umi);
 
   const editionAsset = await fetchDigitalAssetWithAssociatedToken(
     umi,
@@ -98,17 +109,25 @@ test('it can unlock a ProgrammableNonFungibleEdition', async (t) => {
     tokenRecord: editionAsset.tokenRecord?.publicKey,
     authority: editionOwner,
   })
-    .add(lockV1(umi, {
-      mint: editionMint.publicKey,
-      authority: utilityDelegate,
-      tokenStandard: TokenStandard.ProgrammableNonFungibleEdition,
-      token: editionAsset.token.publicKey,
-      tokenRecord: editionAsset.tokenRecord?.publicKey,
-      payer: editionOwner,
-    })).sendAndConfirm(umi);
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, editionMint.publicKey, editionOwner.publicKey), <
-    DigitalAssetWithToken
-    >{ tokenRecord: { state: TokenState.Locked } });
+    .add(
+      lockV1(umi, {
+        mint: editionMint.publicKey,
+        authority: utilityDelegate,
+        tokenStandard: TokenStandard.ProgrammableNonFungibleEdition,
+        token: editionAsset.token.publicKey,
+        tokenRecord: editionAsset.tokenRecord?.publicKey,
+        payer: editionOwner,
+      })
+    )
+    .sendAndConfirm(umi);
+  t.like(
+    await fetchDigitalAssetWithAssociatedToken(
+      umi,
+      editionMint.publicKey,
+      editionOwner.publicKey
+    ),
+    <DigitalAssetWithToken>{ tokenRecord: { state: TokenState.Locked } }
+  );
 
   // When the utility delegate unlocks the asset.
   await unlockV1(umi, {
@@ -121,9 +140,14 @@ test('it can unlock a ProgrammableNonFungibleEdition', async (t) => {
   }).sendAndConfirm(umi);
 
   // Then the token state was successfully updated.
-  t.like(await fetchDigitalAssetWithAssociatedToken(umi, editionMint.publicKey, editionOwner.publicKey), <
-    DigitalAssetWithToken
-    >{ tokenRecord: { state: TokenState.Unlocked } });
+  t.like(
+    await fetchDigitalAssetWithAssociatedToken(
+      umi,
+      editionMint.publicKey,
+      editionOwner.publicKey
+    ),
+    <DigitalAssetWithToken>{ tokenRecord: { state: TokenState.Unlocked } }
+  );
 });
 
 test('it can unfreeze a NonFungible', async (t) => {
@@ -145,7 +169,7 @@ test('it can unfreeze a NonFungible', async (t) => {
     .sendAndConfirm(umi);
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
-    >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
+  >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
 
   // When the standard delegate unlocks the asset.
   await unlockV1(umi, {
@@ -157,7 +181,7 @@ test('it can unfreeze a NonFungible', async (t) => {
   // Then the token state of the token account was successfully updated.
   t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
     DigitalAssetWithToken
-    >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
+  >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
 });
 
 FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
@@ -178,7 +202,7 @@ FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
     }).sendAndConfirm(umi);
     t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
       DigitalAssetWithToken
-      >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
+    >{ token: { state: SplTokenState.Frozen }, tokenRecord: undefined });
 
     // When the freeze authority unlocks the asset.
     await unlockV1(umi, {
@@ -190,6 +214,6 @@ FUNGIBLE_TOKEN_STANDARDS.forEach((tokenStandard) => {
     // Then the token state of the token account was successfully updated.
     t.like(await fetchDigitalAssetWithAssociatedToken(umi, mint, owner), <
       DigitalAssetWithToken
-      >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
+    >{ token: { state: SplTokenState.Initialized }, tokenRecord: undefined });
   });
 });
