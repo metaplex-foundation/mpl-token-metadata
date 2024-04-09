@@ -267,7 +267,7 @@ pub fn extract_edition_number_from_deprecated_reservation_list(
         let mut offset: Option<u64> = None;
         let mut reservations = reservation_list.reservations();
         for i in 0..reservations.len() {
-            let mut reservation = &mut reservations[i];
+            let reservation = &mut reservations[i];
 
             if reservation.address == *mint_authority_info.key {
                 offset = Some(

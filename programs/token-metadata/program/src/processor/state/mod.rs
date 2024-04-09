@@ -186,6 +186,7 @@ pub(crate) fn toggle_asset_state(
                         accounts.token_info.clone(),
                         edition_info.clone(),
                         spl_token_program_info.clone(),
+                        metadata.edition_nonce,
                     )
                 }
                 TokenState::Unlocked => {
@@ -196,6 +197,7 @@ pub(crate) fn toggle_asset_state(
                         accounts.token_info.clone(),
                         edition_info.clone(),
                         spl_token_program_info.clone(),
+                        metadata.edition_nonce,
                     )
                 }
                 TokenState::Listed => Err(MetadataError::IncorrectTokenState.into()),
