@@ -91,6 +91,7 @@ pub(crate) fn toggle_asset_state(
     if matches!(
         metadata.token_standard,
         Some(TokenStandard::ProgrammableNonFungible)
+            | Some(TokenStandard::ProgrammableNonFungibleEdition)
     ) {
         let AuthorityResponse { authority_type, .. } =
             AuthorityType::get_authority_type(AuthorityRequest {
