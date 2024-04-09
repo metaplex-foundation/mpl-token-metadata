@@ -55,7 +55,7 @@ test('it can unlock a ProgrammableNonFungible', async (t) => {
     >{ tokenRecord: { state: TokenState.Unlocked } });
 });
 
-test('it can lock a ProgrammableNonFungibleEdition', async (t) => {
+test('it can unlock a ProgrammableNonFungibleEdition', async (t) => {
   // Given a ProgrammableNonFungible with a utility delegate.
   const umi = await createUmi();
   const utilityDelegate = generateSigner(umi);
