@@ -80,7 +80,7 @@ pnpm build && pnpm test
 
 ## Documentation
 
-Full documentation for Token Metadata can be found [here](https://docs.metaplex.com/programs/token-metadata/).
+Full documentation for Token Metadata can be found [here]([https://docs.metaplex.com/programs/token-metadata/](https://developers.metaplex.com/token-metadata). 
 
 ## Security
 
