@@ -258,6 +258,32 @@ test('it can create a collection NonFungible', async (t) => {
   });
 });
 
+test('it can create a collectionV2 NonFungible', async (t) => {
+  // Given a new mint Signer.
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+
+  const collectionV2Padding = new Array(8).fill(0);
+
+  // When we create a new NonFungible at this address.
+  await createV1(umi, {
+    mint,
+    name: 'My Collection NFT',
+    uri: 'https://example.com/my-collection-nft.json',
+    sellerFeeBasisPoints: percentAmount(5.5),
+    isCollection: true,
+    collectionDetails: collectionDetails('V2', { padding: collectionV2Padding }),
+  }).sendAndConfirm(umi);
+
+  // Then a Metadata account was created with the collection details set.
+  const metadata = findMetadataPda(umi, { mint: mint.publicKey });
+  const metadataAccount = await fetchMetadata(umi, metadata);
+  t.like(metadataAccount, <Metadata>{
+    publicKey: publicKey(metadata),
+    collectionDetails: some(collectionDetails('V2', { padding: collectionV2Padding })),
+  });
+});
+
 test('it can create a NonFungible from an existing mint', async (t) => {
   // Given an existing mint account.
   const umi = await createUmi();
