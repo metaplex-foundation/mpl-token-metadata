@@ -272,7 +272,9 @@ test('it can create a collectionV2 NonFungible', async (t) => {
     uri: 'https://example.com/my-collection-nft.json',
     sellerFeeBasisPoints: percentAmount(5.5),
     isCollection: true,
-    collectionDetails: collectionDetails('V2', { padding: collectionV2Padding }),
+    collectionDetails: collectionDetails('V2', {
+      padding: collectionV2Padding,
+    }),
   }).sendAndConfirm(umi);
 
   // Then a Metadata account was created with the collection details set.
@@ -280,7 +282,9 @@ test('it can create a collectionV2 NonFungible', async (t) => {
   const metadataAccount = await fetchMetadata(umi, metadata);
   t.like(metadataAccount, <Metadata>{
     publicKey: publicKey(metadata),
-    collectionDetails: some(collectionDetails('V2', { padding: collectionV2Padding })),
+    collectionDetails: some(
+      collectionDetails('V2', { padding: collectionV2Padding })
+    ),
   });
 });
 
