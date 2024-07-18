@@ -28,7 +28,7 @@ import {
   programmableConfig,
   TokenStandard,
 } from '../src';
-import { createUmi, SPL_TOKEN_2022_PROGRAM_ID } from './_setup';
+import { collectionV2Padding, createUmi, SPL_TOKEN_2022_PROGRAM_ID } from './_setup';
 
 test('it can create a new NonFungible', async (t) => {
   // Given a new mint Signer.
@@ -240,8 +240,6 @@ test('it can create a collection and defaults to collectionV2', async (t) => {
   const umi = await createUmi();
   const mint = generateSigner(umi);
 
-  const collectionV2Padding = new Array(8).fill(0);
-
   // When we create a new NonFungible at this address.
   await createV1(umi, {
     mint,
@@ -290,8 +288,6 @@ test('it can create a collectionV2 NonFungible', async (t) => {
   // Given a new mint Signer.
   const umi = await createUmi();
   const mint = generateSigner(umi);
-
-  const collectionV2Padding = new Array(8).fill(0);
 
   // When we create a new NonFungible at this address.
   await createV1(umi, {
