@@ -63,7 +63,7 @@ jobs:
         run: cargo build --all-features --release
 
       - name: Upload Rust client builds
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rust-client-builds
           # First wildcard ensures exported paths are consistently under the clients folder.
