@@ -55,6 +55,8 @@ export const SPL_TOKEN_2022_PROGRAM_ID: PublicKey = publicKey(
   'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
 );
 
+export const collectionV2Padding = new Array(8).fill(0);
+
 export const createUmi = async () =>
   (await baseCreateUmi()).use(mplTokenMetadata());
 

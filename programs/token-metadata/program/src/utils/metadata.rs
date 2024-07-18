@@ -165,7 +165,7 @@ pub fn process_create_metadata_accounts_logic(
                 metadata.collection_details = Some(CollectionDetails::V1 { size: 0 });
             }
             CollectionDetails::V2 { padding: _ } => {
-                metadata.collection_details = None;
+                metadata.collection_details = Some(CollectionDetails::V2 { padding: [0; 8] });
             }
         }
     } else {
