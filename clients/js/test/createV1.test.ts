@@ -28,7 +28,11 @@ import {
   programmableConfig,
   TokenStandard,
 } from '../src';
-import { collectionV2Padding, createUmi, SPL_TOKEN_2022_PROGRAM_ID } from './_setup';
+import {
+  collectionV2Padding,
+  createUmi,
+  SPL_TOKEN_2022_PROGRAM_ID,
+} from './_setup';
 
 test('it can create a new NonFungible', async (t) => {
   // Given a new mint Signer.
