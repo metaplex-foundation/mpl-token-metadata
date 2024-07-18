@@ -128,7 +128,7 @@ jobs:
           echo PROGRAM_NAME="token_metadata" >> $GITHUB_ENV
 
       - name: Download program builds
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: program-builds
 
