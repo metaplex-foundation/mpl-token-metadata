@@ -398,7 +398,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             };
 
             auth_rules_validate(auth_rules_validate_params)?;
-            frozen_transfer(token_transfer_params, ctx.accounts.edition_info)?;
+            frozen_transfer(
+                token_transfer_params,
+                metadata.edition_nonce,
+                ctx.accounts.edition_info,
+            )?;
 
             let master_edition_info = ctx
                 .accounts
@@ -408,10 +412,11 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             clear_close_authority(ClearCloseAuthorityParams {
                 token_info: ctx.accounts.token_info,
                 mint_info: ctx.accounts.mint_info,
-                token,
+                token: &token,
                 master_edition_info,
                 authority_info: master_edition_info,
                 spl_token_program_info: ctx.accounts.spl_token_program_info,
+                edition_bump: metadata.edition_nonce,
             })?;
 
             // If the token record account for the destination owner doesn't exist,

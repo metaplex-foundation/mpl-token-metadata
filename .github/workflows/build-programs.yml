@@ -59,7 +59,7 @@ jobs:
           PROGRAMS: ${{ env.PROGRAMS }}
 
       - name: Upload program builds
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: program-builds
           # First wildcard ensures exported paths are consistently under the programs folder.

@@ -235,4 +235,5 @@ export const isNonFungible = (tokenStandard: TokenStandard): boolean =>
   !isFungible(tokenStandard);
 
 export const isProgrammable = (tokenStandard: TokenStandard): boolean =>
-  tokenStandard === TokenStandard.ProgrammableNonFungible;
+  tokenStandard === TokenStandard.ProgrammableNonFungible ||
+  tokenStandard === TokenStandard.ProgrammableNonFungibleEdition;

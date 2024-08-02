@@ -58,6 +58,7 @@ pub fn process_create_metadata_accounts_logic(
     add_token_standard: bool,
     collection_details: Option<CollectionDetails>,
     token_standard_override: Option<TokenStandard>,
+    programmable_config: Option<ProgrammableConfig>,
 ) -> ProgramResult {
     let CreateMetadataAccountsLogicArgs {
         metadata_account_info,
@@ -141,6 +142,7 @@ pub fn process_create_metadata_accounts_logic(
     metadata.data = data.to_v1();
     metadata.is_mutable = is_mutable;
     metadata.update_authority = update_authority_key;
+    metadata.programmable_config = programmable_config;
 
     assert_valid_use(&data.uses, &None)?;
     metadata.uses = data.uses;
@@ -163,7 +165,7 @@ pub fn process_create_metadata_accounts_logic(
                 metadata.collection_details = Some(CollectionDetails::V1 { size: 0 });
             }
             CollectionDetails::V2 { padding: _ } => {
-                metadata.collection_details = None;
+                metadata.collection_details = Some(CollectionDetails::V2 { padding: [0; 8] });
             }
         }
     } else {

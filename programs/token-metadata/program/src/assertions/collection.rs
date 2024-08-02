@@ -10,6 +10,8 @@ use crate::{
     },
 };
 
+use super::assert_derivation_with_bump;
+
 /// Checks whether the collection update is allowed or not based on the `verified` status.
 pub fn assert_collection_update_is_valid(
     allow_direct_collection_verified_writes: bool,
@@ -114,16 +116,32 @@ pub fn assert_collection_verify_is_valid(
         }
     }
 
-    assert_derivation(
-        &crate::ID,
-        edition_account_info,
-        &[
-            PREFIX.as_bytes(),
-            crate::ID.as_ref(),
-            collection_metadata.mint.as_ref(),
-            EDITION.as_bytes(),
-        ],
-    )
+    match collection_metadata.edition_nonce {
+        Some(nonce) => assert_derivation_with_bump(
+            &crate::ID,
+            edition_account_info,
+            &[
+                PREFIX.as_bytes(),
+                crate::ID.as_ref(),
+                collection_metadata.mint.as_ref(),
+                EDITION.as_bytes(),
+                &[nonce],
+            ],
+        ),
+        None => {
+            let _ = assert_derivation(
+                &crate::ID,
+                edition_account_info,
+                &[
+                    PREFIX.as_bytes(),
+                    crate::ID.as_ref(),
+                    collection_metadata.mint.as_ref(),
+                    EDITION.as_bytes(),
+                ],
+            )?;
+            Ok(())
+        }
+    }
     .map_err(|_| MetadataError::CollectionMasterEditionAccountInvalid)?;
 
     assert_master_edition(collection_metadata, edition_account_info)?;

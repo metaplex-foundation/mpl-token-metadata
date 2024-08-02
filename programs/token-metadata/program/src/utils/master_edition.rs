@@ -267,7 +267,7 @@ pub fn extract_edition_number_from_deprecated_reservation_list(
         let mut offset: Option<u64> = None;
         let mut reservations = reservation_list.reservations();
         for i in 0..reservations.len() {
-            let mut reservation = &mut reservations[i];
+            let reservation = &mut reservations[i];
 
             if reservation.address == *mint_authority_info.key {
                 offset = Some(
@@ -527,6 +527,7 @@ pub fn mint_limited_edition<'a>(
         true,
         None, // Not a collection parent
         token_standard_override,
+        master_metadata.programmable_config,
     )?;
     let edition_authority_seeds = &[
         PREFIX.as_bytes(),

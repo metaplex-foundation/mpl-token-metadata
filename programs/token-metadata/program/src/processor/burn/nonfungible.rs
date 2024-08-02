@@ -48,7 +48,11 @@ pub(crate) fn burn_nonfungible(ctx: &Context<Burn>, args: BurnNonFungibleArgs) -
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let bump = assert_derivation(&crate::ID, edition_info, &edition_info_path)?;
+
+    let bump = match args.metadata.edition_nonce {
+        Some(bump) => Ok(bump),
+        None => assert_derivation(&crate::ID, edition_info, &edition_info_path),
+    }?;
 
     let edition_seeds = &[
         PREFIX.as_bytes(),

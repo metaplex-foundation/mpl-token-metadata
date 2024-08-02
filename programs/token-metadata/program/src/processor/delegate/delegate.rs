@@ -11,7 +11,7 @@ use spl_token_2022::{instruction::AuthorityType as SplAuthorityType, state::Acco
 use crate::{
     assertions::{
         assert_derivation, assert_keys_equal, assert_owned_by, assert_owner_in,
-        metadata::assert_update_authority_is_correct,
+        metadata::{assert_holding_amount, assert_update_authority_is_correct},
     },
     error::MetadataError,
     instruction::{Context, Delegate, DelegateArgs, HolderDelegateRole, MetadataDelegateRole},
@@ -223,15 +223,16 @@ fn create_other_delegate_v1(
                 }
             };
 
-            // ownership for token
-            assert_owner_in(token_info, &SPL_TOKEN_PROGRAM_IDS)?;
-
-            // authority must be the owner of the token account: spl-token required the
-            // token owner to set a delegate
-            let token = unpack::<Account>(&token_info.try_borrow_data()?)?;
-            if token.owner != *ctx.accounts.authority_info.key {
-                return Err(MetadataError::IncorrectOwner.into());
-            }
+            // Check if the owner is accurate the token accounts are correct.
+            assert_holding_amount(
+                program_id,
+                ctx.accounts.authority_info,
+                ctx.accounts.metadata_info,
+                &metadata,
+                ctx.accounts.mint_info,
+                token_info,
+                1,
+            )?;
         }
         _ => return Err(MetadataError::InvalidDelegateRole.into()),
     }
@@ -436,6 +437,7 @@ fn create_persistent_delegate_v1(
                     token_info.clone(),
                     master_edition_info.clone(),
                     spl_token_program_info.clone(),
+                    metadata.edition_nonce,
                 )?;
             } else {
                 return Err(MetadataError::MissingEditionAccount.into());
@@ -510,6 +512,7 @@ fn create_persistent_delegate_v1(
                 token_info.clone(),
                 master_edition_info.clone(),
                 spl_token_program_info.clone(),
+                metadata.edition_nonce,
             )?;
         } else {
             // sanity check: this should not happen at this point since the master

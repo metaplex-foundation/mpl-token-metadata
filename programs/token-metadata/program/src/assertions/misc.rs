@@ -118,6 +118,19 @@ pub fn assert_derivation(
     mpl_utils::assert_derivation(program_id, account, path, MetadataError::DerivedKeyInvalid)
 }
 
+pub fn assert_derivation_with_bump(
+    program_id: &Pubkey,
+    account: &AccountInfo,
+    path: &[&[u8]],
+) -> Result<(), ProgramError> {
+    mpl_utils::assert_derivation_with_bump(
+        program_id,
+        account,
+        path,
+        MetadataError::DerivedKeyInvalid,
+    )
+}
+
 pub fn assert_owned_by(account: &AccountInfo, owner: &Pubkey) -> ProgramResult {
     mpl_utils::assert_owned_by(account, owner, MetadataError::IncorrectOwner)
 }

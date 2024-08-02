@@ -13,8 +13,9 @@ use spl_token_2022::{
 };
 
 use crate::{
-    assertions::{assert_derivation, programmable::assert_valid_authorization},
-    edition_seeds,
+    assertions::{
+        assert_derivation, assert_derivation_with_bump, programmable::assert_valid_authorization,
+    },
     error::MetadataError,
     pda::{EDITION, PREFIX},
     processor::{AuthorizationData, TransferScenario},
@@ -75,6 +76,7 @@ pub fn freeze<'a>(
     token: AccountInfo<'a>,
     edition: AccountInfo<'a>,
     spl_token_program: AccountInfo<'a>,
+    edition_bump: Option<u8>,
 ) -> ProgramResult {
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
@@ -82,10 +84,26 @@ pub fn freeze<'a>(
         mint.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let edition_info_path_bump_seed =
-        &[assert_derivation(&crate::ID, &edition, &edition_info_path)?];
-    let mut edition_info_seeds = edition_info_path.clone();
-    edition_info_seeds.push(edition_info_path_bump_seed);
+    let bump = match edition_bump {
+        Some(bump) => {
+            assert_derivation_with_bump(
+                &crate::ID,
+                &edition,
+                &[
+                    PREFIX.as_bytes(),
+                    crate::ID.as_ref(),
+                    mint.key.as_ref(),
+                    EDITION.as_bytes(),
+                    &[bump],
+                ],
+            )?;
+            Ok(bump)
+        }
+        None => assert_derivation(&crate::ID, &edition, &edition_info_path),
+    }?;
+    let mut edition_info_seeds = edition_info_path;
+    let binding = [bump];
+    edition_info_seeds.push(&binding);
 
     invoke_signed(
         &freeze_account(spl_token_program.key, token.key, mint.key, edition.key, &[]).unwrap(),
@@ -100,6 +118,7 @@ pub fn thaw<'a>(
     token_info: AccountInfo<'a>,
     edition_info: AccountInfo<'a>,
     spl_token_program: AccountInfo<'a>,
+    edition_bump: Option<u8>,
 ) -> ProgramResult {
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
@@ -107,13 +126,25 @@ pub fn thaw<'a>(
         mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let edition_info_path_bump_seed = &[assert_derivation(
-        &crate::ID,
-        &edition_info,
-        &edition_info_path,
-    )?];
-    let mut edition_info_seeds = edition_info_path.clone();
-    edition_info_seeds.push(edition_info_path_bump_seed);
+    let bump = match edition_bump {
+        Some(bump) => {
+            assert_derivation_with_bump(
+                &crate::ID,
+                &edition_info,
+                &[
+                    PREFIX.as_bytes(),
+                    crate::ID.as_ref(),
+                    mint_info.key.as_ref(),
+                    EDITION.as_bytes(),
+                    &[bump],
+                ],
+            )?;
+            Ok(bump)
+        }
+        None => assert_derivation(&crate::ID, &edition_info, &edition_info_path),
+    }?;
+    let binding = [bump];
+    let edition_info_seeds = [edition_info_path, vec![&binding]].concat();
 
     invoke_signed(
         &thaw_account(
@@ -301,6 +332,7 @@ pub fn auth_rules_validate(params: AuthRulesValidateParams) -> ProgramResult {
 
 pub fn frozen_transfer<'a>(
     params: TokenTransferCheckedParams<'a, '_>,
+    edition_bump: Option<u8>,
     edition_opt_info: Option<&'a AccountInfo<'a>>,
 ) -> ProgramResult {
     if edition_opt_info.is_none() {
@@ -313,6 +345,7 @@ pub fn frozen_transfer<'a>(
         params.source.clone(),
         master_edition_info.clone(),
         params.token_program.clone(),
+        edition_bump,
     )?;
 
     let mint_info = params.mint.clone();
@@ -326,18 +359,20 @@ pub fn frozen_transfer<'a>(
         dest_info.clone(),
         master_edition_info.clone(),
         token_program_info.clone(),
+        edition_bump,
     )?;
 
     Ok(())
 }
 
-pub(crate) struct ClearCloseAuthorityParams<'a> {
-    pub token: Account,
+pub(crate) struct ClearCloseAuthorityParams<'a, 'b> {
+    pub token: &'b Account,
     pub mint_info: &'a AccountInfo<'a>,
     pub token_info: &'a AccountInfo<'a>,
     pub master_edition_info: &'a AccountInfo<'a>,
     pub authority_info: &'a AccountInfo<'a>,
     pub spl_token_program_info: &'a AccountInfo<'a>,
+    pub edition_bump: Option<u8>,
 }
 
 pub(crate) fn clear_close_authority(params: ClearCloseAuthorityParams) -> ProgramResult {
@@ -348,6 +383,7 @@ pub(crate) fn clear_close_authority(params: ClearCloseAuthorityParams) -> Progra
         master_edition_info,
         authority_info,
         spl_token_program_info,
+        edition_bump,
     } = params;
 
     // If there's an existing close authority that is not the metadata account,
@@ -356,7 +392,26 @@ pub(crate) fn clear_close_authority(params: ClearCloseAuthorityParams) -> Progra
         if &close_authority != master_edition_info.key {
             return Err(MetadataError::InvalidCloseAuthority.into());
         }
-        let seeds = edition_seeds!(mint_info.key);
+
+        let bump = edition_bump.unwrap_or(
+            Pubkey::find_program_address(
+                &[
+                    PREFIX.as_bytes(),
+                    crate::ID.as_ref(),
+                    mint_info.key.as_ref(),
+                    EDITION.as_bytes(),
+                ],
+                &crate::ID,
+            )
+            .1,
+        );
+        let seeds = &[
+            PREFIX.as_bytes(),
+            crate::ID.as_ref(),
+            mint_info.key.as_ref(),
+            EDITION.as_bytes(),
+            &[bump],
+        ];
 
         invoke_signed(
             &spl_token_2022::instruction::set_authority(
