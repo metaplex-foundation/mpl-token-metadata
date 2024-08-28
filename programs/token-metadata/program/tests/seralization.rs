@@ -3,7 +3,7 @@ pub mod utils;
 
 use solana_program_test::*;
 use token_metadata::{
-    state::{Key, MasterEditionV2 as ProgramME, MAX_MASTER_EDITION_LEN},
+    state::{Key, MasterEditionV2 as ProgramME},
     utils::try_from_slice_checked,
 };
 use utils::*;
@@ -36,11 +36,7 @@ mod serialization {
         let (_nft, master) = setup(&mut context).await;
         let otherbytes = master.clone();
         let _me: ProgramME = BorshDeserialize::deserialize(&mut &master[..]).unwrap();
-        let _me2: ProgramME =
-            try_from_slice_checked(&otherbytes, Key::MasterEditionV2, MAX_MASTER_EDITION_LEN)
-                .unwrap();
-        let _me2: ProgramME =
-            try_from_slice_checked(&otherbytes, Key::MasterEditionV2, MAX_MASTER_EDITION_LEN)
-                .unwrap();
+        let _me2: ProgramME = try_from_slice_checked(&otherbytes, Key::MasterEditionV2, 0).unwrap();
+        let _me2: ProgramME = try_from_slice_checked(&otherbytes, Key::MasterEditionV2, 0).unwrap();
     }
 }

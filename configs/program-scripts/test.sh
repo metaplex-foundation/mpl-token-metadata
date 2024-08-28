@@ -35,8 +35,10 @@ for p in ${PROGRAMS[@]}; do
     cd ${WORKING_DIR}/programs/${p}
 
     if [ ! "$(command -v $SOLFMT)" = "" ]; then
-        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} 2>&1 | ${SOLFMT}
+        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture 2>&1 | ${SOLFMT} && \
+        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture 2>&1 | ${SOLFMT}
     else
-        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS}
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture && \
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture
     fi
 done

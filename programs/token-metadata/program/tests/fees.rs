@@ -13,7 +13,7 @@ mod fees {
     };
     use token_metadata::{
         instruction::{collect_fees, BurnArgs, UpdateArgs},
-        state::{CREATE_FEE, FEE_FLAG_CLEARED, METADATA_FEE_FLAG_INDEX},
+        state::{CREATE_FEE, FEE_FLAG_CLEARED, METADATA_FEE_FLAG_OFFSET},
     };
 
     use super::*;
@@ -144,7 +144,8 @@ mod fees {
         for account in fee_accounts {
             let account = get_account(&mut context, &account).await;
 
-            assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_CLEARED);
+            let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+            assert_eq!(account.data[last_byte], FEE_FLAG_CLEARED);
         }
     }
 

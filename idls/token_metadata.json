@@ -7828,6 +7828,11 @@
       "code": 198,
       "name": "MissingImmutableOwnerExtension",
       "msg": "Missing immutable owner extension"
+    },
+    {
+      "code": 199,
+      "name": "ExpectedUninitializedAccount",
+      "msg": "Expected account to be uninitialized"
     }
   ],
   "metadata": {

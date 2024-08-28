@@ -783,6 +783,10 @@ pub enum MetadataError {
     /// 198
     #[error("Missing immutable owner extension")]
     MissingImmutableOwnerExtension,
+
+    /// 199
+    #[error("Expected account to be uninitialized")]
+    ExpectedUninitializedAccount,
 }
 
 impl PrintProgramError for MetadataError {

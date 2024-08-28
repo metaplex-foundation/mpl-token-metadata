@@ -7,7 +7,8 @@ use crate::{
     error::MetadataError,
     pda::find_master_edition_account,
     state::{
-        Key, TokenStandard, EDITION, PREFIX, TOKEN_STANDARD_INDEX, TOKEN_STANDARD_INDEX_EDITION,
+        Key, TokenStandard, EDITION, EDITION_TOKEN_STANDARD_OFFSET,
+        MASTER_EDITION_TOKEN_STANDARD_OFFSET, PREFIX,
     },
     utils::unpack,
 };
@@ -29,13 +30,11 @@ pub fn assert_edition_is_not_programmable(edition_info: &AccountInfo) -> Program
     let edition_data = edition_info.data.borrow();
 
     // Check if it's a master edition of a pNFT
-    if (edition_data.len() > TOKEN_STANDARD_INDEX
-        && edition_data[0] == Key::MasterEditionV2 as u8
+    if (edition_data[0] == Key::MasterEditionV2 as u8
         // Check if it's an edition of a pNFT
-        && (edition_data[TOKEN_STANDARD_INDEX] == TokenStandard::ProgrammableNonFungible as u8))
-        || (edition_data.len() > TOKEN_STANDARD_INDEX_EDITION
-            && edition_data[0] == Key::EditionV1 as u8
-            && edition_data[TOKEN_STANDARD_INDEX_EDITION]
+        && (edition_data[edition_data.len() - MASTER_EDITION_TOKEN_STANDARD_OFFSET] == TokenStandard::ProgrammableNonFungible as u8))
+        || (edition_data[0] == Key::EditionV1 as u8
+            && edition_data[edition_data.len() - EDITION_TOKEN_STANDARD_OFFSET]
                 == TokenStandard::ProgrammableNonFungible as u8)
     {
         return Err(MetadataError::InvalidTokenStandard.into());

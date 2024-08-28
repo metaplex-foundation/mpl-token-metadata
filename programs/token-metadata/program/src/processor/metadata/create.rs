@@ -4,8 +4,8 @@ use crate::{
     error::MetadataError,
     instruction::{Context, Create, CreateArgs},
     state::{
-        Metadata, ProgrammableConfig, TokenMetadataAccount, TokenStandard, MAX_MASTER_EDITION_LEN,
-        TOKEN_STANDARD_INDEX,
+        Metadata, ProgrammableConfig, TokenMetadataAccount, TokenStandard,
+        MASTER_EDITION_TOKEN_STANDARD_OFFSET, MAX_MASTER_EDITION_LEN,
     },
     utils::{
         create_master_edition, create_mint,
@@ -162,7 +162,9 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
                     return Err(MetadataError::InvalidMasterEditionAccountLength.into());
                 }
 
-                data[TOKEN_STANDARD_INDEX] = TokenStandard::ProgrammableNonFungible as u8;
+                let data_len = data.len();
+                data[data_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET] =
+                    TokenStandard::ProgrammableNonFungible as u8;
             }
         } else {
             return Err(MetadataError::MissingMasterEditionAccount.into());

@@ -6,7 +6,7 @@ use crate::{
     error::MetadataError,
     instruction::{Context, Unverify, Verify},
     state::{Creator, Metadata, TokenMetadataAccount},
-    utils::clean_write_metadata,
+    utils::metadata::clean_write_metadata,
 };
 
 pub(crate) fn verify_creator_v1(program_id: &Pubkey, ctx: Context<Verify>) -> ProgramResult {

@@ -31,7 +31,7 @@ use token_metadata::{
     state::{
         AssetData, Collection, CollectionDetails, Creator, MasterEditionV2, Metadata, PrintSupply,
         ProgrammableConfig, TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard,
-        CREATE_FEE, EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_INDEX,
+        CREATE_FEE, EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET,
         PREFIX,
     },
     utils::unpack,
@@ -1476,7 +1476,8 @@ impl DigitalAsset {
         let expected_lamports = rent_exempt + CREATE_FEE;
 
         assert_eq!(account.lamports, expected_lamports);
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }
@@ -1487,7 +1488,8 @@ impl DigitalAsset {
     ) -> Result<(), BanksClientError> {
         let account = get_account(context, &self.metadata).await;
 
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }

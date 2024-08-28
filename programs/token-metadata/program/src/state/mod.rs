@@ -52,12 +52,7 @@ use {
 
 // Re-export constants to maintain compatibility.
 pub use crate::pda::{BURN, COLLECTION_AUTHORITY, EDITION, PREFIX, USER};
-use crate::{
-    assertions::assert_owned_by,
-    error::MetadataError,
-    utils::{meta_deser_unchecked, try_from_slice_checked},
-    ID,
-};
+use crate::{assertions::assert_owned_by, error::MetadataError, utils::try_from_slice_checked, ID};
 
 /// Index of the discriminator on the account data.
 pub const DISCRIMINATOR_INDEX: usize = 0;
@@ -72,6 +67,20 @@ pub enum TokenStandard {
     NonFungibleEdition,             // This is a limited edition
     ProgrammableNonFungible,        // NonFungible with programmable configuration
     ProgrammableNonFungibleEdition, // NonFungible with programmable configuration
+}
+
+impl From<u8> for TokenStandard {
+    fn from(value: u8) -> Self {
+        match value {
+            0 => TokenStandard::NonFungible,
+            1 => TokenStandard::FungibleAsset,
+            2 => TokenStandard::Fungible,
+            3 => TokenStandard::NonFungibleEdition,
+            4 => TokenStandard::ProgrammableNonFungible,
+            5 => TokenStandard::ProgrammableNonFungibleEdition,
+            _ => panic!("Invalid token standard"),
+        }
+    }
 }
 
 pub trait TokenMetadataAccount: BorshDeserialize {
@@ -95,10 +104,12 @@ pub trait TokenMetadataAccount: BorshDeserialize {
     }
 
     fn pad_length(buf: &mut Vec<u8>) -> Result<(), MetadataError> {
-        let padding_length = Self::size()
-            .checked_sub(buf.len())
-            .ok_or(MetadataError::NumericalOverflowError)?;
-        buf.extend(vec![0; padding_length]);
+        if Self::size() != 0 {
+            let padding_length = Self::size()
+                .checked_sub(buf.len())
+                .ok_or(MetadataError::NumericalOverflowError)?;
+            buf.extend(vec![0; padding_length]);
+        }
         Ok(())
     }
 

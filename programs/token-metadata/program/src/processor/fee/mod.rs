@@ -3,10 +3,7 @@ use num_traits::FromPrimitive;
 use solana_program::{account_info::next_account_info, rent::Rent, system_program, sysvar::Sysvar};
 
 use super::*;
-use crate::{
-    state::{fee::FEE_AUTHORITY, MAX_METADATA_LEN},
-    utils::fee::clear_fee_flag,
-};
+use crate::{state::fee::FEE_AUTHORITY, utils::fee::clear_fee_flag};
 
 pub(crate) fn process_collect_fees(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
@@ -44,7 +41,8 @@ fn collect_fee_from_account(account_info: &AccountInfo, dest_info: &AccountInfo)
     };
 
     let rent = Rent::get()?;
-    let metadata_rent = rent.minimum_balance(MAX_METADATA_LEN);
+    let data_len = account_info.data_len();
+    let metadata_rent = rent.minimum_balance(data_len);
 
     let (fee_amount, rent_amount) = match account_key {
         Key::Uninitialized => {

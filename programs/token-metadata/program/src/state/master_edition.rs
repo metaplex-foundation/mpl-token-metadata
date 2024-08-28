@@ -1,18 +1,21 @@
 use super::*;
 
-// Large buffer because the older master editions have two pubkeys in them,
-// need to keep two versions same size because the conversion process actually
-// changes the same account by rewriting it.
-pub const MAX_MASTER_EDITION_LEN: usize = 1 + 9 + 8 + 264;
-
 // The last byte of the account containts the token standard value for
 // pNFT assets. This is used to restrict legacy operations on the master
 // edition account.
-pub const TOKEN_STANDARD_INDEX: usize = MAX_MASTER_EDITION_LEN - 1;
+pub const MASTER_EDITION_TOKEN_STANDARD_OFFSET: usize = 1;
 
 // The second to last byte of the account contains the fee flag, indicating
 // if the account has fees available for retrieval.
-pub const MASTER_EDITION_FEE_FLAG_INDEX: usize = MAX_MASTER_EDITION_LEN - 2;
+pub const MASTER_EDITION_FEE_FLAG_OFFSET: usize = 2;
+
+// Size of a master edition v2 account.
+//
+// key: 1
+// supply: 8
+// option max_supply: 1 + 8
+// flags: 3
+pub const MAX_MASTER_EDITION_LEN: usize = 1 + 8 + 9 + 2;
 
 pub trait MasterEdition {
     fn key(&self) -> Key;
@@ -68,7 +71,7 @@ impl TokenMetadataAccount for MasterEditionV2 {
     }
 
     fn size() -> usize {
-        MAX_MASTER_EDITION_LEN
+        0
     }
 }
 
@@ -90,7 +93,11 @@ impl MasterEdition for MasterEditionV2 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        let mut storage = &mut account.data.borrow_mut()[..MASTER_EDITION_FEE_FLAG_INDEX];
+        let end = account
+            .data_len()
+            .checked_sub(MASTER_EDITION_FEE_FLAG_OFFSET)
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        let mut storage = &mut account.data.borrow_mut()[..end];
         borsh::to_writer(&mut storage, self)?;
         Ok(())
     }
@@ -128,7 +135,7 @@ impl TokenMetadataAccount for MasterEditionV1 {
     }
 
     fn size() -> usize {
-        MAX_MASTER_EDITION_LEN
+        0
     }
 }
 
@@ -150,7 +157,11 @@ impl MasterEdition for MasterEditionV1 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        let mut storage = &mut account.data.borrow_mut()[..MASTER_EDITION_FEE_FLAG_INDEX];
+        let end = account
+            .data_len()
+            .checked_sub(MASTER_EDITION_FEE_FLAG_OFFSET)
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        let mut storage = &mut account.data.borrow_mut()[..end];
         borsh::to_writer(&mut storage, self)?;
         Ok(())
     }

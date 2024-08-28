@@ -10,7 +10,7 @@ use crate::{
     },
     error::MetadataError,
     state::{Metadata, TokenMetadataAccount, EDITION, PREFIX},
-    utils::{check_token_standard, clean_write_metadata},
+    utils::{check_token_standard, metadata::clean_write_metadata},
 };
 
 pub fn process_set_token_standard(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {

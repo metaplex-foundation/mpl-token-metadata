@@ -2923,6 +2923,22 @@ nameToErrorMap.set(
   MissingImmutableOwnerExtensionError
 );
 
+/** ExpectedUninitializedAccount: Expected account to be uninitialized */
+export class ExpectedUninitializedAccountError extends ProgramError {
+  override readonly name: string = 'ExpectedUninitializedAccount';
+
+  readonly code: number = 0xc7; // 199
+
+  constructor(program: Program, cause?: Error) {
+    super('Expected account to be uninitialized', program, cause);
+  }
+}
+codeToErrorMap.set(0xc7, ExpectedUninitializedAccountError);
+nameToErrorMap.set(
+  'ExpectedUninitializedAccount',
+  ExpectedUninitializedAccountError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

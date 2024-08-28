@@ -7,7 +7,10 @@ use crate::{
         uses::assert_valid_use,
     },
     instruction::{CollectionDetailsToggle, CollectionToggle, RuleSetToggle, UpdateArgs},
-    utils::{clean_write_metadata, puff_out_data_fields},
+    utils::{
+        metadata::{clean_write_metadata, meta_deser_unchecked},
+        puff_out_data_fields,
+    },
 };
 
 pub const MAX_NAME_LENGTH: usize = 32;
@@ -27,8 +30,8 @@ pub const MAX_METADATA_LEN: usize = 1 // key
 + 34             // collection
 + 18             // uses
 + 10             // collection details
-+ 33             // programmable config
-+ 75; // Padding
++ 35             // programmable config
++ 1; // Fee flag
 
 pub const MAX_DATA_SIZE: usize = 4
     + MAX_NAME_LENGTH
@@ -43,7 +46,7 @@ pub const MAX_DATA_SIZE: usize = 4
 
 // The last byte of the account contains the fee flag, indicating
 // if the account has fees available for retrieval.
-pub const METADATA_FEE_FLAG_INDEX: usize = MAX_METADATA_LEN - 1;
+pub const METADATA_FEE_FLAG_OFFSET: usize = 1;
 
 #[macro_export]
 macro_rules! metadata_seeds {
@@ -212,6 +215,7 @@ impl Metadata {
         }
 
         // Update authority by Authority Item Delegate is deprecated.
+        #[allow(deprecated)]
         if let UpdateArgs::AsAuthorityItemDelegateV2 {
             new_update_authority: Some(_authority),
             ..
@@ -339,7 +343,7 @@ impl TokenMetadataAccount for Metadata {
     }
 
     fn size() -> usize {
-        MAX_METADATA_LEN
+        0
     }
 }
 
@@ -405,16 +409,11 @@ mod tests {
         error::MetadataError,
         state::{
             CollectionAuthorityRecord, Edition, EditionMarker, Key, MasterEditionV2, Metadata,
-            TokenMetadataAccount, UseAuthorityRecord, MAX_METADATA_LEN,
+            TokenMetadataAccount, UseAuthorityRecord,
         },
         utils::metadata::tests::{expected_pesky_metadata, pesky_data},
         ID,
     };
-
-    fn pad_metadata_length(metadata: &mut Vec<u8>) {
-        let padding_length = MAX_METADATA_LEN - metadata.len();
-        metadata.extend(vec![0; padding_length]);
-    }
 
     #[test]
     fn successfully_deserialize_corrupted_metadata() {
@@ -434,7 +433,6 @@ mod tests {
 
         let mut buf = Vec::new();
         borsh::to_writer(&mut buf, &expected_metadata).unwrap();
-        pad_metadata_length(&mut buf);
 
         let pubkey = Keypair::new().pubkey();
         let owner = &ID;
@@ -463,7 +461,6 @@ mod tests {
 
         let mut buf = Vec::new();
         borsh::to_writer(&mut buf, &expected_metadata).unwrap();
-        pad_metadata_length(&mut buf);
 
         let pubkey = Keypair::new().pubkey();
         let invalid_owner = Keypair::new().pubkey();
@@ -488,7 +485,7 @@ mod tests {
     }
 
     #[test]
-    fn fail_to_deserialize_metadata_with_wrong_size() {
+    fn successfully_deserialize_metadata_with_different_size() {
         let expected_metadata = expected_pesky_metadata();
 
         let mut buf = Vec::new();
@@ -511,10 +508,9 @@ mod tests {
             1_000_000_000,
         );
 
-        // `from_account_info` should not succeed because this account is not owned
-        // by `token-metadata` program.
-        let error = Metadata::from_account_info(&account_info).unwrap_err();
-        assert_eq!(error, MetadataError::DataTypeMismatch.into());
+        let md = Metadata::from_account_info(&account_info).unwrap();
+        assert_eq!(md.key, Key::MetadataV1);
+        assert_eq!(md, expected_metadata);
     }
 
     #[test]

@@ -243,7 +243,12 @@ impl EditionMarker {
                 tx,
                 solana_sdk::commitment_config::CommitmentLevel::Confirmed,
             )
-            .await
+            .await?;
+
+        #[cfg(feature = "padded")]
+        upsize_edition(context, &self.new_edition_pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_from_asset(
@@ -333,7 +338,12 @@ impl EditionMarker {
                 tx,
                 solana_sdk::commitment_config::CommitmentLevel::Confirmed,
             )
-            .await
+            .await?;
+
+        #[cfg(feature = "padded")]
+        upsize_edition(context, &self.new_edition_pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_from_asset_with_invalid_token_program(
@@ -393,7 +403,12 @@ impl EditionMarker {
                 tx,
                 solana_sdk::commitment_config::CommitmentLevel::Confirmed,
             )
-            .await
+            .await?;
+
+        #[cfg(feature = "padded")]
+        upsize_edition(context, &self.new_edition_pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_with_invalid_token_program(
@@ -452,7 +467,12 @@ impl EditionMarker {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        upsize_edition(context, &self.new_edition_pubkey).await;
+
+        Ok(())
     }
 
     pub async fn transfer(
