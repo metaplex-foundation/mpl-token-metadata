@@ -38,7 +38,12 @@ use token_metadata::{
     ID,
 };
 
-use super::{airdrop, create_mint, create_token_account, get_account, mint_tokens};
+use crate::upsize_edition;
+
+use super::{
+    airdrop, create_mint, create_token_account, get_account, mint_tokens, upsize_master_edition,
+    upsize_metadata,
+};
 
 pub const DEFAULT_NAME: &str = "Digital Asset";
 pub const DEFAULT_SYMBOL: &str = "DA";
@@ -359,7 +364,17 @@ impl DigitalAsset {
         self.edition = edition;
         self.token_standard = Some(token_standard);
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        {
+            upsize_metadata(context, &self.metadata).await;
+            if let Some(edition) = self.edition {
+                upsize_master_edition(context, &edition).await;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn mint(
@@ -868,6 +883,12 @@ impl DigitalAsset {
             )
             .await
             .unwrap();
+
+        #[cfg(feature = "padded")]
+        {
+            upsize_metadata(context, &print_metadata).await;
+            upsize_edition(context, &print_edition).await;
+        }
 
         Ok(DigitalAsset {
             mint: print_mint,

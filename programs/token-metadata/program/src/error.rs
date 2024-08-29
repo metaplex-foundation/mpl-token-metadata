@@ -787,6 +787,10 @@ pub enum MetadataError {
     /// 199
     #[error("Expected account to be uninitialized")]
     ExpectedUninitializedAccount,
+
+    /// 200
+    #[error("Edition account has an invalid length")]
+    InvalidEditionAccountLength,
 }
 
 impl PrintProgramError for MetadataError {

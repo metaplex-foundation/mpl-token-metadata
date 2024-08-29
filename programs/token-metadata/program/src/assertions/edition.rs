@@ -31,8 +31,8 @@ pub fn assert_edition_is_not_programmable(edition_info: &AccountInfo) -> Program
 
     // Check if it's a master edition of a pNFT
     if (edition_data[0] == Key::MasterEditionV2 as u8
-        // Check if it's an edition of a pNFT
         && (edition_data[edition_data.len() - MASTER_EDITION_TOKEN_STANDARD_OFFSET] == TokenStandard::ProgrammableNonFungible as u8))
+        // Check if it's an edition of a pNFT
         || (edition_data[0] == Key::EditionV1 as u8
             && edition_data[edition_data.len() - EDITION_TOKEN_STANDARD_OFFSET]
                 == TokenStandard::ProgrammableNonFungible as u8)

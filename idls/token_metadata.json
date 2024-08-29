@@ -7833,6 +7833,11 @@
       "code": 199,
       "name": "ExpectedUninitializedAccount",
       "msg": "Expected account to be uninitialized"
+    },
+    {
+      "code": 200,
+      "name": "InvalidEditionAccountLength",
+      "msg": "Edition account has an invalid length"
     }
   ],
   "metadata": {

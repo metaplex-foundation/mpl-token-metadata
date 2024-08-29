@@ -304,7 +304,7 @@ fn print_logic<'a>(
         let mut data = edition_account_info.data.borrow_mut();
 
         if data.len() < MAX_EDITION_LEN {
-            return Err(MetadataError::InvalidMasterEditionAccountLength.into());
+            return Err(MetadataError::InvalidEditionAccountLength.into());
         }
 
         data[data_len - EDITION_TOKEN_STANDARD_OFFSET] =

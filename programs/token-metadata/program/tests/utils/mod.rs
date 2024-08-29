@@ -310,9 +310,6 @@ pub async fn upsize_metadata(context: &mut ProgramTestContext, address: &Pubkey)
     extended[678] = original[606];
 
     account_shared.set_data(extended);
-    // account_shared
-    //     .checked_add_lamports(15616720 - 15115600)
-    //     .expect("Overflow");
     context.set_account(address, &account_shared);
     airdrop(context, address, 15616720 - 15115600)
         .await

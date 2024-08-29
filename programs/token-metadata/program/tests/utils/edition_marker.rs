@@ -246,7 +246,10 @@ impl EditionMarker {
             .await?;
 
         #[cfg(feature = "padded")]
-        upsize_edition(context, &self.new_edition_pubkey).await;
+        {
+            upsize_metadata(context, &self.new_metadata_pubkey).await;
+            upsize_edition(context, &self.new_edition_pubkey).await;
+        }
 
         Ok(())
     }
@@ -341,7 +344,10 @@ impl EditionMarker {
             .await?;
 
         #[cfg(feature = "padded")]
-        upsize_edition(context, &self.new_edition_pubkey).await;
+        {
+            upsize_metadata(context, &self.new_metadata_pubkey).await;
+            upsize_edition(context, &self.new_edition_pubkey).await;
+        }
 
         Ok(())
     }
@@ -406,7 +412,10 @@ impl EditionMarker {
             .await?;
 
         #[cfg(feature = "padded")]
-        upsize_edition(context, &self.new_edition_pubkey).await;
+        {
+            upsize_metadata(context, &self.new_metadata_pubkey).await;
+            upsize_edition(context, &self.new_edition_pubkey).await;
+        }
 
         Ok(())
     }
@@ -470,7 +479,10 @@ impl EditionMarker {
         context.banks_client.process_transaction(tx).await?;
 
         #[cfg(feature = "padded")]
-        upsize_edition(context, &self.new_edition_pubkey).await;
+        {
+            upsize_metadata(context, &self.new_metadata_pubkey).await;
+            upsize_edition(context, &self.new_edition_pubkey).await;
+        }
 
         Ok(())
     }
