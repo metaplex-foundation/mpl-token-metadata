@@ -1,4 +1,4 @@
-use borsh::{maybestd::io::Error as BorshError, BorshDeserialize, BorshSerialize};
+use borsh::{maybestd::io::Error as BorshError, BorshDeserialize};
 use mpl_utils::{
     create_or_allocate_account_raw,
     token::{get_mint_authority, SPL_TOKEN_PROGRAM_IDS},

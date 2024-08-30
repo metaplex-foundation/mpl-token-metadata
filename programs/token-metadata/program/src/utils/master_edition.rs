@@ -23,10 +23,8 @@ use crate::{
     pda::MARKER,
     state::{
         get_reservation_list, DataV2, EditionMarker, EditionMarkerV2, Key, MasterEdition, Metadata,
-        TokenMetadataAccount, Uses, EDITION, EDITION_MARKER_BIT_SIZE,
-        EDITION_TOKEN_STANDARD_OFFSET, MASTER_EDITION_FEE_FLAG_OFFSET,
-        MASTER_EDITION_TOKEN_STANDARD_OFFSET, MAX_EDITION_LEN, MAX_EDITION_MARKER_SIZE,
-        MAX_MASTER_EDITION_LEN, PREFIX,
+        TokenMetadataAccount, Uses, EDITION, EDITION_MARKER_BIT_SIZE, MAX_EDITION_LEN,
+        MAX_EDITION_MARKER_SIZE, MAX_MASTER_EDITION_LEN, PREFIX,
     },
 };
 
