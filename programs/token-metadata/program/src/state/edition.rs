@@ -41,7 +41,15 @@ impl TokenMetadataAccount for Edition {
     }
 
     fn size() -> usize {
-        MAX_EDITION_LEN
+        0
+    }
+
+    fn pad_length(buf: &mut Vec<u8>) -> Result<(), MetadataError> {
+        let padding_length = MAX_EDITION_LEN
+            .checked_sub(buf.len())
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        buf.extend(vec![0; padding_length]);
+        Ok(())
     }
 }
 

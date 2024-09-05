@@ -16,11 +16,11 @@
 
 ## Getting Started
 
-The packages below can be use to interact with Token Metadata program.
+The packages below can be used to interact with Token Metadata program.
 
 ### TypeScript
 ```sh
-npm install @metaplex-foundation/mpl-token-metadata@alpha
+npm install @metaplex-foundation/mpl-token-metadata
 ```
 
 [See typedoc documentation](https://mpl-token-metadata-js-docs.vercel.app/).
@@ -30,13 +30,13 @@ npm install @metaplex-foundation/mpl-token-metadata@alpha
 cargo add mpl-token-metadata
 ```
 
-[See crate documentation](https://docs.rs/mpl-token-metadata/1.13.1/mpl_token_metadata/).
+[See crate documentation](https://docs.rs/mpl-token-metadata/1.13.3/mpl_token_metadata/).
 
 ## Building
 
 From the root directory of the repository:
 
-- Install the required packges:
+- Install the required packages:
 ```sh
 pnpm install
 ```
@@ -50,7 +50,7 @@ This will create the program binary at `<ROOT>/programs/.bin`
 
 ## Testing
 
-Token Metadata includes two set of tests: BPF and TypeScript.
+Token Metadata includes two sets of tests: BPF and TypeScript.
 
 ### BPF
 
@@ -80,7 +80,7 @@ pnpm build && pnpm test
 
 ## Documentation
 
-Full documentation for Token Metadata can be found [here](https://docs.metaplex.com/programs/token-metadata/).
+Full documentation for Token Metadata can be found here [developers.metaplex.com/token-metadata](https://developers.metaplex.com/token-metadata). 
 
 ## Security
 

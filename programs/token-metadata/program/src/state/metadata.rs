@@ -14,7 +14,7 @@ pub const MAX_SYMBOL_LENGTH: usize = 10;
 
 pub const MAX_URI_LENGTH: usize = 200;
 
-pub const MAX_METADATA_LEN: usize = 1 // key 
+pub const MAX_METADATA_LEN: usize = 1 // key
 + 32             // update auth pubkey
 + 32             // mint pubkey
 + MAX_DATA_SIZE
@@ -335,7 +335,15 @@ impl TokenMetadataAccount for Metadata {
     }
 
     fn size() -> usize {
-        MAX_METADATA_LEN
+        0
+    }
+
+    fn pad_length(buf: &mut Vec<u8>) -> Result<(), MetadataError> {
+        let padding_length = MAX_METADATA_LEN
+            .checked_sub(buf.len())
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        buf.extend(vec![0; padding_length]);
+        Ok(())
     }
 }
 
@@ -484,7 +492,7 @@ mod tests {
     }
 
     #[test]
-    fn fail_to_deserialize_metadata_with_wrong_size() {
+    fn successfully_deserialize_metadata_with_different_size() {
         let expected_metadata = expected_pesky_metadata();
 
         let mut buf = Vec::new();
@@ -507,10 +515,9 @@ mod tests {
             1_000_000_000,
         );
 
-        // `from_account_info` should not succeed because this account is not owned
-        // by `token-metadata` program.
-        let error = Metadata::from_account_info(&account_info).unwrap_err();
-        assert_eq!(error, MetadataError::DataTypeMismatch.into());
+        let md = Metadata::from_account_info(&account_info).unwrap();
+        assert_eq!(md.key, Key::MetadataV1);
+        assert_eq!(md, expected_metadata);
     }
 
     #[test]

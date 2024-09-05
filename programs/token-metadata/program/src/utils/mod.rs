@@ -38,7 +38,7 @@ use crate::{
     error::MetadataError,
     state::{
         Edition, Key, MasterEditionV2, Metadata, TokenMetadataAccount, TokenStandard,
-        MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
+        MAX_METADATA_LEN, MAX_NAME_LENGTH, MAX_SYMBOL_LENGTH, MAX_URI_LENGTH,
     },
 };
 
@@ -199,7 +199,7 @@ pub(crate) fn close_program_account<'a>(
     let rent_lamports = match key {
         // Metadata accounts could have fees stored, so we only want to withdraw
         // the actual rent lamport amount.
-        Key::MetadataV1 => rent.minimum_balance(Metadata::size()),
+        Key::MetadataV1 => rent.minimum_balance(MAX_METADATA_LEN),
         // Other accounts the rent is just the current lamport balance.
         _ => account_info.lamports(),
     };
@@ -313,7 +313,7 @@ mod tests {
         let corrupted_data = pesky_data();
 
         let metadata: Metadata =
-            try_from_slice_checked(corrupted_data, Key::MetadataV1, MAX_METADATA_LEN).unwrap();
+            try_from_slice_checked(corrupted_data, Key::MetadataV1, 0).unwrap();
 
         assert_eq!(metadata, expected_metadata);
     }

@@ -88,7 +88,15 @@ impl TokenMetadataAccount for MasterEditionV2 {
     }
 
     fn size() -> usize {
-        MAX_MASTER_EDITION_LEN
+        0
+    }
+
+    fn pad_length(buf: &mut Vec<u8>) -> Result<(), MetadataError> {
+        let padding_length = MAX_MASTER_EDITION_LEN
+            .checked_sub(buf.len())
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        buf.extend(vec![0; padding_length]);
+        Ok(())
     }
 }
 
@@ -148,7 +156,15 @@ impl TokenMetadataAccount for MasterEditionV1 {
     }
 
     fn size() -> usize {
-        MAX_MASTER_EDITION_LEN
+        0
+    }
+
+    fn pad_length(buf: &mut Vec<u8>) -> Result<(), MetadataError> {
+        let padding_length = MAX_MASTER_EDITION_LEN
+            .checked_sub(buf.len())
+            .ok_or(MetadataError::NumericalOverflowError)?;
+        buf.extend(vec![0; padding_length]);
+        Ok(())
     }
 }
 
