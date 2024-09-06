@@ -355,6 +355,15 @@ impl borsh::de::BorshDeserialize for Metadata {
         let md = meta_deser_unchecked(buf)?;
         Ok(md)
     }
+
+    fn deserialize_reader<R: std::io::Read>(
+        reader: &mut R,
+    ) -> ::core::result::Result<Self, BorshError> {
+        let mut buf = Vec::new();
+        reader.read_to_end(&mut buf)?;
+        let mut buf_slice = &buf[..];
+        <Metadata as borsh::BorshDeserialize>::deserialize(&mut buf_slice)
+    }
 }
 
 #[repr(C)]
