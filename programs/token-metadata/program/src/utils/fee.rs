@@ -3,7 +3,7 @@ use solana_program::{
     sysvar::Sysvar,
 };
 
-use crate::state::{fee::CREATE_FEE, Metadata, TokenMetadataAccount, METADATA_FEE_FLAG_INDEX};
+use crate::state::{get_create_fee, Metadata, TokenMetadataAccount, METADATA_FEE_FLAG_INDEX};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -16,7 +16,7 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
     // Fund metadata account with rent + Metaplex fee.
     let rent = Rent::get()?;
 
-    let fee = CREATE_FEE + rent.minimum_balance(Metadata::size());
+    let fee = get_create_fee()? + rent.minimum_balance(Metadata::size());
 
     invoke(
         &solana_program::system_instruction::transfer(
