@@ -9,7 +9,7 @@ pub use token_manager::*;
 
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
 use solana_program_test::{ProgramTest, ProgramTestContext};
-use solana_sdk::account::Account;
+use solana_sdk::{account::Account, program_pack::Pack};
 
 pub fn program_test() -> ProgramTest {
     let mut program_test = ProgramTest::new("token_metadata", mpl_token_metadata::ID, None);
@@ -30,7 +30,7 @@ pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> A
         .expect("account not found")
 }
 
-pub fn unpack<S: BaseState>(
+pub fn unpack<S: BaseState + Pack>(
     account_data: &[u8],
 ) -> Result<StateWithExtensions<'_, S>, ProgramError> {
     StateWithExtensions::<S>::unpack(account_data)
