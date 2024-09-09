@@ -31,14 +31,18 @@ use token_metadata::{
     state::{
         AssetData, Collection, CollectionDetails, Creator, MasterEditionV2, Metadata, PrintSupply,
         ProgrammableConfig, TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard,
-        CREATE_FEE, EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_INDEX,
-        PREFIX,
+        EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET, PREFIX,
     },
     utils::unpack,
     ID,
 };
 
-use super::{airdrop, create_mint, create_token_account, get_account, mint_tokens};
+use crate::{upsize_edition, SOLANA_CREATE_FEE};
+
+use super::{
+    airdrop, create_mint, create_token_account, get_account, mint_tokens, upsize_master_edition,
+    upsize_metadata,
+};
 
 pub const DEFAULT_NAME: &str = "Digital Asset";
 pub const DEFAULT_SYMBOL: &str = "DA";
@@ -359,7 +363,17 @@ impl DigitalAsset {
         self.edition = edition;
         self.token_standard = Some(token_standard);
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        {
+            upsize_metadata(context, &self.metadata).await;
+            if let Some(edition) = self.edition {
+                upsize_master_edition(context, &edition).await;
+            }
+        }
+
+        Ok(())
     }
 
     pub async fn mint(
@@ -868,6 +882,12 @@ impl DigitalAsset {
             )
             .await
             .unwrap();
+
+        #[cfg(feature = "padded")]
+        {
+            upsize_metadata(context, &print_metadata).await;
+            upsize_edition(context, &print_edition).await;
+        }
 
         Ok(DigitalAsset {
             mint: print_mint,
@@ -1473,10 +1493,11 @@ impl DigitalAsset {
         let rent = context.banks_client.get_rent().await.unwrap();
         let rent_exempt = rent.minimum_balance(account.data.len());
 
-        let expected_lamports = rent_exempt + CREATE_FEE;
+        let expected_lamports = rent_exempt + SOLANA_CREATE_FEE;
 
         assert_eq!(account.lamports, expected_lamports);
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }
@@ -1487,7 +1508,8 @@ impl DigitalAsset {
     ) -> Result<(), BanksClientError> {
         let account = get_account(context, &self.metadata).await;
 
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }

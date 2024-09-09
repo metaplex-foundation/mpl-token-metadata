@@ -3,7 +3,10 @@ use solana_program::{
     sysvar::Sysvar,
 };
 
-use crate::state::{fee::CREATE_FEE, Metadata, TokenMetadataAccount, METADATA_FEE_FLAG_INDEX};
+use crate::{
+    error::MetadataError,
+    state::{get_create_fee, MAX_METADATA_LEN, METADATA_FEE_FLAG_OFFSET},
+};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -16,7 +19,14 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
     // Fund metadata account with rent + Metaplex fee.
     let rent = Rent::get()?;
 
-    let fee = CREATE_FEE + rent.minimum_balance(Metadata::size());
+    // Normally we would use the account data length to calculate the rent, but
+    // but levy is always called before the account is created, so it will be
+    // zero at this point. But we double check anyway.
+    let account_data_len = args.token_metadata_pda_info.data_len();
+    if account_data_len > 0 {
+        return Err(MetadataError::ExpectedUninitializedAccount.into());
+    }
+    let fee = get_create_fee()? + rent.minimum_balance(MAX_METADATA_LEN);
 
     invoke(
         &solana_program::system_instruction::transfer(
@@ -34,17 +44,25 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
 }
 
 pub(crate) fn set_fee_flag(pda_account_info: &AccountInfo) -> ProgramResult {
+    let last_byte = pda_account_info
+        .data_len()
+        .checked_sub(METADATA_FEE_FLAG_OFFSET)
+        .ok_or(MetadataError::NumericalOverflowError)?;
     let mut data = pda_account_info.try_borrow_mut_data()?;
-    data[METADATA_FEE_FLAG_INDEX] = 1;
+    data[last_byte] = 1;
 
     Ok(())
 }
 
 pub(crate) fn clear_fee_flag(pda_account_info: &AccountInfo) -> ProgramResult {
+    let last_byte = pda_account_info
+        .data_len()
+        .checked_sub(METADATA_FEE_FLAG_OFFSET)
+        .ok_or(MetadataError::NumericalOverflowError)?;
     let mut data = pda_account_info.try_borrow_mut_data()?;
 
     // Clear the flag if the index exists.
-    if let Some(flag) = data.get_mut(METADATA_FEE_FLAG_INDEX) {
+    if let Some(flag) = data.get_mut(last_byte) {
         *flag = 0;
     }
 

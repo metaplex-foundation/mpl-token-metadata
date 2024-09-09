@@ -88,6 +88,7 @@ pub struct TokenRecord {
 
 impl Default for TokenRecord {
     fn default() -> Self {
+        #[allow(deprecated)]
         Self {
             key: Key::TokenRecord,
             bump: 255,
@@ -125,6 +126,7 @@ impl TokenRecord {
     }
 
     /// Resets the token state by clearing any state stored.
+    #[allow(deprecated)]
     pub fn reset(&mut self) {
         self.state = TokenState::Unlocked;
         self.rule_set_revision = None;
@@ -167,6 +169,7 @@ impl Resizable for TokenRecord {
             None
         };
 
+        #[allow(deprecated)]
         Ok(TokenRecord {
             key,
             bump,

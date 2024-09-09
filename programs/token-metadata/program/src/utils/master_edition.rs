@@ -1,5 +1,6 @@
 use arrayref::{array_mut_ref, array_ref, mut_array_refs};
 use borsh::BorshSerialize;
+use metadata::{process_create_metadata_accounts_logic, CreateMetadataAccountsLogicArgs};
 use mpl_utils::{
     assert_signer, create_or_allocate_account_raw,
     token::{get_mint_authority, get_mint_supply},
@@ -417,7 +418,7 @@ pub fn calculate_supply_change<'a>(
     let edition_data = &mut master_edition_account_info.data.borrow_mut();
     let output = array_mut_ref![edition_data, 0, MAX_MASTER_EDITION_LEN];
 
-    let (_key, supply, _the_rest) = mut_array_refs![output, 1, 8, 273];
+    let (_key, supply, _the_rest) = mut_array_refs![output, 1, 8, 11];
     *supply = new_supply.to_le_bytes();
 
     Ok(())
@@ -550,7 +551,7 @@ pub fn mint_limited_edition<'a>(
     let edition_data = &mut new_edition_account_info.data.borrow_mut();
     let output = array_mut_ref![edition_data, 0, MAX_EDITION_LEN];
 
-    let (key, parent, edition, _padding) = mut_array_refs![output, 1, 32, 8, 200];
+    let (key, parent, edition, _padding) = mut_array_refs![output, 1, 32, 8, 1];
 
     *key = [Key::EditionV1 as u8];
     parent.copy_from_slice(master_edition_account_info.key.as_ref());

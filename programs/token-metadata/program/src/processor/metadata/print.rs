@@ -10,8 +10,8 @@ use crate::{
     instruction::{Context, Print, PrintArgs},
     pda::find_token_record_account,
     state::{
-        Metadata, TokenMetadataAccount, TokenStandard, MAX_EDITION_LEN,
-        TOKEN_STANDARD_INDEX_EDITION,
+        Metadata, TokenMetadataAccount, TokenStandard, EDITION_TOKEN_STANDARD_OFFSET,
+        MAX_EDITION_LEN,
     },
     utils::{
         assert_owned_by, create_mint, create_token_record_account,
@@ -298,15 +298,17 @@ fn print_logic<'a>(
             None,
         )?;
 
+        let data_len = edition_account_info.data_len();
         // for pNFTs, we store the token standard value at the end of the
         // master edition account
         let mut data = edition_account_info.data.borrow_mut();
 
         if data.len() < MAX_EDITION_LEN {
-            return Err(MetadataError::InvalidMasterEditionAccountLength.into());
+            return Err(MetadataError::InvalidEditionAccountLength.into());
         }
 
-        data[TOKEN_STANDARD_INDEX_EDITION] = TokenStandard::ProgrammableNonFungible as u8;
+        data[data_len - EDITION_TOKEN_STANDARD_OFFSET] =
+            TokenStandard::ProgrammableNonFungible as u8;
     }
 
     // Set fee flag after metadata account is created.

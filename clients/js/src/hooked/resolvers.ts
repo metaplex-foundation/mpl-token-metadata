@@ -20,9 +20,9 @@ import {
   printSupply,
 } from '../generated';
 
-const METADATA_SIZE: number = 679;
+const METADATA_SIZE: number = 607;
 
-const MASTER_EDITION_SIZE: number = 282;
+const MASTER_EDITION_SIZE: number = 20;
 
 export const resolveCollectionDetails = (
   context: any,

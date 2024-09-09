@@ -10,7 +10,7 @@ use crate::{
     error::MetadataError,
     processor::all_account_infos,
     state::{DataV2, Metadata, TokenMetadataAccount},
-    utils::{clean_write_metadata, puff_out_data_fields},
+    utils::{metadata::clean_write_metadata, puff_out_data_fields},
 };
 
 // Update existing account instruction

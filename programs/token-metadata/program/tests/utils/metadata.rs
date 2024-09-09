@@ -6,8 +6,7 @@ use token_metadata::{
     instruction,
     state::{
         Collection, CollectionDetails, Creator, DataV2, Metadata as TmMetadata,
-        TokenMetadataAccount, TokenStandard, Uses, CREATE_FEE, FEE_FLAG_SET,
-        METADATA_FEE_FLAG_INDEX, PREFIX,
+        TokenMetadataAccount, TokenStandard, Uses, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET, PREFIX,
     },
     ID,
 };
@@ -159,7 +158,14 @@ impl Metadata {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        {
+            upsize_metadata(context, &self.pubkey).await;
+        }
+
+        Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -228,7 +234,12 @@ impl Metadata {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        upsize_metadata(context, &self.pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_v3_no_freeze_auth(
@@ -299,7 +310,12 @@ impl Metadata {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        upsize_metadata(context, &self.pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_v3_default(
@@ -679,10 +695,11 @@ impl Metadata {
         let rent = context.banks_client.get_rent().await.unwrap();
         let rent_exempt = rent.minimum_balance(account.data.len());
 
-        let expected_lamports = rent_exempt + CREATE_FEE;
+        let expected_lamports = rent_exempt + SOLANA_CREATE_FEE;
 
         assert_eq!(account.lamports, expected_lamports);
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }
@@ -693,7 +710,8 @@ impl Metadata {
     ) -> Result<(), BanksClientError> {
         let account = get_account(context, &self.pubkey).await;
 
-        assert_eq!(account.data[METADATA_FEE_FLAG_INDEX], FEE_FLAG_SET);
+        let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;
+        assert_eq!(account.data[last_byte], FEE_FLAG_SET);
 
         Ok(())
     }

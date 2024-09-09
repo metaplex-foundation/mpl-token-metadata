@@ -112,7 +112,12 @@ impl MasterEditionV2 {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        upsize_master_edition(context, &self.pubkey).await;
+
+        Ok(())
     }
 
     pub async fn create_v3(
@@ -136,7 +141,12 @@ impl MasterEditionV2 {
             context.last_blockhash,
         );
 
-        context.banks_client.process_transaction(tx).await
+        context.banks_client.process_transaction(tx).await?;
+
+        #[cfg(feature = "padded")]
+        upsize_master_edition(context, &self.pubkey).await;
+
+        Ok(())
     }
 
     pub async fn mint_editions(

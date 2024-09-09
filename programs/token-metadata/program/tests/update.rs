@@ -235,6 +235,7 @@ mod update {
         // Change a few values that this delegate is allowed to change.
         let mut args = UpdateArgs::default_as_authority_item_delegate();
 
+        #[allow(deprecated)]
         match &mut args {
             UpdateArgs::AsAuthorityItemDelegateV2 {
                 new_update_authority,
@@ -4065,12 +4066,12 @@ mod update {
     async fn success_printed_pnft_rule_set_update(spl_token_program: Pubkey) {
         let mut program_test = program_test();
         program_test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
-        let mut context = &mut program_test.start_with_context().await;
+        let context = &mut program_test.start_with_context().await;
 
         let mut asset = DigitalAsset::new();
         asset
             .create_and_mint_with_supply(
-                &mut context,
+                context,
                 TokenStandard::ProgrammableNonFungible,
                 None,
                 None,
@@ -4086,7 +4087,7 @@ mod update {
             EditionMarker::new_from_asset(&asset, &test_master_edition, 1, spl_token_program);
 
         test_edition_marker
-            .create_from_asset(&mut context)
+            .create_from_asset(context)
             .await
             .unwrap();
 

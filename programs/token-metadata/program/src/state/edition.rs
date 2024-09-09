@@ -1,11 +1,11 @@
 use super::*;
 
-pub const MAX_EDITION_LEN: usize = 1 + 32 + 8 + 200;
+pub const MAX_EDITION_LEN: usize = 1 + 32 + 8 + 1;
 
 // The last byte of the account contains the token standard value for
 // pNFT assets. This is used to restrict legacy operations on the master
 // edition account.
-pub const TOKEN_STANDARD_INDEX_EDITION: usize = MAX_EDITION_LEN - 1;
+pub const EDITION_TOKEN_STANDARD_OFFSET: usize = 1;
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
@@ -41,7 +41,7 @@ impl TokenMetadataAccount for Edition {
     }
 
     fn size() -> usize {
-        MAX_EDITION_LEN
+        0
     }
 }
 

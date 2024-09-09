@@ -9,7 +9,7 @@ use crate::{
     error::MetadataError,
     instruction::{Context, MetadataDelegateRole, Unverify, Verify},
     state::{AuthorityRequest, AuthorityType, Metadata, TokenMetadataAccount},
-    utils::{clean_write_metadata, decrement_collection_size, increment_collection_size},
+    utils::{decrement_collection_size, increment_collection_size, metadata::clean_write_metadata},
 };
 
 pub(crate) fn verify_collection_v1(program_id: &Pubkey, ctx: Context<Verify>) -> ProgramResult {

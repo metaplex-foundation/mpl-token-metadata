@@ -607,6 +607,12 @@ pub enum MplTokenMetadataError {
     /// 198 (0xC6) - Missing immutable owner extension
     #[error("Missing immutable owner extension")]
     MissingImmutableOwnerExtension,
+    /// 199 (0xC7) - Expected account to be uninitialized
+    #[error("Expected account to be uninitialized")]
+    ExpectedUninitializedAccount,
+    /// 200 (0xC8) - Edition account has an invalid length
+    #[error("Edition account has an invalid length")]
+    InvalidEditionAccountLength,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

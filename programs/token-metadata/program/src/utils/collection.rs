@@ -1,3 +1,4 @@
+use metadata::clean_write_metadata;
 use solana_program::msg;
 
 use super::*;

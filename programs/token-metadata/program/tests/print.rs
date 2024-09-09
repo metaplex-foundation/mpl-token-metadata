@@ -18,10 +18,7 @@ mod print {
     use borsh::BorshDeserialize;
     use solana_program::pubkey::Pubkey;
     use solana_sdk::{signature::Keypair, signer::Signer};
-    use token_metadata::{
-        instruction::{builders::UpdateBuilder, RuleSetToggle, UpdateArgs},
-        state::{PrintSupply, ProgrammableConfig, TokenStandard},
-    };
+    use token_metadata::state::{PrintSupply, ProgrammableConfig, TokenStandard};
 
     use super::*;
 

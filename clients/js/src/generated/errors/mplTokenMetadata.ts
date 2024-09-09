@@ -2923,6 +2923,38 @@ nameToErrorMap.set(
   MissingImmutableOwnerExtensionError
 );
 
+/** ExpectedUninitializedAccount: Expected account to be uninitialized */
+export class ExpectedUninitializedAccountError extends ProgramError {
+  override readonly name: string = 'ExpectedUninitializedAccount';
+
+  readonly code: number = 0xc7; // 199
+
+  constructor(program: Program, cause?: Error) {
+    super('Expected account to be uninitialized', program, cause);
+  }
+}
+codeToErrorMap.set(0xc7, ExpectedUninitializedAccountError);
+nameToErrorMap.set(
+  'ExpectedUninitializedAccount',
+  ExpectedUninitializedAccountError
+);
+
+/** InvalidEditionAccountLength: Edition account has an invalid length */
+export class InvalidEditionAccountLengthError extends ProgramError {
+  override readonly name: string = 'InvalidEditionAccountLength';
+
+  readonly code: number = 0xc8; // 200
+
+  constructor(program: Program, cause?: Error) {
+    super('Edition account has an invalid length', program, cause);
+  }
+}
+codeToErrorMap.set(0xc8, InvalidEditionAccountLengthError);
+nameToErrorMap.set(
+  'InvalidEditionAccountLength',
+  InvalidEditionAccountLengthError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

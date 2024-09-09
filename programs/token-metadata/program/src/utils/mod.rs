@@ -9,7 +9,10 @@ pub(crate) mod token;
 pub use collection::*;
 pub use compression::*;
 pub use master_edition::*;
-pub use metadata::*;
+pub use metadata::{
+    clean_write_metadata, meta_deser_unchecked, process_create_metadata_accounts_logic,
+    CreateMetadataAccountsLogicArgs,
+};
 pub use mpl_utils::{
     assert_signer, close_account_raw, create_or_allocate_account_raw,
     resize_or_reallocate_account_raw,
@@ -221,7 +224,7 @@ pub(crate) fn close_program_account<'a>(
     let rent_lamports = match key {
         // Metadata accounts could have fees stored, so we only want to withdraw
         // the actual rent lamport amount.
-        Key::MetadataV1 => rent.minimum_balance(Metadata::size()),
+        Key::MetadataV1 => rent.minimum_balance(account_info.data_len()),
         // Other accounts the rent is just the current lamport balance.
         _ => account_info.lamports(),
     };
@@ -239,7 +242,7 @@ pub(crate) fn close_program_account<'a>(
     **account_info.lamports.borrow_mut() = remaining_lamports;
 
     // If the account does not have fees on it, we realloc the data length to zero
-    // and assign ownerhsip to the system program.
+    // and assign ownership to the system program.
     if remaining_lamports == 0 {
         account_info.realloc(0, false)?;
         account_info.assign(&solana_program::system_program::ID);
@@ -255,16 +258,13 @@ pub(crate) fn close_program_account<'a>(
 
 #[cfg(test)]
 mod tests {
-    pub use solana_program::pubkey::Pubkey;
+    use solana_program::pubkey::Pubkey;
 
-    use crate::{
-        state::MAX_METADATA_LEN,
-        utils::{
-            metadata::tests::{expected_pesky_metadata, pesky_data},
-            try_from_slice_checked,
-        },
+    use crate::utils::{
+        metadata::tests::{expected_pesky_metadata, pesky_data},
+        try_from_slice_checked,
     };
-    pub use crate::{
+    use crate::{
         state::{Data, Key, Metadata},
         utils::{puff_out_data_fields, puffed_out_string},
     };
@@ -329,13 +329,13 @@ mod tests {
 
     #[test]
     fn deserialize_corrupted_metadata_ok() {
-        // This should be able to deserialize the corrupted metadata account successfully due to the custom BorshDeserilization
+        // This should be able to deserialize the corrupted metadata account successfully due to the custom BorshDeserialization
         // implementation for the Metadata struct.
         let expected_metadata = expected_pesky_metadata();
         let corrupted_data = pesky_data();
 
         let metadata: Metadata =
-            try_from_slice_checked(corrupted_data, Key::MetadataV1, MAX_METADATA_LEN).unwrap();
+            try_from_slice_checked(corrupted_data, Key::MetadataV1, 0).unwrap();
 
         assert_eq!(metadata, expected_metadata);
     }
