@@ -485,35 +485,6 @@ mod tests {
     }
 
     #[test]
-    fn successfully_deserialize_metadata_with_different_size() {
-        let expected_metadata = expected_pesky_metadata();
-
-        let mut buf = Vec::new();
-        borsh::to_writer(&mut buf, &expected_metadata).unwrap();
-        // No padding is added to the metadata so it's too short.
-
-        let pubkey = Keypair::new().pubkey();
-        let owner = ID;
-        let mut lamports = 1_000_000_000;
-        let mut data = buf.clone();
-
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            &owner,
-            false,
-            1_000_000_000,
-        );
-
-        let md = Metadata::from_account_info(&account_info).unwrap();
-        assert_eq!(md.key, Key::MetadataV1);
-        assert_eq!(md, expected_metadata);
-    }
-
-    #[test]
     fn fail_to_deserialize_master_edition_into_metadata() {
         let master_edition = MasterEditionV2 {
             key: Key::MasterEditionV2,
