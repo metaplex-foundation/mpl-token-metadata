@@ -31,14 +31,13 @@ use token_metadata::{
     state::{
         AssetData, Collection, CollectionDetails, Creator, MasterEditionV2, Metadata, PrintSupply,
         ProgrammableConfig, TokenDelegateRole, TokenMetadataAccount, TokenRecord, TokenStandard,
-        CREATE_FEE, EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET,
-        PREFIX,
+        EDITION, EDITION_MARKER_BIT_SIZE, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET, PREFIX,
     },
     utils::unpack,
     ID,
 };
 
-use crate::upsize_edition;
+use crate::{upsize_edition, SOLANA_CREATE_FEE};
 
 use super::{
     airdrop, create_mint, create_token_account, get_account, mint_tokens, upsize_master_edition,
@@ -1494,7 +1493,7 @@ impl DigitalAsset {
         let rent = context.banks_client.get_rent().await.unwrap();
         let rent_exempt = rent.minimum_balance(account.data.len());
 
-        let expected_lamports = rent_exempt + CREATE_FEE;
+        let expected_lamports = rent_exempt + SOLANA_CREATE_FEE;
 
         assert_eq!(account.lamports, expected_lamports);
         let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;

@@ -6,8 +6,7 @@ use token_metadata::{
     instruction,
     state::{
         Collection, CollectionDetails, Creator, DataV2, Metadata as TmMetadata,
-        TokenMetadataAccount, TokenStandard, Uses, CREATE_FEE, FEE_FLAG_SET,
-        METADATA_FEE_FLAG_OFFSET, PREFIX,
+        TokenMetadataAccount, TokenStandard, Uses, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET, PREFIX,
     },
     ID,
 };
@@ -696,7 +695,7 @@ impl Metadata {
         let rent = context.banks_client.get_rent().await.unwrap();
         let rent_exempt = rent.minimum_balance(account.data.len());
 
-        let expected_lamports = rent_exempt + CREATE_FEE;
+        let expected_lamports = rent_exempt + SOLANA_CREATE_FEE;
 
         assert_eq!(account.lamports, expected_lamports);
         let last_byte = account.data.len() - METADATA_FEE_FLAG_OFFSET;

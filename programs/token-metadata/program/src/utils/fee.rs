@@ -5,7 +5,7 @@ use solana_program::{
 
 use crate::{
     error::MetadataError,
-    state::{fee::CREATE_FEE, MAX_METADATA_LEN, METADATA_FEE_FLAG_OFFSET},
+    state::{get_create_fee, MAX_METADATA_LEN, METADATA_FEE_FLAG_OFFSET},
 };
 
 #[repr(C)]
@@ -26,7 +26,7 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
     if account_data_len > 0 {
         return Err(MetadataError::ExpectedUninitializedAccount.into());
     }
-    let fee = CREATE_FEE + rent.minimum_balance(MAX_METADATA_LEN);
+    let fee = get_create_fee()? + rent.minimum_balance(MAX_METADATA_LEN);
 
     invoke(
         &solana_program::system_instruction::transfer(

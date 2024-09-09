@@ -64,4 +64,5 @@ jobs:
           name: program-builds
           # First wildcard ensures exported paths are consistently under the programs folder.
           path: ./program*/.bin/*.so
+          include-hidden-files: true
           if-no-files-found: error
