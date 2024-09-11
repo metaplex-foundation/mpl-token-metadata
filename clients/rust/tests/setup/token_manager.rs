@@ -299,6 +299,8 @@ impl TokenManager {
             context.last_blockhash,
         );
 
+        let sim = context.banks_client.simulate_transaction(tx.clone()).await;
+        println!("{:#?}", sim);
         context.banks_client.process_transaction(tx).await
     }
 }
