@@ -1,19 +1,19 @@
 [package]
-name = "mpl-token-metadata"
-version = "4.1.2"
-description = "Metaplex Token Metadata SDK"
 authors = ["Metaplex Developers <dev@metaplex.com>"]
-repository = "https://github.com/metaplex-foundation/mpl-token-metadata"
-license-file = "../../LICENSE"
+description = "Metaplex Token Metadata SDK"
 edition = "2021"
+license-file = "../../LICENSE"
+name = "mpl-token-metadata"
 readme = "README.md"
+repository = "https://github.com/metaplex-foundation/mpl-token-metadata"
+version = "5.0.0-beta.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]
 
 [features]
-test-sbf = []
 serde = ["dep:serde", "dep:serde_with"]
+test-sbf = []
 
 [dependencies]
 borsh = ">= 0.9, < 1.0"
@@ -28,7 +28,9 @@ thiserror = "^1.0"
 assert_matches = "1.5.0"
 solana-program-test = ">=1.14"
 solana-sdk = ">=1.14"
+spl-associated-token-account = { version = ">= 1.1.3", features = [
+  "no-entrypoint",
+] }
 spl-token = { version = ">= 3.5.0", features = ["no-entrypoint"] }
 spl-token-2022 = { version = ">=0.8.0", features = ["no-entrypoint"] }
-spl-associated-token-account = { version = ">= 1.1.3", features = ["no-entrypoint"] }
 test-case = "3.1.0"
