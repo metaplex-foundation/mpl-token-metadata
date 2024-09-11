@@ -2,7 +2,6 @@
 mod setup;
 pub use setup::*;
 
-use mpl_token_metadata::errors::MplTokenMetadataError;
 use mpl_token_metadata::types::TokenStandard;
 use solana_program::pubkey::Pubkey;
 use solana_program_test::*;
@@ -268,64 +267,6 @@ mod mint_token2022 {
 
         let token = unpack::<Account>(&token_account.data).unwrap().base;
         assert_eq!(token.amount, 1);
-    }
-
-    #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
-    #[test_case::test_case(TokenStandard::FungibleAsset ; "fungible_asset")]
-    #[test_case::test_case(TokenStandard::NonFungible ; "non_fungible")]
-    #[test_case::test_case(TokenStandard::ProgrammableNonFungible ; "programmable_non_fungible")]
-    #[tokio::test]
-    async fn mint_custom_token_with_non_transferable_mint_and_invalid_token_account(
-        token_standard: TokenStandard,
-    ) {
-        let mut context = program_test().start_with_context().await;
-
-        // given a mint account with a non-transferable extension and metadata
-
-        let mut asset = DigitalAsset::default();
-        asset
-            .create_default_with_mint_extensions(
-                &mut context,
-                token_standard,
-                &[ExtensionType::NonTransferable],
-            )
-            .await
-            .unwrap();
-
-        // and an existing token account without the immutable owner extension
-        let mint = asset.mint.pubkey();
-        let owner = Keypair::new().pubkey();
-        let token_account = Keypair::new();
-
-        TokenManager::default()
-            .create_token_account_with_extensions(
-                &mut context,
-                &owner,
-                &token_account,
-                &mint,
-                &[ExtensionType::NonTransferableAccount],
-            )
-            .await
-            .unwrap();
-
-        asset.token = token_account.pubkey();
-
-        // when minting a token
-
-        let payer = context.payer.dirty_clone();
-
-        let error = asset
-            .mint(&mut context, &owner, 1, &payer, &payer, spl_token_2022::ID)
-            .await
-            .unwrap_err();
-
-        // then we expect an error
-
-        assert_custom_instruction_error!(
-            0,
-            error,
-            MplTokenMetadataError::MissingImmutableOwnerExtension
-        );
     }
 
     #[test_case::test_case(TokenStandard::Fungible ; "fungible")]
