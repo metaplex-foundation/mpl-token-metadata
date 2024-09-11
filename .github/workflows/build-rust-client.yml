@@ -34,6 +34,9 @@ jobs:
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
 
+      - name: Install Protobuf Compiler
+        run: sudo apt-get install protobuf-compiler
+
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
         with:
