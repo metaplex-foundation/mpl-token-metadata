@@ -11,7 +11,6 @@ struct Variant {
     pub name: String,
     pub tuple: Option<String>,
     pub accounts: Vec<Account>,
-    // (name, type, generic type)
     pub args: Vec<(String, String, Option<String>)>,
 }
 
