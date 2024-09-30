@@ -142,7 +142,7 @@ jobs:
           solana config set -k ./submitter-key.json > /dev/null 2>&1
           solana config set --url ${{ env.RPC }} > /dev/null 2>&1
 
-          BUFFER=$(solana program write-buffer ./programs/.bin/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
+          BUFFER=$(solana program write-buffer --max-sign-attempts 100 --use-rpc ./programs/.bin/${{ env.PROGRAM_NAME }}.so | awk '{print $2}')
           echo "Buffer: $BUFFER"
           solana program set-buffer-authority --new-buffer-authority ${{ env.GOVERNANCE_ID }} $BUFFER
 
