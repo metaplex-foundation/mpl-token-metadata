@@ -601,7 +601,7 @@ pub enum MetadataError {
     InvalidTransferAuthority,
 
     /// 153
-    #[error("Instruction not supported for ProgrammableNonFungible assets")]
+    #[error("Instruction not supported for ProgrammableNonFungible or Token2022 assets")]
     InstructionNotSupported,
 
     /// 154
