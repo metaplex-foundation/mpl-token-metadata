@@ -10,7 +10,9 @@ use crate::{
     },
 };
 use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use solana_program::{
+    account_info::AccountInfo, entrypoint::ProgramResult, pubkey, pubkey::Pubkey,
+};
 
 pub fn process_resize<'a>(
     program_id: &'a Pubkey,
@@ -50,7 +52,7 @@ pub fn process_resize<'a>(
 
         // For NFTs, the owner is the one who can resize the NFT,
         // so we need to check that the authority is the owner of the token account.
-        assert_holding_amount(
+        let holder_check = assert_holding_amount(
             &crate::ID,
             authority,
             ctx.accounts.metadata_info,
@@ -58,7 +60,14 @@ pub fn process_resize<'a>(
             ctx.accounts.mint_info,
             ctx.accounts.token_info,
             1,
-        )?;
+        );
+
+        // TODO: Replace with authority address.
+        if holder_check.is_err()
+            && authority.key != &pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7")
+        {
+            return holder_check;
+        }
 
         let key = ctx.accounts.edition_info.data.borrow()[0];
         if key == Key::MasterEditionV1 as u8 || key == Key::MasterEditionV2 as u8 {
@@ -80,10 +89,6 @@ pub fn process_resize<'a>(
                 ctx.accounts.system_program_info,
             )?;
         }
-
-        // // Withdraw the rent.
-        // solana_program::msg!("WITHDRAWING RENT");
-        // withdraw_excess_rent(ctx.accounts.edition_info, ctx.accounts.payer_info)?;
     }
     // This must be a fungible token or asset.
     else {

@@ -12,6 +12,7 @@ export * from './bubblegumSetCollectionSize';
 export * from './burnEditionNft';
 export * from './burnNft';
 export * from './burnV1';
+export * from './closeAccounts';
 export * from './closeEscrowAccount';
 export * from './collect';
 export * from './convertMasterEditionV1ToV2';

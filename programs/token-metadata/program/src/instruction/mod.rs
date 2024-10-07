@@ -838,6 +838,27 @@ pub enum MetadataInstruction {
     #[account(5, name="token", desc="Token or Associated Token account")]
     #[account(6, name="system_program", desc="System program")]
     Resize,
+    
+    /// Closes accounts for an asset where only the token was burnt.
+    /// 
+    /// Closes floating accounts for the following asset types:
+    /// - NonFungible
+    /// - NonFungibleEdition
+    /// - Fungible
+    /// - FungibleAsset
+    ///
+    /// This handler closes the following accounts:
+    ///
+    /// For NonFungible and NonFungibleEdition assets:
+    /// - Metadata, Edition
+    ///
+    /// For Fungible assets:
+    /// - Only the Metadata account, if all tokens are burned and the mint authority is None.
+    #[account(0, writable, name="metadata", desc="Metadata (pda of ['metadata', program id, mint id])")]
+    #[account(1, writable, name="edition", desc="Edition of the asset")]
+    #[account(2, writable, name="mint", desc="Mint of token asset")]
+    #[account(3, writable, name="fee_destination", desc="The destination account that will receive the rent.")]
+    CloseAccounts,
 }
 
 pub struct Context<T> {
