@@ -11,6 +11,7 @@ version = "1.14.0"
 [features]
 no-entrypoint = []
 padded = []
+resize = []
 serde-feature = ["serde", "serde_with"]
 test-bpf = []
 

@@ -4676,6 +4676,73 @@
         "type": "u8",
         "value": 55
       }
+    },
+    {
+      "name": "Resize",
+      "accounts": [
+        {
+          "name": "metadata",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The metadata account of the digital asset"
+          ]
+        },
+        {
+          "name": "edition",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The master edition or edition account of the digital asset, an uninitialized account for fungible assets"
+          ]
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Mint of token asset"
+          ]
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "docs": [
+            "The recipient of the excess rent and authority if the authority account is not present"
+          ]
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "isOptional": true,
+          "docs": [
+            "Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer"
+          ]
+        },
+        {
+          "name": "token",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "Token or Associated Token account"
+          ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "System program"
+          ]
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 56
+      }
     }
   ],
   "accounts": [

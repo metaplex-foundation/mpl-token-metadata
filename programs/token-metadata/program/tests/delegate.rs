@@ -657,7 +657,9 @@ mod delegate {
             token_record.delegate_role,
             Some(TokenDelegateRole::LockedTransfer)
         );
-        assert_eq!(token_record.locked_transfer, Some(asset.metadata));
+        #[allow(deprecated)]
+        let locked_transfer = token_record.locked_transfer;
+        assert_eq!(locked_transfer, Some(asset.metadata));
 
         if let Some(token) = asset.token {
             let account = get_account(&mut context, &token).await;

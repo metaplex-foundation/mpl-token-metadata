@@ -44,6 +44,7 @@ export * from './printV1';
 export * from './printV2';
 export * from './puffMetadata';
 export * from './removeCreatorVerification';
+export * from './resize';
 export * from './revokeAuthorityItemV1';
 export * from './revokeCollectionAuthority';
 export * from './revokeCollectionItemV1';

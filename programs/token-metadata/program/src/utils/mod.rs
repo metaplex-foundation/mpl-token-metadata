@@ -23,8 +23,15 @@ pub use mpl_utils::{
 };
 pub use programmable_asset::*;
 use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
-    program_error::ProgramError, pubkey, pubkey::Pubkey, rent::Rent, sysvar::Sysvar,
+    account_info::AccountInfo,
+    entrypoint::ProgramResult,
+    program::{invoke, invoke_signed},
+    program_error::ProgramError,
+    pubkey,
+    pubkey::Pubkey,
+    rent::Rent,
+    system_instruction,
+    sysvar::Sysvar,
 };
 use spl_token_2022::{
     extension::{BaseState, StateWithExtensions},
@@ -252,6 +259,46 @@ pub(crate) fn close_program_account<'a>(
         account_info.realloc(1, false)?;
         account_info.data.borrow_mut()[0] = 0;
     }
+
+    Ok(())
+}
+
+/// Resize an account using realloc and retain any lamport overages, modified from Solana Cookbook
+pub(crate) fn resize_with_offset<'a>(
+    target_account: &AccountInfo<'a>,
+    funding_account: &AccountInfo<'a>,
+    system_program: &AccountInfo<'a>,
+    new_size: usize,
+) -> ProgramResult {
+    // If the account is already the correct size, return.
+    if new_size == target_account.data_len() {
+        return Ok(());
+    }
+
+    let rent = Rent::get()?;
+    let new_minimum_balance = rent.minimum_balance(new_size);
+    let current_minimum_balance = rent.minimum_balance(target_account.data_len());
+    let account_infos = &[
+        funding_account.clone(),
+        target_account.clone(),
+        system_program.clone(),
+    ];
+
+    if new_minimum_balance >= current_minimum_balance {
+        let lamports_diff = new_minimum_balance.saturating_sub(current_minimum_balance);
+        invoke(
+            &system_instruction::transfer(funding_account.key, target_account.key, lamports_diff),
+            account_infos,
+        )?;
+    } else {
+        // return lamports to the compressor
+        let lamports_diff = current_minimum_balance.saturating_sub(new_minimum_balance);
+
+        **funding_account.try_borrow_mut_lamports()? += lamports_diff;
+        **target_account.try_borrow_mut_lamports()? -= lamports_diff
+    }
+
+    target_account.realloc(new_size, false)?;
 
     Ok(())
 }

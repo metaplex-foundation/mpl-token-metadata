@@ -903,3 +903,39 @@ impl InstructionBuilder for super::builders::Print {
         }
     }
 }
+
+/// Resizes the account to the minimum size.
+///
+/// # Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[]` mint
+///   3. `[writable]` payer
+///   4. `[]` authority
+///   5. `[]` token account
+///   6. `[]` sytem program
+
+impl InstructionBuilder for super::builders::Resize {
+    fn instruction(&self) -> solana_program::instruction::Instruction {
+        let accounts = vec![
+            AccountMeta::new(self.metadata, false),
+            AccountMeta::new(self.edition, false),
+            AccountMeta::new_readonly(self.mint, false),
+            AccountMeta::new(self.payer, true),
+            if let Some(authority) = self.authority {
+                AccountMeta::new_readonly(authority, true)
+            } else {
+                AccountMeta::new_readonly(crate::ID, false)
+            },
+            AccountMeta::new_readonly(self.token, false),
+            AccountMeta::new_readonly(self.system_program, false),
+        ];
+
+        Instruction {
+            program_id: crate::ID,
+            accounts,
+            data: MetadataInstruction::Resize.try_to_vec().unwrap(),
+        }
+    }
+}

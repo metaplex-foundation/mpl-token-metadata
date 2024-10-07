@@ -23,8 +23,10 @@ use crate::{
     pda::MARKER,
     state::{
         get_reservation_list, DataV2, EditionMarker, EditionMarkerV2, Key, MasterEdition, Metadata,
-        TokenMetadataAccount, Uses, EDITION, EDITION_MARKER_BIT_SIZE, MAX_EDITION_LEN,
-        MAX_EDITION_MARKER_SIZE, MAX_MASTER_EDITION_LEN, PREFIX,
+        TokenMetadataAccount, Uses, EDITION, EDITION_MARKER_BIT_SIZE,
+        EDITION_TOKEN_STANDARD_OFFSET, MASTER_EDITION_FEE_FLAG_OFFSET,
+        MASTER_EDITION_TOKEN_STANDARD_OFFSET, MAX_EDITION_LEN, MAX_EDITION_MARKER_SIZE,
+        MAX_MASTER_EDITION_LEN, PREFIX,
     },
 };
 
@@ -666,4 +668,67 @@ pub fn create_master_edition<'a>(
         mint_authority_info,
         token_program_info,
     )
+}
+
+pub fn clean_write_resize_master_edition<'a>(
+    master_edition: &mut MasterEditionV2,
+    master_edition_account_info: &'a AccountInfo<'a>,
+    payer: &'a AccountInfo<'a>,
+    system_program: &'a AccountInfo<'a>,
+) -> ProgramResult {
+    // Save the fee and token standard flags.
+    let original_len = master_edition_account_info.data_len();
+    let fee_flag =
+        master_edition_account_info.data.borrow()[original_len - MASTER_EDITION_FEE_FLAG_OFFSET];
+    let token_standard_flag = master_edition_account_info.data.borrow()
+        [original_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET];
+
+    // Resize the account to the new size.
+    resize_with_offset(
+        master_edition_account_info,
+        payer,
+        system_program,
+        MAX_MASTER_EDITION_LEN,
+    )?;
+
+    let new_len = master_edition_account_info.data_len();
+    // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
+    let mut master_edition_account_info_data = master_edition_account_info.try_borrow_mut_data()?;
+    // Don't overwrite fee flag.
+    master_edition_account_info_data[..].fill(0);
+
+    let serialized_data = master_edition.try_to_vec()?;
+    master_edition_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+    master_edition_account_info_data[new_len - MASTER_EDITION_FEE_FLAG_OFFSET] = fee_flag;
+    master_edition_account_info_data[new_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET] =
+        token_standard_flag;
+
+    Ok(())
+}
+
+pub fn clean_write_resize_edition<'a>(
+    edition: &mut Edition,
+    edition_account_info: &'a AccountInfo<'a>,
+    payer: &'a AccountInfo<'a>,
+    system_program: &'a AccountInfo<'a>,
+) -> ProgramResult {
+    // Save the standard flag.
+    let original_len = edition_account_info.data_len();
+    let token_standard_flag =
+        edition_account_info.data.borrow()[original_len - EDITION_TOKEN_STANDARD_OFFSET];
+
+    // Resize the account to the new size.
+    resize_with_offset(edition_account_info, payer, system_program, MAX_EDITION_LEN)?;
+
+    let new_len = edition_account_info.data_len();
+    // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
+    let mut edition_account_info_data = edition_account_info.try_borrow_mut_data()?;
+    // Don't overwrite fee flag.
+    edition_account_info_data[..].fill(0);
+
+    let serialized_data = edition.try_to_vec()?;
+    edition_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+    edition_account_info_data[new_len - EDITION_TOKEN_STANDARD_OFFSET] = token_standard_flag;
+
+    Ok(())
 }

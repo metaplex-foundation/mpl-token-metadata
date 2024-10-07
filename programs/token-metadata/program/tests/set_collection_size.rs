@@ -17,8 +17,8 @@ use solana_sdk::{
 use token_metadata::{
     error::MetadataError,
     instruction::{
-        approve_collection_authority, set_collection_size, MetadataInstruction,
-        SetCollectionSizeArgs,
+        approve_collection_authority, builders::ResizeBuilder, set_collection_size,
+        InstructionBuilder, MetadataInstruction, SetCollectionSizeArgs,
     },
     pda::find_collection_authority_account,
     state::{CollectionDetails, Metadata as ProgramMetadata},
@@ -58,6 +58,28 @@ mod set_collection_size {
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
 
         let size = 1123;
 
@@ -125,6 +147,28 @@ mod set_collection_size {
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
 
         // NFT is created with context payer as the update authority so we need to update this so we don't automatically
         // get the update authority to sign the transaction.
@@ -232,6 +276,28 @@ mod set_collection_size {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
+
         let new_size = 1123;
 
         let fake_metadata = Keypair::new();
@@ -286,6 +352,28 @@ mod set_collection_size {
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
 
         // NFT is created with context payer as the update authority so we need to update this so we don't automatically
         // get the update authority to sign the transaction.
@@ -351,6 +439,28 @@ mod set_collection_size {
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
 
         let size = 1123;
 
@@ -426,6 +536,28 @@ mod set_collection_size {
             .create_v3(&mut context, Some(0))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(collection_parent_nft.pubkey)
+                    .edition(parent_master_edition_account.pubkey)
+                    .mint(collection_parent_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(collection_parent_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            context.banks_client.process_transaction(tx).await.unwrap();
+        }
 
         let size = 1123;
 
@@ -523,6 +655,29 @@ async fn invalid_update_authority_fails_with_delegated_collection_authority() {
         .await
         .unwrap();
 
+    #[cfg(feature = "resize")]
+    {
+        println!("RESIZING");
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(collection_parent_nft.pubkey)
+                .edition(parent_master_edition_account.pubkey)
+                .mint(collection_parent_nft.mint.pubkey())
+                .payer(context.payer.pubkey())
+                .authority(context.payer.pubkey())
+                .token(collection_parent_nft.token.pubkey())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await.unwrap();
+    }
+
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
     // get the update authority to sign the transaction.
     let new_update_authority = Keypair::new();
@@ -611,6 +766,29 @@ async fn update_authority_not_a_signer_fails_with_delegated_collection_authority
         .create_v3(&mut context, Some(0))
         .await
         .unwrap();
+
+    #[cfg(feature = "resize")]
+    {
+        println!("RESIZING");
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(collection_parent_nft.pubkey)
+                .edition(parent_master_edition_account.pubkey)
+                .mint(collection_parent_nft.mint.pubkey())
+                .payer(context.payer.pubkey())
+                .authority(context.payer.pubkey())
+                .token(collection_parent_nft.token.pubkey())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await.unwrap();
+    }
 
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
     // get the update authority to sign the transaction.
@@ -704,6 +882,29 @@ async fn other_collection_delegate_cant_set_size() {
         .await
         .unwrap();
 
+    #[cfg(feature = "resize")]
+    {
+        println!("RESIZING");
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(collection_parent_nft.pubkey)
+                .edition(parent_master_edition_account.pubkey)
+                .mint(collection_parent_nft.mint.pubkey())
+                .payer(context.payer.pubkey())
+                .authority(context.payer.pubkey())
+                .token(collection_parent_nft.token.pubkey())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await.unwrap();
+    }
+
     // Create a Collection Parent NFT with the CollectionDetails set to None
     let other_collection_parent_nft = Metadata::new();
     other_collection_parent_nft
@@ -726,6 +927,29 @@ async fn other_collection_delegate_cant_set_size() {
         .create_v3(&mut context, Some(0))
         .await
         .unwrap();
+
+    #[cfg(feature = "resize")]
+    {
+        println!("RESIZING");
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(other_collection_parent_nft.pubkey)
+                .edition(other_parent_master_edition_account.pubkey)
+                .mint(other_collection_parent_nft.mint.pubkey())
+                .payer(context.payer.pubkey())
+                .authority(context.payer.pubkey())
+                .token(other_collection_parent_nft.token.pubkey())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await.unwrap();
+    }
 
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
     // get the update authority to sign the transaction.

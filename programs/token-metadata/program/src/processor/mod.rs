@@ -7,6 +7,7 @@ pub(crate) mod escrow;
 mod fee;
 mod freeze;
 mod metadata;
+mod resize;
 mod state;
 mod uses;
 mod verification;
@@ -16,11 +17,11 @@ pub use bubblegum::*;
 pub use burn::*;
 pub use collection::*;
 pub use delegate::*;
-pub use edition::*;
 pub use escrow::*;
 pub use freeze::*;
 pub use metadata::*;
 use mpl_token_auth_rules::payload::Payload;
+pub use resize::*;
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
 use solana_program::{
@@ -40,12 +41,9 @@ use crate::{
         DEPRECATED_MINT_PRINTING_TOKENS, DEPRECATED_MINT_PRINTING_TOKENS_VIA_TOKEN,
         DEPRECATED_SET_RESERVATION_LIST, MIGRATE, UPDATE_METADATA_ACCOUNT,
     },
-    processor::{
-        edition::{
-            process_convert_master_edition_v1_to_v2, process_create_master_edition,
-            process_mint_new_edition_from_master_edition_via_token,
-        },
-        escrow::process_transfer_out_of_escrow,
+    processor::edition::{
+        process_convert_master_edition_v1_to_v2, process_create_master_edition,
+        process_mint_new_edition_from_master_edition_via_token,
     },
     state::{
         Key, Metadata, TokenMetadataAccount, TokenStandard, TokenState, DISCRIMINATOR_INDEX,
@@ -164,6 +162,10 @@ pub fn process_instruction<'a>(
         MetadataInstruction::Print(args) => {
             msg!("IX: Print");
             metadata::print(program_id, accounts, args)
+        }
+        MetadataInstruction::Resize => {
+            msg!("IX: Resize");
+            resize::process_resize(program_id, accounts)
         }
         _ => {
             // pNFT accounts and SPL Token-2022 program can only be used by the "new" API; before

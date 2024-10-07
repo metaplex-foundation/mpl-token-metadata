@@ -36,9 +36,11 @@ for p in ${PROGRAMS[@]}; do
 
     if [ ! "$(command -v $SOLFMT)" = "" ]; then
         CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture 2>&1 | ${SOLFMT} && \
-        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture 2>&1 | ${SOLFMT}
+        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture 2>&1 | ${SOLFMT} && \
+        CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded resize -- --nocapture 2>&1 | ${SOLFMT}
     else
         cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture && \
-        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture && \
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded resize -- --nocapture
     fi
 done

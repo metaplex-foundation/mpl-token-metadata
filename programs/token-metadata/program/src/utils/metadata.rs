@@ -1,4 +1,4 @@
-use borsh::{maybestd::io::Error as BorshError, BorshDeserialize};
+use borsh::{maybestd::io::Error as BorshError, BorshDeserialize, BorshSerialize};
 use mpl_utils::{
     create_or_allocate_account_raw,
     token::{get_mint_authority, SPL_TOKEN_PROGRAM_IDS},
@@ -284,6 +284,38 @@ pub fn clean_write_metadata(
     metadata_account_info_data[0..end].fill(0);
 
     metadata.save(&mut metadata_account_info_data)?;
+    Ok(())
+}
+
+pub fn clean_write_resize_metadata<'a>(
+    metadata: &mut Metadata,
+    metadata_account_info: &'a AccountInfo<'a>,
+    payer: &'a AccountInfo<'a>,
+    system_program: &'a AccountInfo<'a>,
+) -> ProgramResult {
+    // Save the fee flag.
+    let original_len = metadata_account_info.data_len();
+    let fee_flag = metadata_account_info.data.borrow()[original_len - METADATA_FEE_FLAG_OFFSET];
+    solana_program::msg!("DEBUG: Fee flag: {}", fee_flag);
+    // Resize the account to the new size.
+    solana_program::msg!("DEBUG: Resizing account to {}", MAX_METADATA_LEN);
+    resize_with_offset(
+        metadata_account_info,
+        payer,
+        system_program,
+        MAX_METADATA_LEN,
+    )?;
+
+    let new_len = metadata_account_info.data_len();
+    // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
+    let mut metadata_account_info_data = metadata_account_info.try_borrow_mut_data()?;
+    metadata_account_info_data[..].fill(0);
+
+    let serialized_data = metadata.try_to_vec()?;
+    metadata_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+
+    metadata_account_info_data[new_len - METADATA_FEE_FLAG_OFFSET] = fee_flag;
+
     Ok(())
 }
 
