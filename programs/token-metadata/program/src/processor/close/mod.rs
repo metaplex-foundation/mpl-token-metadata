@@ -1,11 +1,11 @@
 use mpl_utils::{close_account_raw, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{program_option::COption, program_pack::Pack, pubkey};
+use solana_program::{program_option::COption, program_pack::Pack};
 use spl_token_2022::state::Mint;
 
 use crate::{
     assertions::assert_owner_in,
     instruction::CloseAccounts,
-    state::{EDITION, PREFIX},
+    state::{EDITION, FEE_AUTHORITY, PREFIX},
     utils::{assert_derivation, assert_owned_by},
 };
 
@@ -23,9 +23,7 @@ pub(crate) fn process_close_accounts<'a>(
 
     // Assert the correct destination is set.
     // TODO: This should be replaced by destination address.
-    if *ctx.accounts.fee_destination_info.key
-        != pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7")
-    {
+    if *ctx.accounts.fee_destination_info.key != FEE_AUTHORITY {
         return Err(MetadataError::InvalidFeeAccount.into());
     }
 

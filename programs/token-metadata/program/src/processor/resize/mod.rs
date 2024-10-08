@@ -3,16 +3,14 @@ use crate::{
     error::MetadataError,
     instruction::Resize,
     pda::{EDITION, PREFIX},
-    state::{Edition, Key, MasterEditionV2, Metadata, TokenMetadataAccount},
+    state::{Edition, Key, MasterEditionV2, Metadata, TokenMetadataAccount, FEE_AUTHORITY},
     utils::{
         assert_derivation, assert_owned_by, clean_write_resize_edition,
         clean_write_resize_master_edition, metadata::clean_write_resize_metadata,
     },
 };
 use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, pubkey, pubkey::Pubkey,
-};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub fn process_resize<'a>(
     program_id: &'a Pubkey,
@@ -63,9 +61,7 @@ pub fn process_resize<'a>(
         );
 
         // TODO: Replace with authority address.
-        if holder_check.is_err()
-            && authority.key != &pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7")
-        {
+        if holder_check.is_err() && authority.key != &FEE_AUTHORITY {
             return holder_check;
         }
 
@@ -104,7 +100,7 @@ pub fn process_resize<'a>(
 
         // For fungibles, the update authority is the one who can resize the asset,
         // so we need to check that the authority is the update authority of the metadata account.
-        if metadata.update_authority != *authority.key {
+        if metadata.update_authority != *authority.key && authority.key != &FEE_AUTHORITY {
             return Err(MetadataError::UpdateAuthorityIncorrect.into());
         }
     }
