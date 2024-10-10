@@ -835,7 +835,7 @@ pub enum MetadataInstruction {
     #[account(2, name="mint", desc="Mint of token asset")]
     #[account(3, signer, writable, name="payer", desc="The recipient of the excess rent and authority if the authority account is not present")]
     #[account(4, optional, signer, name="authority", desc="Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer")]
-    #[account(5, name="token", desc="Token or Associated Token account")]
+    #[account(5, optional, name="token", desc="Token or Associated Token account")]
     #[account(6, name="system_program", desc="System program")]
     Resize,
     
@@ -857,7 +857,8 @@ pub enum MetadataInstruction {
     #[account(0, writable, name="metadata", desc="Metadata (pda of ['metadata', program id, mint id])")]
     #[account(1, writable, name="edition", desc="Edition of the asset")]
     #[account(2, writable, name="mint", desc="Mint of token asset")]
-    #[account(3, writable, name="fee_destination", desc="The destination account that will receive the rent.")]
+    #[account(3, signer, name="authority", desc="Authority to close ownerless accounts")]
+    #[account(4, writable, name="destination", desc="The destination account that will receive the rent.")]
     CloseAccounts,
 }
 

@@ -678,6 +678,11 @@ pub fn clean_write_resize_master_edition<'a>(
 ) -> ProgramResult {
     // Save the fee and token standard flags.
     let original_len = master_edition_account_info.data_len();
+
+    if original_len <= MAX_MASTER_EDITION_LEN {
+        return Err(MetadataError::AccountAlreadyResized.into());
+    }
+
     let fee_flag =
         master_edition_account_info.data.borrow()[original_len - MASTER_EDITION_FEE_FLAG_OFFSET];
     let token_standard_flag = master_edition_account_info.data.borrow()
@@ -694,7 +699,6 @@ pub fn clean_write_resize_master_edition<'a>(
     let new_len = master_edition_account_info.data_len();
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
     let mut master_edition_account_info_data = master_edition_account_info.try_borrow_mut_data()?;
-    // Don't overwrite fee flag.
     master_edition_account_info_data[..].fill(0);
 
     let serialized_data = master_edition.try_to_vec()?;
@@ -714,6 +718,11 @@ pub fn clean_write_resize_edition<'a>(
 ) -> ProgramResult {
     // Save the standard flag.
     let original_len = edition_account_info.data_len();
+
+    if original_len <= MAX_EDITION_LEN {
+        return Err(MetadataError::AccountAlreadyResized.into());
+    }
+
     let token_standard_flag =
         edition_account_info.data.borrow()[original_len - EDITION_TOKEN_STANDARD_OFFSET];
 
@@ -723,7 +732,6 @@ pub fn clean_write_resize_edition<'a>(
     let new_len = edition_account_info.data_len();
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
     let mut edition_account_info_data = edition_account_info.try_borrow_mut_data()?;
-    // Don't overwrite fee flag.
     edition_account_info_data[..].fill(0);
 
     let serialized_data = edition.try_to_vec()?;

@@ -21,7 +21,7 @@ pub struct Resize {
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<solana_program::pubkey::Pubkey>,
     /// Token or Associated Token account
-    pub token: solana_program::pubkey::Pubkey,
+    pub token: Option<solana_program::pubkey::Pubkey>,
     /// System program
     pub system_program: solana_program::pubkey::Pubkey,
 }
@@ -60,9 +60,16 @@ impl Resize {
                 false,
             ));
         }
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.token, false,
-        ));
+        if let Some(token) = self.token {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                token, false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             self.system_program,
             false,
@@ -98,7 +105,7 @@ impl ResizeInstructionData {
 ///   2. `[]` mint
 ///   3. `[writable, signer]` payer
 ///   4. `[signer, optional]` authority
-///   5. `[]` token
+///   5. `[optional]` token
 ///   6. `[optional]` system_program (default to `11111111111111111111111111111111`)
 #[derive(Default)]
 pub struct ResizeBuilder {
@@ -147,10 +154,11 @@ impl ResizeBuilder {
         self.authority = authority;
         self
     }
+    /// `[optional account]`
     /// Token or Associated Token account
     #[inline(always)]
-    pub fn token(&mut self, token: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.token = Some(token);
+    pub fn token(&mut self, token: Option<solana_program::pubkey::Pubkey>) -> &mut Self {
+        self.token = token;
         self
     }
     /// `[optional account, default to '11111111111111111111111111111111']`
@@ -186,7 +194,7 @@ impl ResizeBuilder {
             mint: self.mint.expect("mint is not set"),
             payer: self.payer.expect("payer is not set"),
             authority: self.authority,
-            token: self.token.expect("token is not set"),
+            token: self.token,
             system_program: self
                 .system_program
                 .unwrap_or(solana_program::pubkey!("11111111111111111111111111111111")),
@@ -209,7 +217,7 @@ pub struct ResizeCpiAccounts<'a, 'b> {
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token or Associated Token account
-    pub token: &'b solana_program::account_info::AccountInfo<'a>,
+    pub token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
@@ -229,7 +237,7 @@ pub struct ResizeCpi<'a, 'b> {
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token or Associated Token account
-    pub token: &'b solana_program::account_info::AccountInfo<'a>,
+    pub token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// System program
     pub system_program: &'b solana_program::account_info::AccountInfo<'a>,
 }
@@ -311,10 +319,16 @@ impl<'a, 'b> ResizeCpi<'a, 'b> {
                 false,
             ));
         }
-        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.token.key,
-            false,
-        ));
+        if let Some(token) = self.token {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                *token.key, false,
+            ));
+        } else {
+            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+                crate::MPL_TOKEN_METADATA_ID,
+                false,
+            ));
+        }
         accounts.push(solana_program::instruction::AccountMeta::new_readonly(
             *self.system_program.key,
             false,
@@ -342,7 +356,9 @@ impl<'a, 'b> ResizeCpi<'a, 'b> {
         if let Some(authority) = self.authority {
             account_infos.push(authority.clone());
         }
-        account_infos.push(self.token.clone());
+        if let Some(token) = self.token {
+            account_infos.push(token.clone());
+        }
         account_infos.push(self.system_program.clone());
         remaining_accounts
             .iter()
@@ -365,7 +381,7 @@ impl<'a, 'b> ResizeCpi<'a, 'b> {
 ///   2. `[]` mint
 ///   3. `[writable, signer]` payer
 ///   4. `[signer, optional]` authority
-///   5. `[]` token
+///   5. `[optional]` token
 ///   6. `[]` system_program
 pub struct ResizeCpiBuilder<'a, 'b> {
     instruction: Box<ResizeCpiBuilderInstruction<'a, 'b>>,
@@ -426,10 +442,14 @@ impl<'a, 'b> ResizeCpiBuilder<'a, 'b> {
         self.instruction.authority = authority;
         self
     }
+    /// `[optional account]`
     /// Token or Associated Token account
     #[inline(always)]
-    pub fn token(&mut self, token: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.token = Some(token);
+    pub fn token(
+        &mut self,
+        token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ) -> &mut Self {
+        self.instruction.token = token;
         self
     }
     /// System program
@@ -495,7 +515,7 @@ impl<'a, 'b> ResizeCpiBuilder<'a, 'b> {
 
             authority: self.instruction.authority,
 
-            token: self.instruction.token.expect("token is not set"),
+            token: self.instruction.token,
 
             system_program: self
                 .instruction

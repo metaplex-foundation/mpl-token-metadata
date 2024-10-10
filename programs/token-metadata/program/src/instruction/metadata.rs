@@ -911,10 +911,10 @@ impl InstructionBuilder for super::builders::Print {
 ///   0. `[writable]` metadata
 ///   1. `[writable]` edition
 ///   2. `[]` mint
-///   3. `[writable]` payer
-///   4. `[]` authority
-///   5. `[]` token account
-///   6. `[]` sytem program
+///   3. `[writable, signer]` payer
+///   4. `[optional, signer]` authority
+///   5. `[optional]` token account
+///   6. `[]` system program
 
 impl InstructionBuilder for super::builders::Resize {
     fn instruction(&self) -> solana_program::instruction::Instruction {
@@ -928,7 +928,11 @@ impl InstructionBuilder for super::builders::Resize {
             } else {
                 AccountMeta::new_readonly(crate::ID, false)
             },
-            AccountMeta::new_readonly(self.token, false),
+            if let Some(token) = self.token {
+                AccountMeta::new_readonly(token, false)
+            } else {
+                AccountMeta::new_readonly(crate::ID, false)
+            },
             AccountMeta::new_readonly(self.system_program, false),
         ];
 

@@ -295,10 +295,14 @@ pub fn clean_write_resize_metadata<'a>(
 ) -> ProgramResult {
     // Save the fee flag.
     let original_len = metadata_account_info.data_len();
+
+    if original_len <= MAX_METADATA_LEN {
+        return Err(MetadataError::AccountAlreadyResized.into());
+    }
+
     let fee_flag = metadata_account_info.data.borrow()[original_len - METADATA_FEE_FLAG_OFFSET];
-    solana_program::msg!("DEBUG: Fee flag: {}", fee_flag);
+
     // Resize the account to the new size.
-    solana_program::msg!("DEBUG: Resizing account to {}", MAX_METADATA_LEN);
     resize_with_offset(
         metadata_account_info,
         payer,

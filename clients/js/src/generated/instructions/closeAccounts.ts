@@ -10,6 +10,7 @@ import {
   Context,
   Pda,
   PublicKey,
+  Signer,
   TransactionBuilder,
   transactionBuilder,
 } from '@metaplex-foundation/umi';
@@ -35,8 +36,10 @@ export type CloseAccountsInstructionAccounts = {
   edition?: PublicKey | Pda;
   /** Mint of token asset */
   mint: PublicKey | Pda;
+  /** Authority to close ownerless accounts */
+  authority?: Signer;
   /** The destination account that will receive the rent. */
-  feeDestination: PublicKey | Pda;
+  destination: PublicKey | Pda;
 };
 
 // Data.
@@ -65,7 +68,7 @@ export function getCloseAccountsInstructionDataSerializer(): Serializer<
 
 // Instruction.
 export function closeAccounts(
-  context: Pick<Context, 'eddsa' | 'programs'>,
+  context: Pick<Context, 'eddsa' | 'identity' | 'programs'>,
   input: CloseAccountsInstructionAccounts
 ): TransactionBuilder {
   // Program ID.
@@ -87,10 +90,15 @@ export function closeAccounts(
       value: input.edition ?? null,
     },
     mint: { index: 2, isWritable: true as boolean, value: input.mint ?? null },
-    feeDestination: {
+    authority: {
       index: 3,
+      isWritable: false as boolean,
+      value: input.authority ?? null,
+    },
+    destination: {
+      index: 4,
       isWritable: true as boolean,
-      value: input.feeDestination ?? null,
+      value: input.destination ?? null,
     },
   } satisfies ResolvedAccountsWithIndices;
 
@@ -104,6 +112,9 @@ export function closeAccounts(
     resolvedAccounts.edition.value = findMasterEditionPda(context, {
       mint: expectPublicKey(resolvedAccounts.mint.value),
     });
+  }
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
   }
 
   // Accounts in order.

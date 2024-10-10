@@ -16,8 +16,10 @@ pub struct CloseAccounts {
     pub edition: solana_program::pubkey::Pubkey,
     /// Mint of token asset
     pub mint: solana_program::pubkey::Pubkey,
+    /// Authority to close ownerless accounts
+    pub authority: solana_program::pubkey::Pubkey,
     /// The destination account that will receive the rent.
-    pub fee_destination: solana_program::pubkey::Pubkey,
+    pub destination: solana_program::pubkey::Pubkey,
 }
 
 impl CloseAccounts {
@@ -29,7 +31,7 @@ impl CloseAccounts {
         &self,
         remaining_accounts: &[solana_program::instruction::AccountMeta],
     ) -> solana_program::instruction::Instruction {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.metadata,
             false,
@@ -41,8 +43,12 @@ impl CloseAccounts {
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.mint, false,
         ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.authority,
+            true,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.fee_destination,
+            self.destination,
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
@@ -74,13 +80,15 @@ impl CloseAccountsInstructionData {
 ///   0. `[writable]` metadata
 ///   1. `[writable]` edition
 ///   2. `[writable]` mint
-///   3. `[writable]` fee_destination
+///   3. `[signer]` authority
+///   4. `[writable]` destination
 #[derive(Default)]
 pub struct CloseAccountsBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
     mint: Option<solana_program::pubkey::Pubkey>,
-    fee_destination: Option<solana_program::pubkey::Pubkey>,
+    authority: Option<solana_program::pubkey::Pubkey>,
+    destination: Option<solana_program::pubkey::Pubkey>,
     __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
@@ -106,13 +114,16 @@ impl CloseAccountsBuilder {
         self.mint = Some(mint);
         self
     }
+    /// Authority to close ownerless accounts
+    #[inline(always)]
+    pub fn authority(&mut self, authority: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.authority = Some(authority);
+        self
+    }
     /// The destination account that will receive the rent.
     #[inline(always)]
-    pub fn fee_destination(
-        &mut self,
-        fee_destination: solana_program::pubkey::Pubkey,
-    ) -> &mut Self {
-        self.fee_destination = Some(fee_destination);
+    pub fn destination(&mut self, destination: solana_program::pubkey::Pubkey) -> &mut Self {
+        self.destination = Some(destination);
         self
     }
     /// Add an aditional account to the instruction.
@@ -139,7 +150,8 @@ impl CloseAccountsBuilder {
             metadata: self.metadata.expect("metadata is not set"),
             edition: self.edition.expect("edition is not set"),
             mint: self.mint.expect("mint is not set"),
-            fee_destination: self.fee_destination.expect("fee_destination is not set"),
+            authority: self.authority.expect("authority is not set"),
+            destination: self.destination.expect("destination is not set"),
         };
 
         accounts.instruction_with_remaining_accounts(&self.__remaining_accounts)
@@ -154,8 +166,10 @@ pub struct CloseAccountsCpiAccounts<'a, 'b> {
     pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
+    /// Authority to close ownerless accounts
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// The destination account that will receive the rent.
-    pub fee_destination: &'b solana_program::account_info::AccountInfo<'a>,
+    pub destination: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 /// `close_accounts` CPI instruction.
@@ -168,8 +182,10 @@ pub struct CloseAccountsCpi<'a, 'b> {
     pub edition: &'b solana_program::account_info::AccountInfo<'a>,
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
+    /// Authority to close ownerless accounts
+    pub authority: &'b solana_program::account_info::AccountInfo<'a>,
     /// The destination account that will receive the rent.
-    pub fee_destination: &'b solana_program::account_info::AccountInfo<'a>,
+    pub destination: &'b solana_program::account_info::AccountInfo<'a>,
 }
 
 impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
@@ -182,7 +198,8 @@ impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
             metadata: accounts.metadata,
             edition: accounts.edition,
             mint: accounts.mint,
-            fee_destination: accounts.fee_destination,
+            authority: accounts.authority,
+            destination: accounts.destination,
         }
     }
     #[inline(always)]
@@ -218,7 +235,7 @@ impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
             bool,
         )],
     ) -> solana_program::entrypoint::ProgramResult {
-        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        let mut accounts = Vec::with_capacity(5 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.metadata.key,
             false,
@@ -231,8 +248,12 @@ impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
             *self.mint.key,
             false,
         ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.authority.key,
+            true,
+        ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.fee_destination.key,
+            *self.destination.key,
             false,
         ));
         remaining_accounts.iter().for_each(|remaining_account| {
@@ -249,12 +270,13 @@ impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
             accounts,
             data,
         };
-        let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
+        let mut account_infos = Vec::with_capacity(5 + 1 + remaining_accounts.len());
         account_infos.push(self.__program.clone());
         account_infos.push(self.metadata.clone());
         account_infos.push(self.edition.clone());
         account_infos.push(self.mint.clone());
-        account_infos.push(self.fee_destination.clone());
+        account_infos.push(self.authority.clone());
+        account_infos.push(self.destination.clone());
         remaining_accounts
             .iter()
             .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
@@ -274,7 +296,8 @@ impl<'a, 'b> CloseAccountsCpi<'a, 'b> {
 ///   0. `[writable]` metadata
 ///   1. `[writable]` edition
 ///   2. `[writable]` mint
-///   3. `[writable]` fee_destination
+///   3. `[signer]` authority
+///   4. `[writable]` destination
 pub struct CloseAccountsCpiBuilder<'a, 'b> {
     instruction: Box<CloseAccountsCpiBuilderInstruction<'a, 'b>>,
 }
@@ -286,7 +309,8 @@ impl<'a, 'b> CloseAccountsCpiBuilder<'a, 'b> {
             metadata: None,
             edition: None,
             mint: None,
-            fee_destination: None,
+            authority: None,
+            destination: None,
             __remaining_accounts: Vec::new(),
         });
         Self { instruction }
@@ -315,13 +339,22 @@ impl<'a, 'b> CloseAccountsCpiBuilder<'a, 'b> {
         self.instruction.mint = Some(mint);
         self
     }
+    /// Authority to close ownerless accounts
+    #[inline(always)]
+    pub fn authority(
+        &mut self,
+        authority: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.authority = Some(authority);
+        self
+    }
     /// The destination account that will receive the rent.
     #[inline(always)]
-    pub fn fee_destination(
+    pub fn destination(
         &mut self,
-        fee_destination: &'b solana_program::account_info::AccountInfo<'a>,
+        destination: &'b solana_program::account_info::AccountInfo<'a>,
     ) -> &mut Self {
-        self.instruction.fee_destination = Some(fee_destination);
+        self.instruction.destination = Some(destination);
         self
     }
     /// Add an additional account to the instruction.
@@ -374,10 +407,12 @@ impl<'a, 'b> CloseAccountsCpiBuilder<'a, 'b> {
 
             mint: self.instruction.mint.expect("mint is not set"),
 
-            fee_destination: self
+            authority: self.instruction.authority.expect("authority is not set"),
+
+            destination: self
                 .instruction
-                .fee_destination
-                .expect("fee_destination is not set"),
+                .destination
+                .expect("destination is not set"),
         };
         instruction.invoke_signed_with_remaining_accounts(
             signers_seeds,
@@ -391,7 +426,8 @@ struct CloseAccountsCpiBuilderInstruction<'a, 'b> {
     metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    fee_destination: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    destination: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
     __remaining_accounts: Vec<(
         &'b solana_program::account_info::AccountInfo<'a>,

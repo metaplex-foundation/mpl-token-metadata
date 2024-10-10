@@ -3,7 +3,10 @@ use crate::{
     error::MetadataError,
     instruction::Resize,
     pda::{EDITION, PREFIX},
-    state::{Edition, Key, MasterEditionV2, Metadata, TokenMetadataAccount, FEE_AUTHORITY},
+    state::{
+        Edition, Key, MasterEditionV2, Metadata, TokenMetadataAccount, RESIZE_AUTHORITY,
+        RESIZE_DESTINATION,
+    },
     utils::{
         assert_derivation, assert_owned_by, clean_write_resize_edition,
         clean_write_resize_master_edition, metadata::clean_write_resize_metadata,
@@ -26,6 +29,11 @@ pub fn process_resize<'a>(
     };
     assert_signer(authority)?;
 
+    // Verify destination for when the claim period is over.
+    if authority.key == &RESIZE_AUTHORITY && ctx.accounts.payer_info.key != &RESIZE_DESTINATION {
+        return Err(MetadataError::InvalidFeeAccount.into());
+    }
+
     // The edition passed in is a valid Master Edition or Print Edition derivation
     // even if it is empty.
     let edition_info_path = Vec::from([
@@ -46,27 +54,33 @@ pub fn process_resize<'a>(
         // mint_info ownership checked in assert_holding_amount.
         // token_info ownership checked in assert_holding_amount.
         // metadata.mint == mint_info.key checked in assert_holding_amount.
+        // token_account.mint == mint_info.key checked in assert_holding_amount.
         assert_owned_by(ctx.accounts.edition_info, program_id)?;
 
-        // For NFTs, the owner is the one who can resize the NFT,
-        // so we need to check that the authority is the owner of the token account.
-        let holder_check = assert_holding_amount(
-            &crate::ID,
-            authority,
-            ctx.accounts.metadata_info,
-            &metadata,
-            ctx.accounts.mint_info,
-            ctx.accounts.token_info,
-            1,
-        );
+        // If the post-claim period authority is not the resize authority, then they must hold the token account for the NFT.
+        if authority.key != &RESIZE_AUTHORITY {
+            let token_info = if let Some(token_info) = ctx.accounts.token_info {
+                token_info
+            } else {
+                return Err(MetadataError::MissingTokenAccount.into());
+            };
 
-        // TODO: Replace with authority address.
-        if holder_check.is_err() && authority.key != &FEE_AUTHORITY {
-            return holder_check;
+            // For NFTs, the owner is the one who can resize the NFT,
+            // so we need to check that the authority is the owner of the token account.
+            // TODO: Replace with authority address.
+            assert_holding_amount(
+                &crate::ID,
+                authority,
+                ctx.accounts.metadata_info,
+                &metadata,
+                ctx.accounts.mint_info,
+                token_info,
+                1,
+            )?;
         }
 
         let key = ctx.accounts.edition_info.data.borrow()[0];
-        if key == Key::MasterEditionV1 as u8 || key == Key::MasterEditionV2 as u8 {
+        if key == Key::MasterEditionV2 as u8 {
             let mut master_edition = MasterEditionV2::from_account_info(ctx.accounts.edition_info)?;
 
             clean_write_resize_master_edition(
@@ -91,8 +105,7 @@ pub fn process_resize<'a>(
         // Assert program ownership.
         assert_owned_by(ctx.accounts.metadata_info, program_id)?;
         assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
-        assert_owner_in(ctx.accounts.token_info, &SPL_TOKEN_PROGRAM_IDS)?;
-        // Mint account passed in matches the mint of the token account.
+        // Mint account passed in matches the metadata mint.
         if &metadata.mint != ctx.accounts.mint_info.key {
             return Err(MetadataError::MintMismatch.into());
         }
@@ -100,7 +113,8 @@ pub fn process_resize<'a>(
 
         // For fungibles, the update authority is the one who can resize the asset,
         // so we need to check that the authority is the update authority of the metadata account.
-        if metadata.update_authority != *authority.key && authority.key != &FEE_AUTHORITY {
+        // Or if the claim period is over, the authority is the resize authority.
+        if metadata.update_authority != *authority.key && authority.key != &RESIZE_AUTHORITY {
             return Err(MetadataError::UpdateAuthorityIncorrect.into());
         }
     }

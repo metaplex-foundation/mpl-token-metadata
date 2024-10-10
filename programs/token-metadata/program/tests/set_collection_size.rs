@@ -657,7 +657,6 @@ async fn invalid_update_authority_fails_with_delegated_collection_authority() {
 
     #[cfg(feature = "resize")]
     {
-        println!("RESIZING");
         let tx = Transaction::new_signed_with_payer(
             &[ResizeBuilder::new()
                 .metadata(collection_parent_nft.pubkey)
@@ -769,7 +768,6 @@ async fn update_authority_not_a_signer_fails_with_delegated_collection_authority
 
     #[cfg(feature = "resize")]
     {
-        println!("RESIZING");
         let tx = Transaction::new_signed_with_payer(
             &[ResizeBuilder::new()
                 .metadata(collection_parent_nft.pubkey)
@@ -884,7 +882,6 @@ async fn other_collection_delegate_cant_set_size() {
 
     #[cfg(feature = "resize")]
     {
-        println!("RESIZING");
         let tx = Transaction::new_signed_with_payer(
             &[ResizeBuilder::new()
                 .metadata(collection_parent_nft.pubkey)
@@ -930,7 +927,6 @@ async fn other_collection_delegate_cant_set_size() {
 
     #[cfg(feature = "resize")]
     {
-        println!("RESIZING");
         let tx = Transaction::new_signed_with_payer(
             &[ResizeBuilder::new()
                 .metadata(other_collection_parent_nft.pubkey)

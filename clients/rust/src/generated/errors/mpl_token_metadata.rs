@@ -613,6 +613,9 @@ pub enum MplTokenMetadataError {
     /// 200 (0xC8) - Edition account has an invalid length
     #[error("Edition account has an invalid length")]
     InvalidEditionAccountLength,
+    /// 201 (0xC9) - Account has already been resized
+    #[error("Account has already been resized")]
+    AccountAlreadyResized,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

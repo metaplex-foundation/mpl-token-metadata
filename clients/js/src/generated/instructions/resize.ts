@@ -41,7 +41,7 @@ export type ResizeInstructionAccounts = {
   /** Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer */
   authority?: Signer;
   /** Token or Associated Token account */
-  token: PublicKey | Pda;
+  token?: PublicKey | Pda;
   /** System program */
   systemProgram?: PublicKey | Pda;
 };

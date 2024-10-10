@@ -4725,6 +4725,7 @@
           "name": "token",
           "isMut": false,
           "isSigner": false,
+          "isOptional": true,
           "docs": [
             "Token or Associated Token account"
           ]
@@ -4772,7 +4773,15 @@
           ]
         },
         {
-          "name": "feeDestination",
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "docs": [
+            "Authority to close ownerless accounts"
+          ]
+        },
+        {
+          "name": "destination",
           "isMut": true,
           "isSigner": false,
           "docs": [
@@ -7947,6 +7956,11 @@
       "code": 200,
       "name": "InvalidEditionAccountLength",
       "msg": "Edition account has an invalid length"
+    },
+    {
+      "code": 201,
+      "name": "AccountAlreadyResized",
+      "msg": "Account has already been resized"
     }
   ],
   "metadata": {
