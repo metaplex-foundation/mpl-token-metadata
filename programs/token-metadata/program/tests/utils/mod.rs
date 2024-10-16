@@ -292,6 +292,28 @@ impl Airdrop for Keypair {
     }
 }
 
+#[async_trait]
+impl Airdrop for Pubkey {
+    async fn airdrop(
+        &self,
+        context: &mut ProgramTestContext,
+        lamports: u64,
+    ) -> Result<(), BanksClientError> {
+        let tx = Transaction::new_signed_with_payer(
+            &[system_instruction::transfer(
+                &context.payer.pubkey(),
+                self,
+                lamports,
+            )],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
+    }
+}
+
 pub async fn upsize_metadata(context: &mut ProgramTestContext, address: &Pubkey) {
     let account = get_account(context, address).await;
     assert_eq!(

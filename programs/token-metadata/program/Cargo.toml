@@ -45,7 +45,7 @@ serde = { version = "1.0.147", features = ["derive"] }
 solana-program-test = ">= 1.14.13, < 1.17"
 solana-sdk = ">= 1.14.13, < 1.17"
 spl-token = { version = "3.2.0", features = ["no-entrypoint"] }
-test-case = "3.1.0"
+test-case = "3.3.1"
 
 [lib]
 crate-type = ["cdylib", "lib"]
