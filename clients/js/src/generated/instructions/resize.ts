@@ -37,7 +37,7 @@ export type ResizeInstructionAccounts = {
   /** Mint of token asset */
   mint: PublicKey | Pda;
   /** The recipient of the excess rent and authority if the authority account is not present */
-  payer?: Signer;
+  payer?: PublicKey | Pda | Signer;
   /** Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer */
   authority?: Signer;
   /** Token or Associated Token account */

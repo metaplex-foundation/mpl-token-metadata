@@ -833,7 +833,7 @@ pub enum MetadataInstruction {
     #[account(0, writable, name="metadata", desc="The metadata account of the digital asset")]
     #[account(1, writable, name="edition", desc="The master edition or edition account of the digital asset, an uninitialized account for fungible assets")]
     #[account(2, name="mint", desc="Mint of token asset")]
-    #[account(3, signer, writable, name="payer", desc="The recipient of the excess rent and authority if the authority account is not present")]
+    #[account(3, writable, optional_signer, name="payer", desc="The recipient of the excess rent and authority if the authority account is not present")]
     #[account(4, optional, signer, name="authority", desc="Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer")]
     #[account(5, optional, name="token", desc="Token or Associated Token account")]
     #[account(6, name="system_program", desc="System program")]

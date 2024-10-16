@@ -82,6 +82,8 @@ pub(crate) fn process_close_accounts<'a>(
         }
     } else if mint.is_some() && mint.unwrap().supply > 0 {
         return Err(MetadataError::MintSupplyMustBeZero.into());
+    } else if mint.is_some() && mint.unwrap().mint_authority.is_some() {
+        return Err(MetadataError::InvalidMintAuthority.into());
     } else {
         return Err(MetadataError::InvalidTokenStandard.into());
     }

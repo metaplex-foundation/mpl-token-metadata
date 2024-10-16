@@ -17,7 +17,7 @@ pub struct Resize {
     /// Mint of token asset
     pub mint: solana_program::pubkey::Pubkey,
     /// The recipient of the excess rent and authority if the authority account is not present
-    pub payer: solana_program::pubkey::Pubkey,
+    pub payer: (solana_program::pubkey::Pubkey, bool),
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<solana_program::pubkey::Pubkey>,
     /// Token or Associated Token account
@@ -48,7 +48,8 @@ impl Resize {
             self.mint, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.payer, true,
+            self.payer.0,
+            self.payer.1,
         ));
         if let Some(authority) = self.authority {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -112,7 +113,7 @@ pub struct ResizeBuilder {
     metadata: Option<solana_program::pubkey::Pubkey>,
     edition: Option<solana_program::pubkey::Pubkey>,
     mint: Option<solana_program::pubkey::Pubkey>,
-    payer: Option<solana_program::pubkey::Pubkey>,
+    payer: Option<(solana_program::pubkey::Pubkey, bool)>,
     authority: Option<solana_program::pubkey::Pubkey>,
     token: Option<solana_program::pubkey::Pubkey>,
     system_program: Option<solana_program::pubkey::Pubkey>,
@@ -143,8 +144,8 @@ impl ResizeBuilder {
     }
     /// The recipient of the excess rent and authority if the authority account is not present
     #[inline(always)]
-    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey) -> &mut Self {
-        self.payer = Some(payer);
+    pub fn payer(&mut self, payer: solana_program::pubkey::Pubkey, as_signer: bool) -> &mut Self {
+        self.payer = Some((payer, as_signer));
         self
     }
     /// `[optional account]`
@@ -213,7 +214,7 @@ pub struct ResizeCpiAccounts<'a, 'b> {
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// The recipient of the excess rent and authority if the authority account is not present
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+    pub payer: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token or Associated Token account
@@ -233,7 +234,7 @@ pub struct ResizeCpi<'a, 'b> {
     /// Mint of token asset
     pub mint: &'b solana_program::account_info::AccountInfo<'a>,
     /// The recipient of the excess rent and authority if the authority account is not present
-    pub payer: &'b solana_program::account_info::AccountInfo<'a>,
+    pub payer: (&'b solana_program::account_info::AccountInfo<'a>, bool),
     /// Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer
     pub authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     /// Token or Associated Token account
@@ -305,8 +306,8 @@ impl<'a, 'b> ResizeCpi<'a, 'b> {
             false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.payer.key,
-            true,
+            *self.payer.0.key,
+            self.payer.1,
         ));
         if let Some(authority) = self.authority {
             accounts.push(solana_program::instruction::AccountMeta::new_readonly(
@@ -352,7 +353,7 @@ impl<'a, 'b> ResizeCpi<'a, 'b> {
         account_infos.push(self.metadata.clone());
         account_infos.push(self.edition.clone());
         account_infos.push(self.mint.clone());
-        account_infos.push(self.payer.clone());
+        account_infos.push(self.payer.0.clone());
         if let Some(authority) = self.authority {
             account_infos.push(authority.clone());
         }
@@ -428,8 +429,12 @@ impl<'a, 'b> ResizeCpiBuilder<'a, 'b> {
     }
     /// The recipient of the excess rent and authority if the authority account is not present
     #[inline(always)]
-    pub fn payer(&mut self, payer: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-        self.instruction.payer = Some(payer);
+    pub fn payer(
+        &mut self,
+        payer: &'b solana_program::account_info::AccountInfo<'a>,
+        as_signer: bool,
+    ) -> &mut Self {
+        self.instruction.payer = Some((payer, as_signer));
         self
     }
     /// `[optional account]`
@@ -534,7 +539,7 @@ struct ResizeCpiBuilderInstruction<'a, 'b> {
     metadata: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     edition: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     mint: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-    payer: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    payer: Option<(&'b solana_program::account_info::AccountInfo<'a>, bool)>,
     authority: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     token: Option<&'b solana_program::account_info::AccountInfo<'a>>,
     system_program: Option<&'b solana_program::account_info::AccountInfo<'a>>,

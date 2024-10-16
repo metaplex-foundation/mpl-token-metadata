@@ -4707,7 +4707,8 @@
         {
           "name": "payer",
           "isMut": true,
-          "isSigner": true,
+          "isSigner": false,
+          "isOptionalSigner": true,
           "docs": [
             "The recipient of the excess rent and authority if the authority account is not present"
           ]

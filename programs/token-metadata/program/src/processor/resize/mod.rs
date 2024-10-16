@@ -58,7 +58,14 @@ pub fn process_resize<'a>(
         assert_owned_by(ctx.accounts.edition_info, program_id)?;
 
         // If the post-claim period authority is not the resize authority, then they must hold the token account for the NFT.
-        if authority.key != &RESIZE_AUTHORITY {
+        if authority.key == &RESIZE_AUTHORITY {
+            assert_owned_by(ctx.accounts.metadata_info, program_id)?;
+            assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
+
+            if &metadata.mint != ctx.accounts.mint_info.key {
+                return Err(MetadataError::MintMismatch.into());
+            }
+        } else {
             let token_info = if let Some(token_info) = ctx.accounts.token_info {
                 token_info
             } else {
@@ -67,7 +74,6 @@ pub fn process_resize<'a>(
 
             // For NFTs, the owner is the one who can resize the NFT,
             // so we need to check that the authority is the owner of the token account.
-            // TODO: Replace with authority address.
             assert_holding_amount(
                 &crate::ID,
                 authority,

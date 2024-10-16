@@ -50,41 +50,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
-            println!(
-                "{:#?}",
-                context
-                    .banks_client
-                    .simulate_transaction(tx.clone())
-                    .await
-                    .unwrap()
-            );
-            println!(
-                "BEFORE:\nMetadata:{:#?}\nMaster Edition:{:#?}",
-                context
-                    .banks_client
-                    .get_account(original_nft.pubkey)
-                    .await
-                    .unwrap(),
-                context
-                    .banks_client
-                    .get_account(master_edition.pubkey)
-                    .await
-                    .unwrap()
-            );
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
-            println!(
-                "AFTER:\nMetadata:{:#?}\nMaster Edition:{:#?}",
-                context
-                    .banks_client
-                    .get_account(original_nft.pubkey)
-                    .await
-                    .unwrap(),
-                context
-                    .banks_client
-                    .get_account(master_edition.pubkey)
-                    .await
-                    .unwrap()
-            );
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -112,7 +82,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -216,7 +190,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let mut print_edition =
@@ -242,7 +220,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         // Transfer to new owner.
@@ -359,7 +341,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -387,7 +373,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let not_owner = Keypair::new();
@@ -445,7 +435,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         // NFT is created with context payer as the update authority so we need to update this before
@@ -482,7 +476,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let err = burn_edition(
@@ -538,7 +536,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let second_master_edition = MasterEditionV2::new(&second_nft);
@@ -566,7 +568,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, second_nft.pubkey).await;
+            assert_before_master_edition(&mut context, second_master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_nft.pubkey).await;
+            assert_after_master_edition(&mut context, second_master_edition.pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -623,7 +629,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -648,7 +658,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let second_print_edition =
@@ -674,7 +688,12 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -732,7 +751,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -757,7 +780,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -845,7 +872,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -870,7 +901,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -922,7 +957,12 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
         }
 
         let err = burn_edition(
@@ -975,7 +1015,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -1000,7 +1044,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -1082,7 +1130,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -1107,11 +1159,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
-            println!(
-                "DEBUG: {:#?}",
-                context.banks_client.simulate_transaction(tx.clone()).await
-            );
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let master_edition_account = context
@@ -1150,7 +1202,12 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
         }
 
         let master_edition_account = context
@@ -1275,7 +1332,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         context.warp_to_slot(10).unwrap();
@@ -1398,7 +1459,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
@@ -1423,7 +1488,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         // Print a new edition and transfer to a user.
@@ -1450,7 +1519,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, user_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, user_print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, user_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, user_print_edition.new_edition_pubkey).await;
         }
 
         let user = Keypair::new();
@@ -1558,7 +1631,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, other_nft.pubkey).await;
+            assert_before_master_edition(&mut context, other_master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_nft.pubkey).await;
+            assert_after_master_edition(&mut context, other_master_edition.pubkey).await;
         }
 
         let new_update_authority = Keypair::new();
@@ -1590,7 +1667,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, other_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, other_print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, other_print_edition.new_edition_pubkey).await;
         }
 
         let our_nft = Metadata::new();
@@ -1621,7 +1702,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, our_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, our_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&our_nft, &master_edition, 1, spl_token::ID);
@@ -1646,7 +1731,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -1703,7 +1792,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
         }
 
         let print_edition = EditionMarker::new(&nft, &master_edition, 1, spl_token::ID);
@@ -1728,7 +1821,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
         }
 
         let second_print_edition = EditionMarker::new(&nft, &master_edition, 2, spl_token::ID);
@@ -1753,7 +1850,12 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
         }
 
         let kpbytes = &context.payer;
@@ -1807,7 +1909,11 @@ mod burn_edition_nft {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, other_nft.pubkey).await;
+            assert_before_master_edition(&mut context, other_master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_nft.pubkey).await;
+            assert_after_master_edition(&mut context, other_master_edition.pubkey).await;
         }
 
         // Wrong master edition mint account.

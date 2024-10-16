@@ -10,7 +10,7 @@ use {
     serde_with::{As, DisplayFromStr},
 };
 
-use super::InstructionBuilder;
+use super::{builders::ResizeBuilder, InstructionBuilder};
 use crate::{
     instruction::MetadataInstruction,
     processor::AuthorizationData,
@@ -918,23 +918,24 @@ impl InstructionBuilder for super::builders::Print {
 
 impl InstructionBuilder for super::builders::Resize {
     fn instruction(&self) -> solana_program::instruction::Instruction {
-        let accounts = vec![
+        let mut accounts = vec![
             AccountMeta::new(self.metadata, false),
             AccountMeta::new(self.edition, false),
             AccountMeta::new_readonly(self.mint, false),
-            AccountMeta::new(self.payer, true),
-            if let Some(authority) = self.authority {
-                AccountMeta::new_readonly(authority, true)
-            } else {
-                AccountMeta::new_readonly(crate::ID, false)
-            },
-            if let Some(token) = self.token {
-                AccountMeta::new_readonly(token, false)
-            } else {
-                AccountMeta::new_readonly(crate::ID, false)
-            },
-            AccountMeta::new_readonly(self.system_program, false),
         ];
+        if let Some(authority) = self.authority {
+            accounts.push(AccountMeta::new(self.payer, false));
+            accounts.push(AccountMeta::new_readonly(authority, true));
+        } else {
+            accounts.push(AccountMeta::new(self.payer, true));
+            accounts.push(AccountMeta::new_readonly(crate::ID, false));
+        }
+        if let Some(token) = self.token {
+            accounts.push(AccountMeta::new_readonly(token, false));
+        } else {
+            accounts.push(AccountMeta::new_readonly(crate::ID, false));
+        }
+        accounts.push(AccountMeta::new_readonly(self.system_program, false));
 
         Instruction {
             program_id: crate::ID,

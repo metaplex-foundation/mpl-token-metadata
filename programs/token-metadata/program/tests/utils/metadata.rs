@@ -259,7 +259,19 @@ impl Metadata {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(context, self.pubkey).await;
+            assert_before_master_edition(
+                context,
+                find_master_edition_account(&self.mint.pubkey()).0,
+            )
+            .await;
             context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+            assert_after_master_edition(
+                context,
+                find_master_edition_account(&self.mint.pubkey()).0,
+            )
+            .await;
         }
 
         Ok(())
@@ -357,7 +369,19 @@ impl Metadata {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(context, self.pubkey).await;
+            assert_before_master_edition(
+                context,
+                find_master_edition_account(&self.mint.pubkey()).0,
+            )
+            .await;
             context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+            assert_after_master_edition(
+                context,
+                find_master_edition_account(&self.mint.pubkey()).0,
+            )
+            .await;
         }
 
         Ok(())
@@ -429,7 +453,11 @@ impl Metadata {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
         }
 
         Ok((nft, master_edition))
@@ -477,7 +505,11 @@ impl Metadata {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
         }
 
         Ok((nft, master_edition))
@@ -529,7 +561,11 @@ impl Metadata {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
             context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
         }
 
         Ok((nft, master_edition))

@@ -78,7 +78,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         let size = 1123;
@@ -167,7 +171,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         // NFT is created with context payer as the update authority so we need to update this so we don't automatically
@@ -295,7 +303,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         let new_size = 1123;
@@ -372,7 +384,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         // NFT is created with context payer as the update authority so we need to update this so we don't automatically
@@ -459,7 +475,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         let size = 1123;
@@ -556,7 +576,11 @@ mod set_collection_size {
                 context.last_blockhash,
             );
 
+            assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
             context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+            assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         }
 
         let size = 1123;
@@ -674,7 +698,11 @@ async fn invalid_update_authority_fails_with_delegated_collection_authority() {
             context.last_blockhash,
         );
 
+        assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         context.banks_client.process_transaction(tx).await.unwrap();
+        assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
     }
 
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
@@ -785,7 +813,11 @@ async fn update_authority_not_a_signer_fails_with_delegated_collection_authority
             context.last_blockhash,
         );
 
+        assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         context.banks_client.process_transaction(tx).await.unwrap();
+        assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
     }
 
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
@@ -899,7 +931,11 @@ async fn other_collection_delegate_cant_set_size() {
             context.last_blockhash,
         );
 
+        assert_before_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_before_master_edition(&mut context, parent_master_edition_account.pubkey).await;
         context.banks_client.process_transaction(tx).await.unwrap();
+        assert_after_metadata(&mut context, collection_parent_nft.pubkey).await;
+        assert_after_master_edition(&mut context, parent_master_edition_account.pubkey).await;
     }
 
     // Create a Collection Parent NFT with the CollectionDetails set to None
@@ -944,7 +980,12 @@ async fn other_collection_delegate_cant_set_size() {
             context.last_blockhash,
         );
 
+        assert_before_metadata(&mut context, other_collection_parent_nft.pubkey).await;
+        assert_before_master_edition(&mut context, other_parent_master_edition_account.pubkey)
+            .await;
         context.banks_client.process_transaction(tx).await.unwrap();
+        assert_after_metadata(&mut context, other_collection_parent_nft.pubkey).await;
+        assert_after_master_edition(&mut context, other_parent_master_edition_account.pubkey).await;
     }
 
     // NFT is created with context payer as the update authority so we need to update this so we don't automatically
