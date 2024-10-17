@@ -1111,7 +1111,7 @@ impl DigitalAsset {
             &instructions,
             Some(&authority.pubkey()),
             &[authority, payer],
-            context.get_new_latest_blockhash().await.unwrap(),
+            context.last_blockhash,
         );
 
         context.banks_client.process_transaction(tx).await.map(|_| {
