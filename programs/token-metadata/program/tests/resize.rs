@@ -8,7 +8,7 @@ use utils::*;
 mod resize {
     use instruction::{
         builders::ResizeBuilder, CollectionDetailsToggle, CollectionToggle, InstructionBuilder,
-        RuleSetToggle, TransferArgs, UpdateArgs, UsesToggle,
+        RuleSetToggle, UpdateArgs, UsesToggle,
     };
     use num_traits::FromPrimitive;
     use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
@@ -19,7 +19,6 @@ mod resize {
         signer::Signer,
         transaction::{Transaction, TransactionError},
     };
-    use spl_associated_token_account::get_associated_token_address_with_program_id;
     use token_metadata::{
         error::MetadataError, pda::find_master_edition_account, state::TokenStandard,
     };
@@ -38,7 +37,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn resize_with_payer(spl_token_program: Pubkey, token_standard: TokenStandard) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
@@ -136,7 +134,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn resize_nft_as_owner(spl_token_program: Pubkey, token_standard: TokenStandard) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
@@ -255,12 +252,11 @@ mod resize {
     #[test_case::test_matrix(
         [spl_token::id(), spl_token_2022::id()],
         [
-            TokenStandard::NonFungible,
-            TokenStandard::ProgrammableNonFungible,
+            TokenStandard::Fungible,
+            TokenStandard::FungibleAsset,
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn resize_fungible_as_update_authority(
         spl_token_program: Pubkey,
         token_standard: TokenStandard,
@@ -269,47 +265,49 @@ mod resize {
         let mut context = program_test().start_with_context().await;
         let update_authority = Keypair::new();
         let destination = Keypair::new();
-        let mut nft = DigitalAsset::new();
-        nft.create_and_mint(
-            &mut context,
-            token_standard,
-            None,
-            None,
-            1,
-            spl_token_program,
-        )
-        .await
-        .unwrap();
+        let mut fungible = DigitalAsset::new();
+        fungible
+            .create_and_mint(
+                &mut context,
+                token_standard,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
+            .await
+            .unwrap();
 
         let context_payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
 
         context.warp_to_slot(100).unwrap();
 
-        nft.update(
-            &mut context,
-            context_payer,
-            UpdateArgs::V1 {
-                new_update_authority: Some(update_authority.pubkey()),
-                data: None,
-                primary_sale_happened: None,
-                is_mutable: None,
-                collection: CollectionToggle::None,
-                collection_details: CollectionDetailsToggle::None,
-                uses: UsesToggle::None,
-                rule_set: RuleSetToggle::None,
-                authorization_data: None,
-            },
-        )
-        .await
-        .unwrap();
+        fungible
+            .update(
+                &mut context,
+                context_payer,
+                UpdateArgs::V1 {
+                    new_update_authority: Some(update_authority.pubkey()),
+                    data: None,
+                    primary_sale_happened: None,
+                    is_mutable: None,
+                    collection: CollectionToggle::None,
+                    collection_details: CollectionDetailsToggle::None,
+                    uses: UsesToggle::None,
+                    rule_set: RuleSetToggle::None,
+                    authorization_data: None,
+                },
+            )
+            .await
+            .unwrap();
 
         let edition = match token_standard {
             TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => {
-                assert_before_master_edition(&mut context, nft.edition.unwrap()).await;
-                nft.edition.unwrap()
+                assert_before_master_edition(&mut context, fungible.edition.unwrap()).await;
+                fungible.edition.unwrap()
             }
             TokenStandard::FungibleAsset | TokenStandard::Fungible => {
-                find_master_edition_account(&nft.mint.pubkey()).0
+                find_master_edition_account(&fungible.mint.pubkey()).0
             }
             TokenStandard::NonFungibleEdition | TokenStandard::ProgrammableNonFungibleEdition => {
                 panic!("Invalid test for Editions")
@@ -319,12 +317,12 @@ mod resize {
         context.warp_to_slot(200).unwrap();
         let tx = Transaction::new_signed_with_payer(
             &[ResizeBuilder::new()
-                .metadata(nft.metadata)
+                .metadata(fungible.metadata)
                 .edition(edition)
-                .mint(nft.mint.pubkey())
+                .mint(fungible.mint.pubkey())
                 .payer(destination.pubkey())
                 .authority(update_authority.pubkey())
-                .token(nft.token.unwrap())
+                .token(fungible.token.unwrap())
                 .system_program(solana_program::system_program::ID)
                 .build()
                 .unwrap()
@@ -336,7 +334,7 @@ mod resize {
 
         let metadata_rent_before = context
             .banks_client
-            .get_balance(nft.metadata)
+            .get_balance(fungible.metadata)
             .await
             .unwrap();
         let edition_rent_before = context.banks_client.get_balance(edition).await.unwrap();
@@ -345,13 +343,13 @@ mod resize {
             .get_balance(destination.pubkey())
             .await
             .unwrap();
-        assert_before_metadata(&mut context, nft.metadata).await;
+        assert_before_metadata(&mut context, fungible.metadata).await;
         context.warp_to_slot(300).unwrap();
         context.banks_client.process_transaction(tx).await.unwrap();
-        assert_after_metadata(&mut context, nft.metadata).await;
+        assert_after_metadata(&mut context, fungible.metadata).await;
         match token_standard {
             TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => {
-                assert_after_master_edition(&mut context, nft.edition.unwrap()).await;
+                assert_after_master_edition(&mut context, fungible.edition.unwrap()).await;
             }
             TokenStandard::FungibleAsset | TokenStandard::Fungible => {}
             TokenStandard::NonFungibleEdition | TokenStandard::ProgrammableNonFungibleEdition => {
@@ -360,7 +358,7 @@ mod resize {
         };
         let metadata_rent_after = context
             .banks_client
-            .get_balance(nft.metadata)
+            .get_balance(fungible.metadata)
             .await
             .unwrap();
         let edition_rent_after = context.banks_client.get_balance(edition).await.unwrap();
@@ -389,7 +387,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn resize_with_payer_and_authority(
         spl_token_program: Pubkey,
         token_standard: TokenStandard,
@@ -627,11 +624,6 @@ mod resize {
         )
         .unwrap();
         authority.airdrop(&mut context, funding).await.unwrap();
-        // Prefund to meet rent exemption.
-        RESIZE_DESTINATION
-            .airdrop(&mut context, funding)
-            .await
-            .unwrap();
 
         let mut nft = DigitalAsset::new();
         nft.create_and_mint(
@@ -695,7 +687,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_wrong_metadata(
         spl_token_program: Pubkey,
         token_standard: TokenStandard,
@@ -776,7 +767,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_wrong_edition(spl_token_program: Pubkey, token_standard: TokenStandard) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
@@ -854,7 +844,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_wrong_mint(spl_token_program: Pubkey, token_standard: TokenStandard) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
@@ -932,7 +921,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_wrong_edition_wrong_mint(
         spl_token_program: Pubkey,
         token_standard: TokenStandard,
@@ -1012,7 +1000,6 @@ mod resize {
         ]
     )]
     #[tokio::test]
-    // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_wrong_token(spl_token_program: Pubkey, token_standard: TokenStandard) {
         // Create NFTs and then collect the fees from the metadata accounts.
         let mut context = program_test().start_with_context().await;
