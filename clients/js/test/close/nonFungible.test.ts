@@ -63,8 +63,9 @@ test.skip('it can close ownerless metadata for a non-fungible with zero supply',
   if (asset.edition === undefined) {
     t.fail('Expected edition to exist');
   }
-  // @ts-ignore
+
   const masterEditionLamports = await umi.rpc.getBalance(
+    // @ts-ignore
     asset.edition.publicKey
   );
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
