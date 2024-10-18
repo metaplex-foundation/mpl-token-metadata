@@ -494,6 +494,7 @@ mod resize {
         ]
     )]
     #[tokio::test]
+    #[ignore]
     // Used for local QA testing and requires a keypair so excluded from CI.
     async fn resize_with_resize_authority(
         spl_token_program: Pubkey,
@@ -610,6 +611,7 @@ mod resize {
         ]
     )]
     #[tokio::test]
+    #[ignore]
     // Used for local QA testing and requires a keypair so excluded from CI.
     async fn cannot_resize_with_resize_authority_and_wrong_destination(
         spl_token_program: Pubkey,
