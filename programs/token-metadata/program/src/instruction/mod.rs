@@ -828,6 +828,38 @@ pub enum MetadataInstruction {
     // #[account(19, optional, signer, name="delegate", desc="The authority printing the edition for a delegated print")]
     #[args(initialize_mint: bool)]
     Print(PrintArgs),
+
+    /// Instruction to resize all accounts for a digital asset to the minimum size.
+    #[account(0, writable, name="metadata", desc="The metadata account of the digital asset")]
+    #[account(1, writable, name="edition", desc="The master edition or edition account of the digital asset, an uninitialized account for fungible assets")]
+    #[account(2, name="mint", desc="Mint of token asset")]
+    #[account(3, writable, optional_signer, name="payer", desc="The recipient of the excess rent and authority if the authority account is not present")]
+    #[account(4, optional, signer, name="authority", desc="Owner of the asset for (p)NFTs, or mint authority for fungible assets, if different from the payer")]
+    #[account(5, optional, name="token", desc="Token or Associated Token account")]
+    #[account(6, name="system_program", desc="System program")]
+    Resize,
+    
+    /// Closes accounts for an asset where only the token was burnt.
+    /// 
+    /// Closes floating accounts for the following asset types:
+    /// - NonFungible
+    /// - NonFungibleEdition
+    /// - Fungible
+    /// - FungibleAsset
+    ///
+    /// This handler closes the following accounts:
+    ///
+    /// For NonFungible and NonFungibleEdition assets:
+    /// - Metadata, Edition
+    ///
+    /// For Fungible assets:
+    /// - Only the Metadata account, if all tokens are burned and the mint authority is None.
+    #[account(0, writable, name="metadata", desc="Metadata (pda of ['metadata', program id, mint id])")]
+    #[account(1, writable, name="edition", desc="Edition of the asset")]
+    #[account(2, writable, name="mint", desc="Mint of token asset")]
+    #[account(3, signer, name="authority", desc="Authority to close ownerless accounts")]
+    #[account(4, writable, name="destination", desc="The destination account that will receive the rent.")]
+    CloseAccounts,
 }
 
 pub struct Context<T> {

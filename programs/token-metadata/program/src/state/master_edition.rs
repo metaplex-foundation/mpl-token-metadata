@@ -14,7 +14,7 @@ pub const MASTER_EDITION_FEE_FLAG_OFFSET: usize = 2;
 // key: 1
 // supply: 8
 // option max_supply: 1 + 8
-// flags: 3
+// flags: 2
 pub const MAX_MASTER_EDITION_LEN: usize = 1 + 8 + 9 + 2;
 
 pub trait MasterEdition {

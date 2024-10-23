@@ -2955,6 +2955,35 @@ nameToErrorMap.set(
   InvalidEditionAccountLengthError
 );
 
+/** AccountAlreadyResized: Account has already been resized */
+export class AccountAlreadyResizedError extends ProgramError {
+  override readonly name: string = 'AccountAlreadyResized';
+
+  readonly code: number = 0xc9; // 201
+
+  constructor(program: Program, cause?: Error) {
+    super('Account has already been resized', program, cause);
+  }
+}
+codeToErrorMap.set(0xc9, AccountAlreadyResizedError);
+nameToErrorMap.set('AccountAlreadyResized', AccountAlreadyResizedError);
+
+/** ConditionsForClosingNotMet: Conditions for closing not met */
+export class ConditionsForClosingNotMetError extends ProgramError {
+  override readonly name: string = 'ConditionsForClosingNotMet';
+
+  readonly code: number = 0xca; // 202
+
+  constructor(program: Program, cause?: Error) {
+    super('Conditions for closing not met', program, cause);
+  }
+}
+codeToErrorMap.set(0xca, ConditionsForClosingNotMetError);
+nameToErrorMap.set(
+  'ConditionsForClosingNotMet',
+  ConditionsForClosingNotMetError
+);
+
 /**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors

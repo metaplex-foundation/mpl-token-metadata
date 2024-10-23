@@ -2,6 +2,13 @@ use super::*;
 use solana_program::{rent::Rent, sysvar::Sysvar};
 
 pub(crate) const FEE_AUTHORITY: Pubkey = pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7");
+pub(crate) const OWNERLESS_CLOSE_AUTHORITY: Pubkey =
+    pubkey!("C1oseLQExhuEzeBhsVbLtseSpVgvpHDbBj3PTevBCEBh");
+pub(crate) const OWNERLESS_CLOSE_DESTINATION: Pubkey =
+    pubkey!("E4ZJX8hYhz5tDbFsUo1DinxHqt33aUsFQpe8dYjASm2F");
+pub(crate) const RESIZE_AUTHORITY: Pubkey = pubkey!("ResizebfwTEZTLbHbctTByvXYECKTJQXnMWG8g9XLix");
+pub(crate) const RESIZE_DESTINATION: Pubkey =
+    pubkey!("46mjNQBwXLCDCM7YiDQSPVdNZ4dLdZf79tTPRkT1wkF6");
 
 const CREATE_FEE_SCALAR: usize = 1308;
 const CREATE_FEE_OFFSET: u64 = 5440;

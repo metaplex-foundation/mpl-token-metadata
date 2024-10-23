@@ -3,7 +3,8 @@ use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
 use token_metadata::{
-    instruction,
+    instruction::{self, builders::ResizeBuilder, InstructionBuilder},
+    pda::find_master_edition_account,
     state::{
         Collection, CollectionDetails, Creator, DataV2, Metadata as TmMetadata,
         TokenMetadataAccount, TokenStandard, Uses, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET, PREFIX,
@@ -239,6 +240,30 @@ impl Metadata {
         #[cfg(feature = "padded")]
         upsize_metadata(context, &self.pubkey).await;
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(self.pubkey)
+                    .edition(find_master_edition_account(&self.mint.pubkey()).0)
+                    .mint(self.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(self.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, self.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+        }
+
         Ok(())
     }
 
@@ -315,6 +340,30 @@ impl Metadata {
         #[cfg(feature = "padded")]
         upsize_metadata(context, &self.pubkey).await;
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(self.pubkey)
+                    .edition(find_master_edition_account(&self.mint.pubkey()).0)
+                    .mint(self.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(self.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, self.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+        }
+
         Ok(())
     }
 
@@ -365,6 +414,32 @@ impl Metadata {
         let master_edition = MasterEditionV2::new(&nft);
         master_edition.create_v3(context, Some(0)).await.unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
+        }
+
         Ok((nft, master_edition))
     }
 
@@ -391,13 +466,33 @@ impl Metadata {
         let master_edition = MasterEditionV2::new(&nft);
         master_edition.create_v3(context, Some(0)).await.unwrap();
 
-        Ok((nft, master_edition))
-    }
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
 
-    pub async fn create_default_unsized_parent(
-        context: &mut ProgramTestContext,
-    ) -> Result<(Metadata, MasterEditionV2), BanksClientError> {
-        Self::create_default_nft(context).await
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
+        }
+
+        Ok((nft, master_edition))
     }
 
     pub async fn create_nft_with_max_supply(
@@ -426,6 +521,32 @@ impl Metadata {
             .create_v3(context, Some(max_supply))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, nft.pubkey).await;
+            assert_before_master_edition(context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, nft.pubkey).await;
+            assert_after_master_edition(context, master_edition.pubkey).await;
+        }
 
         Ok((nft, master_edition))
     }
