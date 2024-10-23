@@ -1070,4 +1070,182 @@ mod resize {
 
         assert_custom_error!(result, MetadataError::MintMismatch);
     }
+
+    #[test_case::test_matrix(
+        [spl_token::id(), spl_token_2022::id()],
+        [
+            TokenStandard::NonFungible,
+            TokenStandard::ProgrammableNonFungible,
+        ]
+    )]
+    #[tokio::test]
+    async fn cannot_resize_nonfungible_as_update_authority(
+        spl_token_program: Pubkey,
+        token_standard: TokenStandard,
+    ) {
+        // Create NFTs and then collect the fees from the metadata accounts.
+        let mut context = program_test().start_with_context().await;
+        let mut nft = DigitalAsset::new();
+        nft.create_and_mint(
+            &mut context,
+            token_standard,
+            None,
+            None,
+            1,
+            spl_token_program,
+        )
+        .await
+        .unwrap();
+
+        let context_payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
+        let update_authority = Keypair::new();
+        context.warp_to_slot(10).unwrap();
+
+        nft.update(
+            &mut context,
+            context_payer,
+            UpdateArgs::V1 {
+                new_update_authority: Some(update_authority.pubkey()),
+                data: None,
+                primary_sale_happened: None,
+                is_mutable: None,
+                collection: CollectionToggle::None,
+                collection_details: CollectionDetailsToggle::None,
+                uses: UsesToggle::None,
+                rule_set: RuleSetToggle::None,
+                authorization_data: None,
+            },
+        )
+        .await
+        .unwrap();
+
+        let edition = match token_standard {
+            TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => {
+                assert_before_master_edition(&mut context, nft.edition.unwrap()).await;
+                nft.edition.unwrap()
+            }
+            TokenStandard::FungibleAsset | TokenStandard::Fungible => {
+                find_master_edition_account(&nft.mint.pubkey()).0
+            }
+            TokenStandard::NonFungibleEdition | TokenStandard::ProgrammableNonFungibleEdition => {
+                panic!("Invalid test for Editions")
+            }
+        };
+
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(nft.metadata)
+                .edition(edition)
+                .mint(nft.mint.pubkey())
+                .payer(context.payer.pubkey())
+                .authority(update_authority.pubkey())
+                .token(nft.token.unwrap())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer, &update_authority],
+            context.last_blockhash,
+        );
+
+        assert_before_metadata(&mut context, nft.metadata).await;
+        let result = context
+            .banks_client
+            .process_transaction(tx)
+            .await
+            .unwrap_err();
+
+        assert_custom_error!(result, MetadataError::InvalidOwner);
+    }
+
+    #[test_case::test_matrix(
+        [spl_token::id(), spl_token_2022::id()],
+        [
+            TokenStandard::Fungible,
+            TokenStandard::FungibleAsset,
+        ]
+    )]
+    #[tokio::test]
+    async fn cannot_resize_fungible_as_token_holder(
+        spl_token_program: Pubkey,
+        token_standard: TokenStandard,
+    ) {
+        // Create NFTs and then collect the fees from the metadata accounts.
+        let mut context = program_test().start_with_context().await;
+        let update_authority = Keypair::new();
+        let destination = Keypair::new();
+        let mut fungible = DigitalAsset::new();
+        fungible
+            .create_and_mint(
+                &mut context,
+                token_standard,
+                None,
+                None,
+                1,
+                spl_token_program,
+            )
+            .await
+            .unwrap();
+
+        let context_payer = Keypair::from_bytes(&context.payer.to_bytes()).unwrap();
+        context.warp_to_slot(10).unwrap();
+
+        fungible
+            .update(
+                &mut context,
+                context_payer,
+                UpdateArgs::V1 {
+                    new_update_authority: Some(update_authority.pubkey()),
+                    data: None,
+                    primary_sale_happened: None,
+                    is_mutable: None,
+                    collection: CollectionToggle::None,
+                    collection_details: CollectionDetailsToggle::None,
+                    uses: UsesToggle::None,
+                    rule_set: RuleSetToggle::None,
+                    authorization_data: None,
+                },
+            )
+            .await
+            .unwrap();
+
+        let edition = match token_standard {
+            TokenStandard::NonFungible | TokenStandard::ProgrammableNonFungible => {
+                assert_before_master_edition(&mut context, fungible.edition.unwrap()).await;
+                fungible.edition.unwrap()
+            }
+            TokenStandard::FungibleAsset | TokenStandard::Fungible => {
+                find_master_edition_account(&fungible.mint.pubkey()).0
+            }
+            TokenStandard::NonFungibleEdition | TokenStandard::ProgrammableNonFungibleEdition => {
+                panic!("Invalid test for Editions")
+            }
+        };
+
+        let tx = Transaction::new_signed_with_payer(
+            &[ResizeBuilder::new()
+                .metadata(fungible.metadata)
+                .edition(edition)
+                .mint(fungible.mint.pubkey())
+                .payer(destination.pubkey())
+                .authority(context.payer.pubkey())
+                .token(fungible.token.unwrap())
+                .system_program(solana_program::system_program::ID)
+                .build()
+                .unwrap()
+                .instruction()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        let result = context
+            .banks_client
+            .process_transaction(tx)
+            .await
+            .unwrap_err();
+
+        assert_custom_error!(result, MetadataError::UpdateAuthorityIncorrect);
+    }
 }
