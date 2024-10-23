@@ -616,6 +616,9 @@ pub enum MplTokenMetadataError {
     /// 201 (0xC9) - Account has already been resized
     #[error("Account has already been resized")]
     AccountAlreadyResized,
+    /// 202 (0xCA) - Conditions for closing not met
+    #[error("Conditions for closing not met")]
+    ConditionsForClosingNotMet,
 }
 
 impl solana_program::program_error::PrintProgramError for MplTokenMetadataError {

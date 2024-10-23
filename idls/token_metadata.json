@@ -7962,6 +7962,11 @@
       "code": 201,
       "name": "AccountAlreadyResized",
       "msg": "Account has already been resized"
+    },
+    {
+      "code": 202,
+      "name": "ConditionsForClosingNotMet",
+      "msg": "Conditions for closing not met"
     }
   ],
   "metadata": {
