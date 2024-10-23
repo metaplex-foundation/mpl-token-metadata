@@ -292,6 +292,28 @@ impl Airdrop for Keypair {
     }
 }
 
+#[async_trait]
+impl Airdrop for Pubkey {
+    async fn airdrop(
+        &self,
+        context: &mut ProgramTestContext,
+        lamports: u64,
+    ) -> Result<(), BanksClientError> {
+        let tx = Transaction::new_signed_with_payer(
+            &[system_instruction::transfer(
+                &context.payer.pubkey(),
+                self,
+                lamports,
+            )],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
+    }
+}
+
 pub async fn upsize_metadata(context: &mut ProgramTestContext, address: &Pubkey) {
     let account = get_account(context, address).await;
     assert_eq!(
@@ -394,5 +416,78 @@ pub async fn upsize_edition(context: &mut ProgramTestContext, address: &Pubkey) 
         account.data.len(),
         241,
         "Extended metadata size must be 241 bytes"
+    );
+}
+
+pub async fn assert_before_metadata(context: &mut ProgramTestContext, metadata: Pubkey) {
+    let account = get_account(context, &metadata).await;
+    assert_eq!(account.data.len(), 679, "Metadata size must be 679 bytes");
+    assert_eq!(
+        account.lamports, 15616720,
+        "Metadata lamports must be 15616720"
+    );
+}
+
+pub async fn assert_before_master_edition(
+    context: &mut ProgramTestContext,
+    master_edition: Pubkey,
+) {
+    let account = get_account(context, &master_edition).await;
+    assert_eq!(
+        account.data.len(),
+        282,
+        "Master edition size must be 282 bytes"
+    );
+    assert_eq!(
+        account.lamports, 2853600,
+        "Master edition lamports must be 2853600"
+    );
+}
+
+pub async fn assert_before_print_edition(context: &mut ProgramTestContext, print_edition: Pubkey) {
+    let account = get_account(context, &print_edition).await;
+    assert_eq!(
+        account.data.len(),
+        241,
+        "Print edition size must be 241 bytes"
+    );
+    assert_eq!(
+        account.lamports, 2568240,
+        "Print edition lamports must be 2568240"
+    );
+}
+
+pub async fn assert_after_metadata(context: &mut ProgramTestContext, metadata: Pubkey) {
+    let account = get_account(context, &metadata).await;
+    assert_eq!(account.data.len(), 607, "Metadata size must be 607 bytes");
+    assert_eq!(
+        account.lamports, 15115600,
+        "Metadata lamports must be 15115600"
+    );
+}
+
+pub async fn assert_after_master_edition(context: &mut ProgramTestContext, master_edition: Pubkey) {
+    let account = get_account(context, &master_edition).await;
+    assert_eq!(
+        account.data.len(),
+        20,
+        "Master edition size must be 214 bytes"
+    );
+    assert_eq!(
+        account.lamports, 1030080,
+        "Master edition lamports must be 1030080"
+    );
+}
+
+pub async fn assert_after_print_edition(context: &mut ProgramTestContext, print_edition: Pubkey) {
+    let account = get_account(context, &print_edition).await;
+    assert_eq!(
+        account.data.len(),
+        42,
+        "Print edition size must be 42 bytes"
+    );
+    assert_eq!(
+        account.lamports, 1183200,
+        "Print edition lamports must be 1183200"
     );
 }

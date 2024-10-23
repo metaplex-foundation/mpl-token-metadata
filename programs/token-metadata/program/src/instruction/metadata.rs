@@ -10,7 +10,7 @@ use {
     serde_with::{As, DisplayFromStr},
 };
 
-use super::InstructionBuilder;
+use super::{builders::ResizeBuilder, InstructionBuilder};
 use crate::{
     instruction::MetadataInstruction,
     processor::AuthorizationData,
@@ -900,6 +900,47 @@ impl InstructionBuilder for super::builders::Print {
             data: MetadataInstruction::Print(self.args.clone())
                 .try_to_vec()
                 .unwrap(),
+        }
+    }
+}
+
+/// Resizes the account to the minimum size.
+///
+/// # Accounts:
+///
+///   0. `[writable]` metadata
+///   1. `[writable]` edition
+///   2. `[]` mint
+///   3. `[writable, optional signer]` payer
+///   4. `[optional, signer]` authority
+///   5. `[optional]` token account
+///   6. `[]` system program
+
+impl InstructionBuilder for super::builders::Resize {
+    fn instruction(&self) -> solana_program::instruction::Instruction {
+        let mut accounts = vec![
+            AccountMeta::new(self.metadata, false),
+            AccountMeta::new(self.edition, false),
+            AccountMeta::new_readonly(self.mint, false),
+        ];
+        if let Some(authority) = self.authority {
+            accounts.push(AccountMeta::new(self.payer, false));
+            accounts.push(AccountMeta::new_readonly(authority, true));
+        } else {
+            accounts.push(AccountMeta::new(self.payer, true));
+            accounts.push(AccountMeta::new_readonly(crate::ID, false));
+        }
+        if let Some(token) = self.token {
+            accounts.push(AccountMeta::new_readonly(token, false));
+        } else {
+            accounts.push(AccountMeta::new_readonly(crate::ID, false));
+        }
+        accounts.push(AccountMeta::new_readonly(self.system_program, false));
+
+        Instruction {
+            program_id: crate::ID,
+            accounts,
+            data: MetadataInstruction::Resize.try_to_vec().unwrap(),
         }
     }
 }

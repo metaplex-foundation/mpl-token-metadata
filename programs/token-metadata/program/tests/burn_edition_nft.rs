@@ -7,8 +7,9 @@ use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::Tra
 use utils::*;
 
 mod burn_edition_nft {
+    use instruction::{builders::ResizeBuilder, InstructionBuilder};
     use solana_program::pubkey::Pubkey;
-    use solana_sdk::signature::Keypair;
+    use solana_sdk::{signature::Keypair, transaction::Transaction};
     use spl_associated_token_account::get_associated_token_address;
     use token_metadata::{
         error::MetadataError,
@@ -29,11 +30,64 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
         assert!(print_edition.exists_on_chain(&mut context).await);
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -116,9 +170,62 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let mut print_edition =
             EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         // Transfer to new owner.
         let new_owner = Keypair::new();
@@ -214,11 +321,64 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
 
         // Metadata, Print Edition and token account exist.
         assert!(print_edition.exists_on_chain(&mut context).await);
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let not_owner = Keypair::new();
         airdrop(&mut context, &not_owner.pubkey(), 1_000_000_000)
@@ -256,6 +416,32 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         // NFT is created with context payer as the update authority so we need to update this before
         // creating the print edition, so it gets a copy of this new update authority.
         let new_update_authority = Keypair::new();
@@ -270,6 +456,32 @@ mod burn_edition_nft {
 
         // Metadata, Print Edition and token account exist.
         assert!(print_edition.exists_on_chain(&mut context).await);
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let err = burn_edition(
             &mut context,
@@ -305,11 +517,63 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let second_master_edition = MasterEditionV2::new(&second_nft);
         second_master_edition
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(second_nft.pubkey)
+                    .edition(second_master_edition.pubkey)
+                    .mint(second_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(second_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, second_nft.pubkey).await;
+            assert_before_master_edition(&mut context, second_master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_nft.pubkey).await;
+            assert_after_master_edition(&mut context, second_master_edition.pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -346,12 +610,91 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let second_print_edition =
             EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(second_print_edition.new_metadata_pubkey)
+                    .edition(second_print_edition.new_edition_pubkey)
+                    .mint(second_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(second_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -389,8 +732,60 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -458,8 +853,60 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -490,6 +937,33 @@ mod burn_edition_nft {
         let second_print_edition =
             EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(second_print_edition.new_metadata_pubkey)
+                    .edition(second_print_edition.new_edition_pubkey)
+                    .mint(second_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(second_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
+        }
 
         let err = burn_edition(
             &mut context,
@@ -522,8 +996,60 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -585,8 +1111,60 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let master_edition_account = context
             .banks_client
@@ -604,6 +1182,33 @@ mod burn_edition_nft {
         let mut second_print_edition =
             EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(second_print_edition.new_metadata_pubkey)
+                    .edition(second_print_edition.new_edition_pubkey)
+                    .mint(second_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(second_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
+        }
 
         let master_edition_account = context
             .banks_client
@@ -708,6 +1313,32 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         context.warp_to_slot(10).unwrap();
 
         let (print_editions, _end_slot) = master_edition
@@ -809,13 +1440,91 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(original_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(original_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(original_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, original_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, original_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&original_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         // Print a new edition and transfer to a user.
         let mut user_print_edition =
             EditionMarker::new(&original_nft, &master_edition, 2, spl_token::ID);
         user_print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(user_print_edition.new_metadata_pubkey)
+                    .edition(user_print_edition.new_edition_pubkey)
+                    .mint(user_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(user_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, user_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, user_print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, user_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, user_print_edition.new_edition_pubkey).await;
+        }
 
         let user = Keypair::new();
         airdrop(&mut context, &user.pubkey(), 1_000_000_000)
@@ -903,6 +1612,32 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(other_nft.pubkey)
+                    .edition(other_master_edition.pubkey)
+                    .mint(other_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(other_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, other_nft.pubkey).await;
+            assert_before_master_edition(&mut context, other_master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_nft.pubkey).await;
+            assert_after_master_edition(&mut context, other_master_edition.pubkey).await;
+        }
+
         let new_update_authority = Keypair::new();
         other_nft
             .change_update_authority(&mut context, new_update_authority.pubkey())
@@ -913,6 +1648,32 @@ mod burn_edition_nft {
             EditionMarker::new(&other_nft, &other_master_edition, 1, spl_token::ID);
         other_print_edition.create(&mut context).await.unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(other_print_edition.new_metadata_pubkey)
+                    .edition(other_print_edition.new_edition_pubkey)
+                    .mint(other_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(other_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, other_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, other_print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, other_print_edition.new_edition_pubkey).await;
+        }
+
         let our_nft = Metadata::new();
         our_nft.create_v3_default(&mut context).await.unwrap();
 
@@ -922,8 +1683,60 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(our_nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(our_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(our_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, our_nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, our_nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&our_nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -960,10 +1773,90 @@ mod burn_edition_nft {
             .await
             .unwrap();
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(nft.pubkey)
+                    .edition(master_edition.pubkey)
+                    .mint(nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, nft.pubkey).await;
+            assert_before_master_edition(&mut context, master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, nft.pubkey).await;
+            assert_after_master_edition(&mut context, master_edition.pubkey).await;
+        }
+
         let print_edition = EditionMarker::new(&nft, &master_edition, 1, spl_token::ID);
         print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(print_edition.new_metadata_pubkey)
+                    .edition(print_edition.new_edition_pubkey)
+                    .mint(print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, print_edition.new_edition_pubkey).await;
+        }
+
         let second_print_edition = EditionMarker::new(&nft, &master_edition, 2, spl_token::ID);
         second_print_edition.create(&mut context).await.unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(second_print_edition.new_metadata_pubkey)
+                    .edition(second_print_edition.new_edition_pubkey)
+                    .mint(second_print_edition.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(second_print_edition.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_before_print_edition(&mut context, second_print_edition.new_edition_pubkey)
+                .await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, second_print_edition.new_metadata_pubkey).await;
+            assert_after_print_edition(&mut context, second_print_edition.new_edition_pubkey).await;
+        }
 
         let kpbytes = &context.payer;
         let payer = Keypair::from_bytes(&kpbytes.to_bytes()).unwrap();
@@ -996,6 +1889,32 @@ mod burn_edition_nft {
             .create_v3(&mut context, Some(10))
             .await
             .unwrap();
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(other_nft.pubkey)
+                    .edition(other_master_edition.pubkey)
+                    .mint(other_nft.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(other_nft.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(&mut context, other_nft.pubkey).await;
+            assert_before_master_edition(&mut context, other_master_edition.pubkey).await;
+            context.banks_client.process_transaction(tx).await.unwrap();
+            assert_after_metadata(&mut context, other_nft.pubkey).await;
+            assert_after_master_edition(&mut context, other_master_edition.pubkey).await;
+        }
 
         // Wrong master edition mint account.
         let err = burn_edition(

@@ -422,8 +422,10 @@ mod lock {
 
         let pda = get_account(&mut context, &pda_key).await;
         let token_record: TokenRecord = BorshDeserialize::deserialize(&mut &pda.data[..]).unwrap();
+        #[allow(deprecated)]
+        let locked_transfer = token_record.locked_transfer;
 
         assert_eq!(token_record.state, TokenState::Locked);
-        assert_eq!(token_record.locked_transfer, Some(Pubkey::default()));
+        assert_eq!(locked_transfer, Some(Pubkey::default()));
     }
 }
