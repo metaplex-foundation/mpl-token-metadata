@@ -85,7 +85,7 @@ pub(crate) fn process_close_accounts<'a>(
     } else if mint.is_some() && mint.unwrap().mint_authority.is_some() {
         return Err(MetadataError::InvalidMintAuthority.into());
     } else {
-        return Err(MetadataError::InvalidTokenStandard.into());
+        return Err(MetadataError::ConditionsForClosingNotMet.into());
     }
 
     Ok(())

@@ -795,6 +795,10 @@ pub enum MetadataError {
     /// 201
     #[error("Account has already been resized")]
     AccountAlreadyResized,
+
+    /// 202
+    #[error("Conditions for closing not met")]
+    ConditionsForClosingNotMet,
 }
 
 impl PrintProgramError for MetadataError {

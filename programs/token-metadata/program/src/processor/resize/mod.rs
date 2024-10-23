@@ -16,7 +16,7 @@ use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub fn process_resize<'a>(
-    program_id: &'a Pubkey,
+    _program_id: &'a Pubkey,
     accounts: &'a [AccountInfo<'a>],
 ) -> ProgramResult {
     let ctx = Resize::to_context(accounts)?;
@@ -32,6 +32,11 @@ pub fn process_resize<'a>(
     // Verify destination for when the claim period is over.
     if authority.key == &RESIZE_AUTHORITY && ctx.accounts.payer_info.key != &RESIZE_DESTINATION {
         return Err(MetadataError::InvalidFeeAccount.into());
+    }
+
+    // Check that the system program is correct.
+    if ctx.accounts.system_program_info.key != &solana_program::system_program::ID {
+        return Err(MetadataError::InvalidSystemProgram.into());
     }
 
     // The edition passed in is a valid Master Edition or Print Edition derivation
@@ -55,11 +60,11 @@ pub fn process_resize<'a>(
         // token_info ownership checked in assert_holding_amount.
         // metadata.mint == mint_info.key checked in assert_holding_amount.
         // token_account.mint == mint_info.key checked in assert_holding_amount.
-        assert_owned_by(ctx.accounts.edition_info, program_id)?;
+        assert_owned_by(ctx.accounts.edition_info, &crate::ID)?;
 
         // If the post-claim period authority is not the resize authority, then they must hold the token account for the NFT.
         if authority.key == &RESIZE_AUTHORITY {
-            assert_owned_by(ctx.accounts.metadata_info, program_id)?;
+            assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
             assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
             if &metadata.mint != ctx.accounts.mint_info.key {
@@ -109,7 +114,7 @@ pub fn process_resize<'a>(
     // This must be a fungible token or asset.
     else {
         // Assert program ownership.
-        assert_owned_by(ctx.accounts.metadata_info, program_id)?;
+        assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
         assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
         // Mint account passed in matches the metadata mint.
         if &metadata.mint != ctx.accounts.mint_info.key {

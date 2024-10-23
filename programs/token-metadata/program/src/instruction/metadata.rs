@@ -911,7 +911,7 @@ impl InstructionBuilder for super::builders::Print {
 ///   0. `[writable]` metadata
 ///   1. `[writable]` edition
 ///   2. `[]` mint
-///   3. `[writable, signer]` payer
+///   3. `[writable, optional signer]` payer
 ///   4. `[optional, signer]` authority
 ///   5. `[optional]` token account
 ///   6. `[]` system program
