@@ -39,8 +39,8 @@ for p in ${PROGRAMS[@]}; do
         CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture 2>&1 | ${SOLFMT} && \
         CARGO_TERM_COLOR=always cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded resize -- --nocapture 2>&1 | ${SOLFMT}
     else
-        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture && \
-        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture && \
-        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded resize -- --nocapture
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} -- --nocapture --test-threads=1 && \
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded -- --nocapture --test-threads=1 && \
+        cargo test-sbf --sbf-out-dir ${WORKING_DIR}/${OUTPUT} ${ARGS} --features padded resize -- --nocapture --test-threads=1
     fi
 done
