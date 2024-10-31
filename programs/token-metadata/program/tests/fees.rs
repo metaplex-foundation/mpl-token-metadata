@@ -18,10 +18,29 @@ mod fees {
     use token_metadata::{
         error::MetadataError,
         instruction::{collect_fees, BurnArgs, UpdateArgs},
-        state::{FEE_DESTINATION, FEE_FLAG_CLEARED, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET},
+        state::{
+            FEE_DESTINATION, FEE_FLAG_CLEARED, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET,
+            OWNERLESS_CLOSE_DESTINATION,
+        },
     };
 
     use super::*;
+
+    #[tokio::test]
+    async fn fee_manager_pdas_are_correct() {
+        let fee_manager = pubkey!("mgrfTeJh5VgHt67LQQVZ7U2gPY88En94QMWz64cV2AY");
+
+        // Fee destination is correct PDA of the fee-manager program.
+        let (derived_fee_dest, _) =
+            Pubkey::find_program_address(&["fee_manager_treasury".as_bytes()], &fee_manager);
+        assert_eq!(derived_fee_dest, FEE_DESTINATION);
+
+        // Ownerless close destination is correct PDA of the fee-manager program.
+
+        let (derived_ownerless_close_dest, _) =
+            Pubkey::find_program_address(&["fee_manager_close_treasury".as_bytes()], &fee_manager);
+        assert_eq!(derived_ownerless_close_dest, OWNERLESS_CLOSE_DESTINATION);
+    }
 
     #[tokio::test]
     async fn charge_create_metadata_v3() {
@@ -108,12 +127,6 @@ mod fees {
             .await
             .unwrap();
 
-        // Fee destination is a PDA of the fee-manager program.
-        let fee_manager = pubkey!("mgrfTeJh5VgHt67LQQVZ7U2gPY88En94QMWz64cV2AY");
-        let (derived_fee_dest, _) =
-            Pubkey::find_program_address(&["fee_manager_treasury".as_bytes()], &fee_manager);
-        assert_eq!(derived_fee_dest, FEE_DESTINATION);
-
         let num_accounts = 25;
 
         let mut nfts = vec![];
@@ -178,12 +191,6 @@ mod fees {
             .airdrop(&mut context, fee_authority_funding)
             .await
             .unwrap();
-
-        // Fee destination is a PDA of the fee-manager program.
-        let fee_manager = pubkey!("mgrfTeJh5VgHt67LQQVZ7U2gPY88En94QMWz64cV2AY");
-        let (derived_fee_dest, _) =
-            Pubkey::find_program_address(&["fee_manager_treasury".as_bytes()], &fee_manager);
-        assert_eq!(derived_fee_dest, FEE_DESTINATION);
 
         let mut nft = DigitalAsset::new();
         nft.create_and_mint(

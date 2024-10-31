@@ -5,8 +5,8 @@ pub(crate) const FEE_AUTHORITY: Pubkey = pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e
 pub const FEE_DESTINATION: Pubkey = pubkey!("2fb1TjRrJQLy9BkYfBjcYgibV7LUsr9cf6QxvyRZyuXn");
 pub(crate) const OWNERLESS_CLOSE_AUTHORITY: Pubkey =
     pubkey!("C1oseLQExhuEzeBhsVbLtseSpVgvpHDbBj3PTevBCEBh");
-pub(crate) const OWNERLESS_CLOSE_DESTINATION: Pubkey =
-    pubkey!("E4ZJX8hYhz5tDbFsUo1DinxHqt33aUsFQpe8dYjASm2F");
+pub const OWNERLESS_CLOSE_DESTINATION: Pubkey =
+    pubkey!("GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX");
 pub(crate) const RESIZE_AUTHORITY: Pubkey = pubkey!("ResizebfwTEZTLbHbctTByvXYECKTJQXnMWG8g9XLix");
 pub(crate) const RESIZE_DESTINATION: Pubkey =
     pubkey!("46mjNQBwXLCDCM7YiDQSPVdNZ4dLdZf79tTPRkT1wkF6");

@@ -20,7 +20,7 @@ import {
 } from '../../src';
 
 const closeDestination = publicKey(
-  'Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7'
+  'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
 );
 
 test.skip('it can close ownerless metadata for a non-fungible with zero supply', async (t) => {
