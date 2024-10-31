@@ -34,8 +34,6 @@ pub const DEFAULT_COLLECTION_DETAILS: Option<CollectionDetails> = {
     Some(CollectionDetails::V1 { size: 0 })
 };
 
-pub const SOLANA_CREATE_FEE: u64 = 10_000_000;
-
 pub fn program_test() -> ProgramTest {
     let mut program_test = ProgramTest::new("token_metadata", token_metadata::ID, None);
     program_test.add_program("spl_token_2022", spl_token_2022::ID, None);

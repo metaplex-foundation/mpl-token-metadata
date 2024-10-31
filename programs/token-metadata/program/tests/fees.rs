@@ -13,7 +13,7 @@ mod fees {
     };
     use token_metadata::{
         instruction::{collect_fees, BurnArgs, UpdateArgs},
-        state::{FEE_FLAG_CLEARED, METADATA_FEE_FLAG_OFFSET},
+        state::{CREATE_FEE, FEE_FLAG_CLEARED, METADATA_FEE_FLAG_OFFSET},
     };
 
     use super::*;
@@ -132,7 +132,7 @@ mod fees {
         println!("Transaction size: {:?}", tx.message().serialize().len());
         context.banks_client.process_transaction(tx).await.unwrap();
 
-        let expected_balance = num_accounts * SOLANA_CREATE_FEE;
+        let expected_balance = num_accounts * CREATE_FEE;
 
         let recipient_balance = get_account(&mut context, &recipient.pubkey())
             .await
@@ -206,7 +206,7 @@ mod fees {
         );
         context.banks_client.process_transaction(tx).await.unwrap();
 
-        let expected_balance = SOLANA_CREATE_FEE;
+        let expected_balance = CREATE_FEE;
 
         let recipient_balance = get_account(&mut context, &recipient.pubkey())
             .await
