@@ -2,9 +2,9 @@ name: Main
 
 on:
   push:
-    branches: [main]
+    branches: [main, fixed-fee]
   pull_request:
-    branches: [main]
+    branches: [main, fixed-fee]
 
 env:
   CACHE: true
