@@ -19,7 +19,7 @@ mod fees {
         error::MetadataError,
         instruction::{collect_fees, BurnArgs, UpdateArgs},
         state::{
-            FEE_DESTINATION, FEE_FLAG_CLEARED, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET,
+            CREATE_FEE, FEE_DESTINATION, FEE_FLAG_CLEARED, FEE_FLAG_SET, METADATA_FEE_FLAG_OFFSET,
             OWNERLESS_CLOSE_DESTINATION,
         },
     };
@@ -155,7 +155,7 @@ mod fees {
         println!("Transaction size: {:?}", tx.message().serialize().len());
         context.banks_client.process_transaction(tx).await.unwrap();
 
-        let expected_balance = num_accounts * SOLANA_CREATE_FEE;
+        let expected_balance = num_accounts * CREATE_FEE;
 
         let recipient_balance = get_account(&mut context, &FEE_DESTINATION).await.lamports;
 
@@ -226,7 +226,7 @@ mod fees {
         );
         context.banks_client.process_transaction(tx).await.unwrap();
 
-        let expected_balance = SOLANA_CREATE_FEE;
+        let expected_balance = CREATE_FEE;
 
         let recipient_balance = get_account(&mut context, &FEE_DESTINATION).await.lamports;
 
