@@ -22,7 +22,7 @@ mpl-token-auth-rules = { version = "=1.4.3-beta.1", features = [
   "no-entrypoint",
 ] }
 mpl-token-metadata-context-derive = { version = "0.3.0", path = "../macro" }
-mpl-utils = { version = "0.3.4", features = ["spl-token"] }
+mpl-utils = { version = "0.3.6", features = ["spl-token"] }
 num-derive = "0.3"
 num-traits = "0.2"
 serde = { version = "1.0.149", optional = true }
