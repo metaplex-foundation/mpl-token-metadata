@@ -122,10 +122,8 @@ pub fn process_resize<'a>(
         }
         // No need to check edition ownership since it is empty for fungibles.
 
-        // For fungibles, the update authority is the one who can resize the asset,
-        // so we need to check that the authority is the update authority of the metadata account.
-        // Or if the claim period is over, the authority is the resize authority.
-        if metadata.update_authority != *authority.key && authority.key != &RESIZE_AUTHORITY {
+        // For fungibles only the resize authority can resize the asset.
+        if authority.key != &RESIZE_AUTHORITY {
             return Err(MetadataError::UpdateAuthorityIncorrect.into());
         }
     }
