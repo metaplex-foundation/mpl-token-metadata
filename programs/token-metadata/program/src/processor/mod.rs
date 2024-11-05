@@ -168,7 +168,10 @@ pub fn process_instruction<'a>(
             msg!("IX: Resize");
             resize::process_resize(program_id, accounts)
         }
-        MetadataInstruction::CloseAccounts => close::process_close_accounts(program_id, accounts),
+        MetadataInstruction::CloseAccounts => {
+            msg!("IX: Close Accounts");
+            close::process_close_accounts(program_id, accounts)
+        }
         _ => {
             // pNFT accounts and SPL Token-2022 program can only be used by the "new" API; before
             // forwarding the transaction to the "legacy" processor we determine whether we are

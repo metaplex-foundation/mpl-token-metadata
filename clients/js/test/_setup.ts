@@ -1,10 +1,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import {
+  Context,
   generateSigner,
   percentAmount,
   publicKey,
   PublicKey,
   Signer,
+  TransactionBuilder,
   transactionBuilder,
   Umi,
 } from '@metaplex-foundation/umi';
@@ -17,6 +19,7 @@ import {
   TokenStandard,
   verifyCreatorV1,
 } from '../src';
+import { BurnTokenInstructionAccounts, BurnTokenInstructionArgs, BurnTokenInstructionDataArgs, getAccountMetasAndSigners, getBurnTokenInstructionDataSerializer, getSetAuthorityInstructionDataSerializer, ResolvedAccount, ResolvedAccountsWithIndices, SetAuthorityInstructionAccounts, SetAuthorityInstructionArgs, SetAuthorityInstructionDataArgs } from '@metaplex-foundation/mpl-toolbox';
 
 export type TokenStandardKeys = keyof typeof TokenStandard;
 
@@ -142,3 +145,91 @@ export const createDigitalAssetWithVerifiedCreators = async (
 
   return mint;
 };
+
+export function burnToken22(
+  context: Pick<Context, 'identity' | 'programs'>,
+  input: BurnTokenInstructionAccounts & BurnTokenInstructionArgs
+): TransactionBuilder {
+  // Program ID.
+  const programId = SPL_TOKEN_2022_PROGRAM_ID;
+
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    account: { index: 0, isWritable: true, value: input.account ?? null },
+    mint: { index: 1, isWritable: true, value: input.mint ?? null },
+    authority: { index: 2, isWritable: false, value: input.authority ?? null },
+  };
+
+  // Arguments.
+  const resolvedArgs: BurnTokenInstructionArgs = { ...input };
+
+  // Default values.
+  if (!resolvedAccounts.authority.value) {
+    resolvedAccounts.authority.value = context.identity;
+  }
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
+
+  // Data.
+  const data = getBurnTokenInstructionDataSerializer().serialize(
+    resolvedArgs as BurnTokenInstructionDataArgs
+  );
+
+  // Bytes Created On Chain.
+  const bytesCreatedOnChain = 0;
+
+  return transactionBuilder([
+    { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
+  ]);
+}
+
+export function setAuthority22(
+  context: Pick<Context, 'programs'>,
+  input: SetAuthorityInstructionAccounts & SetAuthorityInstructionArgs
+): TransactionBuilder {
+  // Program ID.
+  const programId = SPL_TOKEN_2022_PROGRAM_ID;
+
+  // Accounts.
+  const resolvedAccounts: ResolvedAccountsWithIndices = {
+    owned: { index: 0, isWritable: true, value: input.owned ?? null },
+    owner: { index: 1, isWritable: false, value: input.owner ?? null },
+  };
+
+  // Arguments.
+  const resolvedArgs: SetAuthorityInstructionArgs = { ...input };
+
+  // Accounts in order.
+  const orderedAccounts: ResolvedAccount[] = Object.values(
+    resolvedAccounts
+  ).sort((a, b) => a.index - b.index);
+
+  // Keys and Signers.
+  const [keys, signers] = getAccountMetasAndSigners(
+    orderedAccounts,
+    'programId',
+    programId
+  );
+
+  // Data.
+  const data = getSetAuthorityInstructionDataSerializer().serialize(
+    resolvedArgs as SetAuthorityInstructionDataArgs
+  );
+
+  // Bytes Created On Chain.
+  const bytesCreatedOnChain = 0;
+
+  return transactionBuilder([
+    { instruction: { keys, programId, data }, signers, bytesCreatedOnChain },
+  ]);
+}
