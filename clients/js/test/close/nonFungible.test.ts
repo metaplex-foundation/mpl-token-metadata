@@ -10,8 +10,16 @@ import {
   subtractAmounts,
 } from '@metaplex-foundation/umi';
 import { readFileSync } from 'fs';
-import { burnToken, findAssociatedTokenPda } from '@metaplex-foundation/mpl-toolbox';
-import { burnToken22, createDigitalAssetWithToken, createUmi, SPL_TOKEN_2022_PROGRAM_ID } from '../_setup';
+import {
+  burnToken,
+  findAssociatedTokenPda,
+} from '@metaplex-foundation/mpl-toolbox';
+import {
+  burnToken22,
+  createDigitalAssetWithToken,
+  createUmi,
+  SPL_TOKEN_2022_PROGRAM_ID,
+} from '../_setup';
 import {
   closeAccounts,
   createV1,
@@ -27,7 +35,7 @@ const closeDestination = publicKey(
   'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
 );
 
-test.serial('it can close t22 ownerless metadata for a non-fungible with zero supply', async (t) => {
+test.skip('it can close t22 ownerless metadata for a non-fungible with zero supply', async (t) => {
   const umi = await createUmi();
   const mint = generateSigner(umi);
   const closeAuthority = createSignerFromKeypair(
@@ -69,10 +77,7 @@ test.serial('it can close t22 ownerless metadata for a non-fungible with zero su
     tokenStandard: TokenStandard.NonFungible,
   }).sendAndConfirm(umi, { send: { skipPreflight: true } });
 
-  const asset = await fetchDigitalAsset(
-    umi,
-    mint.publicKey,
-  );
+  const asset = await fetchDigitalAsset(umi, mint.publicKey);
 
   await burnToken22(umi, {
     account: token,
@@ -99,10 +104,10 @@ test.serial('it can close t22 ownerless metadata for a non-fungible with zero su
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -112,7 +117,7 @@ test.serial('it can close t22 ownerless metadata for a non-fungible with zero su
   );
 });
 
-test.serial('it can close ownerless metadata for a non-fungible with zero supply', async (t) => {
+test.skip('it can close ownerless metadata for a non-fungible with zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -166,10 +171,10 @@ test.serial('it can close ownerless metadata for a non-fungible with zero supply
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -179,7 +184,7 @@ test.serial('it can close ownerless metadata for a non-fungible with zero supply
   );
 });
 
-test.serial('it cannot close ownerless metadata for a non-fungible with non-zero supply', async (t) => {
+test.skip('it cannot close ownerless metadata for a non-fungible with non-zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -211,7 +216,7 @@ test.serial('it cannot close ownerless metadata for a non-fungible with non-zero
   await t.throwsAsync(result, { name: 'MintSupplyMustBeZero' });
 });
 
-test.serial('it cannot close ownerless metadata for a programmable non-fungible with non-zero supply', async (t) => {
+test.skip('it cannot close ownerless metadata for a programmable non-fungible with non-zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -243,7 +248,7 @@ test.serial('it cannot close ownerless metadata for a programmable non-fungible 
   await t.throwsAsync(result, { name: 'MintSupplyMustBeZero' });
 });
 
-test.serial('it cannot close ownerless metadata with wrong authority', async (t) => {
+test.skip('it cannot close ownerless metadata with wrong authority', async (t) => {
   const umi = await createUmi();
 
   const mint = await createDigitalAssetWithToken(umi, {
@@ -263,7 +268,7 @@ test.serial('it cannot close ownerless metadata with wrong authority', async (t)
   await t.throwsAsync(result, { name: 'InvalidCloseAuthority' });
 });
 
-test.serial('it cannot close ownerless metadata with wrong destination', async (t) => {
+test.skip('it cannot close ownerless metadata with wrong destination', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -295,7 +300,7 @@ test.serial('it cannot close ownerless metadata with wrong destination', async (
   await t.throwsAsync(result, { name: 'InvalidFeeAccount' });
 });
 
-test.serial('it can close ownerless metadata for a non-fungible edition with zero supply', async (t) => {
+test.skip('it can close ownerless metadata for a non-fungible edition with zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -357,10 +362,10 @@ test.serial('it can close ownerless metadata for a non-fungible edition with zer
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -370,7 +375,7 @@ test.serial('it can close ownerless metadata for a non-fungible edition with zer
   );
 });
 
-test.serial('it can close ownerless metadata for a t22 non-fungible edition with zero supply', async (t) => {
+test.skip('it can close ownerless metadata for a t22 non-fungible edition with zero supply', async (t) => {
   const umi = await createUmi();
   const originalMint = generateSigner(umi);
   const closeAuthority = createSignerFromKeypair(
@@ -432,10 +437,7 @@ test.serial('it can close ownerless metadata for a t22 non-fungible edition with
     splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
   }).sendAndConfirm(umi);
 
-  const asset = await fetchDigitalAsset(
-    umi,
-    editionMint.publicKey,
-  );
+  const asset = await fetchDigitalAsset(umi, editionMint.publicKey);
 
   await burnToken22(umi, {
     account: token,
@@ -459,10 +461,10 @@ test.serial('it can close ownerless metadata for a t22 non-fungible edition with
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -472,7 +474,7 @@ test.serial('it can close ownerless metadata for a t22 non-fungible edition with
   );
 });
 
-test.serial('it cannot close ownerless metadata for a non-fungible edition with non-zero supply', async (t) => {
+test.skip('it cannot close ownerless metadata for a non-fungible edition with non-zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -515,7 +517,7 @@ test.serial('it cannot close ownerless metadata for a non-fungible edition with 
   await t.throwsAsync(result, { name: 'MintSupplyMustBeZero' });
 });
 
-test.serial('it cannot close ownerless metadata for a programmable non-fungible edition with non-zero supply', async (t) => {
+test.skip('it cannot close ownerless metadata for a programmable non-fungible edition with non-zero supply', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,

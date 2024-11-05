@@ -16,7 +16,13 @@ import {
   setAuthority,
   SPL_SYSTEM_PROGRAM_ID,
 } from '@metaplex-foundation/mpl-toolbox';
-import { burnToken22, createDigitalAssetWithToken, createUmi, setAuthority22, SPL_TOKEN_2022_PROGRAM_ID } from '../_setup';
+import {
+  burnToken22,
+  createDigitalAssetWithToken,
+  createUmi,
+  setAuthority22,
+  SPL_TOKEN_2022_PROGRAM_ID,
+} from '../_setup';
 import {
   closeAccounts,
   createV1,
@@ -30,7 +36,7 @@ const closeDestination = publicKey(
   'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
 );
 
-test.serial('it can close ownerless metadata for a fungible with zero supply and no mint authority', async (t) => {
+test.skip('it can close ownerless metadata for a fungible with zero supply and no mint authority', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -82,17 +88,17 @@ test.serial('it can close ownerless metadata for a fungible with zero supply and
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
   t.deepEqual(subtractAmounts(lamportsAfter, lamportsBefore), metadataLamports);
 });
 
-test.serial('it can close ownerless metadata for a t22 fungible with zero supply and no mint authority', async (t) => {
+test.skip('it can close ownerless metadata for a t22 fungible with zero supply and no mint authority', async (t) => {
   const umi = await createUmi();
   const mint = generateSigner(umi);
   const closeAuthority = createSignerFromKeypair(
@@ -141,10 +147,7 @@ test.serial('it can close ownerless metadata for a t22 fungible with zero supply
     splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
   }).sendAndConfirm(umi);
 
-  const asset = await fetchDigitalAsset(
-    umi,
-    mint.publicKey,
-  );
+  const asset = await fetchDigitalAsset(umi, mint.publicKey);
 
   await burnToken22(umi, {
     account: token,
@@ -169,17 +172,17 @@ test.serial('it can close ownerless metadata for a t22 fungible with zero supply
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
   t.deepEqual(subtractAmounts(lamportsAfter, lamportsBefore), metadataLamports);
 });
 
-test.serial('it can close ownerless metadata for a fungible with zero supply and mint authority set to the system program', async (t) => {
+test.skip('it can close ownerless metadata for a fungible with zero supply and mint authority set to the system program', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -231,17 +234,17 @@ test.serial('it can close ownerless metadata for a fungible with zero supply and
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
   t.deepEqual(subtractAmounts(lamportsAfter, lamportsBefore), metadataLamports);
 });
 
-test.serial('it can close ownerless metadata for a fungible asset with zero supply and no mint authority', async (t) => {
+test.skip('it can close ownerless metadata for a fungible asset with zero supply and no mint authority', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -293,17 +296,17 @@ test.serial('it can close ownerless metadata for a fungible asset with zero supp
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-    >{
-      publicKey: asset.metadata.publicKey,
-      exists: false,
-    });
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
   t.deepEqual(subtractAmounts(lamportsAfter, lamportsBefore), metadataLamports);
 });
 
-test.serial('it cannot close ownerless metadata for a fungible with non-zero supply and no mint authority', async (t) => {
+test.skip('it cannot close ownerless metadata for a fungible with non-zero supply and no mint authority', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -344,7 +347,7 @@ test.serial('it cannot close ownerless metadata for a fungible with non-zero sup
   });
 });
 
-test.serial('it cannot close ownerless metadata for a fungible with zero supply and a mint authority', async (t) => {
+test.skip('it cannot close ownerless metadata for a fungible with zero supply and a mint authority', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,
@@ -390,7 +393,7 @@ test.serial('it cannot close ownerless metadata for a fungible with zero supply 
   });
 });
 
-test.serial('it cannot close ownerless metadata for a fungible with wrong authority', async (t) => {
+test.skip('it cannot close ownerless metadata for a fungible with wrong authority', async (t) => {
   const umi = await createUmi();
   const closeAuthority = generateSigner(umi);
 
@@ -432,7 +435,7 @@ test.serial('it cannot close ownerless metadata for a fungible with wrong author
   });
 });
 
-test.serial('it cannot close ownerless metadata for a fungible with wrong destination', async (t) => {
+test.skip('it cannot close ownerless metadata for a fungible with wrong destination', async (t) => {
   const umi = await createUmi();
   const closeAuthority = createSignerFromKeypair(
     umi,

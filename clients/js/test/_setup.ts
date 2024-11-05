@@ -19,7 +19,19 @@ import {
   TokenStandard,
   verifyCreatorV1,
 } from '../src';
-import { BurnTokenInstructionAccounts, BurnTokenInstructionArgs, BurnTokenInstructionDataArgs, getAccountMetasAndSigners, getBurnTokenInstructionDataSerializer, getSetAuthorityInstructionDataSerializer, ResolvedAccount, ResolvedAccountsWithIndices, SetAuthorityInstructionAccounts, SetAuthorityInstructionArgs, SetAuthorityInstructionDataArgs } from '@metaplex-foundation/mpl-toolbox';
+import {
+  BurnTokenInstructionAccounts,
+  BurnTokenInstructionArgs,
+  BurnTokenInstructionDataArgs,
+  getAccountMetasAndSigners,
+  getBurnTokenInstructionDataSerializer,
+  getSetAuthorityInstructionDataSerializer,
+  ResolvedAccount,
+  ResolvedAccountsWithIndices,
+  SetAuthorityInstructionAccounts,
+  SetAuthorityInstructionArgs,
+  SetAuthorityInstructionDataArgs,
+} from '@metaplex-foundation/mpl-toolbox';
 
 export type TokenStandardKeys = keyof typeof TokenStandard;
 
