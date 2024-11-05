@@ -92,8 +92,7 @@ test.skip('it can close t22 ownerless metadata for a non-fungible with zero supp
   }
 
   const masterEditionLamports = await umi.rpc.getBalance(
-    // @ts-ignore
-    asset.edition.publicKey
+    asset.edition!.publicKey
   );
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
@@ -106,6 +105,12 @@ test.skip('it can close t22 ownerless metadata for a non-fungible with zero supp
     MaybeRpcAccount
   >{
     publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getAccount(asset.edition!.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.edition!.publicKey,
     exists: false,
   });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
@@ -159,8 +164,7 @@ test.skip('it can close ownerless metadata for a non-fungible with zero supply',
   }
 
   const masterEditionLamports = await umi.rpc.getBalance(
-    // @ts-ignore
-    asset.edition.publicKey
+    asset.edition!.publicKey
   );
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
@@ -351,8 +355,8 @@ test.skip('it can close ownerless metadata for a non-fungible edition with zero 
   if (asset.edition === undefined) {
     t.fail('Expected edition to exist');
   }
-  // @ts-ignore
-  const editionLamports = await umi.rpc.getBalance(asset.edition.publicKey);
+
+  const editionLamports = await umi.rpc.getBalance(asset.edition!.publicKey);
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
     mint: editionMint.publicKey,
@@ -450,8 +454,8 @@ test.skip('it can close ownerless metadata for a t22 non-fungible edition with z
   if (asset.edition === undefined) {
     t.fail('Expected edition to exist');
   }
-  // @ts-ignore
-  const editionLamports = await umi.rpc.getBalance(asset.edition.publicKey);
+
+  const editionLamports = await umi.rpc.getBalance(asset.edition!.publicKey);
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
     mint: editionMint.publicKey,
@@ -463,6 +467,12 @@ test.skip('it can close ownerless metadata for a t22 non-fungible edition with z
     MaybeRpcAccount
   >{
     publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getAccount(asset.edition!.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.edition!.publicKey,
     exists: false,
   });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
