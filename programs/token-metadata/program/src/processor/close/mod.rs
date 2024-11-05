@@ -1,6 +1,6 @@
 use mpl_utils::{assert_signer, close_account_raw, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{program_option::COption, program_pack::Pack, system_program};
-use spl_token_2022::state::Mint;
+use solana_program::{program_option::COption, system_program};
+use spl_token_2022::{extension::StateWithExtensions, state::Mint};
 
 use crate::{
     assertions::assert_owner_in,
@@ -58,7 +58,7 @@ pub(crate) fn process_close_accounts<'a>(
     let mint = if mint_closed {
         None
     } else {
-        Some(Mint::unpack(&ctx.accounts.mint_info.data.borrow())?)
+        Some(StateWithExtensions::<Mint>::unpack(&ctx.accounts.mint_info.data.borrow())?.base)
     };
     // Mint supply must be zero.
     if mint_closed

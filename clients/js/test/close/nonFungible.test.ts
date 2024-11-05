@@ -5,15 +5,27 @@ import {
   generateSigner,
   lamports,
   MaybeRpcAccount,
+  percentAmount,
   publicKey,
   subtractAmounts,
 } from '@metaplex-foundation/umi';
 import { readFileSync } from 'fs';
-import { burnToken } from '@metaplex-foundation/mpl-toolbox';
-import { createDigitalAssetWithToken, createUmi } from '../_setup';
+import {
+  burnToken,
+  findAssociatedTokenPda,
+} from '@metaplex-foundation/mpl-toolbox';
+import {
+  burnToken22,
+  createDigitalAssetWithToken,
+  createUmi,
+  SPL_TOKEN_2022_PROGRAM_ID,
+} from '../_setup';
 import {
   closeAccounts,
+  createV1,
+  fetchDigitalAsset,
   fetchDigitalAssetWithAssociatedToken,
+  mintV1,
   printSupply,
   printV1,
   TokenStandard,
@@ -22,6 +34,93 @@ import {
 const closeDestination = publicKey(
   'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
 );
+
+test.skip('it can close t22 ownerless metadata for a non-fungible with zero supply', async (t) => {
+  const umi = await createUmi();
+  const mint = generateSigner(umi);
+  const closeAuthority = createSignerFromKeypair(
+    umi,
+    umi.eddsa.createKeypairFromSecretKey(
+      new Uint8Array(
+        JSON.parse(
+          readFileSync(
+            '/Users/kelliott/Metaplex/keys/C1oseLQExhuEzeBhsVbLtseSpVgvpHDbBj3PTevBCEBh.json'
+          ).toString()
+        )
+      )
+    )
+  );
+
+  await createV1(umi, {
+    mint,
+    name: 'My NFT',
+    uri: 'https://example.com/my-nft.json',
+    tokenStandard: TokenStandard.NonFungible,
+    splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
+    sellerFeeBasisPoints: percentAmount(0),
+  }).sendAndConfirm(umi);
+
+  // And we derive the associated token account from SPL Token 2022.
+  const token = findAssociatedTokenPda(umi, {
+    mint: mint.publicKey,
+    owner: umi.identity.publicKey,
+    tokenProgramId: SPL_TOKEN_2022_PROGRAM_ID,
+  });
+
+  // When we mint one token.
+  await mintV1(umi, {
+    mint: mint.publicKey,
+    token,
+    tokenOwner: umi.identity.publicKey,
+    amount: 1,
+    splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
+    tokenStandard: TokenStandard.NonFungible,
+  }).sendAndConfirm(umi, { send: { skipPreflight: true } });
+
+  const asset = await fetchDigitalAsset(umi, mint.publicKey);
+
+  await burnToken22(umi, {
+    account: token,
+    mint: mint.publicKey,
+    amount: 1,
+  }).sendAndConfirm(umi);
+
+  const metadataLamports = await umi.rpc.getBalance(asset.metadata.publicKey);
+
+  if (asset.edition === undefined) {
+    t.fail('Expected edition to exist');
+  }
+
+  const masterEditionLamports = await umi.rpc.getBalance(
+    asset.edition!.publicKey
+  );
+  const lamportsBefore = await umi.rpc.getBalance(closeDestination);
+  await closeAccounts(umi, {
+    mint: mint.publicKey,
+    authority: closeAuthority,
+    destination: closeDestination,
+  }).sendAndConfirm(umi);
+
+  t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getAccount(asset.edition!.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.edition!.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
+
+  const lamportsAfter = await umi.rpc.getBalance(closeDestination);
+  t.deepEqual(
+    subtractAmounts(lamportsAfter, lamportsBefore),
+    addAmounts(metadataLamports, masterEditionLamports)
+  );
+});
 
 test.skip('it can close ownerless metadata for a non-fungible with zero supply', async (t) => {
   const umi = await createUmi();
@@ -65,8 +164,7 @@ test.skip('it can close ownerless metadata for a non-fungible with zero supply',
   }
 
   const masterEditionLamports = await umi.rpc.getBalance(
-    // @ts-ignore
-    asset.edition.publicKey
+    asset.edition!.publicKey
   );
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
@@ -257,8 +355,8 @@ test.skip('it can close ownerless metadata for a non-fungible edition with zero 
   if (asset.edition === undefined) {
     t.fail('Expected edition to exist');
   }
-  // @ts-ignore
-  const editionLamports = await umi.rpc.getBalance(asset.edition.publicKey);
+
+  const editionLamports = await umi.rpc.getBalance(asset.edition!.publicKey);
   const lamportsBefore = await umi.rpc.getBalance(closeDestination);
   await closeAccounts(umi, {
     mint: editionMint.publicKey,
@@ -270,6 +368,111 @@ test.skip('it can close ownerless metadata for a non-fungible edition with zero 
     MaybeRpcAccount
   >{
     publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
+
+  const lamportsAfter = await umi.rpc.getBalance(closeDestination);
+  t.deepEqual(
+    subtractAmounts(lamportsAfter, lamportsBefore),
+    addAmounts(metadataLamports, editionLamports)
+  );
+});
+
+test.skip('it can close ownerless metadata for a t22 non-fungible edition with zero supply', async (t) => {
+  const umi = await createUmi();
+  const originalMint = generateSigner(umi);
+  const closeAuthority = createSignerFromKeypair(
+    umi,
+    umi.eddsa.createKeypairFromSecretKey(
+      new Uint8Array(
+        JSON.parse(
+          readFileSync(
+            '/Users/kelliott/Metaplex/keys/C1oseLQExhuEzeBhsVbLtseSpVgvpHDbBj3PTevBCEBh.json'
+          ).toString()
+        )
+      )
+    )
+  );
+
+  await createV1(umi, {
+    mint: originalMint,
+    name: 'My NFT',
+    symbol: 'MNFT',
+    uri: 'https://example.com/nft.json',
+    printSupply: printSupply('Limited', [10]),
+    tokenStandard: TokenStandard.NonFungible,
+    splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
+    sellerFeeBasisPoints: percentAmount(0),
+  }).sendAndConfirm(umi);
+
+  const originalToken = findAssociatedTokenPda(umi, {
+    mint: originalMint.publicKey,
+    owner: umi.identity.publicKey,
+    tokenProgramId: SPL_TOKEN_2022_PROGRAM_ID,
+  });
+
+  await mintV1(umi, {
+    mint: originalMint.publicKey,
+    token: originalToken,
+    tokenOwner: umi.identity.publicKey,
+    amount: 1,
+    splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
+    tokenStandard: TokenStandard.NonFungible,
+  }).sendAndConfirm(umi);
+
+  // When we print a new edition of the asset.
+  const editionMint = generateSigner(umi);
+  const token = findAssociatedTokenPda(umi, {
+    mint: editionMint.publicKey,
+    owner: umi.identity.publicKey,
+    tokenProgramId: SPL_TOKEN_2022_PROGRAM_ID,
+  });
+
+  await printV1(umi, {
+    masterTokenAccountOwner: umi.identity,
+    masterEditionMint: originalMint.publicKey,
+    masterTokenAccount: originalToken,
+    editionMint,
+    editionTokenAccountOwner: umi.identity.publicKey,
+    editionTokenAccount: token,
+    editionNumber: 1,
+    tokenStandard: TokenStandard.NonFungible,
+    splTokenProgram: SPL_TOKEN_2022_PROGRAM_ID,
+  }).sendAndConfirm(umi);
+
+  const asset = await fetchDigitalAsset(umi, editionMint.publicKey);
+
+  await burnToken22(umi, {
+    account: token,
+    mint: editionMint.publicKey,
+    amount: 1,
+  }).sendAndConfirm(umi);
+
+  const metadataLamports = await umi.rpc.getBalance(asset.metadata.publicKey);
+
+  if (asset.edition === undefined) {
+    t.fail('Expected edition to exist');
+  }
+
+  const editionLamports = await umi.rpc.getBalance(asset.edition!.publicKey);
+  const lamportsBefore = await umi.rpc.getBalance(closeDestination);
+  await closeAccounts(umi, {
+    mint: editionMint.publicKey,
+    authority: closeAuthority,
+    destination: closeDestination,
+  }).sendAndConfirm(umi);
+
+  t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.metadata.publicKey,
+    exists: false,
+  });
+  t.deepEqual(await umi.rpc.getAccount(asset.edition!.publicKey), <
+    MaybeRpcAccount
+  >{
+    publicKey: asset.edition!.publicKey,
     exists: false,
   });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
