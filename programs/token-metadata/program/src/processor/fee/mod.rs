@@ -3,7 +3,10 @@ use num_traits::FromPrimitive;
 use solana_program::{account_info::next_account_info, rent::Rent, system_program, sysvar::Sysvar};
 
 use super::*;
-use crate::{state::fee::FEE_AUTHORITY, utils::fee::clear_fee_flag};
+use crate::{
+    state::fee::{FEE_AUTHORITY, FEE_DESTINATION},
+    utils::fee::clear_fee_flag,
+};
 
 pub(crate) fn process_collect_fees(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
@@ -17,6 +20,10 @@ pub(crate) fn process_collect_fees(program_id: &Pubkey, accounts: &[AccountInfo]
     }
 
     let recipient_info = next_account_info(account_info_iter)?;
+
+    if *recipient_info.key != FEE_DESTINATION {
+        return Err(MetadataError::InvalidFeeAccount.into());
+    }
 
     for account_info in account_info_iter {
         if account_info.owner != program_id {

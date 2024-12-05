@@ -34,7 +34,6 @@ pub(crate) fn process_close_accounts<'a>(
     }
 
     // Assert the correct destination is set.
-    // TODO: This should be replaced by destination address.
     if *ctx.accounts.destination_info.key != OWNERLESS_CLOSE_DESTINATION {
         return Err(MetadataError::InvalidFeeAccount.into());
     }

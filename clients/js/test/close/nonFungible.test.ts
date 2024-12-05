@@ -20,7 +20,7 @@ import {
 } from '../../src';
 
 const closeDestination = publicKey(
-  'Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7'
+  'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
 );
 
 test.skip('it can close ownerless metadata for a non-fungible with zero supply', async (t) => {
@@ -77,10 +77,10 @@ test.skip('it can close ownerless metadata for a non-fungible with zero supply',
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-  >{
-    publicKey: asset.metadata.publicKey,
-    exists: false,
-  });
+    >{
+      publicKey: asset.metadata.publicKey,
+      exists: false,
+    });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -268,10 +268,10 @@ test.skip('it can close ownerless metadata for a non-fungible edition with zero 
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-  >{
-    publicKey: asset.metadata.publicKey,
-    exists: false,
-  });
+    >{
+      publicKey: asset.metadata.publicKey,
+      exists: false,
+    });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);

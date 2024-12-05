@@ -65,7 +65,7 @@ jobs:
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
         with:
-          toolchain: "1.76.0"
+          toolchain: "1.79.0"
 
       - name: Install cargo-release
         uses: metaplex-foundation/actions/install-cargo-release@v1.0.2
