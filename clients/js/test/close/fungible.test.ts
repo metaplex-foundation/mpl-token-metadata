@@ -77,10 +77,10 @@ test.skip('it can close ownerless metadata for a fungible with zero supply and n
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-  >{
-    publicKey: asset.metadata.publicKey,
-    exists: false,
-  });
+    >{
+      publicKey: asset.metadata.publicKey,
+      exists: false,
+    });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -139,10 +139,10 @@ test.skip('it can close ownerless metadata for a fungible with zero supply and m
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-  >{
-    publicKey: asset.metadata.publicKey,
-    exists: false,
-  });
+    >{
+      publicKey: asset.metadata.publicKey,
+      exists: false,
+    });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);
@@ -201,10 +201,10 @@ test.skip('it can close ownerless metadata for a fungible asset with zero supply
 
   t.deepEqual(await umi.rpc.getAccount(asset.metadata.publicKey), <
     MaybeRpcAccount
-  >{
-    publicKey: asset.metadata.publicKey,
-    exists: false,
-  });
+    >{
+      publicKey: asset.metadata.publicKey,
+      exists: false,
+    });
   t.deepEqual(await umi.rpc.getBalance(asset.metadata.publicKey), lamports(0));
 
   const lamportsAfter = await umi.rpc.getBalance(closeDestination);

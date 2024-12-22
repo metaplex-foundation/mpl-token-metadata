@@ -240,6 +240,30 @@ impl Metadata {
         #[cfg(feature = "padded")]
         upsize_metadata(context, &self.pubkey).await;
 
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(self.pubkey)
+                    .edition(find_master_edition_account(&self.mint.pubkey()).0)
+                    .mint(self.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(self.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, self.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+        }
+
         Ok(())
     }
 
@@ -315,6 +339,30 @@ impl Metadata {
 
         #[cfg(feature = "padded")]
         upsize_metadata(context, &self.pubkey).await;
+
+        #[cfg(feature = "resize")]
+        {
+            let tx = Transaction::new_signed_with_payer(
+                &[ResizeBuilder::new()
+                    .metadata(self.pubkey)
+                    .edition(find_master_edition_account(&self.mint.pubkey()).0)
+                    .mint(self.mint.pubkey())
+                    .payer(context.payer.pubkey())
+                    .authority(context.payer.pubkey())
+                    .token(self.token.pubkey())
+                    .system_program(solana_program::system_program::ID)
+                    .build()
+                    .unwrap()
+                    .instruction()],
+                Some(&context.payer.pubkey()),
+                &[&context.payer],
+                context.last_blockhash,
+            );
+
+            assert_before_metadata(context, self.pubkey).await;
+            context.banks_client.process_transaction(tx).await?;
+            assert_after_metadata(context, self.pubkey).await;
+        }
 
         Ok(())
     }
