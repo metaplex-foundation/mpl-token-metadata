@@ -6,7 +6,7 @@ license-file = "../../LICENSE"
 name = "mpl-token-metadata"
 readme = "README.md"
 repository = "https://github.com/metaplex-foundation/mpl-token-metadata"
-version = "5.0.0-beta.0"
+version = "5.1.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]

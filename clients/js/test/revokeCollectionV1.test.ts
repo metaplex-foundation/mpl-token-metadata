@@ -49,3 +49,41 @@ NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
     t.false(await umi.rpc.accountExists(metadataDelegateRecord));
   });
 });
+
+NON_EDITION_TOKEN_STANDARDS.forEach((tokenStandard) => {
+  test(`it can self-revoke a collection delegate for a ${tokenStandard}`, async (t) => {
+    // Given an asset with an approved collection delegate.
+    const umi = await createUmi();
+    const updateAuthority = generateSigner(umi);
+    const { publicKey: mint } = await createDigitalAssetWithToken(umi, {
+      authority: updateAuthority,
+      tokenStandard: TokenStandard[tokenStandard],
+    });
+    const collectionDelegate = generateSigner(umi);
+    await delegateCollectionV1(umi, {
+      mint,
+      authority: updateAuthority,
+      delegate: collectionDelegate.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    }).sendAndConfirm(umi);
+    const [metadataDelegateRecord] = findMetadataDelegateRecordPda(umi, {
+      mint,
+      delegateRole: MetadataDelegateRole.Collection,
+      delegate: collectionDelegate.publicKey,
+      updateAuthority: updateAuthority.publicKey,
+    });
+    t.true(await umi.rpc.accountExists(metadataDelegateRecord));
+
+    // When we revoke the collection delegate.
+    await revokeCollectionV1(umi, {
+      mint,
+      authority: collectionDelegate,
+      updateAuthority: updateAuthority.publicKey,
+      delegate: collectionDelegate.publicKey,
+      tokenStandard: TokenStandard[tokenStandard],
+    }).sendAndConfirm(umi);
+
+    // Then the metadata delegate record was deleted.
+    t.false(await umi.rpc.accountExists(metadataDelegateRecord));
+  });
+});
