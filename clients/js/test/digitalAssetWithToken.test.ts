@@ -70,7 +70,8 @@ test('it can fetch a DigitalAssetWithToken from its mint only', async (t) => {
   // When we fetch a DigitalAssetWithToken using only its mint address.
   const digitalAsset = await fetchDigitalAssetWithTokenByMint(
     umi,
-    mint.publicKey
+    mint.publicKey,
+    { commitment: 'processed' }
   );
 
   // Then we get the expected digital asset.
@@ -214,7 +215,8 @@ test('it can fetch all DigitalAssetWithToken by mint', async (t) => {
   // When we fetch all DigitalAssetWithToken associated with the SFT.
   const digitalAssets = await fetchAllDigitalAssetWithTokenByMint(
     umi,
-    mintU.publicKey
+    mintU.publicKey,
+    { commitment: 'processed' }
   );
 
   // Then we get the two DigitalAssetWithToken owned by A and B from mint U.
