@@ -57,7 +57,10 @@ import fs from "node:fs";
 // Paths.
 const clientDir = path.join(__dirname, "..", "clients");
 
-const json = fs.readFileSync(path.join(__dirname, "..", "idls", "token_metadata.json"), "utf8");
+const json = fs.readFileSync(
+  path.join(__dirname, "..", "idls", "token_metadata.json"),
+  "utf8"
+);
 
 // Initialize codama.
 const codama = createFromRoot(rootNodeFromAnchor(JSON.parse(json)));
@@ -245,15 +248,14 @@ codama.update(
 //     pdaSeedValueNode("owner", accountValueNode(owner)),
 //   ]);
 
-codama.update(bottomUpTransformerVisitor([
-  {
-    //first transform
-    select: '[rootNode]',
-    transform: (node) => {
-      assertIsNode(node, 'rootNode');
-      return rootNode(
-        node.program,
-        [
+codama.update(
+  bottomUpTransformerVisitor([
+    {
+      //first transform
+      select: "[rootNode]",
+      transform: (node) => {
+        assertIsNode(node, "rootNode");
+        return rootNode(node.program, [
           ...node.additionalPrograms,
           programNode({
             name: "associatedToken",
@@ -267,24 +269,25 @@ codama.update(bottomUpTransformerVisitor([
                   variablePdaSeedNode("owner", publicKeyTypeNode()),
                   variablePdaSeedNode("tokenProgram", publicKeyTypeNode()),
                   variablePdaSeedNode("mint", publicKeyTypeNode()),
-                ]
-              })
-            ]
-
-          })
-        ])
+                ],
+              }),
+            ],
+          }),
+        ]);
+      },
     },
-  }
-]))
+  ])
+);
 
 const ataPdaDefault = (mint = "mint", owner = "owner") =>
-  pdaValueNode((pdaLinkNode('associatedToken', 'associatedToken')),
-    [
-      pdaSeedValueNode("owner", accountValueNode(owner)),
-      pdaSeedValueNode("tokenProgram", publicKeyValueNode("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")),
-      pdaSeedValueNode("mint", accountValueNode(mint)),
-    ],
-  );
+  pdaValueNode(pdaLinkNode("associatedToken", "associatedToken"), [
+    pdaSeedValueNode("owner", accountValueNode(owner)),
+    pdaSeedValueNode(
+      "tokenProgram",
+      publicKeyValueNode("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL")
+    ),
+    pdaSeedValueNode("mint", accountValueNode(mint)),
+  ]);
 
 codama.update(
   updateInstructionsVisitor({
@@ -520,6 +523,12 @@ codama.update(
             [
               pdaSeedValueNode("mint", accountValueNode("mint")),
               pdaSeedValueNode("owner", argumentValueNode("tokenOwner")),
+              pdaSeedValueNode(
+                "tokenProgram",
+                publicKeyValueNode(
+                  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+                )
+              ),
             ]
           ),
         },
@@ -1135,7 +1144,9 @@ codama.update(
 // Render JavaScript.
 const jsDirWeb3js2 = path.join(clientDir, "js", "web3js2", "src", "generated");
 // const jsDirUmi = path.join(clientDir, "js", "umi", "src", "generated");
-const prettier = require(path.join(clientDir, "js", "web3js2", ".prettierrc.json"));
+const prettier = require(
+  path.join(clientDir, "js", "web3js2", ".prettierrc.json")
+);
 
 codama.accept(
   renderJavaScriptVisitor(jsDirWeb3js2, { prettierOptions: prettier })

@@ -7,6 +7,7 @@
  */
 
 import {
+  address,
   combineCodec,
   getStructDecoder,
   getStructEncoder,
@@ -338,6 +339,7 @@ export async function getBurnV1InstructionAsync<
     accounts.token.value = await findAssociatedTokenPda({
       mint: expectAddress(accounts.mint.value),
       owner: expectSome(args.tokenOwner),
+      tokenProgram: address('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'),
     });
   }
   if (!accounts.masterEdition.value) {
