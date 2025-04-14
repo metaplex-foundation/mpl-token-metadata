@@ -6,6 +6,17 @@ pub(crate) mod metadata;
 pub(crate) mod programmable_asset;
 pub(crate) mod token;
 
+use arch_program::{
+    account::AccountInfo,
+    entrypoint::ProgramResult,
+    program::{invoke, invoke_signed},
+    program_error::ProgramError,
+    pubkey,
+    pubkey::Pubkey,
+    rent::Rent,
+    system_instruction,
+    sysvar::Sysvar,
+};
 pub use collection::*;
 pub use compression::*;
 pub use master_edition::*;
@@ -22,17 +33,6 @@ pub use mpl_utils::{
     },
 };
 pub use programmable_asset::*;
-use solana_program::{
-    account_info::AccountInfo,
-    entrypoint::ProgramResult,
-    program::{invoke, invoke_signed},
-    program_error::ProgramError,
-    pubkey,
-    pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::Sysvar,
-};
 use spl_token_2022::{
     extension::{BaseState, StateWithExtensions},
     instruction::{set_authority, AuthorityType},
@@ -76,12 +76,12 @@ pub fn unpack_initialized<S: BaseState>(account_data: &[u8]) -> Result<S, Progra
 
 pub fn check_token_standard(
     mint_info: &AccountInfo,
-    edition_account_info: Option<&AccountInfo>,
+    edition_account: Option<&AccountInfo>,
 ) -> Result<TokenStandard, ProgramError> {
     let mint_decimals = get_mint_decimals(mint_info)?;
     let mint_supply = get_mint_supply(mint_info)?;
 
-    match edition_account_info {
+    match edition_account {
         Some(edition) => {
             if is_master_edition(edition, mint_decimals, mint_supply) {
                 Ok(TokenStandard::NonFungible)
@@ -108,21 +108,21 @@ pub fn mint_decimals_is_zero(mint_info: &AccountInfo) -> Result<bool, ProgramErr
 }
 
 pub fn is_master_edition(
-    edition_account_info: &AccountInfo,
+    edition_account: &AccountInfo,
     mint_decimals: u8,
     mint_supply: u64,
 ) -> bool {
-    let is_correct_type = MasterEditionV2::from_account_info(edition_account_info).is_ok();
+    let is_correct_type = MasterEditionV2::from_account(edition_account).is_ok();
 
     is_correct_type && mint_decimals == 0 && mint_supply == 1
 }
 
 pub fn is_print_edition(
-    edition_account_info: &AccountInfo,
+    edition_account: &AccountInfo,
     mint_decimals: u8,
     mint_supply: u64,
 ) -> bool {
-    let is_correct_type = Edition::from_account_info(edition_account_info).is_ok();
+    let is_correct_type = Edition::from_account(edition_account).is_ok();
 
     is_correct_type && mint_decimals == 0 && mint_supply == 1
 }
@@ -149,7 +149,7 @@ pub fn puffed_out_string(s: &str, size: usize) -> String {
 
 pub fn transfer_mint_authority<'a>(
     edition_key: &Pubkey,
-    edition_account_info: &AccountInfo<'a>,
+    edition_account: &AccountInfo<'a>,
     mint_info: &AccountInfo<'a>,
     mint_authority_info: &AccountInfo<'a>,
     token_program_info: &AccountInfo<'a>,
@@ -158,7 +158,7 @@ pub fn transfer_mint_authority<'a>(
         mint_authority_info.clone(),
         mint_info.clone(),
         token_program_info.clone(),
-        edition_account_info.clone(),
+        edition_account.clone(),
     ];
     invoke_signed(
         &set_authority(
@@ -222,8 +222,8 @@ pub fn zero_account(s: &str, size: usize) -> String {
 }
 
 pub(crate) fn close_program_account<'a>(
-    account_info: &AccountInfo<'a>,
-    funds_dest_account_info: &AccountInfo<'a>,
+    account: &AccountInfo<'a>,
+    funds_dest_account: &AccountInfo<'a>,
     key: Key,
 ) -> ProgramResult {
     let rent = Rent::get()?;
@@ -231,33 +231,33 @@ pub(crate) fn close_program_account<'a>(
     let rent_lamports = match key {
         // Metadata accounts could have fees stored, so we only want to withdraw
         // the actual rent lamport amount.
-        Key::MetadataV1 => rent.minimum_balance(account_info.data_len()),
+        Key::MetadataV1 => rent.minimum_balance(account.data_len()),
         // Other accounts the rent is just the current lamport balance.
-        _ => account_info.lamports(),
+        _ => account.lamports(),
     };
 
-    let remaining_lamports = account_info
+    let remaining_lamports = account
         .lamports()
         .checked_sub(rent_lamports)
         .ok_or(MetadataError::NumericalOverflowError)?;
 
     // Transfer lamports from the account to the destination account.
-    let dest_starting_lamports = funds_dest_account_info.lamports();
-    **funds_dest_account_info.lamports.borrow_mut() = dest_starting_lamports
+    let dest_starting_lamports = funds_dest_account.lamports();
+    **funds_dest_account.lamports.borrow_mut() = dest_starting_lamports
         .checked_add(rent_lamports)
         .ok_or(MetadataError::NumericalOverflowError)?;
-    **account_info.lamports.borrow_mut() = remaining_lamports;
+    **account.lamports.borrow_mut() = remaining_lamports;
 
     // If the account does not have fees on it, we realloc the data length to zero
     // and assign ownership to the system program.
     if remaining_lamports == 0 {
-        account_info.realloc(0, false)?;
-        account_info.assign(&solana_program::system_program::ID);
+        account.realloc(0, false)?;
+        account.assign(&arch_program::system_program::ID);
     } else {
         // Otherwise, we realloc to a data length of one and set the byte to 0 so the
         // discriminator for the account is `Uninitialized`
-        account_info.realloc(1, false)?;
-        account_info.data.borrow_mut()[0] = 0;
+        account.realloc(1, false)?;
+        account.data.borrow_mut()[0] = 0;
     }
 
     Ok(())
@@ -278,7 +278,7 @@ pub(crate) fn resize_with_offset<'a>(
     let rent = Rent::get()?;
     let new_minimum_balance = rent.minimum_balance(new_size);
     let current_minimum_balance = rent.minimum_balance(target_account.data_len());
-    let account_infos = &[
+    let accounts = &[
         funding_account.clone(),
         target_account.clone(),
         system_program.clone(),
@@ -288,7 +288,7 @@ pub(crate) fn resize_with_offset<'a>(
         let lamports_diff = new_minimum_balance.saturating_sub(current_minimum_balance);
         invoke(
             &system_instruction::transfer(funding_account.key, target_account.key, lamports_diff),
-            account_infos,
+            accounts,
         )?;
     } else {
         // return lamports to the compressor
@@ -305,7 +305,7 @@ pub(crate) fn resize_with_offset<'a>(
 
 #[cfg(test)]
 mod tests {
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
 
     use crate::utils::{
         metadata::tests::{expected_pesky_metadata, pesky_data},

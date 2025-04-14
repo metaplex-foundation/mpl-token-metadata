@@ -1,5 +1,6 @@
 use super::*;
-use solana_program::{rent::Rent, sysvar::Sysvar};
+use crate::pubkey;
+use arch_program::{rent::Rent, sysvar::Sysvar};
 
 pub(crate) const FEE_AUTHORITY: Pubkey = pubkey!("Levytx9LLPzAtDJJD7q813Zsm8zg9e1pb53mGxTKpD7");
 pub const FEE_DESTINATION: Pubkey = pubkey!("2fb1TjRrJQLy9BkYfBjcYgibV7LUsr9cf6QxvyRZyuXn");

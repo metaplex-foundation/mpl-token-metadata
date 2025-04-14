@@ -64,7 +64,7 @@ impl UseAuthorityRecord {
 
 #[cfg(test)]
 mod tests {
-    use solana_program::account_info::AccountInfo;
+    use arch_program::account::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
     use crate::{
@@ -86,7 +86,7 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
@@ -97,7 +97,7 @@ mod tests {
             1_000_000_000,
         );
 
-        let data = UseAuthorityRecord::from_account_info(&account_info).unwrap();
+        let data = UseAuthorityRecord::from_account(&account).unwrap();
         assert_eq!(data.key, Key::UseAuthorityRecord);
         assert_eq!(data, expected_data);
     }
@@ -114,7 +114,7 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
@@ -125,7 +125,7 @@ mod tests {
             1_000_000_000,
         );
 
-        let error = UseAuthorityRecord::from_account_info(&account_info).unwrap_err();
+        let error = UseAuthorityRecord::from_account(&account).unwrap_err();
         assert_eq!(error, MetadataError::DataTypeMismatch.into());
     }
 }

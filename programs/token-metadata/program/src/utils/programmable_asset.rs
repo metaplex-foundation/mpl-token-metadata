@@ -1,12 +1,12 @@
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
+    program_error::ProgramError, program_option::COption, pubkey::Pubkey,
+};
 use mpl_token_auth_rules::{
     instruction::{builders::ValidateBuilder, InstructionBuilder, ValidateArgs},
     payload::PayloadType,
 };
 use mpl_utils::{create_or_allocate_account_raw, token::TokenTransferCheckedParams};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed,
-    program_error::ProgramError, program_option::COption, pubkey::Pubkey,
-};
 use spl_token_2022::{
     instruction::{freeze_account, thaw_account, AuthorityType as SplAuthorityType},
     state::Account,
@@ -39,7 +39,7 @@ pub fn create_token_record_account<'a>(
 
     let mut signer_seeds = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         mint_info.key.as_ref(),
         TOKEN_RECORD_SEED.as_bytes(),
         token_info.key.as_ref(),
@@ -80,18 +80,18 @@ pub fn freeze<'a>(
 ) -> ProgramResult {
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         mint.key.as_ref(),
         EDITION.as_bytes(),
     ]);
     let bump = match edition_bump {
         Some(bump) => {
             assert_derivation_with_bump(
-                &crate::ID,
+                &crate::id(),
                 &edition,
                 &[
                     PREFIX.as_bytes(),
-                    crate::ID.as_ref(),
+                    crate::id().as_ref(),
                     mint.key.as_ref(),
                     EDITION.as_bytes(),
                     &[bump],
@@ -99,7 +99,7 @@ pub fn freeze<'a>(
             )?;
             Ok(bump)
         }
-        None => assert_derivation(&crate::ID, &edition, &edition_info_path),
+        None => assert_derivation(&crate::id(), &edition, &edition_info_path),
     }?;
     let mut edition_info_seeds = edition_info_path;
     let binding = [bump];
@@ -122,18 +122,18 @@ pub fn thaw<'a>(
 ) -> ProgramResult {
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
     let bump = match edition_bump {
         Some(bump) => {
             assert_derivation_with_bump(
-                &crate::ID,
+                &crate::id(),
                 &edition_info,
                 &[
                     PREFIX.as_bytes(),
-                    crate::ID.as_ref(),
+                    crate::id().as_ref(),
                     mint_info.key.as_ref(),
                     EDITION.as_bytes(),
                     &[bump],
@@ -141,7 +141,7 @@ pub fn thaw<'a>(
             )?;
             Ok(bump)
         }
-        None => assert_derivation(&crate::ID, &edition_info, &edition_info_path),
+        None => assert_derivation(&crate::id(), &edition_info, &edition_info_path),
     }?;
     let binding = [bump];
     let edition_info_seeds = [edition_info_path, vec![&binding]].concat();
@@ -187,9 +187,9 @@ pub fn validate<'a>(
         .map_err(|_error| MetadataError::InvalidAuthorizationRules)?
         .instruction();
 
-    let mut account_infos = vec![ruleset.clone(), mint_info.clone()];
-    account_infos.extend(additional_rule_accounts.into_iter().cloned());
-    invoke_signed(&validate_ix, account_infos.as_slice(), &[])
+    let mut accounts = vec![ruleset.clone(), mint_info.clone()];
+    accounts.extend(additional_rule_accounts.into_iter().cloned());
+    invoke_signed(&validate_ix, accounts.as_slice(), &[])
 }
 
 #[derive(Debug, Clone)]
@@ -397,17 +397,17 @@ pub(crate) fn clear_close_authority(params: ClearCloseAuthorityParams) -> Progra
             Pubkey::find_program_address(
                 &[
                     PREFIX.as_bytes(),
-                    crate::ID.as_ref(),
+                    crate::id().as_ref(),
                     mint_info.key.as_ref(),
                     EDITION.as_bytes(),
                 ],
-                &crate::ID,
+                &crate::id(),
             )
             .1,
         );
         let seeds = &[
             PREFIX.as_bytes(),
-            crate::ID.as_ref(),
+            crate::id().as_ref(),
             mint_info.key.as_ref(),
             EDITION.as_bytes(),
             &[bump],

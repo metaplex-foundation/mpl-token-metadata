@@ -44,19 +44,19 @@ pub(crate) fn burn_nonfungible(ctx: &Context<Burn>, args: BurnNonFungibleArgs) -
     // Has a valid Master Edition or Print Edition.
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
 
     let bump = match args.metadata.edition_nonce {
         Some(bump) => Ok(bump),
-        None => assert_derivation(&crate::ID, edition_info, &edition_info_path),
+        None => assert_derivation(&crate::id(), edition_info, &edition_info_path),
     }?;
 
     let edition_seeds = &[
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
         &[bump],
@@ -124,10 +124,10 @@ pub(crate) fn burn_nonfungible(ctx: &Context<Burn>, args: BurnNonFungibleArgs) -
                     return Err(MetadataError::NotAMemberOfCollection.into());
                 }
             } else {
-                assert_owned_by(collection_metadata_info, &crate::ID)?;
+                assert_owned_by(collection_metadata_info, &crate::id())?;
 
                 let mut collection_metadata =
-                    Metadata::from_account_info(collection_metadata_info)?;
+                    Metadata::from_account(collection_metadata_info)?;
 
                 if collection_metadata.mint != collection.key {
                     return Err(MetadataError::NotAMemberOfCollection.into());

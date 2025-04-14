@@ -1,4 +1,4 @@
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{
@@ -8,7 +8,7 @@ use crate::{
         uses::assert_valid_use,
     },
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{DataV2, Metadata, TokenMetadataAccount},
     utils::{metadata::clean_write_metadata, puff_out_data_fields},
 };
@@ -22,11 +22,11 @@ pub fn process_update_metadata_accounts_v2(
     primary_sale_happened: Option<bool>,
     is_mutable: Option<bool>,
 ) -> ProgramResult {
-    all_account_infos!(accounts, metadata_account_info, update_authority_info);
+    all_accounts!(accounts, metadata_account, update_authority_info);
 
-    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let mut metadata = Metadata::from_account(metadata_account)?;
 
-    assert_owned_by(metadata_account_info, program_id)?;
+    assert_owned_by(metadata_account, program_id)?;
     assert_update_authority_is_correct(&metadata, update_authority_info)?;
 
     if let Some(data) = optional_data {
@@ -85,5 +85,5 @@ pub fn process_update_metadata_accounts_v2(
     }
 
     puff_out_data_fields(&mut metadata);
-    clean_write_metadata(&mut metadata, metadata_account_info)
+    clean_write_metadata(&mut metadata, metadata_account)
 }

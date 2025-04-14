@@ -1,12 +1,12 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use utils::*;
 
 mod fees {
     use num_traits::FromPrimitive;
-    use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
+    use arch_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
     use solana_sdk::{
         instruction::InstructionError,
         pubkey,

@@ -5,8 +5,8 @@ pub mod utils;
 use mpl_token_auth_rules::payload::{PayloadType, SeedsVec};
 use num_traits::FromPrimitive;
 use rooster::instruction::DelegateArgs as RoosterDelegateArgs;
-use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
-use solana_program_test::*;
+use arch_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
@@ -23,7 +23,7 @@ use utils::*;
 mod standard_transfer {
 
     use mpl_utils::token::unpack;
-    use solana_program::{native_token::LAMPORTS_PER_SOL, program_option::COption, pubkey::Pubkey};
+    use arch_program::{native_token::LAMPORTS_PER_SOL, program_option::COption, pubkey::Pubkey};
     use token_metadata::{
         error::MetadataError,
         instruction::{DelegateArgs, TransferArgs},

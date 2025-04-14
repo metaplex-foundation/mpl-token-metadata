@@ -1,5 +1,5 @@
 use super::*;
-
+use std::io::{Read, Write};
 pub const MAX_EDITION_LEN: usize = 1 + 32 + 8 + 1;
 
 // The last byte of the account contains the token standard value for
@@ -9,7 +9,7 @@ pub const EDITION_TOKEN_STANDARD_OFFSET: usize = 1;
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, BorshSerialize, BorshDeserialize, ShankAccount)]
+#[derive(Clone, Debug, PartialEq, Eq, ShankAccount)]
 /// All Editions should never have a supply greater than 1.
 /// To enforce this, a transfer mint authority instruction will happen when
 /// a normal token is turned into an Edition, and in order for a Metadata update authority
@@ -23,6 +23,34 @@ pub struct Edition {
 
     /// Starting at 0 for master record, this is incremented for each edition minted.
     pub edition: u64,
+}
+
+impl BorshSerialize for Edition {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W)
+        -> std::result::Result<(), borsh::maybestd::io::Error>
+    {
+        self.key.serialize(writer)?;
+        writer.write_all(self.parent.as_ref())?;
+        self.edition.serialize(writer)?;
+        Ok(())
+    }
+}
+
+impl BorshDeserialize for Edition {
+    fn deserialize(buf: &mut &[u8])
+        -> std::result::Result<Self, borsh::maybestd::io::Error>
+    {
+        let key = Key::deserialize(buf)?;
+        let mut arr = [0u8; 32];
+        buf.read_exact(&mut arr)?;
+        let parent = Pubkey::from_slice(&arr);
+        let edition = u64::deserialize(buf)?;
+        Ok(Self {
+            key,
+            parent,
+            edition,
+        })
+    }
 }
 
 impl Default for Edition {
@@ -47,7 +75,7 @@ impl TokenMetadataAccount for Edition {
 
 #[cfg(test)]
 mod tests {
-    use solana_program::account_info::AccountInfo;
+    use arch_program::account::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
     use crate::{
@@ -69,18 +97,17 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
             &mut lamports,
             &mut data,
             owner,
-            false,
             1_000_000_000,
         );
 
-        let data = Edition::from_account_info(&account_info).unwrap();
+        let data = Edition::from_account(&account).unwrap();
         assert_eq!(data.key, Key::EditionV1);
         assert_eq!(data, expected_data);
     }
@@ -98,18 +125,17 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
             &mut lamports,
             &mut data,
             owner,
-            false,
             1_000_000_000,
         );
 
-        let error = Edition::from_account_info(&account_info).unwrap_err();
+        let error = Edition::from_account(&account).unwrap_err();
         assert_eq!(error, MetadataError::DataTypeMismatch.into());
     }
 }

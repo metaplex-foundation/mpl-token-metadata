@@ -1,13 +1,13 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use utils::*;
 
 mod utility {
 
     use borsh::BorshDeserialize;
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
     use solana_sdk::signature::{Keypair, Signer};
     use spl_token_2022::state::Account;
     use token_metadata::{

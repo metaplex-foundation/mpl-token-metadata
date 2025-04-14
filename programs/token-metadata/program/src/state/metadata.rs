@@ -1,5 +1,3 @@
-use spl_token_2022::state::Account;
-
 use super::*;
 use crate::{
     assertions::{
@@ -12,6 +10,8 @@ use crate::{
         puff_out_data_fields,
     },
 };
+use spl_token_2022::state::Account;
+use std::io::{Read, Write};
 
 pub const MAX_NAME_LENGTH: usize = 32;
 
@@ -51,11 +51,11 @@ pub const METADATA_FEE_FLAG_OFFSET: usize = 1;
 #[macro_export]
 macro_rules! metadata_seeds {
     ($mint:expr) => {{
-        let path = vec!["metadata".as_bytes(), $crate::ID.as_ref(), $mint.as_ref()];
-        let (_, bump) = Pubkey::find_program_address(&path, &$crate::ID);
+        let path = vec!["metadata".as_bytes(), $crate::id().as_ref(), $mint.as_ref()];
+        let (_, bump) = Pubkey::find_program_address(&path, &$crate::id());
         &[
             "metadata".as_bytes(),
-            $crate::ID.as_ref(),
+            $crate::id().as_ref(),
             $mint.as_ref(),
             &[bump],
         ]
@@ -64,7 +64,7 @@ macro_rules! metadata_seeds {
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(Clone, BorshSerialize, Debug, PartialEq, Eq, ShankAccount)]
+#[derive(Clone, Debug, PartialEq, Eq, ShankAccount)]
 pub struct Metadata {
     /// Account discriminator.
     pub key: Key,
@@ -94,6 +94,27 @@ pub struct Metadata {
     pub programmable_config: Option<ProgrammableConfig>,
 }
 
+impl borsh::ser::BorshSerialize for Metadata {
+    fn serialize<W: std::io::Write>(
+        &self,
+        writer: &mut W,
+    ) -> std::result::Result<(), borsh::maybestd::io::Error> {
+        self.key.serialize(writer)?;
+        writer.write_all(self.update_authority.as_ref())?;
+        writer.write_all(self.mint.as_ref())?;
+        self.data.serialize(writer)?;
+        self.primary_sale_happened.serialize(writer)?;
+        self.is_mutable.serialize(writer)?;
+        self.edition_nonce.serialize(writer)?;
+        self.token_standard.serialize(writer)?;
+        self.collection.serialize(writer)?;
+        self.uses.serialize(writer)?;
+        self.collection_details.serialize(writer)?;
+        self.programmable_config.serialize(writer)?;
+        Ok(())
+    }
+}
+
 impl Metadata {
     pub fn save(&self, data: &mut [u8]) -> Result<(), BorshError> {
         let mut bytes = Vec::with_capacity(MAX_METADATA_LEN);
@@ -110,10 +131,8 @@ impl Metadata {
         token: Option<Account>,
         token_standard: TokenStandard,
     ) -> ProgramResult {
-        // Update the token standard if it is changed.
         self.token_standard = Some(token_standard);
 
-        // Only the Update Authority can update this section.
         match &args {
             UpdateArgs::V1 {
                 new_update_authority,
@@ -133,13 +152,11 @@ impl Metadata {
 
                 if uses.is_some() {
                     let uses_option = uses.clone().to_option();
-                    // If already None leave it as None.
                     assert_valid_use(&uses_option, &self.uses)?;
                     self.uses = uses_option;
                 }
 
                 if let CollectionDetailsToggle::Set(collection_details) = collection_details {
-                    // only unsized collections can have the size set, and only once.
                     if self.collection_details.is_some() {
                         return Err(MetadataError::SizedCollection.into());
                     }
@@ -150,9 +167,6 @@ impl Metadata {
             _ => (),
         }
 
-        // Update Authority or Data Delegates can update this section.  Note this section is before
-        // the section that updates `is_mutable` so that both `data` and `is_mutable` can be updated
-        // in the same instruction.
         match &args {
             UpdateArgs::V1 { data, .. }
             | UpdateArgs::AsUpdateAuthorityV2 { data, .. }
@@ -176,7 +190,6 @@ impl Metadata {
             _ => (),
         }
 
-        // Update Authority or Authority Item Delegate can update this section.
         match &args {
             UpdateArgs::V1 {
                 primary_sale_happened,
@@ -194,7 +207,6 @@ impl Metadata {
                 ..
             } => {
                 if let Some(primary_sale) = primary_sale_happened {
-                    // If received primary_sale is true, flip to true.
                     if *primary_sale || !self.primary_sale_happened {
                         self.primary_sale_happened = *primary_sale
                     } else {
@@ -203,7 +215,6 @@ impl Metadata {
                 }
 
                 if let Some(mutable) = is_mutable {
-                    // If received value is false, flip to false.
                     if !mutable || self.is_mutable {
                         self.is_mutable = *mutable
                     } else {
@@ -214,7 +225,6 @@ impl Metadata {
             _ => (),
         }
 
-        // Update authority by Authority Item Delegate is deprecated.
         #[allow(deprecated)]
         if let UpdateArgs::AsAuthorityItemDelegateV2 {
             new_update_authority: Some(_authority),
@@ -224,15 +234,11 @@ impl Metadata {
             return Err(MetadataError::CannotChangeUpdateAuthorityWithDelegate.into());
         };
 
-        // Update Authority or Collection Delegates can update this section.
         match &args {
             UpdateArgs::V1 { collection, .. }
             | UpdateArgs::AsUpdateAuthorityV2 { collection, .. }
             | UpdateArgs::AsCollectionDelegateV2 { collection, .. }
             | UpdateArgs::AsCollectionItemDelegateV2 { collection, .. } => match collection {
-                // if the Collection data is 'Set', only allow updating if it is unverified
-                // or if it exactly matches the existing collection info; if the Collection data
-                // is 'Clear', then only set to 'None' if it is unverified.
                 CollectionToggle::Set(_) => {
                     let collection_option = collection.clone().to_option();
                     assert_collection_update_is_valid(false, &self.collection, &collection_option)?;
@@ -240,27 +246,22 @@ impl Metadata {
                 }
                 CollectionToggle::Clear => {
                     if let Some(current_collection) = self.collection.as_ref() {
-                        // Can't change a verified collection in this command.
                         if current_collection.verified {
                             return Err(MetadataError::CannotUpdateVerifiedCollection.into());
                         }
-                        // If it's unverified, it's ok to set to None.
                         self.collection = None;
                     }
                 }
-                CollectionToggle::None => { /* nothing to do */ }
+                CollectionToggle::None => {}
             },
             _ => (),
         };
 
-        // Update Authority or Programmable Config Delegates can update this section.
         match &args {
             UpdateArgs::V1 { rule_set, .. }
             | UpdateArgs::AsUpdateAuthorityV2 { rule_set, .. }
             | UpdateArgs::AsProgrammableConfigDelegateV2 { rule_set, .. }
             | UpdateArgs::AsProgrammableConfigItemDelegateV2 { rule_set, .. } => {
-                // if the rule_set data is either 'Set' or 'Clear', only allow updating if the
-                // token standard is equal to `ProgrammableNonFungible` and no SPL delegate is set.
                 if matches!(rule_set, RuleSetToggle::Clear | RuleSetToggle::Set(_)) {
                     if token_standard != TokenStandard::ProgrammableNonFungible
                         && token_standard != TokenStandard::ProgrammableNonFungibleEdition
@@ -268,10 +269,8 @@ impl Metadata {
                         return Err(MetadataError::InvalidTokenStandard.into());
                     }
 
-                    // Require the token so we can check if it has a token delegate.
                     let token = token.ok_or(MetadataError::MissingTokenAccount)?;
 
-                    // If the token has a delegate, we cannot update the rule set.
                     if token.delegate.is_some() {
                         return Err(MetadataError::CannotUpdateAssetWithDelegate.into());
                     }
@@ -288,7 +287,6 @@ impl Metadata {
             _ => (),
         };
 
-        // Re-serialize metadata.
         puff_out_data_fields(self);
         clean_write_metadata(self, metadata)
     }
@@ -347,9 +345,6 @@ impl TokenMetadataAccount for Metadata {
     }
 }
 
-// We have a custom implementation of BorshDeserialize for Metadata because of corrupted metadata issues
-// caused by resizing of the Creators array. We use a custom `meta_deser_unchecked` function
-// that has fallback values for corrupted fields.
 impl borsh::de::BorshDeserialize for Metadata {
     fn deserialize(buf: &mut &[u8]) -> ::core::result::Result<Self, BorshError> {
         let md = meta_deser_unchecked(buf)?;
@@ -359,19 +354,14 @@ impl borsh::de::BorshDeserialize for Metadata {
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
-/// Represents the print supply of a non-fungible asset.
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum PrintSupply {
-    /// The asset does not have any prints.
     Zero,
-    /// The asset has a limited amount of prints.
     Limited(u64),
-    /// The asset has an unlimited amount of prints.
     Unlimited,
 }
 
 impl PrintSupply {
-    /// Converts the print supply to an option.
     pub fn to_option(&self) -> Option<u64> {
         match self {
             PrintSupply::Zero => Some(0),
@@ -381,13 +371,11 @@ impl PrintSupply {
     }
 }
 
-/// Configuration for programmable assets.
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub enum ProgrammableConfig {
     V1 {
-        /// Programmable authorization rules.
         #[cfg_attr(
             feature = "serde-feature",
             serde(
@@ -399,10 +387,56 @@ pub enum ProgrammableConfig {
     },
 }
 
+impl borsh::ser::BorshSerialize for ProgrammableConfig {
+    fn serialize<W: std::io::Write>(
+        &self,
+        writer: &mut W,
+    ) -> std::result::Result<(), borsh::maybestd::io::Error> {
+        match self {
+            ProgrammableConfig::V1 { rule_set } => {
+                0u8.serialize(writer)?;
+                match rule_set {
+                    Some(pk) => {
+                        1u8.serialize(writer)?;
+                        writer.write_all(pk.as_ref())?;
+                    }
+                    None => {
+                        0u8.serialize(writer)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+impl borsh::de::BorshDeserialize for ProgrammableConfig {
+    fn deserialize(buf: &mut &[u8]) -> std::result::Result<Self, borsh::maybestd::io::Error> {
+        let tag = u8::deserialize(buf)?;
+        match tag {
+            0 => {
+                let is_some = u8::deserialize(buf)?;
+                let rule_set = if is_some == 1 {
+                    let mut arr = [0u8; 32];
+                    buf.read_exact(&mut arr)?;
+                    Some(Pubkey::from_slice(&arr))
+                } else {
+                    None
+                };
+                Ok(ProgrammableConfig::V1 { rule_set })
+            }
+            _ => Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "Unknown ProgrammableConfig variant",
+            )),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use arch_program::account::AccountInfo;
     use borsh::BorshDeserialize;
-    use solana_program::account_info::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
     use crate::{
@@ -417,8 +451,6 @@ mod tests {
 
     #[test]
     fn successfully_deserialize_corrupted_metadata() {
-        // This should be able to deserialize the corrupted metadata account successfully due to the custom BorshDeserilization
-        // implementation for the Metadata struct.
         let expected_metadata = expected_pesky_metadata();
         let mut corrupted_data = pesky_data();
 
@@ -439,18 +471,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let md_account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let md_account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let md = Metadata::from_account_info(&md_account_info).unwrap();
+        let md = Metadata::from_account(&md_account).unwrap();
         assert_eq!(md.key, Key::MetadataV1);
         assert_eq!(md, expected_metadata);
     }
@@ -467,7 +491,7 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let md_account_info = AccountInfo::new(
+        let md_account = AccountInfo::new(
             &pubkey,
             false,
             true,
@@ -475,12 +499,9 @@ mod tests {
             &mut data,
             &invalid_owner,
             false,
-            1_000_000_000,
         );
 
-        // `from_account_info` should not succeed because this account is not owned
-        // by `token-metadata` program.
-        let error = Metadata::from_account_info(&md_account_info).unwrap_err();
+        let error = Metadata::from_account(&md_account).unwrap_err();
         assert_eq!(error, MetadataError::IncorrectOwner.into());
     }
 
@@ -499,18 +520,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let err = Metadata::from_account_info(&account_info).unwrap_err();
+        let err = Metadata::from_account(&account).unwrap_err();
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 
@@ -533,18 +546,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let err = Metadata::from_account_info(&account_info).unwrap_err();
+        let err = Metadata::from_account(&account).unwrap_err();
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 
@@ -564,18 +569,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let err = Metadata::from_account_info(&account_info).unwrap_err();
+        let err = Metadata::from_account(&account).unwrap_err();
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 
@@ -595,18 +592,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let err = Metadata::from_account_info(&account_info).unwrap_err();
+        let err = Metadata::from_account(&account).unwrap_err();
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 
@@ -625,18 +614,10 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
-            &pubkey,
-            false,
-            true,
-            &mut lamports,
-            &mut data,
-            owner,
-            false,
-            1_000_000_000,
-        );
+        let account =
+            AccountInfo::new(&pubkey, false, true, &mut lamports, &mut data, owner, false);
 
-        let err = Metadata::from_account_info(&account_info).unwrap_err();
+        let err = Metadata::from_account(&account).unwrap_err();
         assert_eq!(err, MetadataError::DataTypeMismatch.into());
     }
 }

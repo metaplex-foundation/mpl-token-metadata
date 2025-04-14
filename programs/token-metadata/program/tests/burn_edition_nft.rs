@@ -2,13 +2,13 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::TransactionError};
 use utils::*;
 
 mod burn_edition_nft {
     use instruction::{builders::ResizeBuilder, InstructionBuilder};
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
     use solana_sdk::{signature::Keypair, transaction::Transaction};
     use spl_associated_token_account::get_associated_token_address;
     use token_metadata::{
@@ -41,7 +41,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -73,7 +73,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -181,7 +181,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -211,7 +211,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -332,7 +332,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -364,7 +364,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -426,7 +426,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -467,7 +467,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -527,7 +527,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -559,7 +559,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(second_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -620,7 +620,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -649,7 +649,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -679,7 +679,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(second_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -742,7 +742,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -771,7 +771,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -863,7 +863,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -892,7 +892,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -948,7 +948,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(second_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1006,7 +1006,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1035,7 +1035,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1121,7 +1121,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1150,7 +1150,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1193,7 +1193,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(second_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1323,7 +1323,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1450,7 +1450,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(original_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1479,7 +1479,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1510,7 +1510,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(user_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1622,7 +1622,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(other_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1658,7 +1658,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(other_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1693,7 +1693,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(our_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1722,7 +1722,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1783,7 +1783,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1812,7 +1812,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1841,7 +1841,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(second_print_edition.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -1900,7 +1900,7 @@ mod burn_edition_nft {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(other_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],

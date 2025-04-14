@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use token_metadata::{
     state::{Key, MasterEditionV2 as ProgramME},
     utils::try_from_slice_checked,

@@ -1,5 +1,5 @@
 use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{
@@ -42,8 +42,8 @@ pub(crate) fn verify_collection_v1(program_id: &Pubkey, ctx: Context<Verify>) ->
     assert_owned_by(collection_master_edition_info, program_id)?;
 
     // Deserialize item metadata and collection parent metadata.
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
-    let mut collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
+    let mut collection_metadata = Metadata::from_account(collection_metadata_info)?;
 
     // Short circuit if its already verified.  If we let the rest of this instruction run, then for
     // sized collections we would end up with invalid size data.
@@ -125,7 +125,7 @@ pub(crate) fn unverify_collection_v1(program_id: &Pubkey, ctx: Context<Unverify>
     // burned and if so would be owned by System Program).
 
     // Deserialize item metadata.
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // Destructure the collection field from the item metadata.  If there's no collection set, we
     // can just short-circuit since there's nothing to unverify.
@@ -178,7 +178,7 @@ pub(crate) fn unverify_collection_v1(program_id: &Pubkey, ctx: Context<Unverify>
         assert_owned_by(collection_metadata_info, program_id)?;
 
         // Now we can deserialize the collection metadata account.
-        let mut collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
+        let mut collection_metadata = Metadata::from_account(collection_metadata_info)?;
 
         // In the case of a sized collection, update the size on the collection parent.
         if collection_metadata.collection_details.is_some() {

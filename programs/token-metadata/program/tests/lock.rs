@@ -2,14 +2,14 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use utils::*;
 
 mod lock {
 
     use borsh::BorshDeserialize;
     use mpl_utils::token::unpack;
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
     use solana_sdk::{
         instruction::InstructionError,
         signature::{Keypair, Signer},

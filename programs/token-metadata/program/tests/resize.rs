@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use utils::*;
 
 #[cfg(feature = "resize")]
@@ -11,7 +11,7 @@ mod resize {
         RuleSetToggle, UpdateArgs, UsesToggle,
     };
     use num_traits::FromPrimitive;
-    use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
+    use arch_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
     use solana_sdk::{
         instruction::InstructionError,
         pubkey,
@@ -58,7 +58,7 @@ mod resize {
                 .mint(nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -170,7 +170,7 @@ mod resize {
                 .payer(destination.pubkey())
                 .authority(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -264,7 +264,7 @@ mod resize {
                 .payer(payer.pubkey())
                 .authority(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -381,7 +381,7 @@ mod resize {
                 .payer(RESIZE_DESTINATION)
                 .authority(authority.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -493,7 +493,7 @@ mod resize {
                 .payer(context.payer.pubkey())
                 .authority(authority.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -560,7 +560,7 @@ mod resize {
                 .mint(nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -624,7 +624,7 @@ mod resize {
                 .mint(nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -688,7 +688,7 @@ mod resize {
                 .mint(other_nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -755,7 +755,7 @@ mod resize {
                 .mint(other_nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -820,7 +820,7 @@ mod resize {
                 .mint(nft.mint.pubkey())
                 .payer(context.payer.pubkey())
                 .token(other_nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -897,7 +897,7 @@ mod resize {
                 .payer(context.payer.pubkey())
                 .authority(update_authority.pubkey())
                 .token(nft.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -974,7 +974,7 @@ mod resize {
                 .payer(context.payer.pubkey())
                 .authority(update_authority.pubkey())
                 .token(fungible.token.unwrap())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],

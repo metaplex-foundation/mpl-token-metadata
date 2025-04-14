@@ -1,10 +1,10 @@
 use std::fmt::{Display, Formatter};
 
-use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
     pubkey::Pubkey, sysvar,
 };
+use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
 use spl_token_2022::state::Account;
 
 use crate::{
@@ -60,7 +60,7 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
     // Assert program ownership
 
     if let Some(delegate_record_info) = ctx.accounts.delegate_record_info {
-        assert_owned_by(delegate_record_info, &crate::ID)?;
+        assert_owned_by(delegate_record_info, &crate::id())?;
     }
 
     if let Some(token_info) = ctx.accounts.token_info {
@@ -81,7 +81,7 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
 
     // Check program IDs
 
-    if ctx.accounts.system_program_info.key != &solana_program::system_program::ID {
+    if ctx.accounts.system_program_info.key != &arch_program::system_program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
     if ctx.accounts.sysvar_instructions_info.key != &sysvar::instructions::ID {
@@ -120,7 +120,7 @@ fn update_v1(program_id: &Pubkey, ctx: Context<Update>, args: UpdateArgs) -> Pro
     };
 
     // Metadata
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     // Metadata mint must match mint account key.
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());

@@ -2,7 +2,7 @@
 pub mod utils;
 
 use borsh::BorshDeserialize;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     account::{Account, AccountSharedData},
     signature::{Keypair, Signer},

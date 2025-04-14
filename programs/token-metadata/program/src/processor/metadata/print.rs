@@ -1,6 +1,6 @@
 use mpl_utils::token::get_mint_supply;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke,
     program_error::ProgramError, program_option::COption, pubkey::Pubkey, sysvar,
 };
 
@@ -53,13 +53,13 @@ pub fn print_v2<'a>(
         return Err(ProgramError::NotEnoughAccountKeys);
     }
 
-    let holder_delegate_record_info = if accounts[18].key == &crate::ID {
+    let holder_delegate_record_info = if accounts[18].key == &crate::id() {
         None
     } else {
         Some(&accounts[18])
     };
 
-    let delegate_info = if accounts.len() < 20 || accounts[19].key == &crate::ID {
+    let delegate_info = if accounts.len() < 20 || accounts[19].key == &crate::id() {
         None
     } else {
         Some(&accounts[19])
@@ -90,11 +90,11 @@ fn print_logic<'a>(
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let edition_metadata_info = ctx.accounts.edition_metadata_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
-    let edition_account_info = ctx.accounts.edition_info;
+    let edition_account = ctx.accounts.edition_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let edition_mint_info = ctx.accounts.edition_mint_info;
     let edition_token_account_owner_info = ctx.accounts.edition_token_account_owner_info;
-    let edition_token_account_info = ctx.accounts.edition_token_account_info;
+    let edition_token_account = ctx.accounts.edition_token_account;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let edition_mint_authority_info = ctx.accounts.edition_mint_authority_info;
     let edition_token_record_info = ctx.accounts.edition_token_record_info;
@@ -107,7 +107,7 @@ fn print_logic<'a>(
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let master_token_account_owner_info = ctx.accounts.master_token_account_owner_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
-    let master_token_account_info = ctx.accounts.master_token_account_info;
+    let master_token_account = ctx.accounts.master_token_account;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
     let master_metadata_info = ctx.accounts.master_metadata_info;
     // CHECK: Checked in process_mint_new_edition_from_master_edition_via_token_logic
@@ -121,12 +121,12 @@ fn print_logic<'a>(
 
     // Levy fees first, to fund the metadata account with rent + fee amount.
     levy(LevyArgs {
-        payer_account_info: payer_info,
+        payer_account: payer_info,
         token_metadata_pda_info: edition_metadata_info,
     })?;
 
     // Deserialize the master edition's metadata so we can determine token type
-    let master_metadata = Metadata::from_account_info(master_metadata_info)?;
+    let master_metadata = Metadata::from_account(master_metadata_info)?;
     let token_standard = master_metadata
         .token_standard
         .unwrap_or(TokenStandard::NonFungible);
@@ -157,7 +157,7 @@ fn print_logic<'a>(
 
     // If the edition token account isn't already initialized, create it.
     // If it does exist, validate it.
-    if edition_token_account_info.data_is_empty() {
+    if edition_token_account.data_is_empty() {
         // If the token account is empty, we need to double check the token isn't just in another account.
         // We do this by checking supply == 0
         let mint_supply = get_mint_supply(edition_mint_info)?;
@@ -177,7 +177,7 @@ fn print_logic<'a>(
                 payer_info.clone(),
                 edition_token_account_owner_info.clone(),
                 edition_mint_info.clone(),
-                edition_token_account_info.clone(),
+                edition_token_account.clone(),
             ],
         )?;
 
@@ -186,21 +186,21 @@ fn print_logic<'a>(
             &spl_token_2022::instruction::mint_to(
                 token_program.key,
                 edition_mint_info.key,
-                edition_token_account_info.key,
+                edition_token_account.key,
                 edition_mint_authority_info.key,
                 &[],
                 1,
             )?,
             &[
                 edition_mint_info.clone(),
-                edition_token_account_info.clone(),
+                edition_token_account.clone(),
                 edition_mint_authority_info.clone(),
             ],
         )?;
     } else {
         let token = validate_token(
             edition_mint_info,
-            edition_token_account_info,
+            edition_token_account,
             Some(edition_token_account_owner_info),
             token_program,
             Some(token_standard),
@@ -218,7 +218,7 @@ fn print_logic<'a>(
             if let COption::Some(close_authority) = token.close_authority {
                 // the close authority must match the edition if there is one set
                 // on the token account
-                if close_authority != *edition_account_info.key {
+                if close_authority != *edition_account.key {
                     return Err(MetadataError::InvalidCloseAuthority.into());
                 }
             }
@@ -241,22 +241,22 @@ fn print_logic<'a>(
                 edition_token_record_info.ok_or(MetadataError::MissingTokenRecord)?;
             let (pda_key, _) = find_token_record_account(
                 ctx.accounts.edition_mint_info.key,
-                ctx.accounts.edition_token_account_info.key,
+                ctx.accounts.edition_token_account.key,
             );
             // validates the derivation
             assert_keys_equal(&pda_key, token_record_info.key)?;
 
             if token_record_info.data_is_empty() {
                 create_token_record_account(
-                    &crate::ID,
+                    &crate::id(),
                     token_record_info,
                     edition_mint_info,
-                    edition_token_account_info,
+                    edition_token_account,
                     payer_info,
                     system_program,
                 )?;
             } else {
-                assert_owned_by(token_record_info, &crate::ID)?;
+                assert_owned_by(token_record_info, &crate::id())?;
             }
         }
         _ => return Err(MetadataError::InvalidTokenStandard.into()),
@@ -268,21 +268,21 @@ fn print_logic<'a>(
     }
 
     process_mint_new_edition_from_master_edition_via_token_logic(
-        &crate::ID,
+        &crate::id(),
         MintNewEditionFromMasterEditionViaTokenLogicArgs {
-            new_metadata_account_info: edition_metadata_info,
-            new_edition_account_info: edition_account_info,
-            master_edition_account_info: master_edition_info,
+            new_metadata_account: edition_metadata_info,
+            new_edition_account: edition_account,
+            master_edition_account: master_edition_info,
             mint_info: edition_mint_info,
             edition_marker_info: edition_marker_pda_info,
             mint_authority_info: edition_mint_authority_info,
-            payer_account_info: payer_info,
-            owner_account_info: master_token_account_owner_info,
-            token_account_info: master_token_account_info,
+            payer_account: payer_info,
+            owner_account: master_token_account_owner_info,
+            token_account: master_token_account,
             update_authority_info,
-            master_metadata_account_info: master_metadata_info,
-            token_program_account_info: token_program,
-            system_account_info: system_program,
+            master_metadata_account: master_metadata_info,
+            token_program_account: token_program,
+            system_account: system_program,
             holder_delegate_record_info,
             delegate_info,
         },
@@ -292,16 +292,16 @@ fn print_logic<'a>(
     if token_standard == TokenStandard::ProgrammableNonFungible {
         freeze(
             edition_mint_info.clone(),
-            edition_token_account_info.clone(),
-            edition_account_info.clone(),
+            edition_token_account.clone(),
+            edition_account.clone(),
             token_program.clone(),
             None,
         )?;
 
-        let data_len = edition_account_info.data_len();
+        let data_len = edition_account.data_len();
         // for pNFTs, we store the token standard value at the end of the
         // master edition account
-        let mut data = edition_account_info.data.borrow_mut();
+        let mut data = edition_account.data.borrow_mut();
 
         if data.len() < MAX_EDITION_LEN {
             return Err(MetadataError::InvalidEditionAccountLength.into());

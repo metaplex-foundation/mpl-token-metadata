@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
@@ -13,7 +13,7 @@ mod revoke {
 
     use borsh::BorshDeserialize;
     use num_traits::FromPrimitive;
-    use solana_program::{program_option::COption, pubkey::Pubkey};
+    use arch_program::{program_option::COption, pubkey::Pubkey};
     use solana_sdk::account::{Account as SdkAccount, AccountSharedData};
     use spl_token_2022::state::Account;
     use token_metadata::{

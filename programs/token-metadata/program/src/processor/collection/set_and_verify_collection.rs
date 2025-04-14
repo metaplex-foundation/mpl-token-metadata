@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account, AccountInfo},
     entrypoint::ProgramResult,
     pubkey::Pubkey,
 };
@@ -16,15 +16,15 @@ use crate::{
 };
 
 pub fn set_and_verify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let metadata_info = next_account_info(account_info_iter)?;
-    let collection_authority_info = next_account_info(account_info_iter)?;
-    let payer_info = next_account_info(account_info_iter)?;
-    let update_authority = next_account_info(account_info_iter)?;
-    let collection_mint = next_account_info(account_info_iter)?;
-    let collection_info = next_account_info(account_info_iter)?;
-    let edition_account_info = next_account_info(account_info_iter)?;
+    let metadata_info = next_account(account_iter)?;
+    let collection_authority_info = next_account(account_iter)?;
+    let payer_info = next_account(account_iter)?;
+    let update_authority = next_account(account_iter)?;
+    let collection_mint = next_account(account_iter)?;
+    let collection_info = next_account(account_iter)?;
+    let edition_account = next_account(account_iter)?;
 
     assert_signer(collection_authority_info)?;
     assert_signer(payer_info)?;
@@ -32,10 +32,10 @@ pub fn set_and_verify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) 
     assert_owned_by(metadata_info, program_id)?;
     assert_owned_by(collection_info, program_id)?;
     assert_owned_by(collection_mint, &SPL_TOKEN_ID)?;
-    assert_owned_by(edition_account_info, program_id)?;
+    assert_owned_by(edition_account, program_id)?;
 
-    let mut metadata = Metadata::from_account_info(metadata_info)?;
-    let collection_data = Metadata::from_account_info(collection_info)?;
+    let mut metadata = Metadata::from_account(metadata_info)?;
+    let collection_data = Metadata::from_account(collection_info)?;
     if metadata.update_authority != *update_authority.key
         || metadata.update_authority != collection_data.update_authority
     {
@@ -50,7 +50,7 @@ pub fn set_and_verify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) 
         }
     }
 
-    let delegated_collection_authority_opt = account_info_iter.next();
+    let delegated_collection_authority_opt = account_iter.next();
 
     assert_has_collection_authority(
         collection_authority_info,
@@ -67,7 +67,7 @@ pub fn set_and_verify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) 
         &metadata.collection,
         &collection_data,
         collection_mint,
-        edition_account_info,
+        edition_account,
     )?;
 
     // This handler can only verify non-sized NFTs

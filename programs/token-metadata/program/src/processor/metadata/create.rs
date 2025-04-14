@@ -1,4 +1,4 @@
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
 
 use crate::{
     error::MetadataError,
@@ -49,7 +49,7 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
 
     // Levy fees first, to fund the metadata account with rent + fee amount.
     levy(LevyArgs {
-        payer_account_info: ctx.accounts.payer_info,
+        payer_account: ctx.accounts.payer_info,
         token_metadata_pda_info: ctx.accounts.metadata_info,
     })?;
 
@@ -106,12 +106,12 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
     process_create_metadata_accounts_logic(
         program_id,
         CreateMetadataAccountsLogicArgs {
-            metadata_account_info: ctx.accounts.metadata_info,
+            metadata_account: ctx.accounts.metadata_info,
             mint_info: ctx.accounts.mint_info,
             mint_authority_info: ctx.accounts.authority_info,
-            payer_account_info: ctx.accounts.payer_info,
+            payer_account: ctx.accounts.payer_info,
             update_authority_info: ctx.accounts.update_authority_info,
-            system_account_info: ctx.accounts.system_program_info,
+            system_account: ctx.accounts.system_program_info,
         },
         asset_data.as_data_v2(),
         false,
@@ -173,7 +173,7 @@ fn create_v1(program_id: &Pubkey, ctx: Context<Create>, args: CreateArgs) -> Pro
         msg!("Ignoring print supply for selected token standard");
     }
 
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     metadata.token_standard = Some(asset_data.token_standard);
     metadata.primary_sale_happened = asset_data.primary_sale_happened;
 

@@ -1,8 +1,9 @@
-use borsh::BorshSerialize;
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
+use arch_program::{
+    account::AccountMeta,
+    instruction::Instruction,
     pubkey::Pubkey,
 };
+use borsh::BorshSerialize;
 
 use crate::instruction::{MetadataInstruction, SetCollectionSizeArgs};
 

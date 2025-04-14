@@ -1,10 +1,10 @@
 use mpl_utils::assert_signer;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{Metadata, TokenMetadataAccount},
 };
 
@@ -12,12 +12,12 @@ pub fn process_remove_creator_verification(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(accounts, metadata_info, creator_info);
+    all_accounts!(accounts, metadata_info, creator_info);
 
     assert_signer(creator_info)?;
     assert_owned_by(metadata_info, program_id)?;
 
-    let mut metadata = Metadata::from_account_info(metadata_info)?;
+    let mut metadata = Metadata::from_account(metadata_info)?;
 
     if let Some(creators) = &mut metadata.data.creators {
         let mut found = false;

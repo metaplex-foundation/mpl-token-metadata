@@ -1,6 +1,5 @@
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, rent::Rent,
-    sysvar::Sysvar,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke, rent::Rent, sysvar::Sysvar,
 };
 
 use crate::{
@@ -11,7 +10,7 @@ use crate::{
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct LevyArgs<'a> {
-    pub payer_account_info: &'a AccountInfo<'a>,
+    pub payer_account: &'a AccountInfo<'a>,
     pub token_metadata_pda_info: &'a AccountInfo<'a>,
 }
 
@@ -29,13 +28,13 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
     let fee = get_create_fee()? + rent.minimum_balance(MAX_METADATA_LEN);
 
     invoke(
-        &solana_program::system_instruction::transfer(
-            args.payer_account_info.key,
+        &arch_program::system_instruction::transfer(
+            args.payer_account.key,
             args.token_metadata_pda_info.key,
             fee,
         ),
         &[
-            args.payer_account_info.clone(),
+            args.payer_account.clone(),
             args.token_metadata_pda_info.clone(),
         ],
     )?;
@@ -43,23 +42,23 @@ pub(crate) fn levy(args: LevyArgs) -> ProgramResult {
     Ok(())
 }
 
-pub(crate) fn set_fee_flag(pda_account_info: &AccountInfo) -> ProgramResult {
-    let last_byte = pda_account_info
+pub(crate) fn set_fee_flag(pda_account: &AccountInfo) -> ProgramResult {
+    let last_byte = pda_account
         .data_len()
         .checked_sub(METADATA_FEE_FLAG_OFFSET)
         .ok_or(MetadataError::NumericalOverflowError)?;
-    let mut data = pda_account_info.try_borrow_mut_data()?;
+    let mut data = pda_account.try_borrow_mut_data()?;
     data[last_byte] = 1;
 
     Ok(())
 }
 
-pub(crate) fn clear_fee_flag(pda_account_info: &AccountInfo) -> ProgramResult {
-    let last_byte = pda_account_info
+pub(crate) fn clear_fee_flag(pda_account: &AccountInfo) -> ProgramResult {
+    let last_byte = pda_account
         .data_len()
         .checked_sub(METADATA_FEE_FLAG_OFFSET)
         .ok_or(MetadataError::NumericalOverflowError)?;
-    let mut data = pda_account_info.try_borrow_mut_data()?;
+    let mut data = pda_account.try_borrow_mut_data()?;
 
     // Clear the flag if the index exists.
     if let Some(flag) = data.get_mut(last_byte) {

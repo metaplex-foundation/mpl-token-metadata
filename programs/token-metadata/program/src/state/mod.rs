@@ -18,6 +18,10 @@ pub(crate) mod uses;
 
 use std::io::ErrorKind;
 
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, pubkey,
+    pubkey::Pubkey,
+};
 pub use asset_data::*;
 use borsh::{maybestd::io::Error as BorshError, BorshDeserialize, BorshSerialize};
 pub use collection::*;
@@ -38,10 +42,6 @@ use num_traits::FromPrimitive;
 pub use programmable::*;
 pub use reservation::*;
 use shank::ShankAccount;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, pubkey,
-    pubkey::Pubkey,
-};
 pub use uses::*;
 #[cfg(feature = "serde-feature")]
 use {
@@ -52,7 +52,7 @@ use {
 
 // Re-export constants to maintain compatibility.
 pub use crate::pda::{BURN, COLLECTION_AUTHORITY, EDITION, PREFIX, USER};
-use crate::{assertions::assert_owned_by, error::MetadataError, utils::try_from_slice_checked, ID};
+use crate::{assertions::assert_owned_by, error::MetadataError, id, utils::try_from_slice_checked};
 
 /// Index of the discriminator on the account data.
 pub const DISCRIMINATOR_INDEX: usize = 0;
@@ -123,14 +123,14 @@ pub trait TokenMetadataAccount: BorshDeserialize {
         Ok(result)
     }
 
-    fn from_account_info(a: &AccountInfo) -> Result<Self, ProgramError>
+    fn from_account(a: &AccountInfo) -> Result<Self, ProgramError>
 where {
         let data = &a.data.borrow_mut();
 
         let ua = Self::safe_deserialize(data).map_err(|_| MetadataError::DataTypeMismatch)?;
 
         // Check that this is a `token-metadata` owned account.
-        assert_owned_by(a, &ID)?;
+        assert_owned_by(a, &id())?;
 
         Ok(ua)
     }
@@ -191,23 +191,24 @@ pub trait Resizable: TokenMetadataAccount + BorshSerialize {
     /// matches the struct size or not.
     fn save<'a>(
         &self,
-        account_info: &'a AccountInfo<'a>,
+        account: &'a AccountInfo<'a>,
         payer_info: &'a AccountInfo<'a>,
         system_program_info: &'a AccountInfo<'a>,
     ) -> Result<(), ProgramError> {
         // the required account size
         let required_size = Self::size();
 
-        if account_info.data_len() != required_size {
+        if account.data_len() != required_size {
             resize_or_reallocate_account_raw(
-                account_info,
+                account,
                 payer_info,
                 system_program_info,
                 required_size,
             )?;
         }
 
-        borsh::to_writer(&mut account_info.data.borrow_mut()[..], self)?;
+        borsh::to_writer(&mut account.data.borrow_mut()[..], self)
+            .map_err(|_| MetadataError::BorshSerializationError)?;
 
         Ok(())
     }

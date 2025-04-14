@@ -2,7 +2,7 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},

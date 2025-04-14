@@ -3,8 +3,8 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program::native_token::LAMPORTS_PER_SOL;
-use solana_program_test::*;
+use arch_program::native_token::LAMPORTS_PER_SOL;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError, signature::Keypair, signer::Signer,
     transaction::TransactionError,
@@ -18,7 +18,7 @@ use token_metadata::{
 use utils::*;
 
 mod unverify_creator {
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
 
     use super::*;
 
@@ -261,7 +261,7 @@ mod unverify_creator {
 }
 
 mod unverify_collection {
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
 
     use super::*;
 

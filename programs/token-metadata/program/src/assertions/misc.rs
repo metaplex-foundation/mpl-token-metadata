@@ -1,6 +1,5 @@
-use mpl_utils::cmp_pubkeys;
-use solana_program::{
-    account_info::AccountInfo,
+use arch_program::{
+    account::AccountInfo,
     entrypoint::ProgramResult,
     program_error::ProgramError,
     program_option::COption,
@@ -8,6 +7,7 @@ use solana_program::{
     pubkey::Pubkey,
     rent::Rent,
 };
+use mpl_utils::cmp_pubkeys;
 use spl_token_2022::state::Account;
 
 use crate::{
@@ -38,9 +38,9 @@ pub fn assert_keys_equal_with_error(
 
 /// assert initialized account
 pub fn assert_initialized<T: Pack + IsInitialized>(
-    account_info: &AccountInfo,
+    account: &AccountInfo,
 ) -> Result<T, ProgramError> {
-    mpl_utils::assert_initialized(account_info, MetadataError::Uninitialized)
+    mpl_utils::assert_initialized(account, MetadataError::Uninitialized)
 }
 
 pub fn assert_mint_authority_matches_mint(
@@ -85,13 +85,13 @@ pub fn assert_freeze_authority_matches_mint(
 pub fn assert_delegated_tokens(
     delegate: &AccountInfo,
     mint_info: &AccountInfo,
-    token_account_info: &AccountInfo,
+    token_account: &AccountInfo,
     spl_token_program: &Pubkey,
 ) -> ProgramResult {
     assert_owned_by(mint_info, spl_token_program)?;
 
-    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?;
-    assert_owned_by(token_account_info, spl_token_program)?;
+    let token_account = unpack_initialized::<Account>(&token_account.data.borrow())?;
+    assert_owned_by(token_account, spl_token_program)?;
 
     if token_account.mint != *mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -150,8 +150,8 @@ pub fn assert_token_program_matches_package(token_program_info: &AccountInfo) ->
     )
 }
 
-pub fn assert_rent_exempt(rent: &Rent, account_info: &AccountInfo) -> ProgramResult {
-    mpl_utils::assert_rent_exempt(rent, account_info, MetadataError::NotRentExempt)
+pub fn assert_rent_exempt(rent: &Rent, account: &AccountInfo) -> ProgramResult {
+    mpl_utils::assert_rent_exempt(rent, account, MetadataError::NotRentExempt)
 }
 
 pub fn assert_delegate(

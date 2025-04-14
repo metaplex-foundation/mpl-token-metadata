@@ -1,5 +1,5 @@
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     pubkey::Pubkey,
 };
@@ -19,31 +19,31 @@ pub fn set_collection_size(
 ) -> ProgramResult {
     let size = args.size;
 
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let parent_nft_metadata_account_info = next_account_info(account_info_iter)?;
-    let collection_update_authority_account_info = next_account_info(account_info_iter)?;
-    let collection_mint_account_info = next_account_info(account_info_iter)?;
+    let parent_nft_metadata_account = next_account_info(account_iter)?;
+    let collection_update_authority_account = next_account_info(account_iter)?;
+    let collection_mint_account = next_account_info(account_iter)?;
 
     // Owned by token-metadata program.
-    assert_owned_by(parent_nft_metadata_account_info, program_id)?;
+    assert_owned_by(parent_nft_metadata_account, program_id)?;
 
     // Mint owned by spl token program.
-    assert_owned_by(collection_mint_account_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(collection_mint_account, &SPL_TOKEN_ID)?;
 
-    let mut metadata = Metadata::from_account_info(parent_nft_metadata_account_info)?;
+    let mut metadata = Metadata::from_account(parent_nft_metadata_account)?;
 
     // Check that the update authority or delegate is a signer.
-    if !collection_update_authority_account_info.is_signer {
+    if !collection_update_authority_account.is_signer {
         return Err(MetadataError::UpdateAuthorityIsNotSigner.into());
     }
 
-    let delegated_collection_authority_opt = account_info_iter.next();
+    let delegated_collection_authority_opt = account_iter.next();
 
     assert_has_collection_authority(
-        collection_update_authority_account_info,
+        collection_update_authority_account,
         &metadata,
-        collection_mint_account_info.key,
+        collection_mint_account.key,
         delegated_collection_authority_opt,
     )?;
 
@@ -57,5 +57,5 @@ pub fn set_collection_size(
         };
     }
 
-    clean_write_metadata(&mut metadata, parent_nft_metadata_account_info)
+    clean_write_metadata(&mut metadata, parent_nft_metadata_account)
 }

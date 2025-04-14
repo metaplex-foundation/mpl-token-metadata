@@ -1,5 +1,5 @@
-use solana_program::{
-    account_info::AccountInfo,
+use arch_program::{
+    account::AccountInfo,
     entrypoint::ProgramResult,
     msg,
     program::invoke,
@@ -77,11 +77,11 @@ pub(crate) fn create_mint<'a>(
     )?;
 
     if spl_token_2022 {
-        let account_infos = vec![mint.clone(), metadata.clone(), spl_token_program.clone()];
+        let accounts = vec![mint.clone(), metadata.clone(), spl_token_program.clone()];
 
         invoke(
             &initialize_mint_close_authority(spl_token_program.key, mint.key, Some(metadata.key))?,
-            &account_infos,
+            &accounts,
         )?;
 
         invoke(
@@ -91,7 +91,7 @@ pub(crate) fn create_mint<'a>(
                 None,
                 Some(*metadata.key),
             )?,
-            &account_infos,
+            &accounts,
         )?;
     }
 

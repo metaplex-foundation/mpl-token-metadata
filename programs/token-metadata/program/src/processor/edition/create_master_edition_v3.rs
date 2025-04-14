@@ -1,5 +1,5 @@
 use mpl_utils::create_or_allocate_account_raw;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token_2022::state::Mint;
 
 use crate::{
@@ -8,7 +8,7 @@ use crate::{
         assert_token_program_matches_package, metadata::assert_update_authority_is_correct,
     },
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{
         Key, MasterEditionV2, Metadata, TokenMetadataAccount, TokenStandard, EDITION,
         MAX_MASTER_EDITION_LEN, PREFIX,
@@ -22,24 +22,24 @@ pub fn process_create_master_edition(
     accounts: &[AccountInfo],
     max_supply: Option<u64>,
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
-        edition_account_info,
+        edition_account,
         mint_info,
         update_authority_info,
         mint_authority_info,
-        payer_account_info,
-        metadata_account_info,
+        payer_account,
+        metadata_account,
         token_program_info,
-        system_account_info
+        system_account
     );
 
-    let metadata = Metadata::from_account_info(metadata_account_info)?;
+    let metadata = Metadata::from_account(metadata_account)?;
     let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
 
     let bump_seed = assert_derivation(
         program_id,
-        edition_account_info,
+        edition_account,
         &[
             PREFIX.as_bytes(),
             program_id.as_ref(),
@@ -50,7 +50,7 @@ pub fn process_create_master_edition(
 
     assert_token_program_matches_package(token_program_info)?;
     assert_mint_authority_matches_mint(&mint.mint_authority, mint_authority_info)?;
-    assert_owned_by(metadata_account_info, program_id)?;
+    assert_owned_by(metadata_account, program_id)?;
     assert_owned_by(mint_info, token_program_info.key)?;
 
     if metadata.mint != *mint_info.key {
@@ -77,27 +77,27 @@ pub fn process_create_master_edition(
 
     create_or_allocate_account_raw(
         *program_id,
-        edition_account_info,
-        system_account_info,
-        payer_account_info,
+        edition_account,
+        system_account,
+        payer_account,
         MAX_MASTER_EDITION_LEN,
         edition_authority_seeds,
     )?;
 
-    let mut edition = MasterEditionV2::from_account_info(edition_account_info)?;
+    let mut edition = MasterEditionV2::from_account(edition_account)?;
 
     edition.key = Key::MasterEditionV2;
     edition.supply = 0;
     edition.max_supply = max_supply;
     borsh::to_writer(
-        &mut edition_account_info.try_borrow_mut_data()?[..],
+        &mut edition_account.try_borrow_mut_data()?[..],
         &edition,
     )?;
-    if metadata_account_info.is_writable {
-        let mut metadata_mut = Metadata::from_account_info(metadata_account_info)?;
+    if metadata_account.is_writable {
+        let mut metadata_mut = Metadata::from_account(metadata_account)?;
         metadata_mut.token_standard = Some(TokenStandard::NonFungible);
         borsh::to_writer(
-            &mut metadata_account_info.try_borrow_mut_data()?[..],
+            &mut metadata_account.try_borrow_mut_data()?[..],
             &metadata_mut,
         )?;
     }
@@ -105,8 +105,8 @@ pub fn process_create_master_edition(
     // While you can't mint any more of your master record, you can
     // mint as many limited editions as you like within your max supply.
     transfer_mint_authority(
-        edition_account_info.key,
-        edition_account_info,
+        edition_account.key,
+        edition_account,
         mint_info,
         mint_authority_info,
         token_program_info,

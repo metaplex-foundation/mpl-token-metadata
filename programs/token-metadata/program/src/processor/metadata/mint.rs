@@ -1,11 +1,11 @@
-use mpl_utils::{assert_derivation_with_bump, assert_signer, cmp_pubkeys};
-use solana_program::{
-    account_info::AccountInfo,
+use arch_program::{
+    account::AccountInfo,
     entrypoint::ProgramResult,
     program::{invoke, invoke_signed},
     program_option::COption,
     pubkey::Pubkey,
 };
+use mpl_utils::{assert_derivation_with_bump, assert_signer, cmp_pubkeys};
 use spl_token_2022::state::{Account, Mint as MintAccount};
 
 use crate::{
@@ -63,7 +63,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
         ],
     )?;
 
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -199,7 +199,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                         ctx.accounts.system_program_info,
                     )?;
                 } else {
-                    assert_owned_by(token_record_info, &crate::ID)?;
+                    assert_owned_by(token_record_info, &crate::id())?;
                 }
             }
 
@@ -219,7 +219,7 @@ pub fn mint_v1(program_id: &Pubkey, ctx: Context<Mint>, args: MintArgs) -> Progr
                 .ok_or(MetadataError::MissingMasterEditionAccount)?;
 
             assert_derivation_with_bump(
-                &crate::ID,
+                &crate::id(),
                 master_edition_info,
                 master_edition_seeds,
                 MetadataError::InvalidMasterEdition,

@@ -1,14 +1,16 @@
 use std::io::Error;
 
+use arch_program::{
+    account::{AccountInfo, AccountMeta},
+    program_error::ProgramError,
+    program_option::COption,
+    pubkey::Pubkey,
+};
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_utils::cmp_pubkeys;
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
 use shank::ShankAccount;
-use solana_program::{
-    account_info::AccountInfo, instruction::AccountMeta, program_error::ProgramError,
-    program_option::COption, pubkey::Pubkey,
-};
 use spl_token_2022::state::Account;
 
 use super::*;
@@ -114,8 +116,8 @@ impl TokenMetadataAccount for TokenRecord {
         Self::from_bytes(data).map_err(|e| Error::new(ErrorKind::Other, e.to_string()))
     }
 
-    fn from_account_info(account_info: &AccountInfo) -> Result<Self, ProgramError> {
-        let data = &account_info.try_borrow_data()?;
+    fn from_account(account: &AccountInfo) -> Result<Self, ProgramError> {
+        let data = &account.try_borrow_data()?;
         Self::from_bytes(data)
     }
 }
@@ -299,14 +301,14 @@ impl AuthorityType {
 
                     if let Some(token_record_info) = request.token_record_info {
                         // must be owned by token medatata
-                        assert_owned_by(token_record_info, &crate::ID)?;
+                        assert_owned_by(token_record_info, &crate::id())?;
 
                         // we can only validate if it is a token delegate when we have the token account
                         if let Some(token_account) = request.token_account {
                             let token = request.token.ok_or(MetadataError::MissingTokenAccount)?;
 
                             let (pda_key, _) = find_token_record_account(request.mint, token);
-                            let token_record = TokenRecord::from_account_info(token_record_info)?;
+                            let token_record = TokenRecord::from_account(token_record_info)?;
 
                             let role_matches = match token_record.delegate_role {
                                 Some(role) => request.token_delegate_roles.contains(&role),
@@ -334,7 +336,7 @@ impl AuthorityType {
                         request.metadata_delegate_record_info
                     {
                         // must be owned by token medatata
-                        assert_owned_by(metadata_delegate_record_info, &crate::ID)?;
+                        assert_owned_by(metadata_delegate_record_info, &crate::id())?;
 
                         for role in &request.metadata_delegate_roles {
                             // looking up the delegate on the metadata mint
@@ -346,7 +348,7 @@ impl AuthorityType {
                             );
 
                             if cmp_pubkeys(&pda_key, metadata_delegate_record_info.key) {
-                                let delegate_record = MetadataDelegateRecord::from_account_info(
+                                let delegate_record = MetadataDelegateRecord::from_account(
                                     metadata_delegate_record_info,
                                 )?;
 
@@ -373,7 +375,7 @@ impl AuthorityType {
 
                                 if cmp_pubkeys(&pda_key, metadata_delegate_record_info.key) {
                                     let delegate_record =
-                                        MetadataDelegateRecord::from_account_info(
+                                        MetadataDelegateRecord::from_account(
                                             metadata_delegate_record_info,
                                         )?;
 

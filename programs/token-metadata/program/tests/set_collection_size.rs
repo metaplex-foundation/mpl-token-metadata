@@ -1,13 +1,10 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
+use arch_program::{instruction::Instruction, pubkey::Pubkey};
+use arch_program_test::*;
 use borsh::{BorshDeserialize, BorshSerialize};
 use num_traits::FromPrimitive;
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-};
-use solana_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::Keypair,
@@ -69,7 +66,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -162,7 +159,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -294,7 +291,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -375,7 +372,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -466,7 +463,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -567,7 +564,7 @@ mod set_collection_size {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(collection_parent_nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -689,7 +686,7 @@ async fn invalid_update_authority_fails_with_delegated_collection_authority() {
                 .payer(context.payer.pubkey())
                 .authority(context.payer.pubkey())
                 .token(collection_parent_nft.token.pubkey())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -804,7 +801,7 @@ async fn update_authority_not_a_signer_fails_with_delegated_collection_authority
                 .payer(context.payer.pubkey())
                 .authority(context.payer.pubkey())
                 .token(collection_parent_nft.token.pubkey())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -922,7 +919,7 @@ async fn other_collection_delegate_cant_set_size() {
                 .payer(context.payer.pubkey())
                 .authority(context.payer.pubkey())
                 .token(collection_parent_nft.token.pubkey())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],
@@ -971,7 +968,7 @@ async fn other_collection_delegate_cant_set_size() {
                 .payer(context.payer.pubkey())
                 .authority(context.payer.pubkey())
                 .token(other_collection_parent_nft.token.pubkey())
-                .system_program(solana_program::system_program::ID)
+                .system_program(arch_program::system_program::ID)
                 .build()
                 .unwrap()
                 .instruction()],

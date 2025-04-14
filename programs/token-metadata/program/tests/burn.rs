@@ -3,8 +3,8 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program::pubkey::Pubkey;
-use solana_program_test::*;
+use arch_program::pubkey::Pubkey;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::Keypair,
@@ -22,7 +22,7 @@ use token_metadata::{
 use utils::*;
 
 mod pnft {
-    use solana_program::system_instruction;
+    use arch_program::system_instruction;
     use token_metadata::{instruction::TransferArgs, pda::find_token_record_account};
 
     use super::*;
@@ -3871,7 +3871,7 @@ mod nft_edition {
 
 mod fungible {
     use mpl_utils::token::unpack;
-    use solana_program::native_token::LAMPORTS_PER_SOL;
+    use arch_program::native_token::LAMPORTS_PER_SOL;
     use spl_token_2022::state::Account;
     use token_metadata::instruction::TransferArgs;
 

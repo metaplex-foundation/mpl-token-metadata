@@ -1,5 +1,5 @@
 use crate::*;
-use solana_program::borsh::try_from_slice_unchecked;
+use arch_program::borsh::try_from_slice_unchecked;
 use token_metadata::{
     id, instruction,
     state::{Collection, Creator, Data, DataV2, Uses, PREFIX},

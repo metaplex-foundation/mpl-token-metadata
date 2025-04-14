@@ -1,8 +1,5 @@
+use arch_program::{instruction::Instruction, sysvar};
 use borsh::{ser::BorshSerialize, BorshDeserialize};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    sysvar,
-};
 use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
@@ -95,7 +92,7 @@ impl MasterEditionV2 {
                 AccountMeta::new_readonly(context.payer.pubkey(), true),
                 AccountMeta::new_readonly(self.metadata_pubkey, false),
                 AccountMeta::new_readonly(fake_token_program.pubkey(), false),
-                AccountMeta::new_readonly(solana_program::system_program::ID, false),
+                AccountMeta::new_readonly(arch_program::system_program::ID, false),
                 AccountMeta::new_readonly(sysvar::rent::ID, false),
             ],
             data: MetadataInstruction::CreateMasterEditionV3(CreateMasterEditionArgs {

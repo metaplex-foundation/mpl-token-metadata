@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{instruction::InstructionError, signature::Signer, transaction::TransactionError};
 use utils::*;
 
@@ -9,7 +9,7 @@ mod mint {
 
     use mpl_utils::token::unpack;
     use num_traits::FromPrimitive;
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
     use spl_token_2022::state::Account;
     use token_metadata::{error::MetadataError, state::TokenStandard};
 

@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
@@ -15,7 +15,7 @@ mod delegate {
     use mpl_token_auth_rules::error::RuleSetError;
     use mpl_utils::token::unpack;
     use num_traits::FromPrimitive;
-    use solana_program::{program_option::COption, pubkey::Pubkey};
+    use arch_program::{program_option::COption, pubkey::Pubkey};
     use spl_token_2022::state::Account;
     use token_metadata::{
         error::MetadataError,

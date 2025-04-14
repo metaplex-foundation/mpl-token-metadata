@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, pubkey::Pubkey,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke, pubkey::Pubkey,
 };
 use spl_token_2022::instruction::revoke;
 
@@ -13,7 +13,7 @@ use crate::{
         },
     },
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{Key, Metadata, TokenMetadataAccount, UseAuthorityRecord, UseMethod},
     utils::{close_program_account, SPL_TOKEN_ID},
 };
@@ -22,22 +22,22 @@ pub fn process_revoke_use_authority(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
         use_authority_record_info,
         owner_info,
         user_info,
-        token_account_info,
+        token_account,
         mint_info,
         metadata_info,
-        token_program_account_info
+        token_program_account
     );
 
-    let metadata = Metadata::from_account_info(metadata_info)?;
+    let metadata = Metadata::from_account(metadata_info)?;
     if metadata.uses.is_none() {
         return Err(MetadataError::Unusable.into());
     }
-    if *token_program_account_info.key != SPL_TOKEN_ID {
+    if *token_program_account.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
     assert_signer(owner_info)?;
@@ -47,7 +47,7 @@ pub fn process_revoke_use_authority(
         metadata_info,
         &metadata,
         mint_info,
-        token_account_info,
+        token_account,
     )?;
     let data = use_authority_record_info.try_borrow_mut_data()?;
     process_use_authority_validation(data.len(), false)?;
@@ -67,15 +67,15 @@ pub fn process_revoke_use_authority(
     if metadata_uses.use_method == UseMethod::Burn {
         invoke(
             &revoke(
-                token_program_account_info.key,
-                token_account_info.key,
+                token_program_account.key,
+                token_account.key,
                 owner_info.key,
                 &[],
             )
             .unwrap(),
             &[
-                token_program_account_info.clone(),
-                token_account_info.clone(),
+                token_program_account.clone(),
+                token_account.clone(),
                 owner_info.clone(),
             ],
         )?;

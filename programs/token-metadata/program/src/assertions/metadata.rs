@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use mpl_utils::token::SPL_TOKEN_PROGRAM_IDS;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
-    pubkey::Pubkey,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, pubkey::Pubkey,
 };
+use mpl_utils::token::SPL_TOKEN_PROGRAM_IDS;
 use spl_token_2022::state::Account;
 
 use super::assert_owner_in;
@@ -192,7 +191,7 @@ pub fn assert_currently_holding(
     metadata_info: &AccountInfo,
     metadata: &Metadata,
     mint_info: &AccountInfo,
-    token_account_info: &AccountInfo,
+    token_account: &AccountInfo,
 ) -> ProgramResult {
     assert_holding_amount(
         program_id,
@@ -200,7 +199,7 @@ pub fn assert_currently_holding(
         metadata_info,
         metadata,
         mint_info,
-        token_account_info,
+        token_account,
         1,
     )
 }
@@ -211,14 +210,14 @@ pub fn assert_holding_amount(
     metadata_info: &AccountInfo,
     metadata: &Metadata,
     mint_info: &AccountInfo,
-    token_account_info: &AccountInfo,
+    token_account: &AccountInfo,
     amount: u64,
 ) -> ProgramResult {
     assert_owned_by(metadata_info, program_id)?;
     assert_owner_in(mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
-    assert_owner_in(token_account_info, &SPL_TOKEN_PROGRAM_IDS)?;
+    assert_owner_in(token_account, &SPL_TOKEN_PROGRAM_IDS)?;
 
-    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?;
+    let token_account = unpack_initialized::<Account>(&token_account.data.borrow())?;
 
     if token_account.owner != *owner_info.key {
         return Err(MetadataError::InvalidOwner.into());
@@ -241,11 +240,11 @@ pub fn assert_holding_amount(
 pub fn assert_metadata_valid(
     program_id: &Pubkey,
     mint_pubkey: &Pubkey,
-    metadata_account_info: &AccountInfo,
+    metadata_account: &AccountInfo,
 ) -> ProgramResult {
     let seeds = &[PREFIX.as_bytes(), program_id.as_ref(), mint_pubkey.as_ref()];
     let (metadata_pubkey, _) = Pubkey::find_program_address(seeds, program_id);
-    if metadata_pubkey != *metadata_account_info.key {
+    if metadata_pubkey != *metadata_account.key {
         return Err(MetadataError::InvalidMetadataKey.into());
     }
 

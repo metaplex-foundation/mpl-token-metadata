@@ -1,8 +1,8 @@
 use std::fmt::Display;
 
 use mpl_utils::{assert_signer, cmp_pubkeys, token::TokenTransferCheckedParams};
-use solana_program::{
-    account_info::AccountInfo,
+use arch_program::{
+    account::AccountInfo,
     entrypoint::ProgramResult,
     program::invoke,
     program_error::ProgramError,
@@ -120,7 +120,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
     }
 
     // Deserialize metadata.
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // Check if the destination exists.
     if ctx.accounts.destination_info.data_is_empty() {
@@ -198,7 +198,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
     // Must be the actual current owner of the token where
     // mint, token, owner and metadata accounts all match up.
     assert_holding_amount(
-        &crate::ID,
+        &crate::id(),
         ctx.accounts.token_owner_info,
         ctx.accounts.metadata_info,
         &metadata,
@@ -252,7 +252,7 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
             let current_ix =
                 get_instruction_relative(0, ctx.accounts.sysvar_instructions_info).unwrap();
 
-            let is_cpi = !cmp_pubkeys(&current_ix.program_id, &crate::ID);
+            let is_cpi = !cmp_pubkeys(&current_ix.program_id, &crate::id());
 
             // This can be replaced with a sys call to curve25519 once that feature activates.
             let wallets_are_system_program_owned =
@@ -342,14 +342,14 @@ fn transfer_v1(program_id: &Pubkey, ctx: Context<Transfer>, args: TransferArgs) 
                 }
 
                 let destination_token_record =
-                    TokenRecord::from_account_info(destination_token_record_info)?;
+                    TokenRecord::from_account(destination_token_record_info)?;
 
                 if destination_token_record.delegate != Some(delegate) {
                     return Err(MetadataError::DelegateAlreadyExists.into());
                 }
             }
 
-            let owner_token_record = TokenRecord::from_account_info(owner_token_record_info)?;
+            let owner_token_record = TokenRecord::from_account(owner_token_record_info)?;
 
             let is_sale_delegate = owner_token_record
                 .delegate_role

@@ -2,8 +2,8 @@ use mpl_utils::{
     assert_signer,
     token::{spl_token_burn, TokenBurnParams},
 };
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     pubkey::Pubkey,
     rent::Rent,
@@ -29,19 +29,19 @@ pub fn process_utilize(
     accounts: &[AccountInfo],
     number_of_uses: u64,
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter().peekable();
+    let account_iter = &mut accounts.iter().peekable();
 
-    let metadata_info = next_account_info(account_info_iter)?;
-    let token_account_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let user_info = next_account_info(account_info_iter)?;
-    let owner_info = next_account_info(account_info_iter)?;
-    let token_program_account_info = next_account_info(account_info_iter)?;
-    let _ata_program_account_info = next_account_info(account_info_iter)?;
-    let _system_program_account_info = next_account_info(account_info_iter)?;
+    let metadata_info = next_account_info(account_iter)?;
+    let token_account = next_account_info(account_iter)?;
+    let mint_info = next_account_info(account_iter)?;
+    let user_info = next_account_info(account_iter)?;
+    let owner_info = next_account_info(account_iter)?;
+    let token_program_account = next_account_info(account_iter)?;
+    let _ata_program_account = next_account_info(account_iter)?;
+    let _system_program_account = next_account_info(account_iter)?;
 
     // consume the next account only if it is Rent
-    let approved_authority_is_using = if account_info_iter
+    let approved_authority_is_using = if account_iter
         .next_if(|info| info.key == &Rent::id())
         .is_some()
     {
@@ -52,12 +52,12 @@ pub fn process_utilize(
         accounts.len() == 10
     };
 
-    let metadata: Metadata = Metadata::from_account_info(metadata_info)?;
+    let metadata: Metadata = Metadata::from_account(metadata_info)?;
 
     if metadata.uses.is_none() {
         return Err(MetadataError::Unusable.into());
     }
-    if *token_program_account_info.key != SPL_TOKEN_ID {
+    if *token_program_account.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
     assert_signer(user_info)?;
@@ -67,9 +67,9 @@ pub fn process_utilize(
         metadata_info,
         &metadata,
         mint_info,
-        token_account_info,
+        token_account,
     )?;
-    let mut metadata = Metadata::from_account_info(metadata_info)?;
+    let mut metadata = Metadata::from_account(metadata_info)?;
     let metadata_uses = metadata.uses.unwrap();
     let must_burn = metadata_uses.use_method == UseMethod::Burn;
     if number_of_uses > metadata_uses.total || number_of_uses > metadata_uses.remaining {
@@ -85,7 +85,7 @@ pub fn process_utilize(
         remaining: remaining_uses,
     });
     if approved_authority_is_using {
-        let use_authority_record_info = next_account_info(account_info_iter)?;
+        let use_authority_record_info = next_account_info(account_iter)?;
         let data = &mut *use_authority_record_info.try_borrow_mut_data()?;
         process_use_authority_validation(data.len(), false)?;
         assert_owned_by(use_authority_record_info, program_id)?;
@@ -112,7 +112,7 @@ pub fn process_utilize(
     metadata.save(&mut metadata_info.try_borrow_mut_data()?)?;
     if remaining_uses == 0 && must_burn {
         if approved_authority_is_using {
-            let burn_authority_info = next_account_info(account_info_iter)?;
+            let burn_authority_info = next_account_info(account_iter)?;
             let seed = assert_burner(burn_authority_info.key)?;
             let burn_bump_ref = &[
                 PREFIX.as_bytes(),
@@ -124,8 +124,8 @@ pub fn process_utilize(
                 mint: mint_info.clone(),
                 amount: 1,
                 authority: burn_authority_info.clone(),
-                token_program: token_program_account_info.clone(),
-                source: token_account_info.clone(),
+                token_program: token_program_account.clone(),
+                source: token_account.clone(),
                 authority_signer_seeds: Some(burn_bump_ref),
             })?;
         } else {
@@ -133,8 +133,8 @@ pub fn process_utilize(
                 mint: mint_info.clone(),
                 amount: 1,
                 authority: owner_info.clone(),
-                token_program: token_program_account_info.clone(),
-                source: token_account_info.clone(),
+                token_program: token_program_account.clone(),
+                source: token_account.clone(),
                 authority_signer_seeds: None,
             })?;
         }

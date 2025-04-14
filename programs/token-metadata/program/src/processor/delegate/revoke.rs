@@ -1,8 +1,8 @@
-use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
-    program_error::ProgramError, program_option::COption, pubkey::Pubkey, system_program, sysvar,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke, program_error::ProgramError,
+    program_option::COption, pubkey::Pubkey, system_program, sysvar,
 };
+use mpl_utils::{assert_signer, close_account_raw, cmp_pubkeys, token::SPL_TOKEN_PROGRAM_IDS};
 use spl_token_2022::state::Account;
 
 use crate::{
@@ -117,7 +117,7 @@ fn revoke_other_delegate_v1(
 
     // account relationships
 
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -197,12 +197,12 @@ fn get_delegate_record_update_authority(
 ) -> Result<Pubkey, ProgramError> {
     let (delegate, delegate_record_update_authority) = match delegate_scenario {
         DelegateScenario::Metadata(_) => {
-            let record = MetadataDelegateRecord::from_account_info(delegate_record_info)
+            let record = MetadataDelegateRecord::from_account(delegate_record_info)
                 .map_err(|_| MetadataError::DelegateNotFound)?;
             (record.delegate, record.update_authority)
         }
         DelegateScenario::Holder(_) => {
-            let record = HolderDelegateRecord::from_account_info(delegate_record_info)
+            let record = HolderDelegateRecord::from_account(delegate_record_info)
                 .map_err(|_| MetadataError::DelegateNotFound)?;
             (record.delegate, record.update_authority)
         }
@@ -259,7 +259,7 @@ fn revoke_persistent_delegate_v1(
 
     // account relationships
 
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     if metadata.mint != *ctx.accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }
@@ -295,10 +295,10 @@ fn revoke_persistent_delegate_v1(
                         find_token_record_account(ctx.accounts.mint_info.key, token_info.key);
 
                     assert_keys_equal(&pda_key, token_record_info.key)?;
-                    assert_owned_by(token_record_info, &crate::ID)?;
+                    assert_owned_by(token_record_info, &crate::id())?;
 
                     (
-                        TokenRecord::from_account_info(token_record_info)?,
+                        TokenRecord::from_account(token_record_info)?,
                         token_record_info,
                     )
                 }
@@ -327,7 +327,7 @@ fn revoke_persistent_delegate_v1(
             }
 
             if let Some(master_edition_info) = ctx.accounts.master_edition_info {
-                assert_owned_by(master_edition_info, &crate::ID)?;
+                assert_owned_by(master_edition_info, &crate::id())?;
                 // derivation is checked on the thaw function
                 thaw(
                     ctx.accounts.mint_info.clone(),

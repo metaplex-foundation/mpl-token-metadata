@@ -376,7 +376,7 @@ impl Metadata {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -428,7 +428,7 @@ impl Metadata {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],
@@ -484,7 +484,7 @@ impl Metadata {
                     .payer(context.payer.pubkey())
                     .authority(context.payer.pubkey())
                     .token(nft.token.pubkey())
-                    .system_program(solana_program::system_program::ID)
+                    .system_program(arch_program::system_program::ID)
                     .build()
                     .unwrap()
                     .instruction()],

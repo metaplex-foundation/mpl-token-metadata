@@ -11,7 +11,7 @@ mod state;
 mod uses;
 mod verification;
 
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshSerialize;
 pub use bubblegum::*;
 pub use burn::*;
 pub use collection::*;
@@ -44,7 +44,7 @@ pub const MIGRATE: u8 = 48;
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 /// Instructions supported by the Metadata program.
-#[derive(BorshSerialize, BorshDeserialize, Clone, ShankInstruction, AccountContext)]
+#[derive(Clone, ShankInstruction, AccountContext, BorshSerialize)]
 #[rustfmt::skip]
 pub enum MetadataInstruction {
     /// Create Metadata object.
@@ -286,8 +286,6 @@ pub enum MetadataInstruction {
     #[account(5, name="token_program", desc="Token program")]
     #[account(6, name="ata_program", desc="Associated Token program")]
     #[account(7, name="system_program", desc="System program")]
-    // Rent is technically not needed but there isn't a way to "ignore" an account without 
-    // preventing latter accounts from being passed in.
     #[account(8, name="rent", desc="Rent info")]
     #[account(9, optional, writable, name="use_authority_record", desc="Use Authority Record PDA If present the program Assumes a delegated use authority")]
     #[account(10, optional, name="burner", desc="Program As Signer (Burner)")]
@@ -352,7 +350,7 @@ pub enum MetadataInstruction {
     #[account(4, name="mint", desc="Mint of Metadata")]
     RevokeCollectionAuthority,
 
-    /// Allows the same Update Authority (Or Delegated Authority) on an NFT and Collection to perform [update_metadata_accounts_v2] 
+    /// Allows the same Update Authority (Or Delegated Authority) on an NFT and Collection to perform [update_metadata_accounts_v2]
     /// with collection and [verify_collection] on the NFT/Collection in one instruction.
     #[account(0, writable, name="metadata", desc="Metadata account")]
     #[account(1, signer, writable, name="collection_authority", desc="Collection Update authority")]
@@ -422,7 +420,7 @@ pub enum MetadataInstruction {
     UnverifySizedCollectionItem,
 
     // Set And Verify V2, new in v1.3--supports Collection Details.
-    /// Allows the same Update Authority (Or Delegated Authority) on an NFT and Collection to perform [update_metadata_accounts_v2] 
+    /// Allows the same Update Authority (Or Delegated Authority) on an NFT and Collection to perform [update_metadata_accounts_v2]
     /// with collection and [verify_collection] on the NFT/Collection in one instruction.
     #[account(0, writable, name="metadata", desc="Metadata account")]
     #[account(1, signer, name="collection_authority", desc="Collection Update authority")]
@@ -529,7 +527,7 @@ pub enum MetadataInstruction {
     //---- New API
 
     /// Burns an asset, closing associated accounts.
-    /// 
+    ///
     /// Supports burning the following asset types:
     /// - ProgrammableNonFungible
     /// - NonFungible
@@ -571,7 +569,7 @@ pub enum MetadataInstruction {
     Burn(BurnArgs),
 
     /// Creates the metadata and associated accounts for a new or existing mint account.
-    /// 
+    ///
     /// This instruction will initialize a mint account if it does not exist and
     /// the mint key is a signer on the transaction.
     ///
@@ -613,7 +611,7 @@ pub enum MetadataInstruction {
     Mint(MintArgs),
 
     /// Creates a delegate for an asset.
-    /// 
+    ///
     /// A delegate has a role associated, which determines what actions the delegate can perform. There are
     /// two types of delegate:
     ///   1. Persistent delegate: only one delegate can exist at the same time for `Transfer`, `Sale` and
@@ -637,7 +635,7 @@ pub enum MetadataInstruction {
     Delegate(DelegateArgs),
 
     /// Revokes a delegate.
-    /// 
+    ///
     /// A delegate can revoke itself by signing the transaction as the 'approver'.
     #[account(0, optional, writable, name="delegate_record", desc="Delegate record account")]
     #[account(1, name="delegate", desc="Owner of the delegated account")]
@@ -656,7 +654,7 @@ pub enum MetadataInstruction {
     Revoke(RevokeArgs),
 
     /// Locks an asset. For non-programmable assets, this will also freeze the token account.
-    /// 
+    ///
     /// The configurable `authorization_rules` only apply to `ProgrammableNonFungible` assets and
     /// it may require additional accounts to validate the rules.
     #[account(0, signer, name="authority", desc="Delegate or freeze authority")]
@@ -675,7 +673,7 @@ pub enum MetadataInstruction {
     Lock(LockArgs),
 
     /// Unlocks an asset. For non-programmable assets, this will also thaw the token account.
-    /// 
+    ///
     /// The configurable `authorization_rules` only apply to `ProgrammableNonFungible` assets and
     /// it may require additional accounts to validate the rules.
     #[account(0, signer, name="authority", desc="Delegate or freeze authority")]
@@ -712,7 +710,7 @@ pub enum MetadataInstruction {
     Migrate,
 
     /// Transfer an asset.
-    /// 
+    ///
     /// The configurable `authorization_rules` only apply to `ProgrammableNonFungible` assets and
     /// it may require additional accounts to validate the rules.
     #[account(0, writable, name="token", desc="Token account")]
@@ -735,7 +733,7 @@ pub enum MetadataInstruction {
     Transfer(TransferArgs),
 
     /// Updates the metadata of an asset.
-    /// 
+    ///
     /// The configurable `authorization_rules` only apply to `ProgrammableNonFungible` assets and
     /// it may require additional accounts to validate the rules.
     #[account(0, signer, name="authority", desc="Update authority or delegate")]
@@ -752,9 +750,9 @@ pub enum MetadataInstruction {
     Update(UpdateArgs),
 
     /// Uses an asset.
-    /// 
+    ///
     /// Use Authority can be the owner of the asset or a delegated use authority.
-    /// 
+    ///
     /// The configurable `authorization_rules` only apply to `ProgrammableNonFungible` assets and
     /// it may require additional accounts to validate the rules.
     #[account(0, signer, name="authority", desc="Token owner or delegate")]
@@ -824,8 +822,6 @@ pub enum MetadataInstruction {
     #[account(15, name="spl_ata_program", desc="SPL Associated Token Account program")]
     #[account(16, name="sysvar_instructions", desc="Instructions sysvar account")]
     #[account(17, name="system_program", desc="System program")]
-    // #[account(18, optional, name="holder_delegate_record", desc="The Delegate Record authorizing escrowless edition printing")]
-    // #[account(19, optional, signer, name="delegate", desc="The authority printing the edition for a delegated print")]
     #[args(initialize_mint: bool)]
     Print(PrintArgs),
 
@@ -838,9 +834,9 @@ pub enum MetadataInstruction {
     #[account(5, optional, name="token", desc="Token or Associated Token account")]
     #[account(6, name="system_program", desc="System program")]
     Resize,
-    
+
     /// Closes accounts for an asset where only the token was burnt.
-    /// 
+    ///
     /// Closes floating accounts for the following asset types:
     /// - NonFungible
     /// - NonFungibleEdition
@@ -869,5 +865,5 @@ pub struct Context<T> {
 }
 
 pub trait InstructionBuilder {
-    fn instruction(&self) -> solana_program::instruction::Instruction;
+    fn instruction(&self) -> arch_program::instruction::Instruction;
 }

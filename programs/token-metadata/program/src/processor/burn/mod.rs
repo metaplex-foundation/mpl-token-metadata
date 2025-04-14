@@ -1,5 +1,9 @@
 #![allow(clippy::module_inception)]
 
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, pubkey::Pubkey,
+    system_program, sysvar,
+};
 use arrayref::array_ref;
 use mpl_utils::{
     assert_signer,
@@ -7,10 +11,6 @@ use mpl_utils::{
         get_mint_decimals, get_mint_supply, spl_token_burn, spl_token_close, TokenBurnParams,
         TokenCloseParams,
     },
-};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
-    pubkey::Pubkey, system_program, sysvar,
 };
 
 use crate::{

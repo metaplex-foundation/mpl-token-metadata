@@ -1,8 +1,8 @@
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{Metadata, TokenMetadataAccount, EDITION, PREFIX},
     utils::puff_out_data_fields,
 };
@@ -13,11 +13,11 @@ pub fn process_puff_metadata_account(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(accounts, metadata_account_info);
+    all_accounts!(accounts, metadata_account);
 
-    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let mut metadata = Metadata::from_account(metadata_account)?;
 
-    assert_owned_by(metadata_account_info, program_id)?;
+    assert_owned_by(metadata_account, program_id)?;
 
     puff_out_data_fields(&mut metadata);
 
@@ -30,6 +30,6 @@ pub fn process_puff_metadata_account(
     let (_, edition_bump_seed) = Pubkey::find_program_address(edition_seeds, program_id);
     metadata.edition_nonce = Some(edition_bump_seed);
 
-    metadata.save(&mut metadata_account_info.try_borrow_mut_data()?)?;
+    metadata.save(&mut metadata_account.try_borrow_mut_data()?)?;
     Ok(())
 }

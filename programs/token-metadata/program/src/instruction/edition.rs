@@ -1,11 +1,9 @@
+use arch_program::{
+    account::AccountMeta, instruction::Instruction, pubkey::Pubkey, system_program,
+};
 use borsh::{BorshDeserialize, BorshSerialize};
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-    system_program,
-};
 
 use crate::{
     instruction::MetadataInstruction,

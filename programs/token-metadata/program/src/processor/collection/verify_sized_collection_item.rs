@@ -1,9 +1,9 @@
-use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     pubkey::Pubkey,
 };
+use mpl_utils::assert_signer;
 
 use crate::{
     assertions::{
@@ -19,14 +19,14 @@ pub fn verify_sized_collection_item(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let metadata_info = next_account_info(account_info_iter)?;
-    let collection_authority_info = next_account_info(account_info_iter)?;
-    let payer_info = next_account_info(account_info_iter)?;
-    let collection_mint = next_account_info(account_info_iter)?;
-    let collection_info = next_account_info(account_info_iter)?;
-    let edition_account_info = next_account_info(account_info_iter)?;
+    let metadata_info = next_account_info(account_iter)?;
+    let collection_authority_info = next_account_info(account_iter)?;
+    let payer_info = next_account_info(account_iter)?;
+    let collection_mint = next_account_info(account_iter)?;
+    let collection_info = next_account_info(account_iter)?;
+    let edition_account = next_account_info(account_iter)?;
 
     assert_signer(collection_authority_info)?;
     assert_signer(payer_info)?;
@@ -34,10 +34,10 @@ pub fn verify_sized_collection_item(
     assert_owned_by(metadata_info, program_id)?;
     assert_owned_by(collection_info, program_id)?;
     assert_owned_by(collection_mint, &SPL_TOKEN_ID)?;
-    assert_owned_by(edition_account_info, program_id)?;
+    assert_owned_by(edition_account, program_id)?;
 
-    let mut metadata = Metadata::from_account_info(metadata_info)?;
-    let mut collection_metadata = Metadata::from_account_info(collection_info)?;
+    let mut metadata = Metadata::from_account(metadata_info)?;
+    let mut collection_metadata = Metadata::from_account(collection_info)?;
 
     // Don't verify already verified items, otherwise we end up with invalid size data.
     if let Some(collection) = &metadata.collection {
@@ -50,10 +50,10 @@ pub fn verify_sized_collection_item(
         &metadata.collection,
         &collection_metadata,
         collection_mint,
-        edition_account_info,
+        edition_account,
     )?;
 
-    let delegated_collection_authority_opt = account_info_iter.next();
+    let delegated_collection_authority_opt = account_iter.next();
 
     assert_has_collection_authority(
         collection_authority_info,

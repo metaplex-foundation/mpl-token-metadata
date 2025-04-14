@@ -1,12 +1,9 @@
 use std::fmt;
 
+use arch_program::{account::AccountMeta, instruction::Instruction, pubkey::Pubkey};
 use borsh::{BorshDeserialize, BorshSerialize};
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-};
 
 use super::InstructionBuilder;
 use crate::{instruction::MetadataInstruction, processor::AuthorizationData};
@@ -172,38 +169,41 @@ impl fmt::Display for HolderDelegateRole {
 ///   12. `[optional]` Token Authorization Rules program
 ///   13. `[optional]` Token Authorization Rules account
 impl InstructionBuilder for super::builders::Delegate {
-    fn instruction(&self) -> solana_program::instruction::Instruction {
+    fn instruction(&self) -> arch_program::instruction::Instruction {
         let accounts = vec![
             if let Some(delegate_record) = self.delegate_record {
                 AccountMeta::new(delegate_record, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.delegate, false),
             AccountMeta::new(self.metadata, false),
-            AccountMeta::new_readonly(self.master_edition.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.master_edition.unwrap_or(crate::id()), false),
             if let Some(token_record) = self.token_record {
                 AccountMeta::new(token_record, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.mint, false),
             if let Some(token) = self.token {
                 AccountMeta::new(token, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.authority, true),
             AccountMeta::new(self.payer, true),
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
-            AccountMeta::new_readonly(self.spl_token_program.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(self.authorization_rules_program.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(self.authorization_rules.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.spl_token_program.unwrap_or(crate::id()), false),
+            AccountMeta::new_readonly(
+                self.authorization_rules_program.unwrap_or(crate::id()),
+                false,
+            ),
+            AccountMeta::new_readonly(self.authorization_rules.unwrap_or(crate::id()), false),
         ];
 
         Instruction {
-            program_id: crate::ID,
+            program_id: crate::id(),
             accounts,
             data: MetadataInstruction::Delegate(self.args.clone())
                 .try_to_vec()
@@ -231,38 +231,41 @@ impl InstructionBuilder for super::builders::Delegate {
 ///   12. `[optional]` Token Authorization Rules program
 ///   13. `[optional]` Token Authorization Rules account
 impl InstructionBuilder for super::builders::Revoke {
-    fn instruction(&self) -> solana_program::instruction::Instruction {
+    fn instruction(&self) -> arch_program::instruction::Instruction {
         let accounts = vec![
             if let Some(delegate_record) = self.delegate_record {
                 AccountMeta::new(delegate_record, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.delegate, false),
             AccountMeta::new(self.metadata, false),
-            AccountMeta::new_readonly(self.master_edition.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.master_edition.unwrap_or(crate::id()), false),
             if let Some(token_record) = self.token_record {
                 AccountMeta::new(token_record, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.mint, false),
             if let Some(token) = self.token {
                 AccountMeta::new(token, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.authority, true),
             AccountMeta::new(self.payer, true),
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
-            AccountMeta::new_readonly(self.spl_token_program.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(self.authorization_rules_program.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(self.authorization_rules.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.spl_token_program.unwrap_or(crate::id()), false),
+            AccountMeta::new_readonly(
+                self.authorization_rules_program.unwrap_or(crate::id()),
+                false,
+            ),
+            AccountMeta::new_readonly(self.authorization_rules.unwrap_or(crate::id()), false),
         ];
 
         Instruction {
-            program_id: crate::ID,
+            program_id: crate::id(),
             accounts,
             data: MetadataInstruction::Revoke(self.args.clone())
                 .try_to_vec()

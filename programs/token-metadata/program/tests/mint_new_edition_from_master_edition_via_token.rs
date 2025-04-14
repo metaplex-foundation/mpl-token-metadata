@@ -3,7 +3,7 @@ pub mod utils;
 
 use borsh::BorshSerialize;
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     account::AccountSharedData,
     instruction::InstructionError,
@@ -22,7 +22,7 @@ use utils::*;
 // via (cd ../../token-vault/program/ && cargo build-bpf)
 mod mint_new_edition_from_master_edition_via_token {
 
-    use solana_program::native_token::LAMPORTS_PER_SOL;
+    use arch_program::native_token::LAMPORTS_PER_SOL;
 
     use super::*;
     #[tokio::test]

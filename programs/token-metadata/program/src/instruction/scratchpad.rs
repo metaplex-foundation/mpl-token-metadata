@@ -17,7 +17,7 @@ impl UpdateAccounts {
             AccountMeta::new(self.metadata_account, false),
             AccountMeta::new(self.master_edition_account, false),
             AccountMeta::new(self.mint_account, false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
+            AccountMeta::new_readonly(arch_program::system_program::ID, false),
             AccountMeta::new_readonly(sysvar::instructions::ID, false),
         ];
         if let Some(new_update_authority) = self.new_update_authority {
@@ -102,18 +102,18 @@ pub struct AuthorizationRules {
 //         //     authorization_payload,
 //         // } => {
 //         //     let token_account = accounts.get(0);
-//         //     let metadata = next_account_info(account_info_iter)?;
-//         //     let mint = next_account_info(account_info_iter)?;
-//         //     let owner = next_account_info(account_info_iter)?;
-//         //     let destination_token_account = next_account_info(account_info_iter)?;
-//         //     let destination_owner = next_account_info(account_info_iter)?;
-//         //     let spl_token_program = next_account_info(account_info_iter)?;
-//         //     let spl_associated_token_program = next_account_info(account_info_iter)?;
-//         //     let system_program = next_account_info(account_info_iter)?;
-//         //     let sysvar_instructions = next_account_info(account_info_iter)?;
+//         //     let metadata = next_account_info(account_iter)?;
+//         //     let mint = next_account_info(account_iter)?;
+//         //     let owner = next_account_info(account_iter)?;
+//         //     let destination_token_account = next_account_info(account_iter)?;
+//         //     let destination_owner = next_account_info(account_iter)?;
+//         //     let spl_token_program = next_account_info(account_iter)?;
+//         //     let spl_associated_token_program = next_account_info(account_iter)?;
+//         //     let system_program = next_account_info(account_iter)?;
+//         //     let sysvar_instructions = next_account_info(account_iter)?;
 //         //     let authorization_payload = if authorization_payload.is_some() {
-//         //         let authorization_rules = next_account_info(account_info_iter)?;
-//         //         let authorization_rules_program = next_account_info(account_info_iter)?;
+//         //         let authorization_rules = next_account_info(account_iter)?;
+//         //         let authorization_rules_program = next_account_info(account_iter)?;
 //         //         Some(AuthorizationPayloadAccounts {
 //         //             authorization_rules,
 //         //             authorization_rules_program,

@@ -1,4 +1,4 @@
-use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_derivation,
@@ -101,7 +101,7 @@ pub fn assert_collection_verify_is_valid(
     member_collection: &Option<Collection>,
     collection_metadata: &Metadata,
     collection_mint: &AccountInfo,
-    edition_account_info: &AccountInfo,
+    edition_account: &AccountInfo,
 ) -> Result<(), ProgramError> {
     match member_collection {
         Some(collection) => {
@@ -118,11 +118,11 @@ pub fn assert_collection_verify_is_valid(
 
     match collection_metadata.edition_nonce {
         Some(nonce) => assert_derivation_with_bump(
-            &crate::ID,
-            edition_account_info,
+            &crate::id(),
+            edition_account,
             &[
                 PREFIX.as_bytes(),
-                crate::ID.as_ref(),
+                crate::id().as_ref(),
                 collection_metadata.mint.as_ref(),
                 EDITION.as_bytes(),
                 &[nonce],
@@ -130,11 +130,11 @@ pub fn assert_collection_verify_is_valid(
         ),
         None => {
             let _ = assert_derivation(
-                &crate::ID,
-                edition_account_info,
+                &crate::id(),
+                edition_account,
                 &[
                     PREFIX.as_bytes(),
-                    crate::ID.as_ref(),
+                    crate::id().as_ref(),
                     collection_metadata.mint.as_ref(),
                     EDITION.as_bytes(),
                 ],
@@ -144,15 +144,15 @@ pub fn assert_collection_verify_is_valid(
     }
     .map_err(|_| MetadataError::CollectionMasterEditionAccountInvalid)?;
 
-    assert_master_edition(collection_metadata, edition_account_info)?;
+    assert_master_edition(collection_metadata, edition_account)?;
     Ok(())
 }
 
 pub fn assert_master_edition(
     collection_data: &Metadata,
-    edition_account_info: &AccountInfo,
+    edition_account: &AccountInfo,
 ) -> Result<(), ProgramError> {
-    let edition = MasterEditionV2::from_account_info(edition_account_info)
+    let edition = MasterEditionV2::from_account(edition_account)
         .map_err(|_err: ProgramError| MetadataError::CollectionMustBeAUniqueMasterEdition)?;
 
     match collection_data.token_standard {

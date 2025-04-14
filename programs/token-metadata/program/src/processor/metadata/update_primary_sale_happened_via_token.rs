@@ -1,5 +1,5 @@
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
     pubkey::Pubkey,
 };
 use spl_token_2022::state::Account;
@@ -7,7 +7,7 @@ use spl_token_2022::state::Account;
 use crate::{
     assertions::{assert_initialized, assert_owned_by},
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{Metadata, TokenMetadataAccount},
     utils::SPL_TOKEN_ID,
 };
@@ -16,18 +16,18 @@ pub fn process_update_primary_sale_happened_via_token(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
-        metadata_account_info,
+        metadata_account,
         owner_info,
-        token_account_info
+        token_account
     );
 
-    let token_account: Account = assert_initialized(token_account_info)?;
-    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let token_account: Account = assert_initialized(token_account)?;
+    let mut metadata = Metadata::from_account(metadata_account)?;
 
-    assert_owned_by(metadata_account_info, program_id)?;
-    assert_owned_by(token_account_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(metadata_account, program_id)?;
+    assert_owned_by(token_account, &SPL_TOKEN_ID)?;
 
     if !owner_info.is_signer {
         return Err(ProgramError::MissingRequiredSignature);
@@ -46,7 +46,7 @@ pub fn process_update_primary_sale_happened_via_token(
     }
 
     metadata.primary_sale_happened = true;
-    metadata.save(&mut metadata_account_info.try_borrow_mut_data()?)?;
+    metadata.save(&mut metadata_account.try_borrow_mut_data()?)?;
 
     Ok(())
 }

@@ -1,9 +1,6 @@
+use arch_program::{instruction::Instruction, system_program, sysvar};
+use arch_program_test::BanksClientError;
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    system_program, sysvar,
-};
-use solana_program_test::BanksClientError;
 use solana_sdk::{
     compute_budget::ComputeBudgetInstruction, pubkey::Pubkey, signature::Signer,
     signer::keypair::Keypair, transaction::Transaction,
@@ -453,7 +450,7 @@ impl EditionMarker {
             AccountMeta::new_readonly(context.payer.pubkey(), false),
             AccountMeta::new_readonly(self.metadata_pubkey, false),
             AccountMeta::new_readonly(fake_token_program.pubkey(), false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
+            AccountMeta::new_readonly(arch_program::system_program::ID, false),
             AccountMeta::new_readonly(sysvar::rent::ID, false),
         ];
 

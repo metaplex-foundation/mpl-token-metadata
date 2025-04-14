@@ -1,5 +1,5 @@
 use metadata::clean_write_metadata;
-use solana_program::msg;
+use arch_program::msg;
 
 use super::*;
 use crate::state::CollectionDetails;

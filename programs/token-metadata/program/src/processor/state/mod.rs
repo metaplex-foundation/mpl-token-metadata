@@ -1,12 +1,12 @@
 mod lock;
 mod unlock;
 
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke, program_error::ProgramError,
+    pubkey::Pubkey, system_program, sysvar,
+};
 pub use lock::*;
 use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke,
-    program_error::ProgramError, pubkey::Pubkey, system_program, sysvar,
-};
 use spl_token_2022::{
     instruction::{freeze_account, thaw_account},
     state::{Account, Mint},
@@ -67,7 +67,7 @@ pub(crate) fn toggle_asset_state(
 
     // account relationships
 
-    let metadata = Metadata::from_account_info(accounts.metadata_info)?;
+    let metadata = Metadata::from_account(accounts.metadata_info)?;
     // mint must match mint account key
     if metadata.mint != *accounts.mint_info.key {
         return Err(MetadataError::MintMismatch.into());
@@ -121,10 +121,10 @@ pub(crate) fn toggle_asset_state(
                     find_token_record_account(accounts.mint_info.key, accounts.token_info.key);
 
                 assert_keys_equal(&pda_key, token_record_info.key)?;
-                assert_owned_by(token_record_info, &crate::ID)?;
+                assert_owned_by(token_record_info, &crate::id())?;
 
                 (
-                    TokenRecord::from_account_info(token_record_info)?,
+                    TokenRecord::from_account(token_record_info)?,
                     token_record_info,
                 )
             }

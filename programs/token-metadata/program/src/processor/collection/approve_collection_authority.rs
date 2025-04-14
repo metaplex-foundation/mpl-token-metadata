@@ -1,10 +1,10 @@
 use mpl_utils::{assert_signer, create_or_allocate_account_raw};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::{assert_derivation, assert_owned_by},
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{
         CollectionAuthorityRecord, Key, Metadata, TokenMetadataAccount, COLLECTION_AUTHORITY,
         COLLECTION_AUTHORITY_RECORD_SIZE, PREFIX,
@@ -16,7 +16,7 @@ pub fn process_approve_collection_authority(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
         collection_authority_record,
         new_collection_authority,
@@ -24,10 +24,10 @@ pub fn process_approve_collection_authority(
         payer,
         metadata_info,
         mint_info,
-        system_account_info
+        system_account
     );
 
-    let metadata = Metadata::from_account_info(metadata_info)?;
+    let metadata = Metadata::from_account(metadata_info)?;
     assert_owned_by(metadata_info, program_id)?;
     assert_owned_by(mint_info, &SPL_TOKEN_ID)?;
     assert_signer(update_authority)?;
@@ -59,13 +59,13 @@ pub fn process_approve_collection_authority(
     create_or_allocate_account_raw(
         *program_id,
         collection_authority_record,
-        system_account_info,
+        system_account,
         payer,
         COLLECTION_AUTHORITY_RECORD_SIZE,
         &collection_authority_seeds,
     )?;
 
-    let mut record = CollectionAuthorityRecord::from_account_info(collection_authority_record)?;
+    let mut record = CollectionAuthorityRecord::from_account(collection_authority_record)?;
     record.key = Key::CollectionAuthorityRecord;
     record.bump = collection_authority_bump_seed[0];
     record.update_authority = Some(*update_authority.key);

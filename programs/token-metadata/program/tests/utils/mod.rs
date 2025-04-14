@@ -13,7 +13,7 @@ pub use master_edition_v2::MasterEditionV2;
 pub use metadata::{assert_collection_size, Metadata};
 pub use programmable::create_default_metaplex_rule_set;
 pub use rooster_manager::*;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     account::{Account, AccountSharedData, ReadableAccount},
     program_pack::Pack,

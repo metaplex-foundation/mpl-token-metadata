@@ -3,7 +3,7 @@ pub mod utils;
 
 use borsh::BorshSerialize;
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     account::AccountSharedData, instruction::InstructionError, transaction::TransactionError,
 };
@@ -16,7 +16,7 @@ use utils::*;
 mod print {
 
     use borsh::BorshDeserialize;
-    use solana_program::pubkey::Pubkey;
+    use arch_program::pubkey::Pubkey;
     use solana_sdk::{signature::Keypair, signer::Signer};
     use token_metadata::state::{PrintSupply, ProgrammableConfig, TokenStandard};
 

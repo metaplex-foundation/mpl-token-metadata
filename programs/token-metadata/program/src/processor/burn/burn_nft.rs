@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     program_error::ProgramError,
     pubkey::Pubkey,
@@ -19,16 +19,16 @@ use crate::{
 };
 
 pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let metadata_info = next_account_info(account_info_iter)?;
-    let owner_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
-    let token_info = next_account_info(account_info_iter)?;
-    let edition_info = next_account_info(account_info_iter)?;
-    let spl_token_program_info = next_account_info(account_info_iter)?;
+    let metadata_info = next_account_info(account_iter)?;
+    let owner_info = next_account_info(account_iter)?;
+    let mint_info = next_account_info(account_iter)?;
+    let token_info = next_account_info(account_iter)?;
+    let edition_info = next_account_info(account_iter)?;
+    let spl_token_program_info = next_account_info(account_iter)?;
 
-    let collection_metadata_info = account_info_iter.next();
+    let collection_metadata_info = account_iter.next();
 
     // Validate accounts
 
@@ -47,7 +47,7 @@ pub fn process_burn_nft<'a>(program_id: &Pubkey, accounts: &'a [AccountInfo<'a>]
     }
 
     // Deserialize accounts.
-    let metadata = Metadata::from_account_info(metadata_info)?;
+    let metadata = Metadata::from_account(metadata_info)?;
     let token = unpack_initialized::<Account>(&token_info.data.borrow())?;
 
     // Validate relationships between accounts.

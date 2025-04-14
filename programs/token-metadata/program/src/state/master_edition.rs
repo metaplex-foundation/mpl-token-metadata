@@ -1,4 +1,5 @@
 use super::*;
+use std::io::{Read, Write};
 
 // The last byte of the account containts the token standard value for
 // pNFT assets. This is used to restrict legacy operations on the master
@@ -28,14 +29,13 @@ pub trait MasterEdition {
 pub fn get_master_edition(account: &AccountInfo) -> Result<Box<dyn MasterEdition>, ProgramError> {
     let version = account.data.borrow()[0];
 
-    // For some reason when converting Key to u8 here, it becomes unreachable. Use direct constant instead.
     let master_edition_result: Result<Box<dyn MasterEdition>, ProgramError> = match version {
         2 => {
-            let me = MasterEditionV1::from_account_info(account)?;
+            let me = MasterEditionV1::from_account(account)?;
             Ok(Box::new(me))
         }
         6 => {
-            let me = MasterEditionV2::from_account_info(account)?;
+            let me = MasterEditionV2::from_account(account)?;
             Ok(Box::new(me))
         }
         _ => Err(MetadataError::DataTypeMismatch.into()),
@@ -46,13 +46,39 @@ pub fn get_master_edition(account: &AccountInfo) -> Result<Box<dyn MasterEdition
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, BorshSerialize, BorshDeserialize, ShankAccount)]
+#[derive(Clone, Debug, PartialEq, Eq, ShankAccount)]
 pub struct MasterEditionV2 {
     pub key: Key,
 
     pub supply: u64,
 
     pub max_supply: Option<u64>,
+}
+
+impl BorshSerialize for MasterEditionV2 {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W)
+        -> std::result::Result<(), borsh::maybestd::io::Error>
+    {
+        self.key.serialize(writer)?;
+        self.supply.serialize(writer)?;
+        self.max_supply.serialize(writer)?;
+        Ok(())
+    }
+}
+
+impl BorshDeserialize for MasterEditionV2 {
+    fn deserialize(buf: &mut &[u8])
+        -> std::result::Result<Self, borsh::maybestd::io::Error>
+    {
+        let key = Key::deserialize(buf)?;
+        let supply = u64::deserialize(buf)?;
+        let max_supply = Option::<u64>::deserialize(buf)?;
+        Ok(Self {
+            key,
+            supply,
+            max_supply,
+        })
+    }
 }
 
 impl Default for MasterEditionV2 {
@@ -98,14 +124,14 @@ impl MasterEdition for MasterEditionV2 {
             .checked_sub(MASTER_EDITION_FEE_FLAG_OFFSET)
             .ok_or(MetadataError::NumericalOverflowError)?;
         let mut storage = &mut account.data.borrow_mut()[..end];
-        borsh::to_writer(&mut storage, self)?;
+        borsh::to_writer(&mut storage, self).map_err(|_: borsh::maybestd::io::Error| ProgramError::from(MetadataError::DataTypeMismatch))?;
         Ok(())
     }
 }
 
 #[repr(C)]
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
-#[derive(Clone, Debug, PartialEq, Eq, BorshSerialize, BorshDeserialize, ShankAccount)]
+#[derive(Clone, Debug, PartialEq, Eq, ShankAccount)]
 pub struct MasterEditionV1 {
     pub key: Key,
 
@@ -127,6 +153,42 @@ pub struct MasterEditionV1 {
     /// get the printing tokens it needs to give to bidders. Each bidder then redeems a printing token
     /// to get their limited editions.
     pub one_time_printing_authorization_mint: Pubkey,
+}
+
+impl BorshSerialize for MasterEditionV1 {
+    fn serialize<W: std::io::Write>(&self, writer: &mut W)
+        -> std::result::Result<(), borsh::maybestd::io::Error>
+    {
+        self.key.serialize(writer)?;
+        self.supply.serialize(writer)?;
+        self.max_supply.serialize(writer)?;
+        writer.write_all(self.printing_mint.as_ref())?;
+        writer.write_all(self.one_time_printing_authorization_mint.as_ref())?;
+        Ok(())
+    }
+}
+
+impl BorshDeserialize for MasterEditionV1 {
+    fn deserialize(buf: &mut &[u8])
+        -> std::result::Result<Self, borsh::maybestd::io::Error>
+    {
+        let key = Key::deserialize(buf)?;
+        let supply = u64::deserialize(buf)?;
+        let max_supply = Option::<u64>::deserialize(buf)?;
+        let mut printing_mint_arr = [0u8; 32];
+        buf.read_exact(&mut printing_mint_arr)?;
+        let printing_mint = Pubkey::from_slice(&printing_mint_arr);
+        let mut one_time_arr = [0u8; 32];
+        buf.read_exact(&mut one_time_arr)?;
+        let one_time_mint = Pubkey::from_slice(&one_time_arr);
+        Ok(Self {
+            key,
+            supply,
+            max_supply,
+            printing_mint,
+            one_time_printing_authorization_mint: one_time_mint,
+        })
+    }
 }
 
 impl TokenMetadataAccount for MasterEditionV1 {
@@ -162,14 +224,14 @@ impl MasterEdition for MasterEditionV1 {
             .checked_sub(MASTER_EDITION_FEE_FLAG_OFFSET)
             .ok_or(MetadataError::NumericalOverflowError)?;
         let mut storage = &mut account.data.borrow_mut()[..end];
-        borsh::to_writer(&mut storage, self)?;
+        borsh::to_writer(&mut storage, self).map_err(|_: borsh::maybestd::io::Error| ProgramError::from(MetadataError::DataTypeMismatch))?;
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use solana_program::account_info::AccountInfo;
+    use arch_program::account::AccountInfo;
     use solana_sdk::{signature::Keypair, signer::Signer};
 
     use crate::{
@@ -191,18 +253,17 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
             &mut lamports,
             &mut data,
             owner,
-            false,
             1_000_000_000,
         );
 
-        let data = MasterEditionV2::from_account_info(&account_info).unwrap();
+        let data = MasterEditionV2::from_account(&account).unwrap();
         assert_eq!(data.key, Key::MasterEditionV2);
         assert_eq!(data, expected_data);
     }
@@ -220,18 +281,17 @@ mod tests {
         let mut lamports = 1_000_000_000;
         let mut data = buf.clone();
 
-        let account_info = AccountInfo::new(
+        let account = AccountInfo::new(
             &pubkey,
             false,
             true,
             &mut lamports,
             &mut data,
             owner,
-            false,
             1_000_000_000,
         );
 
-        let error = MasterEditionV2::from_account_info(&account_info).unwrap_err();
+        let error = MasterEditionV2::from_account(&account).unwrap_err();
         assert_eq!(error, MetadataError::DataTypeMismatch.into());
     }
 }

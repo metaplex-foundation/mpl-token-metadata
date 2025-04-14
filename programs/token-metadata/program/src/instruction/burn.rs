@@ -1,10 +1,7 @@
+use arch_program::{account::AccountMeta, instruction::Instruction, pubkey::Pubkey};
 use borsh::{BorshDeserialize, BorshSerialize};
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-};
 
 use super::InstructionBuilder;
 use crate::instruction::MetadataInstruction;
@@ -131,38 +128,38 @@ pub enum BurnArgs {
 ///  12.   `[]` Instruction sysvar account
 ///  13.   `[]` SPL Token Program
 impl InstructionBuilder for super::builders::Burn {
-    fn instruction(&self) -> solana_program::instruction::Instruction {
+    fn instruction(&self) -> arch_program::instruction::Instruction {
         let accounts = vec![
             AccountMeta::new(self.authority, true),
             if let Some(collection_metadata) = self.collection_metadata {
                 AccountMeta::new(collection_metadata, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new(self.metadata, false),
             if let Some(edition) = self.edition {
                 AccountMeta::new(edition, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new(self.mint, false),
             AccountMeta::new(self.token, false),
             if let Some(master_edition) = self.master_edition {
                 AccountMeta::new(master_edition, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
-            AccountMeta::new_readonly(self.master_edition_mint.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(self.master_edition_token.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.master_edition_mint.unwrap_or(crate::id()), false),
+            AccountMeta::new_readonly(self.master_edition_token.unwrap_or(crate::id()), false),
             if let Some(edition_marker) = self.edition_marker {
                 AccountMeta::new(edition_marker, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             if let Some(token_record) = self.token_record {
                 AccountMeta::new(token_record, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
@@ -170,7 +167,7 @@ impl InstructionBuilder for super::builders::Burn {
         ];
 
         Instruction {
-            program_id: crate::ID,
+            program_id: crate::id(),
             accounts,
             data: MetadataInstruction::Burn(self.args.clone())
                 .try_to_vec()

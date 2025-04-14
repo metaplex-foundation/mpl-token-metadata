@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, pubkey::Pubkey,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, pubkey::Pubkey,
 };
 use spl_token_2022::{instruction::thaw_account, state::Mint};
 
@@ -10,7 +10,7 @@ use crate::{
         assert_initialized, assert_owned_by, edition::assert_edition_is_not_programmable,
     },
     error::MetadataError,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{EDITION, PREFIX},
     utils::SPL_TOKEN_ID,
 };
@@ -19,16 +19,16 @@ pub fn process_thaw_delegated_account(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
         delegate_info,
-        token_account_info,
+        token_account,
         edition_info,
         mint_info,
-        token_program_account_info
+        token_program_account
     );
 
-    if *token_program_account_info.key != SPL_TOKEN_ID {
+    if *token_program_account.key != SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 
@@ -42,8 +42,8 @@ pub fn process_thaw_delegated_account(
     assert_delegated_tokens(
         delegate_info,
         mint_info,
-        token_account_info,
-        token_program_account_info.key,
+        token_account,
+        token_program_account.key,
     )?;
 
     let edition_info_path = Vec::from([
@@ -65,15 +65,15 @@ pub fn process_thaw_delegated_account(
     edition_info_seeds.push(edition_info_path_bump_seed);
     invoke_signed(
         &thaw_account(
-            token_program_account_info.key,
-            token_account_info.key,
+            token_program_account.key,
+            token_account.key,
             mint_info.key,
             edition_info.key,
             &[],
         )
         .unwrap(),
         &[
-            token_account_info.clone(),
+            token_account.clone(),
             mint_info.clone(),
             edition_info.clone(),
         ],

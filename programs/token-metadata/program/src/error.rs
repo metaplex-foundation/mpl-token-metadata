@@ -1,7 +1,7 @@
 //! Error types
 
 use num_derive::FromPrimitive;
-use solana_program::{
+use arch_program::{
     decode_error::DecodeError,
     msg,
     program_error::{PrintProgramError, ProgramError},

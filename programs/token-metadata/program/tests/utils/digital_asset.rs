@@ -1,6 +1,6 @@
 use borsh::BorshDeserialize;
-use solana_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
-use solana_program_test::{BanksClientError, ProgramTestContext};
+use arch_program::{program_option::COption, program_pack::Pack, pubkey::Pubkey};
+use arch_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     account::AccountSharedData,
     compute_budget::ComputeBudgetInstruction,

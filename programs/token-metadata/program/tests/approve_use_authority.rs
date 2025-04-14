@@ -2,7 +2,7 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
@@ -17,7 +17,7 @@ use utils::*;
 mod approve_use_authority {
 
     use borsh::BorshDeserialize;
-    use solana_program::program_pack::Pack;
+    use arch_program::program_pack::Pack;
     use spl_token::state::Account;
     use token_metadata::{pda::find_program_as_burner_account, state::Key};
 

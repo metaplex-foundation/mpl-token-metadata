@@ -2,8 +2,8 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program::pubkey::Pubkey;
-use solana_program_test::*;
+use arch_program::pubkey::Pubkey;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::{Keypair, Signer},
@@ -14,7 +14,7 @@ use utils::*;
 mod process_legacy_instruction {
 
     use borsh::BorshDeserialize;
-    use solana_program::program_pack::Pack;
+    use arch_program::program_pack::Pack;
     use spl_token_2022::state::Account;
     use token_metadata::{
         error::MetadataError,

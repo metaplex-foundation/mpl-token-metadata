@@ -1,5 +1,5 @@
 use mpl_utils::assert_signer;
-use solana_program::{entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
@@ -17,7 +17,7 @@ pub(crate) fn verify_creator_v1(program_id: &Pubkey, ctx: Context<Verify>) -> Pr
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
 
     // Deserialize item metadata.
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // Find creator in creator array and if found mark as verified.
     find_and_set_creator(
@@ -38,7 +38,7 @@ pub(crate) fn unverify_creator_v1(program_id: &Pubkey, ctx: Context<Unverify>) -
     assert_owned_by(ctx.accounts.metadata_info, program_id)?;
 
     // Deserialize item metadata.
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // Find creator in creator array and if found mark as verified.
     find_and_set_creator(

@@ -1,13 +1,13 @@
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError, pubkey::Pubkey,
+    system_program,
+};
 use arrayref::{array_mut_ref, array_ref, mut_array_refs};
 use borsh::BorshSerialize;
 use metadata::{process_create_metadata_accounts_logic, CreateMetadataAccountsLogicArgs};
 use mpl_utils::{
     assert_signer, create_or_allocate_account_raw,
     token::{get_mint_authority, get_mint_supply},
-};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_error::ProgramError,
-    pubkey::Pubkey, system_program,
 };
 use spl_token_2022::state::{Account, Mint};
 
@@ -31,19 +31,19 @@ use crate::{
 };
 
 pub struct MintNewEditionFromMasterEditionViaTokenLogicArgs<'a> {
-    pub new_metadata_account_info: &'a AccountInfo<'a>,
-    pub new_edition_account_info: &'a AccountInfo<'a>,
-    pub master_edition_account_info: &'a AccountInfo<'a>,
+    pub new_metadata_account: &'a AccountInfo<'a>,
+    pub new_edition_account: &'a AccountInfo<'a>,
+    pub master_edition_account: &'a AccountInfo<'a>,
     pub mint_info: &'a AccountInfo<'a>,
     pub edition_marker_info: &'a AccountInfo<'a>,
     pub mint_authority_info: &'a AccountInfo<'a>,
-    pub payer_account_info: &'a AccountInfo<'a>,
-    pub owner_account_info: &'a AccountInfo<'a>,
-    pub token_account_info: &'a AccountInfo<'a>,
+    pub payer_account: &'a AccountInfo<'a>,
+    pub owner_account: &'a AccountInfo<'a>,
+    pub token_account: &'a AccountInfo<'a>,
     pub update_authority_info: &'a AccountInfo<'a>,
-    pub master_metadata_account_info: &'a AccountInfo<'a>,
-    pub token_program_account_info: &'a AccountInfo<'a>,
-    pub system_account_info: &'a AccountInfo<'a>,
+    pub master_metadata_account: &'a AccountInfo<'a>,
+    pub token_program_account: &'a AccountInfo<'a>,
+    pub system_account: &'a AccountInfo<'a>,
     pub holder_delegate_record_info: Option<&'a AccountInfo<'a>>,
     pub delegate_info: Option<&'a AccountInfo<'a>>,
 }
@@ -54,36 +54,36 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     edition: u64,
 ) -> ProgramResult {
     let MintNewEditionFromMasterEditionViaTokenLogicArgs {
-        new_metadata_account_info,
-        new_edition_account_info,
-        master_edition_account_info,
+        new_metadata_account,
+        new_edition_account,
+        master_edition_account,
         mint_info,
         edition_marker_info,
         mint_authority_info,
-        payer_account_info,
-        owner_account_info,
-        token_account_info,
+        payer_account,
+        owner_account,
+        token_account,
         update_authority_info,
-        master_metadata_account_info,
-        token_program_account_info,
-        system_account_info,
+        master_metadata_account,
+        token_program_account,
+        system_account,
         holder_delegate_record_info,
         delegate_info,
     } = accounts;
 
-    assert_token_program_matches_package(token_program_account_info)?;
-    assert_owned_by(mint_info, token_program_account_info.key)?;
-    assert_owned_by(token_account_info, token_program_account_info.key)?;
-    assert_owned_by(master_edition_account_info, program_id)?;
-    assert_owned_by(master_metadata_account_info, program_id)?;
-    assert_signer(payer_account_info)?;
+    assert_token_program_matches_package(token_program_account)?;
+    assert_owned_by(mint_info, token_program_account.key)?;
+    assert_owned_by(token_account, token_program_account.key)?;
+    assert_owned_by(master_edition_account, program_id)?;
+    assert_owned_by(master_metadata_account, program_id)?;
+    assert_signer(payer_account)?;
 
-    if system_account_info.key != &system_program::ID {
+    if system_account.key != &system_program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    let master_metadata = Metadata::from_account_info(master_metadata_account_info)?;
-    let token_account = unpack_initialized::<Account>(&token_account_info.data.borrow())?;
+    let master_metadata = Metadata::from_account(master_metadata_account)?;
+    let token_account = unpack_initialized::<Account>(&token_account.data.borrow())?;
 
     match holder_delegate_record_info {
         Some(delegate_record_info) => {
@@ -92,26 +92,26 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
                     assert_signer(delegate)?;
                     Ok::<&Pubkey, ProgramError>(delegate.key)
                 }
-                None => Ok(payer_account_info.key),
+                None => Ok(payer_account.key),
             }?;
 
-            assert_owned_by(delegate_record_info, &crate::ID)?;
+            assert_owned_by(delegate_record_info, &crate::id())?;
             let role = HolderDelegateRole::PrintDelegate.to_string();
             let seeds = vec![
                 PREFIX.as_bytes(),
                 program_id.as_ref(),
                 master_metadata.mint.as_ref(),
                 role.as_bytes(),
-                owner_account_info.key.as_ref(),
+                owner_account.key.as_ref(),
                 delegate_authority.as_ref(),
             ];
             assert_derivation(program_id, delegate_record_info, &seeds)?;
             Ok(())
         }
-        None => assert_signer(owner_account_info),
+        None => assert_signer(owner_account),
     }?;
 
-    if token_account.owner != *owner_account_info.key {
+    if token_account.owner != *owner_account.key {
         return Err(MetadataError::InvalidOwner.into());
     }
 
@@ -123,18 +123,18 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
         return Err(MetadataError::NotEnoughTokens.into());
     }
 
-    if !new_metadata_account_info.data_is_empty() {
+    if !new_metadata_account.data_is_empty() {
         return Err(MetadataError::AlreadyInitialized.into());
     }
 
-    if !new_edition_account_info.data_is_empty() {
+    if !new_edition_account.data_is_empty() {
         return Err(MetadataError::AlreadyInitialized.into());
     }
 
     // Check that the edition we're printing from actually is a master edition.
     // We're not passing in the master edition mint so we can't fetch the actual supply and decimals
     // but we can safely assume that the account was only created if those checks passed.
-    if !is_master_edition(master_edition_account_info, 0, 1) {
+    if !is_master_edition(master_edition_account, 0, 1) {
         return Err(MetadataError::InvalidMasterEdition.into());
     };
 
@@ -171,14 +171,14 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
                 create_or_allocate_account_raw(
                     *program_id,
                     edition_marker_info,
-                    system_account_info,
-                    payer_account_info,
+                    system_account,
+                    payer_account,
                     MAX_EDITION_MARKER_SIZE,
                     seeds,
                 )?;
             }
 
-            let mut edition_marker = EditionMarker::from_account_info(edition_marker_info)?;
+            let mut edition_marker = EditionMarker::from_account(edition_marker_info)?;
             edition_marker.key = Key::EditionMarker;
             if edition_marker.edition_taken(edition)? {
                 return Err(MetadataError::AlreadyInitialized.into());
@@ -219,15 +219,15 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
                 create_or_allocate_account_raw(
                     *program_id,
                     edition_marker_info,
-                    system_account_info,
-                    payer_account_info,
+                    system_account,
+                    payer_account,
                     serialized_data.len(),
                     seeds,
                 )?;
 
                 marker
             } else {
-                EditionMarkerV2::from_account_info(edition_marker_info)?
+                EditionMarkerV2::from_account(edition_marker_info)?
             };
 
             edition_marker.key = Key::EditionMarkerV2;
@@ -236,7 +236,7 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
             } else {
                 edition_marker.insert_edition(edition)?
             }
-            edition_marker.save(edition_marker_info, payer_account_info, system_account_info)?;
+            edition_marker.save(edition_marker_info, payer_account, system_account)?;
         }
         _ => return Err(MetadataError::InvalidTokenStandard.into()),
     };
@@ -244,15 +244,15 @@ pub fn process_mint_new_edition_from_master_edition_via_token_logic<'a>(
     mint_limited_edition(
         program_id,
         master_metadata,
-        new_metadata_account_info,
-        new_edition_account_info,
-        master_edition_account_info,
+        new_metadata_account,
+        new_edition_account,
+        master_edition_account,
         mint_info,
         mint_authority_info,
-        payer_account_info,
+        payer_account,
         update_authority_info,
-        token_program_account_info,
-        system_account_info,
+        token_program_account,
+        system_account,
         None,
         Some(edition),
     )?;
@@ -289,7 +289,7 @@ pub fn extract_edition_number_from_deprecated_reservation_list(
                 break;
             }
 
-            if reservation.address == solana_program::system_program::ID {
+            if reservation.address == arch_program::system_program::ID {
                 // This is an anchor point in the array...it means we reset our math to
                 // this offset because we may be missing information in between this point and
                 // the points before it.
@@ -337,9 +337,9 @@ pub fn calculate_edition_number(
 }
 
 fn get_max_supply_off_master_edition(
-    master_edition_account_info: &AccountInfo,
+    master_edition_account: &AccountInfo,
 ) -> Result<Option<u64>, ProgramError> {
-    let data = master_edition_account_info.try_borrow_data()?;
+    let data = master_edition_account.try_borrow_data()?;
     // this is an option, 9 bytes, first is 0 means is none
     if data[9] == 0 {
         Ok(None)
@@ -350,9 +350,9 @@ fn get_max_supply_off_master_edition(
 }
 
 pub fn get_supply_off_master_edition(
-    master_edition_account_info: &AccountInfo,
+    master_edition_account: &AccountInfo,
 ) -> Result<u64, ProgramError> {
-    let data = master_edition_account_info.try_borrow_data()?;
+    let data = master_edition_account.try_borrow_data()?;
     // this is an option, 9 bytes, first is 0 means is none
 
     let amount_data = array_ref![data, 1, 8];
@@ -360,7 +360,7 @@ pub fn get_supply_off_master_edition(
 }
 
 pub fn calculate_supply_change<'a>(
-    master_edition_account_info: &AccountInfo<'a>,
+    master_edition_account: &AccountInfo<'a>,
     reservation_list_info: Option<&AccountInfo<'a>>,
     edition_override: Option<u64>,
     current_supply: u64,
@@ -381,7 +381,7 @@ pub fn calculate_supply_change<'a>(
         return Err(MetadataError::EditionOverrideCannotBeZero.into());
     }
 
-    let max_supply = get_max_supply_off_master_edition(master_edition_account_info)?;
+    let max_supply = get_max_supply_off_master_edition(master_edition_account)?;
 
     // Previously, the code used edition override to set the supply to the highest edition number minted,
     // instead of properly tracking the supply.
@@ -417,7 +417,7 @@ pub fn calculate_supply_change<'a>(
     };
 
     // Doing old school serialization to protect CPU credits.
-    let edition_data = &mut master_edition_account_info.data.borrow_mut();
+    let edition_data = &mut master_edition_account.data.borrow_mut();
     let output = array_mut_ref![edition_data, 0, MAX_MASTER_EDITION_LEN];
 
     let (_key, supply, _the_rest) = mut_array_refs![output, 1, 8, 11];
@@ -430,15 +430,15 @@ pub fn calculate_supply_change<'a>(
 pub fn mint_limited_edition<'a>(
     program_id: &'a Pubkey,
     master_metadata: Metadata,
-    new_metadata_account_info: &'a AccountInfo<'a>,
-    new_edition_account_info: &'a AccountInfo<'a>,
-    master_edition_account_info: &'a AccountInfo<'a>,
+    new_metadata_account: &'a AccountInfo<'a>,
+    new_edition_account: &'a AccountInfo<'a>,
+    master_edition_account: &'a AccountInfo<'a>,
     mint_info: &'a AccountInfo<'a>,
     mint_authority_info: &'a AccountInfo<'a>,
-    payer_account_info: &'a AccountInfo<'a>,
+    payer_account: &'a AccountInfo<'a>,
     update_authority_info: &'a AccountInfo<'a>,
-    token_program_account_info: &'a AccountInfo<'a>,
-    system_account_info: &'a AccountInfo<'a>,
+    token_program_account: &'a AccountInfo<'a>,
+    system_account: &'a AccountInfo<'a>,
     // Only present with MasterEditionV1 calls, if present, use edition based off address in res list,
     // otherwise, pull off the top
     reservation_list_info: Option<&'a AccountInfo<'a>>,
@@ -446,7 +446,7 @@ pub fn mint_limited_edition<'a>(
     // directing to a specific version, otherwise just pull off the top
     edition_override: Option<u64>,
 ) -> ProgramResult {
-    let me_supply = get_supply_off_master_edition(master_edition_account_info)?;
+    let me_supply = get_supply_off_master_edition(master_edition_account)?;
     let mint_authority = get_mint_authority(mint_info)?;
     let mint_supply = get_mint_supply(mint_info)?;
     let mint_decimals = get_mint_decimals(mint_info)?;
@@ -455,7 +455,7 @@ pub fn mint_limited_edition<'a>(
     assert_edition_valid(
         program_id,
         &master_metadata.mint,
-        master_edition_account_info,
+        master_edition_account,
     )?;
 
     let edition_seeds = &[
@@ -465,7 +465,7 @@ pub fn mint_limited_edition<'a>(
         EDITION.as_bytes(),
     ];
     let (edition_key, bump_seed) = Pubkey::find_program_address(edition_seeds, program_id);
-    if edition_key != *new_edition_account_info.key {
+    if edition_key != *new_edition_account.key {
         return Err(MetadataError::InvalidEditionKey.into());
     }
 
@@ -473,7 +473,7 @@ pub fn mint_limited_edition<'a>(
         return Err(MetadataError::InvalidOperation.into());
     }
     calculate_supply_change(
-        master_edition_account_info,
+        master_edition_account,
         reservation_list_info,
         edition_override,
         me_supply,
@@ -516,12 +516,12 @@ pub fn mint_limited_edition<'a>(
     process_create_metadata_accounts_logic(
         program_id,
         CreateMetadataAccountsLogicArgs {
-            metadata_account_info: new_metadata_account_info,
+            metadata_account: new_metadata_account,
             mint_info,
             mint_authority_info,
-            payer_account_info,
+            payer_account,
             update_authority_info,
-            system_account_info,
+            system_account,
         },
         data_v2,
         true,
@@ -542,21 +542,21 @@ pub fn mint_limited_edition<'a>(
 
     create_or_allocate_account_raw(
         *program_id,
-        new_edition_account_info,
-        system_account_info,
-        payer_account_info,
+        new_edition_account,
+        system_account,
+        payer_account,
         MAX_EDITION_LEN,
         edition_authority_seeds,
     )?;
 
     // Doing old school serialization to protect CPU credits.
-    let edition_data = &mut new_edition_account_info.data.borrow_mut();
+    let edition_data = &mut new_edition_account.data.borrow_mut();
     let output = array_mut_ref![edition_data, 0, MAX_EDITION_LEN];
 
     let (key, parent, edition, _padding) = mut_array_refs![output, 1, 32, 8, 1];
 
     *key = [Key::EditionV1 as u8];
-    parent.copy_from_slice(master_edition_account_info.key.as_ref());
+    parent.copy_from_slice(master_edition_account.key.as_ref());
 
     *edition = calculate_edition_number(
         mint_authority_info,
@@ -569,16 +569,16 @@ pub fn mint_limited_edition<'a>(
     // Now make sure this mint can never be used by anybody else.
     transfer_mint_authority(
         &edition_key,
-        new_edition_account_info,
+        new_edition_account,
         mint_info,
         mint_authority_info,
-        token_program_account_info,
+        token_program_account,
     )?;
 
     Ok(())
 }
 
-/// Creates a new master edition account for the specified `edition_account_info` and
+/// Creates a new master edition account for the specified `edition_account` and
 /// `mint_info`. Master editions only exist for non-fungible assets, therefore the supply
 /// of the mint must thei either 0 or 1; any value higher than that will generate an
 /// error.
@@ -587,22 +587,22 @@ pub fn mint_limited_edition<'a>(
 #[allow(clippy::too_many_arguments)]
 pub fn create_master_edition<'a>(
     program_id: &Pubkey,
-    edition_account_info: &'a AccountInfo<'a>,
+    edition_account: &'a AccountInfo<'a>,
     mint_info: &'a AccountInfo<'a>,
     update_authority_info: &'a AccountInfo<'a>,
     mint_authority_info: &'a AccountInfo<'a>,
-    payer_account_info: &'a AccountInfo<'a>,
-    metadata_account_info: &'a AccountInfo<'a>,
+    payer_account: &'a AccountInfo<'a>,
+    metadata_account: &'a AccountInfo<'a>,
     token_program_info: &'a AccountInfo<'a>,
-    system_account_info: &'a AccountInfo<'a>,
+    system_account: &'a AccountInfo<'a>,
     max_supply: Option<u64>,
 ) -> ProgramResult {
-    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let mut metadata = Metadata::from_account(metadata_account)?;
     let mint = unpack_initialized::<Mint>(&mint_info.data.borrow())?;
 
     let bump_seed = assert_derivation(
         program_id,
-        edition_account_info,
+        edition_account,
         &[
             PREFIX.as_bytes(),
             program_id.as_ref(),
@@ -613,7 +613,7 @@ pub fn create_master_edition<'a>(
 
     assert_token_program_matches_package(token_program_info)?;
     assert_mint_authority_matches_mint(&mint.mint_authority, mint_authority_info)?;
-    assert_owned_by(metadata_account_info, program_id)?;
+    assert_owned_by(metadata_account, program_id)?;
     assert_owned_by(mint_info, token_program_info.key)?;
 
     if metadata.mint != *mint_info.key {
@@ -640,30 +640,30 @@ pub fn create_master_edition<'a>(
 
     create_or_allocate_account_raw(
         *program_id,
-        edition_account_info,
-        system_account_info,
-        payer_account_info,
+        edition_account,
+        system_account,
+        payer_account,
         MAX_MASTER_EDITION_LEN,
         edition_authority_seeds,
     )?;
 
-    let mut edition = MasterEditionV2::from_account_info(edition_account_info)?;
+    let mut edition = MasterEditionV2::from_account(edition_account)?;
 
     edition.key = Key::MasterEditionV2;
     edition.supply = 0;
     edition.max_supply = max_supply;
-    edition.save(edition_account_info)?;
+    edition.save(edition_account)?;
 
-    if metadata_account_info.is_writable {
+    if metadata_account.is_writable {
         metadata.token_standard = Some(TokenStandard::NonFungible);
-        metadata.save(&mut metadata_account_info.try_borrow_mut_data()?)?;
+        metadata.save(&mut metadata_account.try_borrow_mut_data()?)?;
     }
 
     // while you can mint only 1 token from your master record, you can
     // mint as many limited editions as you like within your max supply
     transfer_mint_authority(
-        edition_account_info.key,
-        edition_account_info,
+        edition_account.key,
+        edition_account,
         mint_info,
         mint_authority_info,
         token_program_info,
@@ -672,39 +672,39 @@ pub fn create_master_edition<'a>(
 
 pub fn clean_write_resize_master_edition<'a>(
     master_edition: &mut MasterEditionV2,
-    master_edition_account_info: &'a AccountInfo<'a>,
+    master_edition_account: &'a AccountInfo<'a>,
     payer: &'a AccountInfo<'a>,
     system_program: &'a AccountInfo<'a>,
 ) -> ProgramResult {
     // Save the fee and token standard flags.
-    let original_len = master_edition_account_info.data_len();
+    let original_len = master_edition_account.data_len();
 
     if original_len <= MAX_MASTER_EDITION_LEN {
         return Err(MetadataError::AccountAlreadyResized.into());
     }
 
     let fee_flag =
-        master_edition_account_info.data.borrow()[original_len - MASTER_EDITION_FEE_FLAG_OFFSET];
-    let token_standard_flag = master_edition_account_info.data.borrow()
+        master_edition_account.data.borrow()[original_len - MASTER_EDITION_FEE_FLAG_OFFSET];
+    let token_standard_flag = master_edition_account.data.borrow()
         [original_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET];
 
     // Resize the account to the new size.
     resize_with_offset(
-        master_edition_account_info,
+        master_edition_account,
         payer,
         system_program,
         MAX_MASTER_EDITION_LEN,
     )?;
 
-    let new_len = master_edition_account_info.data_len();
+    let new_len = master_edition_account.data_len();
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
-    let mut master_edition_account_info_data = master_edition_account_info.try_borrow_mut_data()?;
-    master_edition_account_info_data[..].fill(0);
+    let mut master_edition_account_data = master_edition_account.try_borrow_mut_data()?;
+    master_edition_account_data[..].fill(0);
 
     let serialized_data = master_edition.try_to_vec()?;
-    master_edition_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
-    master_edition_account_info_data[new_len - MASTER_EDITION_FEE_FLAG_OFFSET] = fee_flag;
-    master_edition_account_info_data[new_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET] =
+    master_edition_account_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+    master_edition_account_data[new_len - MASTER_EDITION_FEE_FLAG_OFFSET] = fee_flag;
+    master_edition_account_data[new_len - MASTER_EDITION_TOKEN_STANDARD_OFFSET] =
         token_standard_flag;
 
     Ok(())
@@ -712,31 +712,31 @@ pub fn clean_write_resize_master_edition<'a>(
 
 pub fn clean_write_resize_edition<'a>(
     edition: &mut Edition,
-    edition_account_info: &'a AccountInfo<'a>,
+    edition_account: &'a AccountInfo<'a>,
     payer: &'a AccountInfo<'a>,
     system_program: &'a AccountInfo<'a>,
 ) -> ProgramResult {
     // Save the standard flag.
-    let original_len = edition_account_info.data_len();
+    let original_len = edition_account.data_len();
 
     if original_len <= MAX_EDITION_LEN {
         return Err(MetadataError::AccountAlreadyResized.into());
     }
 
     let token_standard_flag =
-        edition_account_info.data.borrow()[original_len - EDITION_TOKEN_STANDARD_OFFSET];
+        edition_account.data.borrow()[original_len - EDITION_TOKEN_STANDARD_OFFSET];
 
     // Resize the account to the new size.
-    resize_with_offset(edition_account_info, payer, system_program, MAX_EDITION_LEN)?;
+    resize_with_offset(edition_account, payer, system_program, MAX_EDITION_LEN)?;
 
-    let new_len = edition_account_info.data_len();
+    let new_len = edition_account.data_len();
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
-    let mut edition_account_info_data = edition_account_info.try_borrow_mut_data()?;
-    edition_account_info_data[..].fill(0);
+    let mut edition_account_data = edition_account.try_borrow_mut_data()?;
+    edition_account_data[..].fill(0);
 
     let serialized_data = edition.try_to_vec()?;
-    edition_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
-    edition_account_info_data[new_len - EDITION_TOKEN_STANDARD_OFFSET] = token_standard_flag;
+    edition_account_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+    edition_account_data[new_len - EDITION_TOKEN_STANDARD_OFFSET] = token_standard_flag;
 
     Ok(())
 }

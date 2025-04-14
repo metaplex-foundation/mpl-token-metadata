@@ -38,11 +38,11 @@ pub fn get_reservation_list(
     // For some reason when converting Key to u8 here, it becomes unreachable. Use direct constant instead.
     let reservation_list_result: Result<Box<dyn ReservationList>, ProgramError> = match version {
         3 => {
-            let reservation_list = Box::new(ReservationListV1::from_account_info(account)?);
+            let reservation_list = Box::new(ReservationListV1::from_account(account)?);
             Ok(reservation_list)
         }
         5 => {
-            let reservation_list = Box::new(ReservationListV2::from_account_info(account)?);
+            let reservation_list = Box::new(ReservationListV2::from_account(account)?);
             Ok(reservation_list)
         }
         _ => Err(MetadataError::DataTypeMismatch.into()),
@@ -108,7 +108,7 @@ impl ReservationList for ReservationListV2 {
         let usize_offset = offset as usize;
         while self.reservations.len() < usize_offset {
             self.reservations.push(Reservation {
-                address: solana_program::system_program::ID,
+                address: arch_program::system_program::ID,
                 spots_remaining: 0,
                 total_spots: 0,
             })
@@ -125,7 +125,7 @@ impl ReservationList for ReservationListV2 {
                         .checked_sub(replaced_spots)
                         .ok_or(MetadataError::NumericalOverflowError)?,
                 );
-            } else if replaced_addr != solana_program::system_program::ID {
+            } else if replaced_addr != arch_program::system_program::ID {
                 return Err(MetadataError::TriedToReplaceAnExistingReservation.into());
             }
             self.reservations[usize_offset] = reservation;
@@ -134,7 +134,7 @@ impl ReservationList for ReservationListV2 {
         }
 
         if usize_offset != 0
-            && self.reservations[usize_offset - 1].address == solana_program::system_program::ID
+            && self.reservations[usize_offset - 1].address == arch_program::system_program::ID
         {
             // This becomes an anchor then for calculations... put total spot offset in here.
             self.reservations[usize_offset - 1].spots_remaining = total_spot_offset;
@@ -150,7 +150,8 @@ impl ReservationList for ReservationListV2 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        borsh::to_writer(&mut account.data.borrow_mut()[..], self)?;
+        borsh::to_writer(&mut account.data.borrow_mut()[..], self)
+            .map_err(|_| MetadataError::BorshSerializationError)?;
         Ok(())
     }
 
@@ -255,7 +256,8 @@ impl ReservationList for ReservationListV1 {
     }
 
     fn save(&self, account: &AccountInfo) -> ProgramResult {
-        borsh::to_writer(&mut account.data.borrow_mut()[..], self)?;
+        borsh::to_writer(&mut account.data.borrow_mut()[..], self)
+            .map_err(|_| MetadataError::BorshSerializationError)?;
         Ok(())
     }
 

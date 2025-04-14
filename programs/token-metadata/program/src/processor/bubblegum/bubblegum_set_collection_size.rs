@@ -1,13 +1,13 @@
 use std::cmp;
 
 use mpl_utils::assert_signer;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
     instruction::SetCollectionSizeArgs,
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{CollectionDetails, Metadata, TokenMetadataAccount},
     utils::{clean_write_metadata, BUBBLEGUM_ACTIVATED, BUBBLEGUM_SIGNER, SPL_TOKEN_ID},
 };
@@ -19,11 +19,11 @@ pub fn bubblegum_set_collection_size(
 ) -> ProgramResult {
     let size = args.size;
 
-    all_account_infos!(
+    all_accounts!(
         accounts,
-        parent_nft_metadata_account_info,
-        collection_update_authority_account_info,
-        collection_mint_account_info,
+        parent_nft_metadata_account,
+        collection_update_authority_account,
+        collection_mint_account,
         bubblegum_signer_info
     );
 
@@ -38,16 +38,16 @@ pub fn bubblegum_set_collection_size(
     assert_signer(bubblegum_signer_info)?;
 
     // Owned by token-metadata program.
-    assert_owned_by(parent_nft_metadata_account_info, program_id)?;
+    assert_owned_by(parent_nft_metadata_account, program_id)?;
 
     // Mint owned by spl token program.
-    assert_owned_by(collection_mint_account_info, &SPL_TOKEN_ID)?;
+    assert_owned_by(collection_mint_account, &SPL_TOKEN_ID)?;
 
-    let mut metadata = Metadata::from_account_info(parent_nft_metadata_account_info)?;
+    let mut metadata = Metadata::from_account(parent_nft_metadata_account)?;
 
     // Check that the update authority or delegate is a signer.
     // Collection authority is validated in the bubblegum program in the assert_has_collection_authority call.
-    if !collection_update_authority_account_info.is_signer {
+    if !collection_update_authority_account.is_signer {
         return Err(MetadataError::UpdateAuthorityIsNotSigner.into());
     }
 
@@ -76,6 +76,6 @@ pub fn bubblegum_set_collection_size(
         Some(CollectionDetails::V1 { size })
     };
 
-    clean_write_metadata(&mut metadata, parent_nft_metadata_account_info)?;
+    clean_write_metadata(&mut metadata, parent_nft_metadata_account)?;
     Ok(())
 }

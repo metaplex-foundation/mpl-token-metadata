@@ -73,31 +73,31 @@ pub(crate) fn burn_nonfungible_edition(
     // Master and Print editions are valid PDAs for their given mints.
     let master_edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         master_edition_mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    assert_derivation(&crate::ID, master_edition_info, &master_edition_info_path)
+    assert_derivation(&crate::id(), master_edition_info, &master_edition_info_path)
         .map_err(|_| MetadataError::InvalidMasterEdition)?;
 
     let print_edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let bump = assert_derivation(&crate::ID, edition_info, &print_edition_info_path)
+    let bump = assert_derivation(&crate::id(), edition_info, &print_edition_info_path)
         .map_err(|_| MetadataError::InvalidPrintEdition)?;
 
     let edition_seeds = &[
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
         &[bump],
     ];
 
-    let print_edition = Edition::from_account_info(edition_info)?;
+    let print_edition = Edition::from_account(edition_info)?;
 
     // Print Edition actually belongs to the master edition.
     if print_edition.parent != *master_edition_info.key {
@@ -108,12 +108,12 @@ pub(crate) fn burn_nonfungible_edition(
         // Ensure we were passed the correct edition marker PDA.
         let edition_marker_info_path = Vec::from([
             PREFIX.as_bytes(),
-            crate::ID.as_ref(),
+            crate::id().as_ref(),
             master_edition_mint_info.key.as_ref(),
             EDITION.as_bytes(),
             MARKER.as_bytes(),
         ]);
-        assert_derivation(&crate::ID, edition_marker_info, &edition_marker_info_path)
+        assert_derivation(&crate::id(), edition_marker_info, &edition_marker_info_path)
             .map_err(|_| MetadataError::InvalidEditionMarker)?;
     } else {
         // Which edition marker is this edition in
@@ -126,12 +126,12 @@ pub(crate) fn burn_nonfungible_edition(
         // Ensure we were passed the correct edition marker PDA.
         let edition_marker_info_path = Vec::from([
             PREFIX.as_bytes(),
-            crate::ID.as_ref(),
+            crate::id().as_ref(),
             master_edition_mint_info.key.as_ref(),
             EDITION.as_bytes(),
             edition_marker_number_str.as_bytes(),
         ]);
-        assert_derivation(&crate::ID, edition_marker_info, &edition_marker_info_path)
+        assert_derivation(&crate::id(), edition_marker_info, &edition_marker_info_path)
             .map_err(|_| MetadataError::InvalidEditionMarker)?;
     }
 
@@ -169,7 +169,7 @@ pub(crate) fn burn_nonfungible_edition(
     // Otherwise leave the bit set to 1 to disallow reprinting.
     if token_standard == &TokenStandard::ProgrammableNonFungibleEdition {
         let mut edition_marker: EditionMarkerV2 =
-            EditionMarkerV2::from_account_info(edition_marker_info)?;
+            EditionMarkerV2::from_account(edition_marker_info)?;
 
         let owner_is_the_same =
             *ctx.accounts.authority_info.key == master_edition_token_account.owner;
@@ -196,7 +196,7 @@ pub(crate) fn burn_nonfungible_edition(
         }
     } else {
         let mut edition_marker: EditionMarker =
-            EditionMarker::from_account_info(edition_marker_info)?;
+            EditionMarker::from_account(edition_marker_info)?;
 
         let owner_is_the_same =
             *ctx.accounts.authority_info.key == master_edition_token_account.owner;
@@ -221,7 +221,7 @@ pub(crate) fn burn_nonfungible_edition(
 
     // Decrement the suppply on the master edition now that we've successfully burned a print.
     let mut master_edition: MasterEditionV2 =
-        MasterEditionV2::from_account_info(master_edition_info)?;
+        MasterEditionV2::from_account(master_edition_info)?;
     master_edition.supply = master_edition
         .supply
         .checked_sub(1)

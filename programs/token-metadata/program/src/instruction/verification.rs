@@ -1,7 +1,7 @@
+use arch_program::{account::AccountMeta, instruction::Instruction};
 use borsh::{BorshDeserialize, BorshSerialize};
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
-use solana_program::instruction::{AccountMeta, Instruction};
 
 use super::InstructionBuilder;
 use crate::instruction::MetadataInstruction;
@@ -27,28 +27,31 @@ pub enum VerificationArgs {
 ///   6. `[]` System program
 ///   7. `[]` Instructions sysvar account
 impl InstructionBuilder for super::builders::Verify {
-    fn instruction(&self) -> solana_program::instruction::Instruction {
+    fn instruction(&self) -> arch_program::instruction::Instruction {
         let accounts = vec![
             AccountMeta::new_readonly(self.authority, true),
-            AccountMeta::new_readonly(self.delegate_record.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.delegate_record.unwrap_or(crate::id()), false),
             AccountMeta::new(self.metadata, false),
-            AccountMeta::new_readonly(self.collection_mint.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.collection_mint.unwrap_or(crate::id()), false),
             if let Some(collection_metadata) = self.collection_metadata {
                 AccountMeta::new(collection_metadata, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
-            AccountMeta::new_readonly(self.collection_master_edition.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.collection_master_edition.unwrap_or(crate::id()), false),
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
         ];
 
         Instruction {
-            program_id: crate::ID,
+            program_id: crate::id(),
             accounts,
-            data: MetadataInstruction::Verify(self.args.clone())
-                .try_to_vec()
-                .unwrap(),
+            data: {
+                let mut data = Vec::new();
+                data.push(0);
+                self.args.serialize(&mut data).unwrap();
+                data
+            },
         }
     }
 }
@@ -65,27 +68,30 @@ impl InstructionBuilder for super::builders::Verify {
 ///   5. `[]` System program
 ///   6. `[]` Instructions sysvar account
 impl InstructionBuilder for super::builders::Unverify {
-    fn instruction(&self) -> solana_program::instruction::Instruction {
+    fn instruction(&self) -> arch_program::instruction::Instruction {
         let accounts = vec![
             AccountMeta::new_readonly(self.authority, true),
-            AccountMeta::new_readonly(self.delegate_record.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.delegate_record.unwrap_or(crate::id()), false),
             AccountMeta::new(self.metadata, false),
-            AccountMeta::new_readonly(self.collection_mint.unwrap_or(crate::ID), false),
+            AccountMeta::new_readonly(self.collection_mint.unwrap_or(crate::id()), false),
             if let Some(collection_metadata) = self.collection_metadata {
                 AccountMeta::new(collection_metadata, false)
             } else {
-                AccountMeta::new_readonly(crate::ID, false)
+                AccountMeta::new_readonly(crate::id(), false)
             },
             AccountMeta::new_readonly(self.system_program, false),
             AccountMeta::new_readonly(self.sysvar_instructions, false),
         ];
 
         Instruction {
-            program_id: crate::ID,
+            program_id: crate::id(),
             accounts,
-            data: MetadataInstruction::Unverify(self.args.clone())
-                .try_to_vec()
-                .unwrap(),
+            data: {
+                let mut data = Vec::new();
+                data.push(1);
+                self.args.serialize(&mut data).unwrap();
+                data
+            },
         }
     }
 }

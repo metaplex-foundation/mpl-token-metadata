@@ -1,5 +1,5 @@
 use mpl_utils::assert_signer;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use spl_token_2022::state::Account as TokenAccount;
 
 use super::nonfungible_edition::burn_nonfungible_edition;
@@ -7,7 +7,7 @@ use crate::{
     assertions::assert_owned_by,
     error::MetadataError,
     instruction::{Burn, Context},
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{Metadata, TokenMetadataAccount, TokenStandard},
     utils::{assert_initialized, SPL_TOKEN_ID},
 };
@@ -16,7 +16,7 @@ pub fn process_burn_edition_nft<'a>(
     program_id: &Pubkey,
     accounts: &'a [AccountInfo<'a>],
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
         metadata_info,
         owner_info,
@@ -46,7 +46,7 @@ pub fn process_burn_edition_nft<'a>(
     assert_owned_by(print_edition_mint_info, &SPL_TOKEN_ID)?;
     assert_owned_by(print_edition_token_info, &SPL_TOKEN_ID)?;
 
-    let metadata = Metadata::from_account_info(metadata_info)?;
+    let metadata = Metadata::from_account(metadata_info)?;
     let token: TokenAccount = assert_initialized(print_edition_token_info)?;
 
     // Validate relationships between accounts.

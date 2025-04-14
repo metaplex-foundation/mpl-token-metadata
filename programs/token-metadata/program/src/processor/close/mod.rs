@@ -1,5 +1,5 @@
+use arch_program::{program_option::COption, program_pack::Pack, system_program};
 use mpl_utils::{assert_signer, close_account_raw, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{program_option::COption, program_pack::Pack, system_program};
 use spl_token_2022::state::Mint;
 
 use crate::{
@@ -18,7 +18,7 @@ pub(crate) fn process_close_accounts<'a>(
     let ctx = CloseAccounts::to_context(accounts)?;
 
     // Assert program ownership.
-    assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
+    assert_owned_by(ctx.accounts.metadata_info, &crate::id())?;
     let mint_closed = ctx.accounts.mint_info.data_is_empty()
         && ctx.accounts.mint_info.owner == &system_program::ID;
 
@@ -41,14 +41,14 @@ pub(crate) fn process_close_accounts<'a>(
     // The edition passed in is a valid Master Edition or Print Edition derivation.
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let _bump = assert_derivation(&crate::ID, ctx.accounts.edition_info, &edition_info_path)?;
+    let _bump = assert_derivation(&crate::id(), ctx.accounts.edition_info, &edition_info_path)?;
 
     // Deserialize accounts.
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // Mint account passed in matches the mint of the token account.
     if &metadata.mint != ctx.accounts.mint_info.key {
@@ -75,7 +75,8 @@ pub(crate) fn process_close_accounts<'a>(
         close_account_raw(ctx.accounts.destination_info, ctx.accounts.metadata_info)?;
 
         // Close the edition account if it exists.
-        if ctx.accounts.edition_info.data_len() > 0 && ctx.accounts.edition_info.owner == &crate::ID
+        if ctx.accounts.edition_info.data_len() > 0
+            && ctx.accounts.edition_info.owner == &crate::id()
         {
             close_account_raw(ctx.accounts.destination_info, ctx.accounts.edition_info)?;
         }

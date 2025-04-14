@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     pubkey::Pubkey,
 };
@@ -16,13 +16,13 @@ use crate::{
 };
 
 pub fn unverify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let metadata_info = next_account_info(account_info_iter)?;
-    let collection_authority_info = next_account_info(account_info_iter)?;
-    let collection_mint_info = next_account_info(account_info_iter)?;
-    let collection_metadata_info = next_account_info(account_info_iter)?;
-    let _edition_account_info = next_account_info(account_info_iter)?;
+    let metadata_info = next_account_info(account_iter)?;
+    let collection_authority_info = next_account_info(account_iter)?;
+    let collection_mint_info = next_account_info(account_iter)?;
+    let collection_metadata_info = next_account_info(account_iter)?;
+    let _edition_account = next_account_info(account_iter)?;
 
     // Account validation.
     assert_owned_by(metadata_info, program_id)?;
@@ -30,7 +30,7 @@ pub fn unverify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pro
     assert_owned_by(collection_mint_info, &SPL_TOKEN_ID)?;
 
     // Deserialize the collection item metadata.
-    let mut metadata = Metadata::from_account_info(metadata_info)?;
+    let mut metadata = Metadata::from_account(metadata_info)?;
 
     // First, if there's no collection set, we can just short-circuit
     // since there's nothing to unverify.
@@ -79,14 +79,14 @@ pub fn unverify_collection(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pro
         assert_owned_by(collection_metadata_info, program_id)?;
 
         // Now we can deserialize the collection metadata account.
-        let collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
+        let collection_metadata = Metadata::from_account(collection_metadata_info)?;
 
         // This handler can only unverify non-sized NFTs
         if collection_metadata.collection_details.is_some() {
             return Err(MetadataError::SizedCollection.into());
         }
 
-        let delegated_collection_authority_opt = account_info_iter.next();
+        let delegated_collection_authority_opt = account_iter.next();
 
         assert_has_collection_authority(
             collection_authority_info,

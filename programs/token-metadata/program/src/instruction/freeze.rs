@@ -1,8 +1,5 @@
+use arch_program::{account::AccountMeta, instruction::Instruction, pubkey::Pubkey};
 use borsh::BorshSerialize;
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-};
 
 use crate::{instruction::MetadataInstruction, utils::SPL_TOKEN_ID};
 
@@ -32,9 +29,11 @@ pub fn freeze_delegated_account(
             AccountMeta::new_readonly(mint, false),
             AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         ],
-        data: MetadataInstruction::FreezeDelegatedAccount
-            .try_to_vec()
-            .unwrap(),
+        data: {
+            let mut d = vec![];
+            d.push(0u8);
+            d
+        },
     }
 }
 
@@ -64,8 +63,10 @@ pub fn thaw_delegated_account(
             AccountMeta::new_readonly(mint, false),
             AccountMeta::new_readonly(SPL_TOKEN_ID, false),
         ],
-        data: MetadataInstruction::ThawDelegatedAccount
-            .try_to_vec()
-            .unwrap(),
+        data: {
+            let mut d = vec![];
+            d.push(1u8);
+            d
+        },
     }
 }

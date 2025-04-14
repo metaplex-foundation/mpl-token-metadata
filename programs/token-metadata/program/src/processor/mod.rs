@@ -25,8 +25,8 @@ use mpl_token_auth_rules::payload::Payload;
 pub use resize::*;
 #[cfg(feature = "serde-feature")]
 use serde::{Deserialize, Serialize};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
     pubkey::Pubkey,
 };
 pub use state::*;
@@ -355,13 +355,13 @@ fn incompatible_accounts(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
 ) -> Result<bool, ProgramError> {
-    for account_info in accounts {
+    for account in accounts {
         // checks the account is owned by Token Metadata and it has data
-        if account_info.owner == program_id && !account_info.data_is_empty() {
-            let discriminator = account_info.data.borrow()[DISCRIMINATOR_INDEX];
+        if account.owner == program_id && !account.data_is_empty() {
+            let discriminator = account.data.borrow()[DISCRIMINATOR_INDEX];
             // checks if the account is a Metadata account
             if discriminator == Key::MetadataV1 as u8 {
-                let metadata = Metadata::from_account_info(account_info)?;
+                let metadata = Metadata::from_account(account)?;
 
                 if matches!(
                     metadata.token_standard,
@@ -370,8 +370,8 @@ fn incompatible_accounts(
                     return Ok(true);
                 }
             }
-        } else if account_info.key == &spl_token_2022::ID
-            || account_info.owner == &spl_token_2022::ID
+        } else if account.key == &spl_token_2022::ID
+            || account.owner == &spl_token_2022::ID
         {
             return Ok(true);
         }
@@ -382,10 +382,10 @@ fn incompatible_accounts(
 
 /// Checks if the instruction's accounts contain a locked pNFT.
 fn is_locked(program_id: &Pubkey, accounts: &[AccountInfo]) -> bool {
-    for account_info in accounts {
+    for account in accounts {
         // checks the account is owned by Token Metadata and it has data
-        if account_info.owner == program_id && !account_info.data_is_empty() {
-            let data = account_info.data.borrow();
+        if account.owner == program_id && !account.data_is_empty() {
+            let data = account.data.borrow();
             // checks if the account is a Metadata account
             if (data[DISCRIMINATOR_INDEX] == Key::TokenRecord as u8)
                 && (data[TOKEN_STATE_INDEX] == TokenState::Locked as u8)
@@ -398,13 +398,13 @@ fn is_locked(program_id: &Pubkey, accounts: &[AccountInfo]) -> bool {
     false
 }
 
-macro_rules! all_account_infos {
+macro_rules! all_accounts {
     ($accounts:expr, $($account:ident),*) => {
         let [$($account),*] = match $accounts {
             [$($account),*, ..] => [$($account),*],
-            _ => return Err(solana_program::program_error::ProgramError::NotEnoughAccountKeys),
+            _ => return Err(arch_program::program_error::ProgramError::NotEnoughAccountKeys),
         };
     };
 }
 
-pub(crate) use all_account_infos;
+pub(crate) use all_accounts;

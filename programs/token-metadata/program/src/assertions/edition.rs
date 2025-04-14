@@ -1,5 +1,5 @@
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
 };
 use spl_token_2022::state::Mint;
 
@@ -13,10 +13,10 @@ use crate::{
     utils::unpack,
 };
 
-pub fn assert_edition_is_not_mint_authority(mint_account_info: &AccountInfo) -> ProgramResult {
-    let mint = unpack::<Mint>(&mint_account_info.try_borrow_data()?)?;
+pub fn assert_edition_is_not_mint_authority(mint_account: &AccountInfo) -> ProgramResult {
+    let mint = unpack::<Mint>(&mint_account.try_borrow_data()?)?;
 
-    let (edition_pda, _) = find_master_edition_account(mint_account_info.key);
+    let (edition_pda, _) = find_master_edition_account(mint_account.key);
 
     if mint.mint_authority == COption::Some(edition_pda) {
         return Err(MetadataError::MissingEditionAccount.into());
@@ -47,7 +47,7 @@ pub fn assert_edition_is_not_programmable(edition_info: &AccountInfo) -> Program
 pub fn assert_edition_valid(
     program_id: &Pubkey,
     mint: &Pubkey,
-    edition_account_info: &AccountInfo,
+    edition_account: &AccountInfo,
 ) -> ProgramResult {
     let edition_seeds = &[
         PREFIX.as_bytes(),
@@ -56,7 +56,7 @@ pub fn assert_edition_valid(
         EDITION.as_bytes(),
     ];
     let (edition_key, _) = Pubkey::find_program_address(edition_seeds, program_id);
-    if edition_key != *edition_account_info.key {
+    if edition_key != *edition_account.key {
         return Err(MetadataError::InvalidEditionKey.into());
     }
 

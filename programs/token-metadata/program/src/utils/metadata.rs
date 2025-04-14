@@ -1,10 +1,11 @@
+use crate::pubkey;
+use arch_program::{
+    account::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
+};
 use borsh::{maybestd::io::Error as BorshError, BorshDeserialize, BorshSerialize};
 use mpl_utils::{
     create_or_allocate_account_raw,
     token::{get_mint_authority, SPL_TOKEN_PROGRAM_IDS},
-};
-use solana_program::{
-    account_info::AccountInfo, entrypoint::ProgramResult, program_option::COption, pubkey::Pubkey,
 };
 
 use super::{compression::is_decompression, *};
@@ -28,21 +29,23 @@ use crate::{
 // This allows the upgrade authority of the Token Metadata program to create metadata for SPL tokens.
 // This only allows the upgrade authority to do create general metadata for the SPL token, it does not
 // allow the upgrade authority to add or change creators.
-pub const SEED_AUTHORITY: Pubkey = Pubkey::new_from_array([
-    0x92, 0x17, 0x2c, 0xc4, 0x72, 0x5d, 0xc0, 0x41, 0xf9, 0xdd, 0x8c, 0x51, 0x52, 0x60, 0x04, 0x26,
-    0x00, 0x93, 0xa3, 0x0b, 0x02, 0x73, 0xdc, 0xfa, 0x74, 0x92, 0x17, 0xfc, 0x94, 0xa2, 0x40, 0x49,
-]);
+pub fn seed_authority() -> Pubkey {
+    Pubkey::from_slice(&[
+        0x92, 0x17, 0x2c, 0xc4, 0x72, 0x5d, 0xc0, 0x41, 0xf9, 0xdd, 0x8c, 0x51, 0x52, 0x60, 0x04, 0x26,
+        0x00, 0x93, 0xa3, 0x0b, 0x02, 0x73, 0xdc, 0xfa, 0x74, 0x92, 0x17, 0xfc, 0x94, 0xa2, 0x40, 0x49,
+    ])
+}
 
 // This allows the Bubblegum program to add verified creators since they were verified as part of
 // the Bubblegum program.
 
 pub struct CreateMetadataAccountsLogicArgs<'a> {
-    pub metadata_account_info: &'a AccountInfo<'a>,
+    pub metadata_account: &'a AccountInfo<'a>,
     pub mint_info: &'a AccountInfo<'a>,
     pub mint_authority_info: &'a AccountInfo<'a>,
-    pub payer_account_info: &'a AccountInfo<'a>,
+    pub payer_account: &'a AccountInfo<'a>,
     pub update_authority_info: &'a AccountInfo<'a>,
-    pub system_account_info: &'a AccountInfo<'a>,
+    pub system_account: &'a AccountInfo<'a>,
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -61,12 +64,12 @@ pub fn process_create_metadata_accounts_logic(
     programmable_config: Option<ProgrammableConfig>,
 ) -> ProgramResult {
     let CreateMetadataAccountsLogicArgs {
-        metadata_account_info,
+        metadata_account,
         mint_info,
         mint_authority_info,
-        payer_account_info,
+        payer_account,
         update_authority_info,
-        system_account_info,
+        system_account,
     } = accounts;
 
     let mut update_authority_key = *update_authority_info.key;
@@ -78,7 +81,7 @@ pub fn process_create_metadata_accounts_logic(
     assert_mint_authority_matches_mint(&existing_mint_authority, mint_authority_info).or_else(
         |e| {
             // Allow seeding by the authority seed populator
-            if mint_authority_info.key == &SEED_AUTHORITY && mint_authority_info.is_signer {
+            if mint_authority_info.key == &seed_authority() && mint_authority_info.is_signer {
                 // When metadata is seeded, the mint authority should be able to change it
                 if let COption::Some(auth) = existing_mint_authority {
                     update_authority_key = auth;
@@ -106,20 +109,20 @@ pub fn process_create_metadata_accounts_logic(
         &[metadata_bump_seed],
     ];
 
-    if metadata_account_info.key != &metadata_key {
+    if metadata_account.key != &metadata_key {
         return Err(MetadataError::InvalidMetadataKey.into());
     }
 
     create_or_allocate_account_raw(
         *program_id,
-        metadata_account_info,
-        system_account_info,
-        payer_account_info,
+        metadata_account,
+        system_account,
+        payer_account,
         MAX_METADATA_LEN,
         metadata_authority_signer_seeds,
     )?;
 
-    let mut metadata = Metadata::from_account_info(metadata_account_info)?;
+    let mut metadata = Metadata::from_account(metadata_account)?;
     let compatible_data = data.to_v1();
 
     // This allows the Bubblegum program to create metadata with verified creators since they were
@@ -197,7 +200,7 @@ pub fn process_create_metadata_accounts_logic(
     let (_, edition_bump_seed) = Pubkey::find_program_address(edition_seeds, program_id);
     metadata.edition_nonce = Some(edition_bump_seed);
     // saves the changes to the account data
-    metadata.save(&mut metadata_account_info.data.borrow_mut())?;
+    metadata.save(&mut metadata_account.data.borrow_mut())?;
 
     Ok(())
 }
@@ -208,7 +211,7 @@ pub fn process_create_metadata_accounts_logic(
 // either in tests or client code.
 //
 // It does not check `Key` type or account length and should only be used through the custom functions
-// `from_account_info` and `deserialize` implemented on the Metadata struct.
+// `from_account` and `deserialize` implemented on the Metadata struct.
 pub fn meta_deser_unchecked(buf: &mut &[u8]) -> Result<Metadata, BorshError> {
     // Metadata corruption shouldn't appear until after edition_nonce.
     let key: Key = BorshDeserialize::deserialize(buf)?;
@@ -272,60 +275,55 @@ pub fn meta_deser_unchecked(buf: &mut &[u8]) -> Result<Metadata, BorshError> {
 
 pub fn clean_write_metadata(
     metadata: &mut Metadata,
-    metadata_account_info: &AccountInfo,
+    metadata_account: &AccountInfo,
 ) -> ProgramResult {
-    let end = metadata_account_info
+    let end = metadata_account
         .data_len()
         .checked_sub(METADATA_FEE_FLAG_OFFSET)
         .ok_or(MetadataError::NumericalOverflowError)?;
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
-    let mut metadata_account_info_data = metadata_account_info.try_borrow_mut_data()?;
+    let mut metadata_account_data = metadata_account.try_borrow_mut_data()?;
     // Don't overwrite fee flag.
-    metadata_account_info_data[0..end].fill(0);
+    metadata_account_data[0..end].fill(0);
 
-    metadata.save(&mut metadata_account_info_data)?;
+    metadata.save(&mut metadata_account_data)?;
     Ok(())
 }
 
 pub fn clean_write_resize_metadata<'a>(
     metadata: &mut Metadata,
-    metadata_account_info: &'a AccountInfo<'a>,
+    metadata_account: &'a AccountInfo<'a>,
     payer: &'a AccountInfo<'a>,
     system_program: &'a AccountInfo<'a>,
 ) -> ProgramResult {
     // Save the fee flag.
-    let original_len = metadata_account_info.data_len();
+    let original_len = metadata_account.data_len();
 
     if original_len <= MAX_METADATA_LEN {
         return Err(MetadataError::AccountAlreadyResized.into());
     }
 
-    let fee_flag = metadata_account_info.data.borrow()[original_len - METADATA_FEE_FLAG_OFFSET];
+    let fee_flag = metadata_account.data.borrow()[original_len - METADATA_FEE_FLAG_OFFSET];
 
     // Resize the account to the new size.
-    resize_with_offset(
-        metadata_account_info,
-        payer,
-        system_program,
-        MAX_METADATA_LEN,
-    )?;
+    resize_with_offset(metadata_account, payer, system_program, MAX_METADATA_LEN)?;
 
-    let new_len = metadata_account_info.data_len();
+    let new_len = metadata_account.data_len();
     // Clear all data to ensure it is serialized cleanly with no trailing data due to creators array resizing.
-    let mut metadata_account_info_data = metadata_account_info.try_borrow_mut_data()?;
-    metadata_account_info_data[..].fill(0);
+    let mut metadata_account_data = metadata_account.try_borrow_mut_data()?;
+    metadata_account_data[..].fill(0);
 
     let serialized_data = metadata.try_to_vec()?;
-    metadata_account_info_data[..serialized_data.len()].copy_from_slice(&serialized_data);
+    metadata_account_data[..serialized_data.len()].copy_from_slice(&serialized_data);
 
-    metadata_account_info_data[new_len - METADATA_FEE_FLAG_OFFSET] = fee_flag;
+    metadata_account_data[new_len - METADATA_FEE_FLAG_OFFSET] = fee_flag;
 
     Ok(())
 }
 
 #[cfg(test)]
 pub mod tests {
-    use solana_program::pubkey;
+    use arch_program::pubkey;
 
     use super::*;
     pub use crate::{state::Creator, utils::puff_out_data_fields};

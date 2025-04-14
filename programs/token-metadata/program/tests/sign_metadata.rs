@@ -1,6 +1,6 @@
 #![cfg(feature = "test-bpf")]
 
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::signature::{Keypair, Signer};
 use utils::*;
 

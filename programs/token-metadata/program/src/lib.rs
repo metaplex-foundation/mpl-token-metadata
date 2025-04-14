@@ -2,9 +2,9 @@
 //!
 //! The program attach additional data to Fungible or Non-Fungible Tokens on Solana.
 
-pub mod assertions;
+use bs58;
 
-// (Re-)Declare modules to maintain API compatibility.
+pub mod assertions;
 
 pub mod escrow {
     pub use crate::{instruction::escrow::*, processor::escrow::*};
@@ -19,7 +19,19 @@ pub mod processor;
 pub mod state;
 pub mod utils;
 
-// Export current sdk types for downstream users building with a different sdk version
-pub use solana_program;
+pub use arch_program;
 
-solana_program::declare_id!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+use arch_program::pubkey::Pubkey;
+static META_ID: [u8; 32] = [
+    183, 219, 88, 147, 103, 148, 135, 91, 24, 142, 57, 4, 229, 29, 250, 219, 67, 113, 135, 228,
+    131, 121, 208, 224, 13, 126, 199, 41, 114, 216, 141, 148,
+];
+
+pub fn id() -> Pubkey {
+    Pubkey::from_slice(&META_ID)
+}
+
+pub fn pubkey(address: &str) -> Pubkey {
+    let decoded = bs58::decode(address).into_vec().unwrap();
+    Pubkey::from_slice(&decoded)
+}

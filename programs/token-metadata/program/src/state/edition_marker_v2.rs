@@ -1,4 +1,4 @@
-use solana_program::program_memory::sol_memcpy;
+use arch_program::program_memory::sol_memcpy;
 
 use super::*;
 
@@ -92,7 +92,7 @@ impl EditionMarkerV2 {
 
     pub fn save<'a>(
         self,
-        account_info: &AccountInfo<'a>,
+        account: &AccountInfo<'a>,
         payer_info: &AccountInfo<'a>,
         system_info: &AccountInfo<'a>,
     ) -> ProgramResult {
@@ -101,14 +101,14 @@ impl EditionMarkerV2 {
             .map_err(|_| MetadataError::BorshSerializationError)?;
 
         resize_or_reallocate_account_raw(
-            account_info,
+            account,
             payer_info,
             system_info,
             serialized_data.len(),
         )?;
 
         sol_memcpy(
-            &mut account_info.try_borrow_mut_data()?,
+            &mut account.try_borrow_mut_data()?,
             &serialized_data,
             serialized_data.len(),
         );

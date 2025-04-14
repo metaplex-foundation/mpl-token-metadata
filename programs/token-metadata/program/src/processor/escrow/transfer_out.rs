@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
+use arch_program::{
+    account::{next_account_info, AccountInfo},
     entrypoint::ProgramResult,
     program::{invoke, invoke_signed},
     pubkey::Pubkey,
@@ -22,58 +22,58 @@ pub fn process_transfer_out_of_escrow(
     accounts: &[AccountInfo],
     args: TransferOutOfEscrowArgs,
 ) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let escrow_info = next_account_info(account_info_iter)?;
-    assert_owned_by(escrow_info, &crate::ID)?;
+    let escrow_info = next_account_info(account_iter)?;
+    assert_owned_by(escrow_info, &crate::id())?;
 
     // Currently unused, if used in the future the mint of the metadata should
     // be verified against the escrow mint.
-    let metadata_info = next_account_info(account_info_iter)?;
-    assert_owned_by(metadata_info, &crate::ID)?;
+    let metadata_info = next_account_info(account_iter)?;
+    assert_owned_by(metadata_info, &crate::id())?;
 
-    let payer_info = next_account_info(account_info_iter)?;
+    let payer_info = next_account_info(account_iter)?;
     assert_signer(payer_info)?;
 
-    let attribute_mint_info = next_account_info(account_info_iter)?;
+    let attribute_mint_info = next_account_info(account_iter)?;
     assert_owned_by(attribute_mint_info, &SPL_TOKEN_ID)?;
 
-    let attribute_src_info = next_account_info(account_info_iter)?;
+    let attribute_src_info = next_account_info(account_iter)?;
     assert_owned_by(attribute_src_info, &SPL_TOKEN_ID)?;
 
     // We don't check attribute destination ownership because it may not be initialized yet.
-    let attribute_dst_info = next_account_info(account_info_iter)?;
+    let attribute_dst_info = next_account_info(account_iter)?;
 
-    let escrow_mint_info = next_account_info(account_info_iter)?;
+    let escrow_mint_info = next_account_info(account_iter)?;
     assert_owned_by(escrow_mint_info, &SPL_TOKEN_ID)?;
 
-    let escrow_account_info = next_account_info(account_info_iter)?;
-    assert_owned_by(escrow_account_info, &SPL_TOKEN_ID)?;
+    let escrow_account = next_account_info(account_iter)?;
+    assert_owned_by(escrow_account, &SPL_TOKEN_ID)?;
 
-    let system_program_info = next_account_info(account_info_iter)?;
-    if system_program_info.key != &solana_program::system_program::ID {
+    let system_program_info = next_account_info(account_iter)?;
+    if system_program_info.key != &arch_program::system_program::ID {
         return Err(MetadataError::InvalidSystemProgram.into());
     }
 
-    let ata_program_info = next_account_info(account_info_iter)?;
+    let ata_program_info = next_account_info(account_iter)?;
     if ata_program_info.key != &spl_associated_token_account::ID {
         return Err(MetadataError::InvalidAssociatedTokenAccountProgram.into());
     }
 
-    let token_program_info = next_account_info(account_info_iter)?;
+    let token_program_info = next_account_info(account_iter)?;
     if token_program_info.key != &SPL_TOKEN_ID {
         return Err(MetadataError::InvalidTokenProgram.into());
     }
 
-    let sysvar_ix_account_info = next_account_info(account_info_iter)?;
-    if sysvar_ix_account_info.key != &solana_program::sysvar::instructions::ID {
+    let sysvar_ix_account = next_account_info(account_iter)?;
+    if sysvar_ix_account.key != &arch_program::sysvar::instructions::ID {
         return Err(MetadataError::InvalidInstructionsSysvar.into());
     }
 
     // Allow the option to set a different authority than the payer.
-    let is_using_authority = account_info_iter.len() == 1;
+    let is_using_authority = account_iter.len() == 1;
     let maybe_authority_info: Option<&AccountInfo> = if is_using_authority {
-        let auth = next_account_info(account_info_iter)?;
+        let auth = next_account_info(account_iter)?;
         assert_signer(auth)?;
         Some(auth)
     } else {
@@ -81,12 +81,12 @@ pub fn process_transfer_out_of_escrow(
     };
     let authority = maybe_authority_info.unwrap_or(payer_info);
 
-    let toe = TokenOwnedEscrow::from_account_info(escrow_info)?;
+    let toe = TokenOwnedEscrow::from_account(escrow_info)?;
 
     // Derive the seeds for PDA signing.
     let escrow_seeds = find_escrow_seeds(escrow_mint_info.key, &toe.authority);
 
-    let bump_seed = &[assert_derivation(&crate::ID, escrow_info, &escrow_seeds)?];
+    let bump_seed = &[assert_derivation(&crate::id(), escrow_info, &escrow_seeds)?];
     let escrow_authority_seeds = [escrow_seeds, vec![bump_seed]].concat();
 
     // Allocate the target ATA if it doesn't exist.
@@ -126,7 +126,7 @@ pub fn process_transfer_out_of_escrow(
     }
 
     // Check that the authority matches based on the authority type.
-    let escrow_account = unpack::<Account>(&escrow_account_info.data.borrow())?;
+    let escrow_account = unpack::<Account>(&escrow_account.data.borrow())?;
     if escrow_account.mint != *escrow_mint_info.key {
         return Err(MetadataError::MintMismatch.into());
     }

@@ -1,6 +1,6 @@
 use mpl_utils::assert_signer;
 use num_traits::FromPrimitive;
-use solana_program::{account_info::next_account_info, rent::Rent, system_program, sysvar::Sysvar};
+use arch_program::{account::next_account_info, rent::Rent, system_program, sysvar::Sysvar};
 
 use super::*;
 use crate::{
@@ -9,9 +9,9 @@ use crate::{
 };
 
 pub(crate) fn process_collect_fees(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    let account_info_iter = &mut accounts.iter();
+    let account_iter = &mut accounts.iter();
 
-    let authority_info = next_account_info(account_info_iter)?;
+    let authority_info = next_account_info(account_iter)?;
 
     assert_signer(authority_info)?;
 
@@ -19,27 +19,27 @@ pub(crate) fn process_collect_fees(program_id: &Pubkey, accounts: &[AccountInfo]
         return Err(MetadataError::UpdateAuthorityIncorrect.into());
     }
 
-    let recipient_info = next_account_info(account_info_iter)?;
+    let recipient_info = next_account_info(account_iter)?;
 
     if *recipient_info.key != FEE_DESTINATION {
         return Err(MetadataError::InvalidFeeAccount.into());
     }
 
-    for account_info in account_info_iter {
-        if account_info.owner != program_id {
+    for account in account_iter {
+        if account.owner != program_id {
             return Err(MetadataError::InvalidFeeAccount.into());
         }
 
-        collect_fee_from_account(account_info, recipient_info)?;
+        collect_fee_from_account(account, recipient_info)?;
     }
 
     Ok(())
 }
 
-fn collect_fee_from_account(account_info: &AccountInfo, dest_info: &AccountInfo) -> ProgramResult {
+fn collect_fee_from_account(account: &AccountInfo, dest_info: &AccountInfo) -> ProgramResult {
     // Scope refcell borrow
     let account_key = {
-        let data = account_info.data.borrow();
+        let data = account.data.borrow();
 
         // Burned accounts with fees will have no data, so should be assigned the `Uninitialized` key.
         let key_byte = data.first().unwrap_or(&0);
@@ -48,17 +48,17 @@ fn collect_fee_from_account(account_info: &AccountInfo, dest_info: &AccountInfo)
     };
 
     let rent = Rent::get()?;
-    let data_len = account_info.data_len();
+    let data_len = account.data_len();
     let metadata_rent = rent.minimum_balance(data_len);
 
     let (fee_amount, rent_amount) = match account_key {
         Key::Uninitialized => {
-            account_info.assign(&system_program::ID);
+            account.assign(&system_program::ID);
 
-            (account_info.lamports(), 0)
+            (account.lamports(), 0)
         }
         Key::MetadataV1 => {
-            let fee_amount = account_info
+            let fee_amount = account
                 .lamports()
                 .checked_sub(metadata_rent)
                 .ok_or(MetadataError::NumericalOverflowError)?;
@@ -72,10 +72,10 @@ fn collect_fee_from_account(account_info: &AccountInfo, dest_info: &AccountInfo)
     **dest_info.lamports.borrow_mut() = dest_starting_lamports
         .checked_add(fee_amount)
         .ok_or(MetadataError::NumericalOverflowError)?;
-    **account_info.lamports.borrow_mut() = rent_amount;
+    **account.lamports.borrow_mut() = rent_amount;
 
     // Clear fee flag.
-    clear_fee_flag(account_info)?;
+    clear_fee_flag(account)?;
 
     Ok(())
 }

@@ -12,8 +12,8 @@ use crate::{
         clean_write_resize_master_edition, metadata::clean_write_resize_metadata,
     },
 };
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 use mpl_utils::{assert_signer, token::SPL_TOKEN_PROGRAM_IDS};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 pub fn process_resize<'a>(
     _program_id: &'a Pubkey,
@@ -35,7 +35,7 @@ pub fn process_resize<'a>(
     }
 
     // Check that the system program is correct.
-    if ctx.accounts.system_program_info.key != &solana_program::system_program::ID {
+    if ctx.accounts.system_program_info.key != &arch_program::system_program::ID {
         return Err(MetadataError::InvalidSystemProgram.into());
     }
 
@@ -43,14 +43,14 @@ pub fn process_resize<'a>(
     // even if it is empty.
     let edition_info_path = Vec::from([
         PREFIX.as_bytes(),
-        crate::ID.as_ref(),
+        crate::id().as_ref(),
         ctx.accounts.mint_info.key.as_ref(),
         EDITION.as_bytes(),
     ]);
-    let _bump = assert_derivation(&crate::ID, ctx.accounts.edition_info, &edition_info_path)?;
+    let _bump = assert_derivation(&crate::id(), ctx.accounts.edition_info, &edition_info_path)?;
 
     // Deserialize accounts.
-    let mut metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let mut metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
 
     // This has a valid edition and therefore is an NFT.
     if !ctx.accounts.edition_info.data_is_empty() {
@@ -60,11 +60,11 @@ pub fn process_resize<'a>(
         // token_info ownership checked in assert_holding_amount.
         // metadata.mint == mint_info.key checked in assert_holding_amount.
         // token_account.mint == mint_info.key checked in assert_holding_amount.
-        assert_owned_by(ctx.accounts.edition_info, &crate::ID)?;
+        assert_owned_by(ctx.accounts.edition_info, &crate::id())?;
 
         // If the post-claim period authority is not the resize authority, then they must hold the token account for the NFT.
         if authority.key == &RESIZE_AUTHORITY {
-            assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
+            assert_owned_by(ctx.accounts.metadata_info, &crate::id())?;
             assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
 
             if &metadata.mint != ctx.accounts.mint_info.key {
@@ -80,7 +80,7 @@ pub fn process_resize<'a>(
             // For NFTs, the owner is the one who can resize the NFT,
             // so we need to check that the authority is the owner of the token account.
             assert_holding_amount(
-                &crate::ID,
+                &crate::id(),
                 authority,
                 ctx.accounts.metadata_info,
                 &metadata,
@@ -92,7 +92,7 @@ pub fn process_resize<'a>(
 
         let key = ctx.accounts.edition_info.data.borrow()[0];
         if key == Key::MasterEditionV2 as u8 {
-            let mut master_edition = MasterEditionV2::from_account_info(ctx.accounts.edition_info)?;
+            let mut master_edition = MasterEditionV2::from_account(ctx.accounts.edition_info)?;
 
             clean_write_resize_master_edition(
                 &mut master_edition,
@@ -101,7 +101,7 @@ pub fn process_resize<'a>(
                 ctx.accounts.system_program_info,
             )?;
         } else if key == Key::EditionV1 as u8 {
-            let mut edition = Edition::from_account_info(ctx.accounts.edition_info)?;
+            let mut edition = Edition::from_account(ctx.accounts.edition_info)?;
 
             clean_write_resize_edition(
                 &mut edition,
@@ -114,7 +114,7 @@ pub fn process_resize<'a>(
     // This must be a fungible token or asset.
     else {
         // Assert program ownership.
-        assert_owned_by(ctx.accounts.metadata_info, &crate::ID)?;
+        assert_owned_by(ctx.accounts.metadata_info, &crate::id())?;
         assert_owner_in(ctx.accounts.mint_info, &SPL_TOKEN_PROGRAM_IDS)?;
         // Mint account passed in matches the metadata mint.
         if &metadata.mint != ctx.accounts.mint_info.key {

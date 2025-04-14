@@ -3,8 +3,8 @@ pub mod utils;
 
 use borsh::BorshDeserialize;
 use num_traits::FromPrimitive;
-use solana_program::native_token::LAMPORTS_PER_SOL;
-use solana_program_test::*;
+use arch_program::native_token::LAMPORTS_PER_SOL;
+use arch_program_test::*;
 use solana_sdk::{
     account::{Account, AccountSharedData},
     instruction::InstructionError,

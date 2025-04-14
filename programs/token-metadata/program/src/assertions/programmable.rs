@@ -1,5 +1,5 @@
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult};
 use mpl_utils::cmp_pubkeys;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult};
 
 use crate::{error::MetadataError, state::ProgrammableConfig};
 

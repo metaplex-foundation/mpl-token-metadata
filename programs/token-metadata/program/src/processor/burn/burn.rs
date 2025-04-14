@@ -1,4 +1,4 @@
-use solana_program::program_option::COption;
+use arch_program::program_option::COption;
 use spl_token_2022::state::Account;
 
 use super::*;
@@ -101,7 +101,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
     }
 
     // Deserialize accounts.
-    let metadata = Metadata::from_account_info(ctx.accounts.metadata_info)?;
+    let metadata = Metadata::from_account(ctx.accounts.metadata_info)?;
     let token = unpack_initialized::<Account>(&ctx.accounts.token_info.data.borrow())?;
 
     let authority_response = AuthorityType::get_authority_type(AuthorityRequest {
@@ -194,7 +194,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
                 return Err(MetadataError::InvalidTokenRecord.into());
             }
 
-            let token_record = TokenRecord::from_account_info(token_record_info)?;
+            let token_record = TokenRecord::from_account(token_record_info)?;
 
             // Locked and Listed states cannot be burned.
             if token_record.state != TokenState::Unlocked {
@@ -253,7 +253,7 @@ fn burn_v1(program_id: &Pubkey, ctx: Context<Burn>, args: BurnArgs) -> ProgramRe
                 return Err(MetadataError::InvalidTokenRecord.into());
             }
 
-            let token_record = TokenRecord::from_account_info(token_record_info)?;
+            let token_record = TokenRecord::from_account(token_record_info)?;
 
             // Locked and Listed states cannot be burned.
             if token_record.state != TokenState::Unlocked {

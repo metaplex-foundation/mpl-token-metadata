@@ -1,5 +1,5 @@
 use mpl_utils::token::{spl_token_burn, spl_token_close, TokenBurnParams, TokenCloseParams};
-use solana_program::entrypoint::ProgramResult;
+use arch_program::entrypoint::ProgramResult;
 use spl_token_2022::state::Account;
 
 use crate::{

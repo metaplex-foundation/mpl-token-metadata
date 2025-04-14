@@ -2,7 +2,7 @@
 pub mod utils;
 
 use num_traits::FromPrimitive;
-use solana_program_test::*;
+use arch_program_test::*;
 use solana_sdk::{
     instruction::InstructionError,
     signature::Signer,
@@ -13,7 +13,7 @@ use utils::*;
 
 mod uses {
     use borsh::BorshDeserialize;
-    use solana_program::program_pack::Pack;
+    use arch_program::program_pack::Pack;
     use solana_sdk::signature::Keypair;
     use spl_token::state::Account;
     use token_metadata::{

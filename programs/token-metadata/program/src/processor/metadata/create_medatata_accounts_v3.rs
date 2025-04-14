@@ -1,7 +1,7 @@
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use arch_program::{account::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
 
 use crate::{
-    processor::all_account_infos,
+    processor::all_accounts,
     state::{CollectionDetails, DataV2},
     utils::{
         fee::{levy, set_fee_flag, LevyArgs},
@@ -16,31 +16,31 @@ pub fn process_create_metadata_accounts_v3<'a>(
     is_mutable: bool,
     collection_details: Option<CollectionDetails>,
 ) -> ProgramResult {
-    all_account_infos!(
+    all_accounts!(
         accounts,
-        metadata_account_info,
+        metadata_account,
         mint_info,
         mint_authority_info,
-        payer_account_info,
+        payer_account,
         update_authority_info,
-        system_account_info
+        system_account
     );
 
     // Levy fees first, to fund the metadata account with rent + fee amount.
     levy(LevyArgs {
-        payer_account_info,
-        token_metadata_pda_info: metadata_account_info,
+        payer_account,
+        token_metadata_pda_info: metadata_account,
     })?;
 
     process_create_metadata_accounts_logic(
         program_id,
         CreateMetadataAccountsLogicArgs {
-            metadata_account_info,
+            metadata_account,
             mint_info,
             mint_authority_info,
-            payer_account_info,
+            payer_account,
             update_authority_info,
-            system_account_info,
+            system_account,
         },
         data,
         false,
@@ -53,5 +53,5 @@ pub fn process_create_metadata_accounts_v3<'a>(
     )?;
 
     // Set fee flag after metadata account is created.
-    set_fee_flag(metadata_account_info)
+    set_fee_flag(metadata_account)
 }
