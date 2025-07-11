@@ -1,3 +1,32 @@
+[2 items
+0:{2 items
+extension:
+"metadataPointer"
+state:{2 items
+authority:
+NULL
+metadataAddress:
+"6C88HUSZJTewjnHmqemehFSr4KHVd2vZL49ZyeSbfzMP"
+}
+}
+1:{2 items
+extension:
+"tokenMetadata"
+state:{6 items
+additionalMetadata:[]0 items
+mint:
+"6C88HUSZJTewjnHmqemehFSr4KHVd2vZL49ZyeSbfzMP"
+name:
+"Duff mem"
+symbol:
+"Duff"
+updateAuthority:
+"2vbb7d4FALMEDNXqvQKht7UmovEbhuuUUEs1svaaZggk"
+uri:
+"https://gateway.irys.xyz/E5bZo13vq779hq3DENyJer2uphSgV1GeFMPC8KKCHhj4"
+}
+}
+]
 {
   "version": "1.14.0",
   "name": "token_metadata",
