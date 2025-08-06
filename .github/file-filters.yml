@@ -31,6 +31,7 @@ client_common: &client_common
   - ".github/.env"
   - "configs/shank.cjs"
   - "configs/kinobi.cjs"
+  - "configs/codama.cjs"
 
 js_client: &js_client
   - *client_common
