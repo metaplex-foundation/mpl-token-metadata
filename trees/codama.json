@@ -1161,24 +1161,7 @@
             "isOptional": false,
             "docs": [
               "Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number])"
-            ],
-            "defaultValue": {
-              "kind": "pdaValueNode",
-              "pda": {
-                "kind": "pdaLinkNode",
-                "name": "masterEdition"
-              },
-              "seeds": [
-                {
-                  "kind": "pdaSeedValueNode",
-                  "name": "mint",
-                  "value": {
-                    "kind": "accountValueNode",
-                    "name": "mint"
-                  }
-                }
-              ]
-            }
+            ]
           },
           {
             "kind": "instructionAccountNode",

@@ -216,7 +216,7 @@ codama.update(
       defaultValue: pdaValueNode("tokenRecord"),
     },
     {
-      account: /^edition|masterEdition$/,
+      account: /^(edition|masterEdition)$/,
       ignoreIfOptional: true,
       defaultValue: pdaValueNode("masterEdition"),
     },
