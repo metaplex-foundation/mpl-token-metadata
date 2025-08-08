@@ -46,15 +46,12 @@ const {
 } = require("codama");
 const { writeFileSync } = require("node:fs");
 const path = require("node:path");
-const { renderJavaScriptUmiVisitor } = require("@codama/renderers");
 
 // Paths.
-const clientDir = path.join(__dirname, "..", "clients");
 const idlDir = path.join(__dirname, "..", "idls");
 const anchorPath = path.join(idlDir, "token_metadata.json");
 const anchorIdl = require(anchorPath);
-
-const prettierOptions = require("../clients/js/.prettierrc.json");
+const treeDir = path.join(__dirname, "..", "trees");
 
 // Instantiate Codama.
 const codama = createFromRoot(rootNodeFromAnchor(anchorIdl));
@@ -1120,30 +1117,8 @@ codama.update(
   })
 );
 
+// Render tree.
 writeFileSync(
-  "codama.json",
+  path.join(treeDir, "codama.json"),
   JSON.stringify(JSON.parse(codama.getJson()), null, 2)
-);
-
-// Render JavaScript.
-const jsDir = path.join(clientDir, "js", "src", "generated");
-codama.accept(
-  renderJavaScriptUmiVisitor(jsDir, {
-    linkOverrides: {
-      definedTypes: {
-        metadataDelegateRoleSeed: "hooked",
-        holderDelegateRoleSeed: "hooked",
-      },
-      resolvers: {
-        resolveIsNonFungibleOrIsMintSigner: "hooked",
-      },
-      pdas: {
-        associatedToken: "mplToolbox",
-        editionMarkerFromEditionNumber: "hooked",
-      },
-    },
-    deleteFolderBeforeRendering: true,
-    formatCode: true,
-    prettierOptions,
-  })
 );

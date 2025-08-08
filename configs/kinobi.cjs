@@ -172,7 +172,7 @@ kinobi.update(
         ifTrue: k.publicKeyValueNode(
           "auth9SigNpDKz4sJJ1DfCTuZrZNSAgh9sFD3rboVmgg",
           "mplTokenAuthRules"
-        ),
+        )
       }),
     },
   ])
@@ -182,7 +182,7 @@ kinobi.update(
 const ataPdaDefault = (mint = "mint", owner = "owner") =>
   k.pdaValueNode(k.pdaLinkNode("associatedToken", "mplToolbox"), [
     k.pdaSeedValueNode("mint", k.accountValueNode(mint)),
-    k.pdaSeedValueNode("owner", k.accountValueNode(owner)),
+    k.pdaSeedValueNode("owner", k.accountValueNode(owner))
   ]);
 kinobi.update(
   k.updateInstructionsVisitor({
@@ -191,9 +191,9 @@ kinobi.update(
         k.instructionByteDeltaNode(
           k.numberValueNode(
             82 + // Mint account.
-              679 + // Metadata account.
-              282 + // Master edition account.
-              128 * 3 // 3 account headers.
+            679 + // Metadata account.
+            282 + // Master edition account.
+            128 * 3 // 3 account headers.
           ),
           { withHeader: false }
         ),
@@ -228,8 +228,8 @@ kinobi.update(
         k.instructionByteDeltaNode(
           k.numberValueNode(
             165 + // Token account.
-              47 + // Token Record account.
-              128 * 2 // 2 account headers.
+            47 + // Token Record account.
+            128 * 2 // 2 account headers.
           ),
           { withHeader: false }
         ),
@@ -477,10 +477,7 @@ kinobi.update(
           ]),
         },
         editionTokenAccount: {
-          defaultValue: ataPdaDefault(
-            "editionMint",
-            "editionTokenAccountOwner"
-          ),
+          defaultValue: ataPdaDefault("editionMint", "editionTokenAccountOwner"),
         },
         masterTokenAccount: {
           defaultValue: k.pdaValueNode(
@@ -518,12 +515,15 @@ kinobi.update(
             condition: k.argumentValueNode("tokenStandard"),
             value: k.enumValueNode("TokenStandard", "ProgrammableNonFungible"),
             ifTrue: k.pdaValueNode("tokenRecord", [
-              k.pdaSeedValueNode("mint", k.accountValueNode("editionMint")),
+              k.pdaSeedValueNode(
+                "mint",
+                k.accountValueNode("editionMint")
+              ),
               k.pdaSeedValueNode(
                 "token",
                 k.accountValueNode("editionTokenAccount")
               ),
-            ]),
+            ])
           }),
         },
       },
@@ -641,7 +641,7 @@ kinobi.update(
         return {
           ...node,
           defaultValueStrategy: "optional",
-          defaultValue: k.noneValueNode(),
+          defaultValue: k.noneValueNode()
         };
       },
     },
@@ -706,7 +706,9 @@ kinobi.update(
     {
       select: "[instructionNode]printV2",
       transform: (node) => {
-        k.assertIsNode(node, ["instructionNode"]);
+        k.assertIsNode(node, [
+          "instructionNode"
+        ]);
         return k.instructionNode({
           ...node,
           accounts: [
@@ -714,18 +716,14 @@ kinobi.update(
             k.instructionAccountNode({
               name: "holderDelegateRecord",
               isOptional: true,
-              docs: [
-                "The Delegate Record authorizing escrowless edition printing",
-              ],
+              docs: ["The Delegate Record authorizing escrowless edition printing"],
             }),
             k.instructionAccountNode({
               name: "delegate",
               isOptional: true,
               isSigner: true,
-              docs: [
-                "The authority printing the edition for a delegated print",
-              ],
-            }),
+              docs: ["The authority printing the edition for a delegated print"],
+            })
           ],
         });
       },
@@ -942,10 +940,10 @@ kinobi.update(
         },
         masterTokenAccountOwner: {
           defaultValue: k.identityValueNode(),
-          isSigner: true,
+          isSigner: true
         },
       },
-      arguments: { edition: { name: "editionNumber" } },
+      arguments: { edition: { name: "editionNumber" }, },
     },
     printV2: {
       accounts: {
@@ -977,11 +975,11 @@ kinobi.update(
         editionMintAuthority: {
           defaultValue: k.conditionalValueNode({
             condition: k.accountValueNode("holderDelegateRecord"),
-            ifTrue: k.conditionalValueNode({
-              condition: k.accountValueNode("delegate"),
-              ifTrue: k.accountValueNode("delegate"),
-              ifFalse: k.accountValueNode("payer"),
-            }),
+              ifTrue: k.conditionalValueNode({
+                  condition: k.accountValueNode("delegate"),
+                  ifTrue: k.accountValueNode("delegate"),
+                  ifFalse: k.accountValueNode("payer"),
+              }),
             ifFalse: k.identityValueNode(),
           }),
         },
@@ -992,7 +990,7 @@ kinobi.update(
           }),
         },
       },
-      arguments: { edition: { name: "editionNumber" } },
+      arguments: { edition: { name: "editionNumber" }, },
     },
     // Update.
     updateAsAuthorityItemDelegateV2:
@@ -1059,6 +1057,12 @@ kinobi.update(
     unverifyCollectionV1: verifyCollectionDefaults,
   })
 );
+
+// Render JavaScript.
+const jsDir = path.join(clientDir, "js", "src", "generated");
+const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
+const { pdaLinkNode } = require("@metaplex-foundation/kinobi");
+kinobi.accept(k.renderJavaScriptVisitor(jsDir, { prettier }));
 
 // Render Rust.
 const crateDir = path.join(clientDir, "rust");

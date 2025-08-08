@@ -31,7 +31,7 @@ export const resolveCollectionDetails = (
   ...rest: any[]
 ): Option<CollectionDetailsArgs> =>
   args.isCollection
-    ? some(collectionDetails('V2', { padding: new Uint8Array(8).fill(0) }))
+    ? some(collectionDetails('V2', { padding: new Array(8).fill(0) }))
     : none();
 
 export const resolveIsNonFungible = (
