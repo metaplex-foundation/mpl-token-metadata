@@ -9,7 +9,7 @@ use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
-use spl_token_2022::extension::ExtensionType;
+use spl_token_2022_interface::extension::ExtensionType;
 
 use crate::setup::TokenManager;
 
@@ -225,7 +225,7 @@ impl DigitalAsset {
             .seller_fee_basis_points(500)
             .token_standard(token_standard)
             .print_supply(PrintSupply::Zero)
-            .spl_token_program(Some(spl_token_2022::ID))
+            .spl_token_program(Some(spl_token_2022_interface::ID))
             .instruction();
 
         let tx = Transaction::new_signed_with_payer(

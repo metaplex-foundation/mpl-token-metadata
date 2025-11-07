@@ -5,8 +5,10 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
 pub struct RevokeDataItemV1 {
@@ -151,7 +153,7 @@ impl RevokeDataItemV1 {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let data = RevokeDataItemV1InstructionData::new().try_to_vec().unwrap();
+        let data = borsh::to_vec(&(RevokeDataItemV1InstructionData::new())).unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,
@@ -161,14 +163,15 @@ impl RevokeDataItemV1 {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct RevokeDataItemV1InstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct RevokeDataItemV1InstructionData {
     discriminator: u8,
     revoke_data_item_v1_discriminator: u8,
 }
 
 impl RevokeDataItemV1InstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             discriminator: 45,
             revoke_data_item_v1_discriminator: 11,
@@ -606,11 +609,11 @@ impl<'a, 'b> RevokeDataItemV1Cpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let data = RevokeDataItemV1InstructionData::new().try_to_vec().unwrap();
+        let data = borsh::to_vec(&(RevokeDataItemV1InstructionData::new())).unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,

@@ -11,8 +11,10 @@ use crate::generated::types::CollectionToggle;
 use crate::generated::types::Data;
 use crate::generated::types::RuleSetToggle;
 use crate::generated::types::UsesToggle;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
 /// Accounts.
@@ -131,8 +133,8 @@ impl UpdateV1 {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = UpdateV1InstructionData::new().try_to_vec().unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(UpdateV1InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_program::instruction::Instruction {
@@ -143,14 +145,15 @@ impl UpdateV1 {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct UpdateV1InstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct UpdateV1InstructionData {
     discriminator: u8,
     update_v1_discriminator: u8,
 }
 
 impl UpdateV1InstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             discriminator: 50,
             update_v1_discriminator: 0,
@@ -158,8 +161,10 @@ impl UpdateV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UpdateV1InstructionArgs {
     pub new_update_authority: Option<Pubkey>,
     pub data: Option<Data>,
@@ -604,12 +609,12 @@ impl<'a, 'b> UpdateV1Cpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let mut data = UpdateV1InstructionData::new().try_to_vec().unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(UpdateV1InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {

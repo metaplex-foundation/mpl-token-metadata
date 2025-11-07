@@ -7,8 +7,10 @@
 
 use crate::generated::types::CollectionDetails;
 use crate::generated::types::DataV2;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
 pub struct CreateMetadataAccountV3 {
@@ -70,10 +72,8 @@ impl CreateMetadataAccountV3 {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = CreateMetadataAccountV3InstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(CreateMetadataAccountV3InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_program::instruction::Instruction {
@@ -84,19 +84,22 @@ impl CreateMetadataAccountV3 {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct CreateMetadataAccountV3InstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct CreateMetadataAccountV3InstructionData {
     discriminator: u8,
 }
 
 impl CreateMetadataAccountV3InstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { discriminator: 33 }
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CreateMetadataAccountV3InstructionArgs {
     pub data: DataV2,
     pub is_mutable: bool,
@@ -362,14 +365,12 @@ impl<'a, 'b> CreateMetadataAccountV3Cpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let mut data = CreateMetadataAccountV3InstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(CreateMetadataAccountV3InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
