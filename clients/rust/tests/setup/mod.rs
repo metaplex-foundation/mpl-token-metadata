@@ -4,7 +4,7 @@ mod token_manager;
 
 pub use digital_asset::*;
 pub use dirty_clone::*;
-use spl_token_2022::extension::{BaseState, StateWithExtensions};
+use spl_token_2022_interface::extension::{BaseState, StateWithExtensions};
 pub use token_manager::*;
 
 use solana_program::{program_error::ProgramError, pubkey::Pubkey};
@@ -13,7 +13,7 @@ use solana_sdk::{account::Account, program_pack::Pack};
 
 pub fn program_test() -> ProgramTest {
     let mut program_test = ProgramTest::new("token_metadata", mpl_token_metadata::ID, None);
-    program_test.add_program("spl_token_2022", spl_token_2022::ID, None);
+    program_test.add_program("spl_token_2022", spl_token_2022_interface::ID, None);
     program_test
 }
 

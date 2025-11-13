@@ -5,8 +5,10 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
 pub struct PuffMetadata {
@@ -29,7 +31,7 @@ impl PuffMetadata {
             false,
         ));
         accounts.extend_from_slice(remaining_accounts);
-        let data = PuffMetadataInstructionData::new().try_to_vec().unwrap();
+        let data = borsh::to_vec(&(PuffMetadataInstructionData::new())).unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,
@@ -39,13 +41,14 @@ impl PuffMetadata {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct PuffMetadataInstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct PuffMetadataInstructionData {
     discriminator: u8,
 }
 
 impl PuffMetadataInstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { discriminator: 14 }
     }
 }
@@ -164,11 +167,11 @@ impl<'a, 'b> PuffMetadataCpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let data = PuffMetadataInstructionData::new().try_to_vec().unwrap();
+        let data = borsh::to_vec(&(PuffMetadataInstructionData::new())).unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,

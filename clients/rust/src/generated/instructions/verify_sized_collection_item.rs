@@ -5,8 +5,10 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
 pub struct VerifySizedCollectionItem {
@@ -66,9 +68,7 @@ impl VerifySizedCollectionItem {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let data = VerifySizedCollectionItemInstructionData::new()
-            .try_to_vec()
-            .unwrap();
+        let data = borsh::to_vec(&(VerifySizedCollectionItemInstructionData::new())).unwrap();
 
         solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,
@@ -78,13 +78,14 @@ impl VerifySizedCollectionItem {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct VerifySizedCollectionItemInstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct VerifySizedCollectionItemInstructionData {
     discriminator: u8,
 }
 
 impl VerifySizedCollectionItemInstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { discriminator: 30 }
     }
 }
@@ -330,13 +331,11 @@ impl<'a, 'b> VerifySizedCollectionItemCpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let data = VerifySizedCollectionItemInstructionData::new()
-            .try_to_vec()
-            .unwrap();
+        let data = borsh::to_vec(&(VerifySizedCollectionItemInstructionData::new())).unwrap();
 
         let instruction = solana_program::instruction::Instruction {
             program_id: crate::MPL_TOKEN_METADATA_ID,

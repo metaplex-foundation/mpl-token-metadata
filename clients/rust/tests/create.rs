@@ -3,13 +3,12 @@ pub mod setup;
 pub use setup::*;
 
 use solana_program::pubkey::Pubkey;
-use solana_program::system_program;
 use solana_program_test::*;
 use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
-use spl_token_2022::extension::ExtensionType;
+use spl_token_2022_interface::extension::ExtensionType;
 
 use mpl_token_metadata::accounts::MasterEdition;
 use mpl_token_metadata::errors::MplTokenMetadataError;
@@ -28,13 +27,13 @@ mod create {
     use super::*;
 
     #[test_case::test_case(TokenStandard::Fungible, spl_token::ID ; "fungible with spl-token")]
-    #[test_case::test_case(TokenStandard::Fungible, spl_token_2022::ID ; "fungible with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::Fungible, spl_token_2022_interface::ID ; "fungible with spl-token-2022")]
     #[test_case::test_case(TokenStandard::FungibleAsset, spl_token::ID ; "fungible_asset with spl-token")]
-    #[test_case::test_case(TokenStandard::FungibleAsset, spl_token_2022::ID ; "fungible_asset with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::FungibleAsset, spl_token_2022_interface::ID ; "fungible_asset with spl-token-2022")]
     #[test_case::test_case(TokenStandard::NonFungible, spl_token::ID ; "non_fungible with spl-token")]
-    #[test_case::test_case(TokenStandard::NonFungible, spl_token_2022::ID ; "non_fungible with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::NonFungible, spl_token_2022_interface::ID ; "non_fungible with spl-token-2022")]
     #[test_case::test_case(TokenStandard::ProgrammableNonFungible, spl_token::ID ; "programmable_non_fungible with spl-token")]
-    #[test_case::test_case(TokenStandard::ProgrammableNonFungible, spl_token_2022::ID ; "programmable_non_fungible with spl-token-2022")]
+    #[test_case::test_case(TokenStandard::ProgrammableNonFungible, spl_token_2022_interface::ID ; "programmable_non_fungible with spl-token-2022")]
     #[tokio::test]
     async fn create(token_standard: TokenStandard, spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;
@@ -162,7 +161,7 @@ mod create {
             update_authority: (payer_pubkey, true),
             payer: payer_pubkey,
             spl_token_program: Some(spl_token::ID),
-            system_program: system_program::ID,
+            system_program: solana_system_interface::program::ID,
             sysvar_instructions: solana_program::sysvar::instructions::ID,
         }
         .instruction(args);
@@ -226,7 +225,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -258,7 +257,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -313,7 +312,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -370,7 +369,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -402,7 +401,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -457,7 +456,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -512,7 +511,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 
@@ -569,7 +568,7 @@ mod create_token2022 {
         // then the mint account was created
 
         let account = get_account(&mut context, &asset.mint.pubkey()).await;
-        assert!(account.owner == spl_token_2022::ID);
+        assert!(account.owner == spl_token_2022_interface::ID);
 
         // and the metadata account was created
 

@@ -18,9 +18,9 @@
   },
   "devDependencies": {
     "@metaplex-foundation/amman": "^0.12.1",
-    "@metaplex-foundation/kinobi": "^0.17.0",
+    "@metaplex-foundation/kinobi": "1.0.0-alpha.0",
     "@metaplex-foundation/shank-js": "^0.1.0",
     "typescript": "^4.9.4"
   },
-  "packageManager": "pnpm@8.2.0"
+  "packageManager": "pnpm@8.9.0"
 }
