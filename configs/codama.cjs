@@ -1,5 +1,6 @@
 // @ts-check
 const { rootNodeFromAnchor } = require("@codama/nodes-from-anchor");
+const { renderJavaScriptVisitor } = require("@codama/renderers");
 const {
   constantPdaSeedNodeFromProgramId,
   constantPdaSeedNodeFromString,
@@ -52,6 +53,7 @@ const idlDir = path.join(__dirname, "..", "idls");
 const anchorPath = path.join(idlDir, "token_metadata.json");
 const anchorIdl = require(anchorPath);
 const treeDir = path.join(__dirname, "..", "trees");
+const clientDir = path.join(__dirname, "..", "clients");
 
 // Instantiate Codama.
 const codama = createFromRoot(rootNodeFromAnchor(anchorIdl));
@@ -1122,3 +1124,9 @@ writeFileSync(
   path.join(treeDir, "codama.json"),
   JSON.stringify(JSON.parse(codama.getJson()), null, 2)
 );
+
+
+// Render JavaScript.
+const jsDir = path.join(clientDir, "js-codama", "src", "generated");
+const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
+codama.accept(renderJavaScriptVisitor(jsDir, { prettierOptions: prettier }));
