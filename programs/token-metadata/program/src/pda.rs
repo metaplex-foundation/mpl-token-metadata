@@ -20,19 +20,6 @@ pub const BURN: &str = "burn";
 
 pub const COLLECTION_AUTHORITY: &str = "collection_authority";
 
-pub fn find_edition_account(mint: &Pubkey, edition_number: String) -> (Pubkey, u8) {
-    Pubkey::find_program_address(
-        &[
-            PREFIX.as_bytes(),
-            crate::ID.as_ref(),
-            mint.as_ref(),
-            EDITION.as_bytes(),
-            edition_number.as_bytes(),
-        ],
-        &crate::ID,
-    )
-}
-
 pub fn find_master_edition_account(mint: &Pubkey) -> (Pubkey, u8) {
     Pubkey::find_program_address(
         &[
