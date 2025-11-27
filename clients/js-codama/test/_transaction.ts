@@ -1,7 +1,8 @@
 /**
  * Transaction sending utilities for tests
  *
- * Minimal wrapper around @solana/kit's sendAndConfirmTransactionFactory
+ * Provides a simplified interface for sending instructions to the network.
+ * Handles the full transaction lifecycle: build, sign, send, and confirm.
  */
 
 import type { Rpc } from '@solana/rpc';
@@ -10,10 +11,9 @@ import type { RpcSubscriptions } from '@solana/rpc-subscriptions';
 import type { SolanaRpcSubscriptionsApi } from '@solana/rpc-subscriptions';
 import type { TransactionSigner } from '@solana/signers';
 import { isKeyPairSigner } from '@solana/signers';
-import type { Instruction } from '@solana/instructions';
-import { sendAndConfirmTransactionFactory } from '@solana/kit';
+import { sendAndConfirmTransactionFactory, type Instruction } from '@solana/kit';
 import {
-  appendTransactionMessageInstruction,
+  appendTransactionMessageInstructions,
   createTransactionMessage,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
@@ -46,29 +46,45 @@ export async function sendAndConfirmInstructions(
   instructions: readonly Instruction[],
   signers: TransactionSigner[]
 ): Promise<void> {
+  if (signers.length === 0) {
+    throw new Error('At least one signer is required');
+  }
+
+  if (instructions.length === 0) {
+    throw new Error('At least one instruction is required');
+  }
+
   // Get latest blockhash
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 
-  // Build transaction message
-  let message: any = createTransactionMessage({ version: 0 });
-  message = setTransactionMessageFeePayer(signers[signers.length - 1].address, message);
-  message = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message);
+  // Build transaction message - last signer is the fee payer
+  const feePayer = signers[signers.length - 1].address;
 
-  // Add all instructions
-  for (const instruction of instructions) {
-    message = appendTransactionMessageInstruction(instruction, message);
-  }
+  // Create transaction message with all instructions
+  const message = appendTransactionMessageInstructions(
+    instructions,
+    setTransactionMessageLifetimeUsingBlockhash(
+      latestBlockhash,
+      setTransactionMessageFeePayer(
+        feePayer,
+        createTransactionMessage({ version: 0 })
+      )
+    )
+  );
 
   // Compile transaction
   const transaction = compileTransaction(message);
 
-  // Assert it has blockhash lifetime (we used setTransactionMessageLifetimeUsingBlockhash)
+  // Validate that the transaction has the expected blockhash lifetime
   assertIsTransactionWithBlockhashLifetime(transaction);
 
-  // Sign transaction
+  // Sign transaction - all signers must be KeyPairSigners in test environment
   const keyPairs = signers.map((signer) => {
     if (!isKeyPairSigner(signer)) {
-      throw new Error('All signers must be KeyPairSigners');
+      throw new Error(
+        `Expected KeyPairSigner but got ${typeof signer}. ` +
+        'All signers in tests must be KeyPairSigners from generateKeyPairSigner().'
+      );
     }
     return signer.keyPair;
   });

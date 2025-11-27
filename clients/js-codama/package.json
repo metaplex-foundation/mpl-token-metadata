@@ -44,6 +44,7 @@
   },
   "packageManager": "pnpm@8.2.0",
   "dependencies": {
+    "@solana-program/token": "^0.9.0",
     "@solana/accounts": "^5.0.0",
     "@solana/addresses": "^5.0.0",
     "@solana/codecs": "^5.0.0",
