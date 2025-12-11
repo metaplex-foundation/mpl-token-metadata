@@ -34,6 +34,8 @@ import {
 import {
   findAssociatedTokenPda,
   findEditionMarkerFromEditionNumberPda,
+} from '../../hooked';
+import {
   findEditionMarkerV2Pda,
   findMasterEditionPda,
   findMetadataPda,

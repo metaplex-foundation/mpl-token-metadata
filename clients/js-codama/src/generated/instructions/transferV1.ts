@@ -36,8 +36,8 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import { findAssociatedTokenPda } from '../../hooked';
 import {
-  findAssociatedTokenPda,
   findMasterEditionPda,
   findMetadataPda,
   findTokenRecordPda,

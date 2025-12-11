@@ -1,9 +1,8 @@
 /**
- * Transaction sending utilities for tests
- *
- * Minimal wrapper around @solana/kit's sendAndConfirmTransactionFactory
+ * Transaction sending utilities for tests using @solana/kit pipes
  */
 
+import { pipe } from '@solana/functional';
 import type { Rpc } from '@solana/rpc';
 import type { SolanaRpcApi } from '@solana/rpc';
 import type { RpcSubscriptions } from '@solana/rpc-subscriptions';
@@ -11,9 +10,8 @@ import type { SolanaRpcSubscriptionsApi } from '@solana/rpc-subscriptions';
 import type { TransactionSigner } from '@solana/signers';
 import { isKeyPairSigner } from '@solana/signers';
 import type { Instruction } from '@solana/instructions';
-import { sendAndConfirmTransactionFactory } from '@solana/kit';
 import {
-  appendTransactionMessageInstruction,
+  appendTransactionMessageInstructions,
   createTransactionMessage,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
@@ -24,9 +22,10 @@ import {
   assertIsTransactionWithinSizeLimit,
   assertIsTransactionWithBlockhashLifetime,
 } from '@solana/transactions';
+import { sendAndConfirmTransactionFactory } from '@solana/kit';
 
 /**
- * Send and confirm a single instruction
+ * Send and confirm a single instruction using @solana/kit pipes
  */
 export async function sendAndConfirm(
   rpc: Rpc<SolanaRpcApi>,
@@ -38,7 +37,7 @@ export async function sendAndConfirm(
 }
 
 /**
- * Send and confirm multiple instructions in one transaction
+ * Send and confirm multiple instructions using @solana/kit pipes
  */
 export async function sendAndConfirmInstructions(
   rpc: Rpc<SolanaRpcApi>,
@@ -49,20 +48,18 @@ export async function sendAndConfirmInstructions(
   // Get latest blockhash
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 
-  // Build transaction message
-  let message: any = createTransactionMessage({ version: 0 });
-  message = setTransactionMessageFeePayer(signers[signers.length - 1].address, message);
-  message = setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message);
-
-  // Add all instructions
-  for (const instruction of instructions) {
-    message = appendTransactionMessageInstruction(instruction, message);
-  }
+  // Build transaction message using pipes - this is the @solana/kit way
+  const transactionMessage = pipe(
+    createTransactionMessage({ version: 0 }),
+    (tx) => setTransactionMessageFeePayer(signers[signers.length - 1].address, tx),
+    (tx) => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+    (tx) => appendTransactionMessageInstructions(instructions, tx)
+  );
 
   // Compile transaction
-  const transaction = compileTransaction(message);
+  const transaction = compileTransaction(transactionMessage);
 
-  // Assert it has blockhash lifetime (we used setTransactionMessageLifetimeUsingBlockhash)
+  // Assert it has blockhash lifetime
   assertIsTransactionWithBlockhashLifetime(transaction);
 
   // Sign transaction
@@ -77,7 +74,7 @@ export async function sendAndConfirmInstructions(
   // Assert size limit (narrows type to SendableTransaction)
   assertIsTransactionWithinSizeLimit(signedTransaction);
 
-  // Send and confirm
+  // Send and confirm using the factory
   const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
     rpc,
     rpcSubscriptions,

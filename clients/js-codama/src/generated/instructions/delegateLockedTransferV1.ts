@@ -38,9 +38,8 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
-import { resolveIsNonFungible } from '../../hooked';
+import { findAssociatedTokenPda, resolveIsNonFungible } from '../../hooked';
 import {
-  findAssociatedTokenPda,
   findMasterEditionPda,
   findMetadataPda,
   findTokenRecordPda,

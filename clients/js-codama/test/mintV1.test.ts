@@ -19,7 +19,8 @@ import {
   getCreateV1InstructionAsync,
   getMintV1InstructionAsync,
 } from '../src/generated/instructions';
-import { findMetadataPda, SPL_TOKEN_PROGRAM_ADDRESS } from '../src/generated/pdas';
+import { findMetadataPda } from '../src/generated/pdas';
+import { SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
 import {
   createKeypair,
   createRpc,
@@ -94,8 +95,8 @@ test('it can mint multiple tokens after a Fungible is created', async (t) => {
 
   // Verify the mint account has correct supply
   const mintAccount = await fetchMint(rpc, mint.address);
-  t.is(mintAccount.supply, 42n, 'Mint supply should be 42');
-  t.is(mintAccount.decimals, 0, 'Decimals should be 0 for fungible');
+  t.is(mintAccount.data.supply, 42n, 'Mint supply should be 42');
+  t.is(mintAccount.data.decimals, 0, 'Decimals should be 0 for fungible');
 
   t.pass('Successfully created and minted fungible tokens');
 });
@@ -158,7 +159,7 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
 
   // Verify the mint account has supply of 1
   const mintAccount = await fetchMint(rpc, mint.address);
-  t.is(mintAccount.supply, 1n, 'NFT supply should be 1');
+  t.is(mintAccount.data.supply, 1n, 'NFT supply should be 1');
 
   // Verify the token was minted to the associated token account
   const [tokenAddress] = await findAssociatedTokenPda({
@@ -166,7 +167,7 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
     owner: authority.address,
   });
   const tokenAccount = await fetchToken(rpc, tokenAddress);
-  t.is(tokenAccount.amount, 1n, 'Token account should have 1 token');
+  t.is(tokenAccount.data.amount, 1n, 'Token account should have 1 token');
 
   // Try to mint another token - this should fail
   const mintInstruction2 = await getMintV1InstructionAsync({
@@ -245,7 +246,7 @@ test('it can mint only one token after a ProgrammableNonFungible is created', as
 
   // Verify the mint account has supply of 1
   const mintAccount = await fetchMint(rpc, mint.address);
-  t.is(mintAccount.supply, 1n, 'PNFT supply should be 1');
+  t.is(mintAccount.data.supply, 1n, 'PNFT supply should be 1');
 
   // Verify the token was minted to the associated token account
   const [tokenAddress] = await findAssociatedTokenPda({
@@ -253,7 +254,7 @@ test('it can mint only one token after a ProgrammableNonFungible is created', as
     owner: authority.address,
   });
   const tokenAccount = await fetchToken(rpc, tokenAddress);
-  t.is(tokenAccount.amount, 1n, 'Token account should have 1 token');
+  t.is(tokenAccount.data.amount, 1n, 'Token account should have 1 token');
 
   // Try to mint another token - this should fail
   const mintInstruction2 = await getMintV1InstructionAsync({
@@ -333,7 +334,7 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
 
   // Verify the mint account
   const mintAccount = await fetchMint(rpc, mint.address);
-  t.is(mintAccount.supply, 42n, 'Fungible asset supply should be 42');
+  t.is(mintAccount.data.supply, 42n, 'Fungible asset supply should be 42');
 
   t.pass('Successfully created and minted fungible asset');
 });
@@ -406,11 +407,11 @@ test('it can mint a new ProgrammableNonFungible with Token-2022', async (t) => {
 
   // Verify the mint account has supply of 1
   const mintAccount = await fetchMint(rpc, mint.address);
-  t.is(mintAccount.supply, 1n, 'Token-2022 PNFT supply should be 1');
+  t.is(mintAccount.data.supply, 1n, 'Token-2022 PNFT supply should be 1');
 
   // Verify the token was minted to the associated token account
   const tokenAccount = await fetchToken(rpc, tokenAddress);
-  t.is(tokenAccount.amount, 1n, 'Token account should have 1 token');
+  t.is(tokenAccount.data.amount, 1n, 'Token account should have 1 token');
 
   // Verify the mint account is owned by SPL Token-2022 Program
   const accountInfo = await rpc.getAccountInfo(mint.address, { encoding: 'base64' }).send();

@@ -34,6 +34,8 @@ import {
 import {
   findAssociatedTokenPda,
   findEditionMarkerFromEditionNumberPda,
+} from '../../hooked';
+import {
   findEditionMarkerV2Pda,
   findMasterEditionPda,
   findMetadataPda,
@@ -437,6 +439,10 @@ export async function getPrintV2InstructionAsync<
       owner: expectAddress(accounts.editionTokenAccountOwner.value),
     });
   }
+  if (!accounts.masterTokenAccountOwner.value) {
+    if (!accounts.holderDelegateRecord.value) {
+    }
+  }
   if (!accounts.editionMintAuthority.value) {
     if (accounts.holderDelegateRecord.value) {
       if (accounts.delegate.value) {
@@ -447,6 +453,9 @@ export async function getPrintV2InstructionAsync<
         accounts.editionMintAuthority.value = expectSome(accounts.payer.value);
       }
     } else {
+      accounts.editionMintAuthority.value = expectSome(
+        accounts.masterTokenAccountOwner.value
+      );
     }
   }
   if (!accounts.editionTokenRecord.value) {
@@ -473,10 +482,6 @@ export async function getPrintV2InstructionAsync<
           mint: expectSome(args.masterEditionMint),
           editionNumber: expectSome(args.editionNumber),
         });
-    }
-  }
-  if (!accounts.masterTokenAccountOwner.value) {
-    if (!accounts.holderDelegateRecord.value) {
     }
   }
   if (!accounts.masterTokenAccount.value) {
@@ -783,6 +788,10 @@ export function getPrintV2Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.masterTokenAccountOwner.value) {
+    if (!accounts.holderDelegateRecord.value) {
+    }
+  }
   if (!accounts.editionMintAuthority.value) {
     if (accounts.holderDelegateRecord.value) {
       if (accounts.delegate.value) {
@@ -793,10 +802,9 @@ export function getPrintV2Instruction<
         accounts.editionMintAuthority.value = expectSome(accounts.payer.value);
       }
     } else {
-    }
-  }
-  if (!accounts.masterTokenAccountOwner.value) {
-    if (!accounts.holderDelegateRecord.value) {
+      accounts.editionMintAuthority.value = expectSome(
+        accounts.masterTokenAccountOwner.value
+      );
     }
   }
   if (!accounts.splTokenProgram.value) {

@@ -5,7 +5,6 @@
 
 import type { Address, ProgramDerivedAddress } from '@solana/addresses';
 import { getAddressEncoder, getAddressDecoder, getProgramDerivedAddress } from '@solana/addresses';
-import { getU64Encoder, getU64Decoder } from '@solana/codecs';
 
 /**
  * SPL Token Program ID (original SPL Token program)
@@ -54,6 +53,9 @@ export async function findAssociatedTokenPda(params: {
  * Find Edition Marker PDA from edition number
  * This computes which edition marker PDA holds the data for a specific edition number
  *
+ * IMPORTANT: The edition marker number is encoded as a UTF-8 string, not as a u64!
+ * This matches the Rust program which uses `edition_number.to_string().as_bytes()`
+ *
  * @param mint - The mint address of the master edition
  * @param editionNumber - The edition number (number or bigint)
  * @returns The PDA address and bump seed
@@ -71,9 +73,13 @@ export async function findEditionMarkerFromEditionNumberPda(params: {
     ? BigInt(params.editionNumber)
     : params.editionNumber;
 
-  // Edition markers are grouped in sets of 248
+  // Edition markers are grouped in sets of 248 (EDITION_MARKER_BIT_SIZE)
   // Calculate which marker this edition belongs to
   const editionMarkerNumber = editionNum / 248n;
+
+  // CRITICAL: The Rust program encodes this as a STRING, not as u64!
+  // Rust: edition_number.to_string().as_bytes()
+  const editionMarkerString = editionMarkerNumber.toString();
 
   const textEncoder = new TextEncoder();
 
@@ -84,7 +90,7 @@ export async function findEditionMarkerFromEditionNumberPda(params: {
       getAddressEncoder().encode(programAddress),
       getAddressEncoder().encode(params.mint),
       textEncoder.encode('edition'),
-      getU64Encoder().encode(editionMarkerNumber),
+      textEncoder.encode(editionMarkerString), // String encoding, not u64!
     ],
   });
 }

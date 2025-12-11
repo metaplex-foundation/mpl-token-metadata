@@ -16,7 +16,7 @@ import {
 import {
   getHolderDelegateRoleSeedEncoder,
   type HolderDelegateRoleSeedArgs,
-} from '../types';
+} from '../../hooked';
 
 export type HolderDelegateRecordSeeds = {
   /** The address of the mint account */

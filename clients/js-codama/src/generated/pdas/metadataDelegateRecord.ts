@@ -16,7 +16,7 @@ import {
 import {
   getMetadataDelegateRoleSeedEncoder,
   type MetadataDelegateRoleSeedArgs,
-} from '../types';
+} from '../../hooked';
 
 export type MetadataDelegateRecordSeeds = {
   /** The address of the mint account */
