@@ -190,7 +190,7 @@ export type UpdateAsDataItemDelegateV2AsyncInput<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Update authority or delegate */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Delegate record PDA */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Token account */
@@ -296,6 +296,9 @@ export async function getUpdateAsDataItemDelegateV2InstructionAsync<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.delegateRecord.value) {
     accounts.delegateRecord.value = await findMetadataDelegateRecordPda({
       delegateRole: MetadataDelegateRole.DataItem,
@@ -375,7 +378,7 @@ export type UpdateAsDataItemDelegateV2Input<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Update authority or delegate */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Delegate record PDA */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Token account */
@@ -479,6 +482,9 @@ export function getUpdateAsDataItemDelegateV2Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;

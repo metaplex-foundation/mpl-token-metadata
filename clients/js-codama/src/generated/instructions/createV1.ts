@@ -274,7 +274,7 @@ export type CreateV1AsyncInput<
   /** Mint of token asset */
   mint: Address<TAccountMint> | TransactionSigner<TAccountMint>;
   /** Mint authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** Update authority for the metadata account */
@@ -400,6 +400,9 @@ export async function getCreateV1InstructionAsync<
       });
     }
   }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.updateAuthority.value) {
     accounts.updateAuthority.value = expectSome(accounts.authority.value);
   }
@@ -495,7 +498,7 @@ export type CreateV1Input<
   /** Mint of token asset */
   mint: Address<TAccountMint> | TransactionSigner<TAccountMint>;
   /** Mint authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** Update authority for the metadata account */
@@ -606,6 +609,9 @@ export function getCreateV1Instruction<
   // Resolve default values.
   if (!args.tokenStandard) {
     args.tokenStandard = TokenStandard.NonFungible;
+  }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
   }
   if (!accounts.updateAuthority.value) {
     accounts.updateAuthority.value = expectSome(accounts.authority.value);

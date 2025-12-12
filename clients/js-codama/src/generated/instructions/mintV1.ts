@@ -49,6 +49,7 @@ import {
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
 import {
   expectAddress,
+  expectSome,
   getAccountMetaFactory,
   type InstructionWithByteDelta,
   type ResolvedAccount,
@@ -232,7 +233,7 @@ export type MintV1AsyncInput<
   /** Mint of token asset */
   mint: Address<TAccountMint>;
   /** (Mint or Update) authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Metadata delegate record */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Payer */
@@ -389,6 +390,9 @@ export async function getMintV1InstructionAsync<
       });
     }
   }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
@@ -490,7 +494,7 @@ export type MintV1Input<
   /** Mint of token asset */
   mint: Address<TAccountMint>;
   /** (Mint or Update) authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Metadata delegate record */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Payer */
@@ -618,6 +622,9 @@ export function getMintV1Instruction<
       ...accounts.tokenOwner,
       ...resolveOptionalTokenOwner(resolverScope),
     };
+  }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =

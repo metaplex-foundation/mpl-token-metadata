@@ -18,7 +18,7 @@ import {
   getMintV1InstructionAsync,
 } from '../src/generated/instructions';
 import { findMetadataPda } from '../src/generated/pdas';
-import { findAssociatedTokenPda, SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import {
   fetchDigitalAssetWithToken,
   fetchDigitalAssetWithAssociatedToken,
@@ -61,7 +61,6 @@ test('it can fetch a NonFungible with token account', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -140,7 +139,6 @@ test('it can fetch using associated token account', async (t) => {
     uri: 'https://example.com/ata-nft.json',
     sellerFeeBasisPoints: basisPoints(3),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

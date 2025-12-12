@@ -45,6 +45,7 @@ import {
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
 import {
   expectAddress,
+  expectSome,
   getAccountMetaFactory,
   type ResolvedAccount,
 } from '../shared';
@@ -245,7 +246,7 @@ export type TransferV1AsyncInput<
   /** Destination token record account */
   destinationTokenRecord?: Address<TAccountDestinationTokenRecord>;
   /** Transfer authority (token owner or delegate) */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -421,6 +422,9 @@ export async function getTransferV1InstructionAsync<
       });
     }
   }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
@@ -531,7 +535,7 @@ export type TransferV1Input<
   /** Destination token record account */
   destinationTokenRecord?: Address<TAccountDestinationTokenRecord>;
   /** Transfer authority (token owner or delegate) */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -665,6 +669,9 @@ export function getTransferV1Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;

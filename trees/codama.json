@@ -6175,7 +6175,8 @@
                   "Mint authority"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -6847,7 +6848,8 @@
               "(Mint or Update) authority"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -7214,7 +7216,8 @@
                   "(Mint or Update) authority"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -7566,7 +7569,8 @@
               "Update authority or token owner"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -7878,7 +7882,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -8275,7 +8280,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -8691,7 +8697,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -9062,7 +9069,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -9459,7 +9467,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -9875,7 +9884,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -10254,7 +10264,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -10648,7 +10659,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -11027,7 +11039,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -11379,7 +11392,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -11731,7 +11745,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -12083,7 +12098,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -12435,7 +12451,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -12742,7 +12759,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -13039,7 +13057,8 @@
               "Update authority or token owner"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -13351,7 +13370,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -13726,7 +13746,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -14105,7 +14126,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -14439,7 +14461,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -14814,7 +14837,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -15193,7 +15217,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -15535,7 +15560,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -15914,7 +15940,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -16248,7 +16275,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -16623,7 +16651,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -16957,7 +16986,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -17287,7 +17317,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -17617,7 +17648,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -17947,7 +17979,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -18232,7 +18265,8 @@
                   "Update authority or token owner"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -18389,7 +18423,8 @@
               "Delegate or freeze authority"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -18736,7 +18771,8 @@
                   "Delegate or freeze authority"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -19113,7 +19149,8 @@
               "Delegate or freeze authority"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -19460,7 +19497,8 @@
                   "Delegate or freeze authority"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -20382,7 +20420,8 @@
               "Transfer authority (token owner or delegate)"
             ],
             "defaultValue": {
-              "kind": "identityValueNode"
+              "kind": "accountValueNode",
+              "name": "payer"
             }
           },
           {
@@ -20823,7 +20862,8 @@
                   "Transfer authority (token owner or delegate)"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -22033,7 +22073,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -22408,7 +22449,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -22719,7 +22761,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -23034,7 +23077,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -23345,7 +23389,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -23648,7 +23693,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -23947,7 +23993,8 @@
                   "Update authority or delegate"
                 ],
                 "defaultValue": {
-                  "kind": "identityValueNode"
+                  "kind": "accountValueNode",
+                  "name": "payer"
                 }
               },
               {
@@ -26655,7 +26702,8 @@
                     }
                   },
                   "ifFalse": {
-                    "kind": "identityValueNode"
+                    "kind": "accountValueNode",
+                    "name": "masterTokenAccountOwner"
                   }
                 }
               },

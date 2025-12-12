@@ -147,7 +147,6 @@ test('it cannot approve a locked transfer delegate for a NonFungible', async (t)
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -167,7 +166,6 @@ test('it cannot approve a locked transfer delegate for a NonFungible', async (t)
     amount: 1,
     tokenStandard: TokenStandard.NonFungible,
     lockedAddress: lockedAddress.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error

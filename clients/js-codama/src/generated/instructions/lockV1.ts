@@ -47,6 +47,7 @@ import {
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
 import {
   expectAddress,
+  expectSome,
   getAccountMetaFactory,
   type ResolvedAccount,
 } from '../shared';
@@ -198,7 +199,7 @@ export type LockV1AsyncInput<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Delegate or freeze authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Token owner account */
   tokenOwner?: Address<TAccountTokenOwner>;
   /** Token account */
@@ -321,6 +322,9 @@ export async function getLockV1InstructionAsync<
   const resolverScope = { programAddress, accounts, args };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.tokenOwner.value) {
     accounts.tokenOwner = {
       ...accounts.tokenOwner,
@@ -431,7 +435,7 @@ export type LockV1Input<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Delegate or freeze authority */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Token owner account */
   tokenOwner?: Address<TAccountTokenOwner>;
   /** Token account */
@@ -552,6 +556,9 @@ export function getLockV1Instruction<
   const resolverScope = { programAddress, accounts, args };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.tokenOwner.value) {
     accounts.tokenOwner = {
       ...accounts.tokenOwner,

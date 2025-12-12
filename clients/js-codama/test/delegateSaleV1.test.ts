@@ -139,7 +139,6 @@ test('it cannot approve a sale delegate for a NonFungible', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -157,7 +156,6 @@ test('it cannot approve a sale delegate for a NonFungible', async (t) => {
     delegate: saleDelegate.address,
     amount: 1,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error
@@ -259,7 +257,6 @@ test('it cannot approve a sale delegate for a FungibleAsset', async (t) => {
     name: 'Test Asset',
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createIx, [mint, authority]);
@@ -277,7 +274,6 @@ test('it cannot approve a sale delegate for a FungibleAsset', async (t) => {
     amount: 1000,
     tokenStandard: TokenStandard.FungibleAsset,
     tokenOwner: authority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, mintIx, [authority]);
@@ -292,7 +288,6 @@ test('it cannot approve a sale delegate for a FungibleAsset', async (t) => {
     delegate: saleDelegate.address,
     amount: 100,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error

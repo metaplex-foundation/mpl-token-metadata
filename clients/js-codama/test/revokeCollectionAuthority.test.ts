@@ -69,7 +69,6 @@ test('it can revoke a collection authority as update authority', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -146,7 +145,6 @@ test('it can revoke a collection authority as the delegate itself', async (t) =>
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -222,7 +220,6 @@ test('it can revoke one of multiple collection authorities', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

@@ -22,7 +22,7 @@ import {
 import { getCreateEscrowAccountInstructionAsync } from '../src/generated/instructions';
 import { fetchTokenOwnedEscrow } from '../src/generated/accounts';
 import { createNft } from '../src/hooked/createHelpers';
-import { SPL_TOKEN_PROGRAM_ADDRESS, findAssociatedTokenPda } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../src/generated/programs';
 import {
   createKeypair,
@@ -103,7 +103,6 @@ test('it can create an escrow account with TokenOwner authority', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -166,7 +165,6 @@ test('it can create an escrow account with Creator authority', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [

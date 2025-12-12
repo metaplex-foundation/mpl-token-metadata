@@ -69,7 +69,6 @@ test('it can unverify the creator of a NonFungible', async (t) => {
         share: 100,
       },
     ],
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -341,7 +340,6 @@ test('it can unverify one of multiple creators', async (t) => {
         share: 40,
       },
     ],
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

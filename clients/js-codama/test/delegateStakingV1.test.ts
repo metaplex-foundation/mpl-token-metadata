@@ -138,7 +138,6 @@ test('it cannot approve a staking delegate for a NonFungible', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -156,7 +155,6 @@ test('it cannot approve a staking delegate for a NonFungible', async (t) => {
     delegate: stakingDelegate.address,
     amount: 1,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error

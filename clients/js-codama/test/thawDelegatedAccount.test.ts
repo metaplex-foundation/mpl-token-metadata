@@ -19,7 +19,7 @@ import {
   getThawDelegatedAccountInstructionAsync,
 } from '../src/generated/instructions';
 import { createNft } from '../src/hooked/createHelpers';
-import { findAssociatedTokenPda, SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import {
   createKeypair,
   createRpc,
@@ -61,7 +61,6 @@ test('it can thaw a frozen NonFungible token as delegate', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -86,7 +85,6 @@ test('it can thaw a frozen NonFungible token as delegate', async (t) => {
     payer: owner,
     delegate: delegate.address,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, delegateInstruction, [owner]);
@@ -145,7 +143,6 @@ test('it can freeze and thaw a token multiple times', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -170,7 +167,6 @@ test('it can freeze and thaw a token multiple times', async (t) => {
     payer: owner,
     delegate: delegate.address,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, delegateInstruction, [owner]);
@@ -251,7 +247,6 @@ test('it cannot thaw a token without being delegate', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -276,7 +271,6 @@ test('it cannot thaw a token without being delegate', async (t) => {
     payer: owner,
     delegate: delegate.address,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, delegateInstruction, [owner]);

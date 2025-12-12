@@ -20,7 +20,6 @@ import {
   getMintV1InstructionAsync,
 } from '../src/generated/instructions';
 import { findMetadataPda } from '../src/generated/pdas';
-import { SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
 import {
   createKeypair,
   createRpc,
@@ -130,7 +129,6 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
     uri: 'https://example.com/my-nft.json',
     sellerFeeBasisPoints: basisPoints(5.5),
     // tokenStandard defaults to NonFungible
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   t.truthy(createInstruction);
@@ -305,7 +303,6 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
     uri: 'https://example.com/my-asset.json',
     sellerFeeBasisPoints: basisPoints(5.5),
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   t.truthy(createInstruction);
@@ -324,7 +321,6 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
     metadata: metadataAddress,
     amount: 42,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS
   });
 
   t.truthy(mintInstruction);

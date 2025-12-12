@@ -18,7 +18,7 @@ import {
   findHolderDelegateRecordPda,
   findTokenRecordPda,
 } from '../src/generated/pdas';
-import { findAssociatedTokenPda, SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import { fetchHolderDelegateRecordFromSeeds } from '../src/generated/accounts';
 import { createNft, createProgrammableNft } from '../src/hooked/createHelpers';
 import {
@@ -60,7 +60,6 @@ test('it can approve a print delegate for a NonFungible', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [

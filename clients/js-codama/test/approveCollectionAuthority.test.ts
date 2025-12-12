@@ -67,7 +67,6 @@ test('it can approve a collection authority on NonFungible', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -134,7 +133,6 @@ test('it can approve multiple collection authorities', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

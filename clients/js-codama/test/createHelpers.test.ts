@@ -64,7 +64,6 @@ test('it can create and mint a NonFungible using createNft helper', async (t) =>
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Send both instructions in one transaction
@@ -218,7 +217,6 @@ test('it can create a FungibleAsset using createFungibleAsset helper', async (t)
     name: 'Test Asset',
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createIx, [mint, authority]);
@@ -242,7 +240,6 @@ test('it can create a FungibleAsset using createFungibleAsset helper', async (t)
     metadata: metadataAddress,
     amount: 500,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, mintIx, [authority]);
@@ -279,7 +276,6 @@ test('it can create an NFT with collection using createNft helper', async (t) =>
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: authority.address,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(
@@ -302,7 +298,6 @@ test('it can create an NFT with collection using createNft helper', async (t) =>
       key: collectionMint.address,
       verified: false,
     },
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createItemIx, mintItemIx], [

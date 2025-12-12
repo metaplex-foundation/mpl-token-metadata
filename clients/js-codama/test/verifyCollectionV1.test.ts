@@ -64,7 +64,6 @@ test('it can verify the collection of a NonFungible', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createCollectionInstruction, [
@@ -103,7 +102,6 @@ test('it can verify the collection of a NonFungible', async (t) => {
       key: collectionMint.address,
       verified: false,
     },
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createItemInstruction, [
@@ -288,7 +286,6 @@ test('it can verify the collection of a Fungible', async (t) => {
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
     isCollection: true,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createCollectionInstruction, [

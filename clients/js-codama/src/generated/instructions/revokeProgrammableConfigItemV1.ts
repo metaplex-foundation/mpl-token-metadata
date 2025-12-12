@@ -201,7 +201,7 @@ export type RevokeProgrammableConfigItemV1AsyncInput<
   /** Token account of mint */
   token?: Address<TAccountToken>;
   /** Update authority or token owner */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -316,6 +316,9 @@ export async function getRevokeProgrammableConfigItemV1InstructionAsync<
   const resolverScope = { programAddress, accounts, args };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!args.updateAuthority) {
     args.updateAuthority = expectAddress(accounts.authority.value);
   }
@@ -426,7 +429,7 @@ export type RevokeProgrammableConfigItemV1Input<
   /** Token account of mint */
   token?: Address<TAccountToken>;
   /** Update authority or token owner */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -536,6 +539,9 @@ export function getRevokeProgrammableConfigItemV1Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!args.updateAuthority) {
     args.updateAuthority = expectAddress(accounts.authority.value);
   }

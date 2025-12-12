@@ -203,6 +203,11 @@ codama.update(
 codama.update(
   setInstructionAccountDefaultValuesVisitor([
     {
+      account: "authority",
+      ignoreIfOptional: true,
+      defaultValue: accountValueNode("payer"),
+    },
+    {
       account: "updateAuthority",
       ignoreIfOptional: true,
       defaultValue: identityValueNode(),
@@ -292,6 +297,9 @@ codama.update(
         ),
       ],
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         masterEdition: {
           defaultValue: conditionalValueNode({
             condition: resolverValueNode("resolveIsNonFungible", {
@@ -320,6 +328,9 @@ codama.update(
     },
     transfer: {
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         token: {
           defaultValue: ataPdaDefault("mint", "tokenOwner"),
         },
@@ -363,6 +374,9 @@ codama.update(
     },
     delegate: {
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         masterEdition: {
           defaultValue: conditionalValueNode({
             condition: resolverValueNode("resolveIsNonFungible", {
@@ -380,6 +394,9 @@ codama.update(
     },
     revoke: {
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         masterEdition: {
           defaultValue: conditionalValueNode({
             condition: resolverValueNode("resolveIsNonFungible", {
@@ -397,6 +414,9 @@ codama.update(
     },
     lock: {
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         tokenOwner: {
           defaultValue: resolverValueNode("resolveOptionalTokenOwner"),
         },
@@ -438,6 +458,9 @@ codama.update(
     },
     unlock: {
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         tokenOwner: {
           defaultValue: resolverValueNode("resolveOptionalTokenOwner"),
         },
@@ -793,6 +816,9 @@ codama.update(
 function updateAsMetadataDelegateDefaults(role) {
   return {
     accounts: {
+      authority: {
+        defaultValue: accountValueNode("payer"),
+      },
       delegateRecord: {
         defaultValue: pdaValueNode("metadataDelegateRecord", [
           pdaSeedValueNode(
@@ -809,7 +835,7 @@ function updateAsMetadataDelegateDefaults(role) {
       token:
         role === "ProgrammableConfigItem"
           ? { isOptional: false, defaultValue: null }
-          : {},
+          : { isOptional: true, defaultValue: null },
     },
     arguments: {
       updateAuthority: {
@@ -823,6 +849,9 @@ function updateAsMetadataDelegateDefaults(role) {
 function updateAsMetadataCollectionDelegateDefaults(role) {
   return {
     accounts: {
+      authority: {
+        defaultValue: accountValueNode("payer"),
+      },
       delegateRecord: {
         defaultValue: pdaValueNode("metadataDelegateRecord", [
           pdaSeedValueNode("mint", argumentValueNode("delegateMint")),
@@ -840,7 +869,7 @@ function updateAsMetadataCollectionDelegateDefaults(role) {
       token:
         role === "ProgrammableConfig"
           ? { isOptional: false, defaultValue: null }
-          : {},
+          : { isOptional: true, defaultValue: null },
     },
     arguments: {
       delegateMint: {
@@ -858,6 +887,9 @@ function updateAsMetadataCollectionDelegateDefaults(role) {
 function metadataDelegateDefaults(role) {
   return {
     accounts: {
+      authority: {
+        defaultValue: accountValueNode("payer"),
+      },
       delegateRecord: {
         defaultValue: pdaValueNode("metadataDelegateRecord", [
           pdaSeedValueNode(
@@ -898,6 +930,9 @@ const verifyCollectionDefaults = {
 
 const tokenDelegateDefaults = {
   accounts: {
+    authority: {
+      defaultValue: accountValueNode("payer"),
+    },
     token: {
       isOptional: false,
       defaultValue: pdaValueNode(pdaLinkNode("associatedToken"), [
@@ -936,6 +971,9 @@ codama.update(
         instructionByteDeltaNode(resolverValueNode("resolveCreateV1Bytes")),
       ],
       accounts: {
+        authority: {
+          defaultValue: accountValueNode("payer"),
+        },
         masterEdition: {
           defaultValue: conditionalValueNode({
             condition: resolverValueNode("resolveIsNonFungible", {
@@ -1041,7 +1079,7 @@ codama.update(
               ifTrue: accountValueNode("delegate"),
               ifFalse: accountValueNode("payer"),
             }),
-            ifFalse: identityValueNode(),
+            ifFalse: accountValueNode("masterTokenAccountOwner"),
           }),
         },
         masterTokenAccountOwner: {
@@ -1129,4 +1167,21 @@ writeFileSync(
 // Render JavaScript.
 const jsDir = path.join(clientDir, "js-codama", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
-codama.accept(renderJavaScriptVisitor(jsDir, { prettierOptions: prettier }));
+codama.accept(
+  renderJavaScriptVisitor(jsDir, {
+    prettierOptions: prettier,
+    linkOverrides: {
+      // Redirect custom PDA seed types to the hooked folder
+      // These provide custom string serialization matching the Rust program
+      definedTypes: {
+        metadataDelegateRoleSeed: "hooked",
+        holderDelegateRoleSeed: "hooked",
+      },
+      // Redirect external program PDAs to the hooked folder
+      pdas: {
+        associatedToken: "hooked",
+        editionMarkerFromEditionNumber: "hooked",
+      },
+    },
+  })
+);

@@ -194,7 +194,7 @@ export type UpdateAsProgrammableConfigDelegateV2AsyncInput<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Update authority or delegate */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Delegate record PDA */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Token account */
@@ -301,6 +301,9 @@ export async function getUpdateAsProgrammableConfigDelegateV2InstructionAsync<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!args.delegateMint) {
     args.delegateMint = expectAddress(accounts.mint.value);
   }
@@ -383,7 +386,7 @@ export type UpdateAsProgrammableConfigDelegateV2Input<
   TAccountAuthorizationRules extends string = string,
 > = {
   /** Update authority or delegate */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Delegate record PDA */
   delegateRecord?: Address<TAccountDelegateRecord>;
   /** Token account */
@@ -488,6 +491,9 @@ export function getUpdateAsProgrammableConfigDelegateV2Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!args.delegateMint) {
     args.delegateMint = expectAddress(accounts.mint.value);
   }

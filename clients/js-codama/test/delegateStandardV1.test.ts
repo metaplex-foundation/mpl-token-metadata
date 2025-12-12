@@ -15,7 +15,7 @@ import { TokenStandard } from '../src/generated/types';
 import { getDelegateStandardV1InstructionAsync } from '../src/generated/instructions';
 import { fetchDigitalAssetWithAssociatedToken } from '../src/hooked';
 import { createNft, createFungible } from '../src/hooked/createHelpers';
-import { SPL_TOKEN_PROGRAM_ADDRESS, SPL_TOKEN_2022_PROGRAM_ADDRESS } from './_setup';
+import { SPL_TOKEN_2022_PROGRAM_ADDRESS } from './_setup';
 import {
   createKeypair,
   createRpc,
@@ -107,7 +107,6 @@ test('it can approve a standard delegate for a NonFungible', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -124,7 +123,6 @@ test('it can approve a standard delegate for a NonFungible', async (t) => {
     payer: owner,
     delegate: standardDelegate.address,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, delegateInstruction, [owner]);
@@ -252,7 +250,6 @@ test('it can approve a standard delegate for a FungibleAsset', async (t) => {
     name: 'Test Asset',
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createIx, [mint, authority]);
@@ -270,7 +267,6 @@ test('it can approve a standard delegate for a FungibleAsset', async (t) => {
     amount: 2000,
     tokenStandard: TokenStandard.FungibleAsset,
     tokenOwner: authority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, mintIx, [authority]);
@@ -285,7 +281,6 @@ test('it can approve a standard delegate for a FungibleAsset', async (t) => {
     delegate: standardDelegate.address,
     amount: 2000,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, delegateInstruction, [authority]);

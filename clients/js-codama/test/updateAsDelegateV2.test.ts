@@ -77,7 +77,6 @@ test('updateAsDataItemDelegateV2 › it can update NonFungible metadata as data 
     uri: 'https://example.com/original.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -168,7 +167,6 @@ test('updateAsCollectionItemDelegateV2 › it can update NonFungible metadata as
     uri: 'https://example.com/collection-item.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -239,7 +237,6 @@ test('updateAsAuthorityItemDelegateV2 › it can update NonFungible metadata as 
     uri: 'https://example.com/authority-item.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -386,7 +383,6 @@ test('updateAsCollectionDelegateV2 › it can update NonFungible metadata as col
     uri: 'https://example.com/collection-delegate.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -455,7 +451,6 @@ test('updateAsDataDelegateV2 › it can update NonFungible metadata as data dele
     uri: 'https://example.com/data-delegate-nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [

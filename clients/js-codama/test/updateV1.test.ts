@@ -62,7 +62,6 @@ test('it can update NonFungible metadata name and URI', async (t) => {
     uri: 'https://example.com/original.json',
     sellerFeeBasisPoints: basisPoints(5.5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -304,7 +303,6 @@ test('it can update only seller fee basis points', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

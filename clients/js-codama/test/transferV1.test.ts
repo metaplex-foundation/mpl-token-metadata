@@ -21,7 +21,7 @@ import {
   getTransferV1InstructionAsync,
 } from '../src/generated/instructions';
 import { findMetadataPda } from '../src/generated/pdas';
-import { findAssociatedTokenPda, SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import {
   createKeypair,
   createRpc,
@@ -64,7 +64,6 @@ test('it can transfer NonFungible to new owner', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -320,7 +319,6 @@ test('it can transfer all FungibleAsset tokens', async (t) => {
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -337,7 +335,6 @@ test('it can transfer all FungibleAsset tokens', async (t) => {
     metadata: metadataAddress,
     amount: 250,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, mintInstruction, [ownerA]);

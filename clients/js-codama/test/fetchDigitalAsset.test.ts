@@ -60,7 +60,6 @@ test('it can fetch a NonFungible digital asset', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5.5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -113,7 +112,6 @@ test('it can fetch a digital asset by metadata address', async (t) => {
     uri: 'https://example.com/nft2.json',
     sellerFeeBasisPoints: basisPoints(2.5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -212,7 +210,6 @@ test('it can fetch multiple digital assets in a batch', async (t) => {
       uri: `https://example.com/batch${index + 1}.json`,
       sellerFeeBasisPoints: basisPoints(2),
       tokenStandard: TokenStandard.NonFungible,
-      splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
     });
 
     await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [

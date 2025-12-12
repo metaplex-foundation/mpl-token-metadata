@@ -201,7 +201,7 @@ export type RevokeLockedTransferV1AsyncInput<
   /** Token account of mint */
   token?: Address<TAccountToken>;
   /** Update authority or token owner */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -348,6 +348,9 @@ export async function getRevokeLockedTransferV1InstructionAsync<
       });
     }
   }
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;
@@ -439,7 +442,7 @@ export type RevokeLockedTransferV1Input<
   /** Token account of mint */
   token: Address<TAccountToken>;
   /** Update authority or token owner */
-  authority: TransactionSigner<TAccountAuthority>;
+  authority?: TransactionSigner<TAccountAuthority>;
   /** Payer */
   payer: TransactionSigner<TAccountPayer>;
   /** System Program */
@@ -549,6 +552,9 @@ export function getRevokeLockedTransferV1Instruction<
   const args = { ...input };
 
   // Resolve default values.
+  if (!accounts.authority.value) {
+    accounts.authority.value = expectSome(accounts.payer.value);
+  }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
       '11111111111111111111111111111111' as Address<'11111111111111111111111111111111'>;

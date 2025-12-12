@@ -29,7 +29,6 @@ import { fetchTokenOwnedEscrow } from '../src/generated/accounts';
 import { createNft, createFungible } from '../src/hooked/createHelpers';
 import { findMetadataPda } from '../src/generated/pdas';
 import {
-  SPL_TOKEN_PROGRAM_ADDRESS,
   SPL_ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
   findAssociatedTokenPda,
 } from './_setup';
@@ -104,7 +103,6 @@ test('it can transfer tokens out of an escrow account', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createNftIx, mintNftIx], [

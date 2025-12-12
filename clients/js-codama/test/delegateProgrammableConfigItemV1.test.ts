@@ -55,7 +55,6 @@ test('it can approve a programmable config item delegate for a NonFungible', asy
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: updateAuthority.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -228,7 +227,6 @@ test('it can approve a programmable config item delegate for a FungibleAsset', a
     name: 'Test Asset',
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createIx, [mint, updateAuthority]);

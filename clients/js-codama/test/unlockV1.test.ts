@@ -25,7 +25,7 @@ import {
   findMetadataPda,
   findTokenRecordPda,
 } from '../src/generated/pdas';
-import { findAssociatedTokenPda, SPL_TOKEN_PROGRAM_ADDRESS } from './_setup';
+import { findAssociatedTokenPda } from './_setup';
 import { fetchTokenRecord } from '../src/generated/accounts';
 import {
   createKeypair,
@@ -179,7 +179,6 @@ test('it can unfreeze a NonFungible with standard delegate', async (t) => {
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -369,7 +368,6 @@ test('it can unfreeze a FungibleAsset with freeze authority', async (t) => {
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createInstruction, [
@@ -386,7 +384,6 @@ test('it can unfreeze a FungibleAsset with freeze authority', async (t) => {
     metadata: metadataAddress,
     amount: 50,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, mintInstruction, [owner]);

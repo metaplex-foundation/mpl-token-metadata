@@ -169,7 +169,6 @@ test('it cannot revoke a locked transfer delegate for a NonFungible', async (t) 
     uri: 'https://example.com/nft.json',
     sellerFeeBasisPoints: basisPoints(5),
     tokenOwner: owner.address,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirmInstructions(rpc, rpcSubscriptions, [createIx, mintIx], [
@@ -186,7 +185,6 @@ test('it cannot revoke a locked transfer delegate for a NonFungible', async (t) 
     payer: owner,
     delegate: lockedTransferDelegate.address,
     tokenStandard: TokenStandard.NonFungible,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error
@@ -270,7 +268,6 @@ test('it cannot revoke a locked transfer delegate for a FungibleAsset', async (t
     name: 'Test Asset',
     uri: 'https://example.com/asset.json',
     sellerFeeBasisPoints: basisPoints(3),
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   await sendAndConfirm(rpc, rpcSubscriptions, createIx, [mint, authority]);
@@ -284,7 +281,6 @@ test('it cannot revoke a locked transfer delegate for a FungibleAsset', async (t
     payer: authority,
     delegate: lockedTransferDelegate.address,
     tokenStandard: TokenStandard.FungibleAsset,
-    splTokenProgram: SPL_TOKEN_PROGRAM_ADDRESS,
   });
 
   // Should throw InvalidDelegateRole error
