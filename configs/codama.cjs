@@ -1165,7 +1165,7 @@ writeFileSync(
 
 
 // Render JavaScript.
-const jsDir = path.join(clientDir, "js-codama", "src", "generated");
+const jsDir = path.join(clientDir, "js-kit", "src", "generated");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
 codama.accept(
   renderJavaScriptVisitor(jsDir, {
