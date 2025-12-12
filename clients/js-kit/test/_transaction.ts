@@ -1,6 +1,6 @@
 /**
  * Transaction sending utilities for tests using @solana/kit pipes
- */
+**/
 
 import { pipe } from '@solana/functional';
 import type { Rpc } from '@solana/rpc';
@@ -45,6 +45,14 @@ export async function sendAndConfirmInstructions(
   instructions: readonly Instruction[],
   signers: TransactionSigner[]
 ): Promise<void> {
+  if (signers.length === 0) {
+    throw new Error('At least one signer is required');
+  }
+
+  if (instructions.length === 0) {
+    throw new Error('At least one instruction is required');
+  }
+
   // Get latest blockhash
   const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
 
@@ -62,10 +70,13 @@ export async function sendAndConfirmInstructions(
   // Assert it has blockhash lifetime
   assertIsTransactionWithBlockhashLifetime(transaction);
 
-  // Sign transaction
+  // Sign transaction - all signers must be KeyPairSigners in test environment
   const keyPairs = signers.map((signer) => {
     if (!isKeyPairSigner(signer)) {
-      throw new Error('All signers must be KeyPairSigners');
+      throw new Error(
+        `Expected KeyPairSigner but got ${typeof signer}. ` +
+        'All signers in tests must be KeyPairSigners from generateKeyPairSigner().'
+      );
     }
     return signer.keyPair;
   });

@@ -14,6 +14,8 @@
  */
 
 import test from 'ava';
+import { generateKeyPairSigner } from '@solana/signers';
+import { fetchMint, fetchToken } from '@solana-program/token';
 import { TokenStandard } from '../src/generated/types';
 import {
   getCreateV1InstructionAsync,
@@ -21,19 +23,20 @@ import {
 } from '../src/generated/instructions';
 import { findMetadataPda } from '../src/generated/pdas';
 import {
-  createKeypair,
+  findMetadataPda,
+  findAssociatedTokenPda,
+  SPL_TOKEN_PROGRAM_ADDRESS,
+  SPL_TOKEN_2022_PROGRAM_ADDRESS,
+} from '../src/generated/pdas';
+import {
   createRpc,
   createRpcSubscriptions,
   basisPoints,
   canRunTests,
   getSkipMessage,
   airdrop,
-  sendAndConfirm,
-  fetchMint,
-  fetchToken,
-  findAssociatedTokenPda,
-  SPL_TOKEN_2022_PROGRAM_ADDRESS,
 } from './_setup';
+import { sendAndConfirm } from './_transaction';
 
 /**
  * Test: Mint multiple tokens after a Fungible is created
@@ -51,8 +54,8 @@ test('it can mint multiple tokens after a Fungible is created', async (t) => {
 
   const rpc = createRpc();
   const rpcSubscriptions = createRpcSubscriptions();
-  const mint = await createKeypair();
-  const authority = await createKeypair();
+  const mint = await generateKeyPairSigner();
+  const authority = await generateKeyPairSigner();
   const payer = authority;
 
   // Airdrop SOL to payer for transaction fees
@@ -113,8 +116,8 @@ test('it can mint only one token after a NonFungible is created', async (t) => {
 
   const rpc = createRpc();
   const rpcSubscriptions = createRpcSubscriptions();
-  const mint = await createKeypair();
-  const authority = await createKeypair();
+  const mint = await generateKeyPairSigner();
+  const authority = await generateKeyPairSigner();
   const payer = authority;
 
   // Airdrop SOL to payer for transaction fees
@@ -201,8 +204,8 @@ test('it can mint only one token after a ProgrammableNonFungible is created', as
 
   const rpc = createRpc();
   const rpcSubscriptions = createRpcSubscriptions();
-  const mint = await createKeypair();
-  const authority = await createKeypair();
+  const mint = await generateKeyPairSigner();
+  const authority = await generateKeyPairSigner();
   const payer = authority;
 
   // Airdrop SOL to payer for transaction fees
@@ -288,8 +291,8 @@ test('it can mint multiple tokens after a FungibleAsset is created', async (t) =
 
   const rpc = createRpc();
   const rpcSubscriptions = createRpcSubscriptions();
-  const mint = await createKeypair();
-  const authority = await createKeypair();
+  const mint = await generateKeyPairSigner();
+  const authority = await generateKeyPairSigner();
   const payer = authority;
 
   // Airdrop SOL to payer for transaction fees
@@ -348,8 +351,8 @@ test('it can mint a new ProgrammableNonFungible with Token-2022', async (t) => {
 
   const rpc = createRpc();
   const rpcSubscriptions = createRpcSubscriptions();
-  const mint = await createKeypair();
-  const authority = await createKeypair();
+  const mint = await generateKeyPairSigner();
+  const authority = await generateKeyPairSigner();
   const payer = authority;
 
   // Airdrop SOL to payer for transaction fees

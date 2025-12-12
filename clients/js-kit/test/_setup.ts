@@ -3,7 +3,6 @@
  */
 
 import type { Address } from '@solana/addresses';
-import { generateKeyPairSigner } from '@solana/signers';
 import { createSolanaRpc, type Rpc } from '@solana/rpc';
 import type { SolanaRpcApi } from '@solana/rpc';
 import { createSolanaRpcSubscriptions, type RpcSubscriptions } from '@solana/rpc-subscriptions';
