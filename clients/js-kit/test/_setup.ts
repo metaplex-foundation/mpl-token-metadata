@@ -21,7 +21,7 @@ export {
   SPL_ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
 } from '../src/hooked/pdas';
 // Re-export signer generation
-export { generateKeyPairSigner as createKeypair };
+export { generateKeyPairSigner as createKeypair } from '@solana/signers';
 
 const LOCAL_VALIDATOR_URL = 'http://127.0.0.1:8899';
 const LOCAL_VALIDATOR_WS_URL = 'ws://127.0.0.1:8900';

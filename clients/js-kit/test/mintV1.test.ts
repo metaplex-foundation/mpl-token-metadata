@@ -23,11 +23,10 @@ import {
 } from '../src/generated/instructions';
 import { findMetadataPda } from '../src/generated/pdas';
 import {
-  findMetadataPda,
   findAssociatedTokenPda,
   SPL_TOKEN_PROGRAM_ADDRESS,
   SPL_TOKEN_2022_PROGRAM_ADDRESS,
-} from '../src/generated/pdas';
+} from '../src/hooked/pdas';
 import {
   createRpc,
   createRpcSubscriptions,
