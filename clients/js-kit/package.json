@@ -43,7 +43,7 @@
     "timeout": "2m",
     "serial": true
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@8.9.0",
   "dependencies": {
     "@solana-program/token": "^0.9.0",
     "@solana/accounts": "^5.0.0",
