@@ -43,12 +43,15 @@
     "timeout": "2m",
     "serial": true
   },
-  "packageManager": "pnpm@8.2.0",
+  "packageManager": "pnpm@9.15.0",
   "dependencies": {
     "@solana-program/token": "^0.9.0",
     "@solana/accounts": "^5.0.0",
     "@solana/addresses": "^5.0.0",
     "@solana/codecs": "^5.0.0",
+    "@solana/codecs-strings": "^5.1.0",
+    "@solana/functional": "^5.1.0",
+    "@solana/instructions": "^5.1.0",
     "@solana/keys": "^5.0.0",
     "@solana/kit": "^5.0.0",
     "@solana/rpc": "^5.0.0",

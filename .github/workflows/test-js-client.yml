@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ["16.x", "18.x"]
+        node: ["18.x", "20.x"]
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
@@ -42,6 +42,21 @@ jobs:
 
       - name: Test
         working-directory: ./clients/js
+        run: pnpm test
+
+      - name: Install Kit dependencies
+        uses: metaplex-foundation/actions/install-node-dependencies@v1
+        with:
+          folder: ./clients/js-kit
+          cache: ${{ env.CACHE }}
+          key: clients-js-kit
+
+      - name: Build Kit
+        working-directory: ./clients/js-kit
+        run: pnpm build
+
+      - name: Test Kit
+        working-directory: ./clients/js-kit
         run: pnpm test
 
   lint:
