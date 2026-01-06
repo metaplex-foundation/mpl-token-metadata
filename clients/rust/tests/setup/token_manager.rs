@@ -1,13 +1,11 @@
 use mpl_token_metadata::accounts::Metadata;
-use solana_program::{
-    native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey, system_instruction,
-};
+use solana_program::{native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey};
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     signature::{Keypair, Signer},
     transaction::Transaction,
 };
-use spl_token_2022::{
+use spl_token_2022_interface::{
     extension::{
         default_account_state::instruction::initialize_default_account_state,
         interest_bearing_mint, metadata_pointer,
@@ -27,7 +25,7 @@ pub struct TokenManager {
 impl Default for TokenManager {
     fn default() -> Self {
         Self {
-            spl_token_program: spl_token_2022::ID,
+            spl_token_program: spl_token_2022_interface::ID,
         }
     }
 }
@@ -67,7 +65,7 @@ impl TokenManager {
         let (metadata, _) = Metadata::find_pda(&mint.pubkey());
         let mut instructions = vec![];
 
-        instructions.push(system_instruction::create_account(
+        instructions.push(solana_system_interface::instruction::create_account(
             &context.payer.pubkey(),
             &mint.pubkey(),
             rent.minimum_balance(account_size),
@@ -173,7 +171,7 @@ impl TokenManager {
         // initialize the mint
 
         instructions.push(
-            spl_token_2022::instruction::initialize_mint2(
+            spl_token_2022_interface::instruction::initialize_mint2(
                 &self.spl_token_program,
                 &mint.pubkey(),
                 mint_authority,
@@ -201,7 +199,7 @@ impl TokenManager {
         mint: &Pubkey,
         spl_token_program: Pubkey,
     ) -> Result<(), BanksClientError> {
-        let spl_token_2022 = spl_token_program == spl_token_2022::ID;
+        let spl_token_2022 = spl_token_program == spl_token_2022_interface::ID;
 
         let length = if spl_token_2022 {
             ExtensionType::try_calculate_account_len::<Account>(&[ExtensionType::ImmutableOwner])
@@ -213,7 +211,7 @@ impl TokenManager {
 
         let mut instructions = vec![];
 
-        instructions.push(system_instruction::create_account(
+        instructions.push(solana_system_interface::instruction::create_account(
             &context.payer.pubkey(),
             &token_account.pubkey(),
             rent.minimum_balance(length),
@@ -223,7 +221,7 @@ impl TokenManager {
 
         if spl_token_2022 {
             instructions.push(
-                spl_token_2022::instruction::initialize_immutable_owner(
+                spl_token_2022_interface::instruction::initialize_immutable_owner(
                     &self.spl_token_program,
                     &token_account.pubkey(),
                 )
@@ -232,7 +230,7 @@ impl TokenManager {
         }
 
         instructions.push(
-            spl_token_2022::instruction::initialize_account3(
+            spl_token_2022_interface::instruction::initialize_account3(
                 &self.spl_token_program,
                 &token_account.pubkey(),
                 mint,
@@ -264,7 +262,7 @@ impl TokenManager {
 
         let mut instructions = vec![];
 
-        instructions.push(system_instruction::create_account(
+        instructions.push(solana_system_interface::instruction::create_account(
             &context.payer.pubkey(),
             &token_account.pubkey(),
             rent.minimum_balance(length),
@@ -274,7 +272,7 @@ impl TokenManager {
 
         if extensions.contains(&ExtensionType::ImmutableOwner) {
             instructions.push(
-                spl_token_2022::instruction::initialize_immutable_owner(
+                spl_token_2022_interface::instruction::initialize_immutable_owner(
                     &self.spl_token_program,
                     &token_account.pubkey(),
                 )
@@ -283,7 +281,7 @@ impl TokenManager {
         }
 
         instructions.push(
-            spl_token_2022::instruction::initialize_account3(
+            spl_token_2022_interface::instruction::initialize_account3(
                 &self.spl_token_program,
                 &token_account.pubkey(),
                 mint,

@@ -40,12 +40,12 @@ jobs:
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
         with:
-          toolchain: ${{ inputs.rust || env.RUST_VERSION }}
+          toolchain: ${{ inputs.rust || env.RUST_CLIENT_VERSION }}
 
       - name: Install Solana
         uses: metaplex-foundation/actions/install-solana@v1
         with:
-          version: ${{ inputs.solana || env.SOLANA_VERSION }}
+          version: ${{ inputs.solana || env.SOLANA_CLIENT_VERSION }}
           cache: ${{ env.CACHE }}
 
       - name: Cache Rust client dependencies

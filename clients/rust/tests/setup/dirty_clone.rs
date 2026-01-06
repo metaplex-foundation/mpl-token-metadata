@@ -6,6 +6,6 @@ pub trait DirtyClone {
 
 impl DirtyClone for Keypair {
     fn dirty_clone(&self) -> Self {
-        Keypair::from_bytes(&self.to_bytes()).unwrap()
+        Keypair::new_from_array(*self.secret_bytes())
     }
 }

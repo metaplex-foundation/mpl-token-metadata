@@ -6,12 +6,17 @@
 //!
 
 use crate::generated::types::Key;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
+use kaigan::types::RemainderStr;
 use solana_program::pubkey::Pubkey;
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct EditionMarker {
     pub key: Key,
     pub ledger: [u8; 31],
@@ -28,13 +33,13 @@ impl EditionMarker {
     ///   1. `crate::MPL_TOKEN_METADATA_ID`
     ///   2. mint (`Pubkey`)
     ///   3. `EditionMarker::PREFIX.1`
-    ///   4. edition_marker (`&str`)
+    ///   4. edition_marker (`RemainderStr`)
     pub const PREFIX: (&'static [u8], &'static [u8]) =
         ("metadata".as_bytes(), "edition".as_bytes());
 
     pub fn create_pda(
         mint: Pubkey,
-        edition_marker: &str,
+        edition_marker: RemainderStr,
         bump: u8,
     ) -> Result<solana_program::pubkey::Pubkey, solana_program::pubkey::PubkeyError> {
         solana_program::pubkey::Pubkey::create_program_address(
@@ -50,7 +55,10 @@ impl EditionMarker {
         )
     }
 
-    pub fn find_pda(mint: &Pubkey, edition_marker: &str) -> (solana_program::pubkey::Pubkey, u8) {
+    pub fn find_pda(
+        mint: &Pubkey,
+        edition_marker: RemainderStr,
+    ) -> (solana_program::pubkey::Pubkey, u8) {
         solana_program::pubkey::Pubkey::find_program_address(
             &[
                 "metadata".as_bytes(),

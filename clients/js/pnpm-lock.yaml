@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@metaplex-foundation/mpl-toolbox':
     specifier: ^0.10.0
@@ -41,10 +45,10 @@ devDependencies:
     version: 2.27.5(@typescript-eslint/parser@5.52.0)(eslint@8.34.0)
   eslint-plugin-prettier:
     specifier: ^4.2.1
-    version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.34.0)(prettier@2.7.1)
+    version: 4.2.1(eslint-config-prettier@8.6.0)(eslint@8.34.0)(prettier@3.6.2)
   prettier:
-    specifier: ^2.5.1
-    version: 2.7.1
+    specifier: ^3.2.5
+    version: 3.6.2
   rimraf:
     specifier: ^3.0.2
     version: 3.0.2
@@ -4117,7 +4121,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-prettier@4.2.1(eslint-config-prettier@8.6.0)(eslint@8.34.0)(prettier@2.7.1):
+  /eslint-plugin-prettier@4.2.1(eslint-config-prettier@8.6.0)(eslint@8.34.0)(prettier@3.6.2):
     resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -4130,7 +4134,7 @@ packages:
     dependencies:
       eslint: 8.34.0
       eslint-config-prettier: 8.6.0(eslint@8.34.0)
-      prettier: 2.7.1
+      prettier: 3.6.2
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -6798,6 +6802,12 @@ packages:
     hasBin: true
     dev: true
 
+  /prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: true
+
   /pretty-bytes@5.6.0:
     resolution: {integrity: sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==}
     engines: {node: '>=6'}
@@ -8294,7 +8304,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

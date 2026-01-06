@@ -5,12 +5,16 @@
 //! [https://github.com/metaplex-foundation/kinobi]
 //!
 
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Creator {
     #[cfg_attr(
         feature = "serde",

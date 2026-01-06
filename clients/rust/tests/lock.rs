@@ -13,12 +13,12 @@ use mpl_token_metadata::types::TokenStandard;
 
 mod lock {
 
-    use spl_token_2022::state::Account;
+    use spl_token_2022_interface::state::Account;
 
     use super::*;
 
     #[test_case::test_case(spl_token::ID ; "spl-token")]
-    #[test_case::test_case(spl_token_2022::ID ; "spl-token-2022")]
+    #[test_case::test_case(spl_token_2022_interface::ID ; "spl-token-2022")]
     #[tokio::test]
     async fn delegate_lock_nonfungible(spl_token_program: Pubkey) {
         let mut context = program_test().start_with_context().await;

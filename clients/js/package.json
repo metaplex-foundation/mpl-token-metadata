@@ -43,7 +43,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.5.1",
+    "prettier": "^3.2.5",
     "rimraf": "^3.0.2",
     "typedoc": "^0.23.16",
     "typedoc-plugin-expand-object-like-types": "^0.1.1",
@@ -60,5 +60,5 @@
       }
     }
   },
-  "packageManager": "pnpm@8.2.0"
+  "packageManager": "pnpm@8.9.0"
 }

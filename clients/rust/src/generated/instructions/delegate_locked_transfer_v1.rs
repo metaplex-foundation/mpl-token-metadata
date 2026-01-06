@@ -6,8 +6,10 @@
 //!
 
 use crate::generated::types::AuthorizationData;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+#[cfg(feature = "anchor")]
+use anchor_lang::prelude::{AnchorDeserialize, AnchorSerialize};
+#[cfg(not(feature = "anchor"))]
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
 /// Accounts.
@@ -152,10 +154,8 @@ impl DelegateLockedTransferV1 {
             ));
         }
         accounts.extend_from_slice(remaining_accounts);
-        let mut data = DelegateLockedTransferV1InstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(DelegateLockedTransferV1InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&args).unwrap();
         data.append(&mut args);
 
         solana_program::instruction::Instruction {
@@ -166,14 +166,15 @@ impl DelegateLockedTransferV1 {
     }
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
-struct DelegateLockedTransferV1InstructionData {
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
+pub struct DelegateLockedTransferV1InstructionData {
     discriminator: u8,
     delegate_locked_transfer_v1_discriminator: u8,
 }
 
 impl DelegateLockedTransferV1InstructionData {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             discriminator: 44,
             delegate_locked_transfer_v1_discriminator: 7,
@@ -181,8 +182,10 @@ impl DelegateLockedTransferV1InstructionData {
     }
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(not(feature = "anchor"), derive(BorshSerialize, BorshDeserialize))]
+#[cfg_attr(feature = "anchor", derive(AnchorSerialize, AnchorDeserialize))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DelegateLockedTransferV1InstructionArgs {
     pub amount: u64,
     pub locked_address: Pubkey,
@@ -644,14 +647,12 @@ impl<'a, 'b> DelegateLockedTransferV1Cpi<'a, 'b> {
         remaining_accounts.iter().for_each(|remaining_account| {
             accounts.push(solana_program::instruction::AccountMeta {
                 pubkey: *remaining_account.0.key,
-                is_signer: remaining_account.1,
-                is_writable: remaining_account.2,
+                is_writable: remaining_account.1,
+                is_signer: remaining_account.2,
             })
         });
-        let mut data = DelegateLockedTransferV1InstructionData::new()
-            .try_to_vec()
-            .unwrap();
-        let mut args = self.__args.try_to_vec().unwrap();
+        let mut data = borsh::to_vec(&(DelegateLockedTransferV1InstructionData::new())).unwrap();
+        let mut args = borsh::to_vec(&self.__args).unwrap();
         data.append(&mut args);
 
         let instruction = solana_program::instruction::Instruction {
