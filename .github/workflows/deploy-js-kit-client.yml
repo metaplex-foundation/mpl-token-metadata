@@ -50,7 +50,7 @@ jobs:
       contents: write
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.SVC_TOKEN }}
 
@@ -126,6 +126,6 @@ jobs:
         id: deploy
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID_JS_KIT: ${{ secrets.VERCEL_PROJECT_ID_JS_KIT }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_JS_KIT }}
         working-directory: ./clients/js-kit
         run: echo "url=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})" | tee $GITHUB_OUTPUT
