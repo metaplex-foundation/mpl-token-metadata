@@ -16,7 +16,6 @@ Test files have been created in `test/` but require additional infrastructure to
 Tests follow the same structure as `clients/js/test/` but use the new API:
 
 ```typescript
-// Example (once infrastructure is ready):
 const mint = await generateKeypair();
 const createInstruction = createV1({
   mint: mint.address,
@@ -25,7 +24,6 @@ const createInstruction = createV1({
   sellerFeeBasisPoints: 550,
   tokenStandard: TokenStandard.Fungible,
 });
-// Send transaction with @solana/kit patterns
 ```
 
 ## Running Tests
