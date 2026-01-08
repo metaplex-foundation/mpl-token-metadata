@@ -47,7 +47,7 @@ export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction
     /** Token account containing Printing mint token to be transferred */
     masterTokenAccount: PublicKey | Pda;
     /** Edition pda to mark creation - will be checked for pre-existence. (pda of ['metadata', program id, master mint id, edition_number]) */
-    editionMarker?: PublicKey | Pda;
+    editionMarker: PublicKey | Pda;
     /** Burn authority for this token */
     burnAuthority: Signer;
     /** payer */
@@ -200,11 +200,6 @@ export function deprecatedMintNewEditionFromMasterEditionViaPrintingToken(
   }
   if (!resolvedAccounts.masterEdition.value) {
     resolvedAccounts.masterEdition.value = findMasterEditionPda(context, {
-      mint: expectPublicKey(resolvedAccounts.mint.value),
-    });
-  }
-  if (!resolvedAccounts.editionMarker.value) {
-    resolvedAccounts.editionMarker.value = findMasterEditionPda(context, {
       mint: expectPublicKey(resolvedAccounts.mint.value),
     });
   }
