@@ -19,6 +19,8 @@ import {
   getU8Decoder,
   getU8Encoder,
   none,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -38,13 +40,13 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import {
   collectionDetailsToggle,
   collectionToggle,
@@ -91,15 +93,12 @@ export type UpdateV1Instruction<
   TAccountMetadata extends string | AccountMeta<string> = string,
   TAccountEdition extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
-  TAccountAuthorizationRulesProgram extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
+  TAccountAuthorizationRulesProgram extends string | AccountMeta<string> =
+    string,
   TAccountAuthorizationRules extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -349,7 +348,7 @@ export async function getUpdateV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -358,7 +357,10 @@ export async function getUpdateV1InstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.systemProgram.value) {
@@ -379,17 +381,20 @@ export async function getUpdateV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getUpdateV1InstructionDataEncoder().encode(
       args as UpdateV1InstructionDataArgs
@@ -528,7 +533,7 @@ export function getUpdateV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -553,17 +558,20 @@ export function getUpdateV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getUpdateV1InstructionDataEncoder().encode(
       args as UpdateV1InstructionDataArgs
@@ -626,8 +634,13 @@ export function parseUpdateV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUpdateV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 11) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 11,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

@@ -3,14 +3,23 @@
  * These are called by the generated instruction builders to compute default values
  */
 
-import type { Address } from '@solana/addresses';
-import type { OptionOrNullable } from '@solana/kit';
+import type { Address, OptionOrNullable, TransactionSigner, ProgramDerivedAddress } from '@solana/kit';
+import type { ResolvedInstructionAccount } from '@solana/program-client-core';
 import type { TokenStandard } from '../generated/types/tokenStandard';
 import type { CollectionDetailsArgs } from '../generated/types/collectionDetails';
 import type { PrintSupplyArgs } from '../generated/types/printSupply';
 import type { CreatorArgs } from '../generated/types/creator';
-import type { ResolvedAccount } from '../generated/shared';
-import { expectAddress } from '../generated/shared';
+
+type AccountValue = Address | TransactionSigner | ProgramDerivedAddress | null | undefined;
+
+/** Extract an Address from a resolved account value */
+function getAddressFromAccount(value: AccountValue): Address | null {
+  if (value == null) return null;
+  if (typeof value === 'string') return value as Address;
+  if (Array.isArray(value)) return value[0] as Address;
+  if (typeof value === 'object' && 'address' in value) return value.address as Address;
+  return null;
+}
 
 // Constants for size calculations
 const MINT_SIZE = 82;
@@ -35,10 +44,10 @@ export function isNonFungible(tokenStandard: TokenStandard): boolean {
  * Contains resolved account information
  */
 interface ResolverAccounts {
-  authority?: ResolvedAccount;
-  token?: ResolvedAccount;
-  mint?: ResolvedAccount & { isSigner?: boolean };
-  [key: string]: ResolvedAccount | undefined;
+  authority?: ResolvedInstructionAccount;
+  token?: ResolvedInstructionAccount;
+  mint?: ResolvedInstructionAccount & { isSigner?: boolean };
+  [key: string]: ResolvedInstructionAccount | undefined;
 }
 
 /**
@@ -124,7 +133,7 @@ export function resolvePrintSupply(
 export function resolveCreators(
   scope: ResolverScope<unknown>
 ): OptionOrNullable<CreatorArgs[]> {
-  const authorityAddress = expectAddress(scope.accounts.authority?.value);
+  const authorityAddress = getAddressFromAccount(scope.accounts.authority?.value);
   if (!authorityAddress) {
     throw new Error('authority account is required');
   }
@@ -159,7 +168,7 @@ export function resolveOptionalTokenOwner(
 ): { value: Address | null } {
   // If token is provided, return null (owner will be derived from token account)
   // Otherwise, use the authority's address as the owner
-  const authorityAddress = expectAddress(scope.accounts.authority?.value);
+  const authorityAddress = getAddressFromAccount(scope.accounts.authority?.value);
   return authorityAddress ? { value: authorityAddress } : { value: null };
 }
 

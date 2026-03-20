@@ -14,6 +14,8 @@ import {
   getU64Encoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -30,13 +32,13 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const UTILIZE_DISCRIMINATOR = 19;
 
@@ -51,22 +53,16 @@ export type UtilizeInstruction<
   TAccountMint extends string | AccountMeta<string> = string,
   TAccountUseAuthority extends string | AccountMeta<string> = string,
   TAccountOwner extends string | AccountMeta<string> = string,
-  TAccountTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountAtaProgram extends
-    | string
-    | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountRent extends
-    | string
-    | AccountMeta<string> = 'SysvarRent111111111111111111111111111111111',
-  TAccountUseAuthorityRecord extends
-    | string
-    | AccountMeta<string>
-    | undefined = undefined,
+  TAccountTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountAtaProgram extends string | AccountMeta<string> =
+    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountRent extends string | AccountMeta<string> =
+    'SysvarRent111111111111111111111111111111111',
+  TAccountUseAuthorityRecord extends string | AccountMeta<string> | undefined =
+    undefined,
   TAccountBurner extends string | AccountMeta<string> | undefined = undefined,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -258,7 +254,7 @@ export async function getUtilizeInstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -267,7 +263,10 @@ export async function getUtilizeInstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.tokenProgram.value) {
@@ -290,18 +289,18 @@ export async function getUtilizeInstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.useAuthority),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.ataProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-      getAccountMeta(accounts.useAuthorityRecord),
-      getAccountMeta(accounts.burner),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('useAuthority', accounts.useAuthority),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('ataProgram', accounts.ataProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+      getAccountMeta('useAuthorityRecord', accounts.useAuthorityRecord),
+      getAccountMeta('burner', accounts.burner),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getUtilizeInstructionDataEncoder().encode(
       args as UtilizeInstructionDataArgs
     ),
@@ -425,7 +424,7 @@ export function getUtilizeInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -452,18 +451,18 @@ export function getUtilizeInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.useAuthority),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.ataProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-      getAccountMeta(accounts.useAuthorityRecord),
-      getAccountMeta(accounts.burner),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('useAuthority', accounts.useAuthority),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('ataProgram', accounts.ataProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+      getAccountMeta('useAuthorityRecord', accounts.useAuthorityRecord),
+      getAccountMeta('burner', accounts.burner),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getUtilizeInstructionDataEncoder().encode(
       args as UtilizeInstructionDataArgs
     ),
@@ -525,8 +524,13 @@ export function parseUtilizeInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUtilizeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 9) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 9,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

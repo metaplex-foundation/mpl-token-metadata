@@ -2,27 +2,26 @@
  * Transaction sending utilities for tests using @solana/kit pipes
 **/
 
-import { pipe } from '@solana/functional';
-import type { Rpc } from '@solana/rpc';
-import type { SolanaRpcApi } from '@solana/rpc';
-import type { RpcSubscriptions } from '@solana/rpc-subscriptions';
-import type { SolanaRpcSubscriptionsApi } from '@solana/rpc-subscriptions';
-import type { TransactionSigner } from '@solana/signers';
-import { isKeyPairSigner } from '@solana/signers';
-import type { Instruction } from '@solana/instructions';
 import {
+  pipe,
+  createSolanaRpc,
   appendTransactionMessageInstructions,
   createTransactionMessage,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
-} from '@solana/transaction-messages';
-import {
   compileTransaction,
   signTransaction,
   assertIsTransactionWithinSizeLimit,
   assertIsTransactionWithBlockhashLifetime,
-} from '@solana/transactions';
-import { sendAndConfirmTransactionFactory } from '@solana/kit';
+  sendAndConfirmTransactionFactory,
+  isKeyPairSigner,
+  type Rpc,
+  type SolanaRpcApi,
+  type RpcSubscriptions,
+  type SolanaRpcSubscriptionsApi,
+  type TransactionSigner,
+  type Instruction,
+} from '@solana/kit';
 
 /**
  * Send and confirm a single instruction using @solana/kit pipes

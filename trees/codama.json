@@ -1,7 +1,7 @@
 {
   "kind": "rootNode",
   "standard": "codama",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "program": {
     "kind": "programNode",
     "name": "mplTokenMetadata",
@@ -6011,30 +6011,7 @@
             "isOptional": true,
             "docs": [
               "SPL Token program"
-            ],
-            "defaultValue": {
-              "kind": "conditionalValueNode",
-              "condition": {
-                "kind": "resolverValueNode",
-                "name": "resolveIsNonFungibleOrIsMintSigner",
-                "docs": [],
-                "dependsOn": [
-                  {
-                    "kind": "accountValueNode",
-                    "name": "mint"
-                  },
-                  {
-                    "kind": "argumentValueNode",
-                    "name": "tokenStandard"
-                  }
-                ]
-              },
-              "ifTrue": {
-                "kind": "publicKeyValueNode",
-                "publicKey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-                "identifier": "splToken"
-              }
-            }
+            ]
           }
         ],
         "arguments": [

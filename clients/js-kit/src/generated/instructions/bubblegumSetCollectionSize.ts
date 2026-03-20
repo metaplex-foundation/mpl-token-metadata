@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,8 +30,11 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 import {
   getSetCollectionSizeArgsDecoder,
   getSetCollectionSizeArgsEncoder,
@@ -192,7 +197,7 @@ export function getBubblegumSetCollectionSizeInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -201,12 +206,15 @@ export function getBubblegumSetCollectionSizeInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.collectionAuthority),
-      getAccountMeta(accounts.collectionMint),
-      getAccountMeta(accounts.bubblegumSigner),
-      getAccountMeta(accounts.collectionAuthorityRecord),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta('collectionAuthority', accounts.collectionAuthority),
+      getAccountMeta('collectionMint', accounts.collectionMint),
+      getAccountMeta('bubblegumSigner', accounts.bubblegumSigner),
+      getAccountMeta(
+        'collectionAuthorityRecord',
+        accounts.collectionAuthorityRecord
+      ),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getBubblegumSetCollectionSizeInstructionDataEncoder().encode(
       args as BubblegumSetCollectionSizeInstructionDataArgs
     ),
@@ -250,8 +258,13 @@ export function parseBubblegumSetCollectionSizeInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedBubblegumSetCollectionSizeInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 4) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 4,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

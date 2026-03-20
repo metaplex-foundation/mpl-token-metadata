@@ -14,6 +14,8 @@ import {
   getU64Encoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -32,6 +34,12 @@ import {
   type WritableSignerAccount,
 } from '@solana/kit';
 import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
+import {
   findAssociatedTokenPda,
   findEditionMarkerFromEditionNumberPda,
 } from '../../hooked';
@@ -42,12 +50,6 @@ import {
   findTokenRecordPda,
 } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import { TokenStandard, type TokenStandardArgs } from '../types';
 
 export const PRINT_V1_DISCRIMINATOR = 55;
@@ -61,9 +63,8 @@ export type PrintV1Instruction<
   TAccountEditionMetadata extends string | AccountMeta<string> = string,
   TAccountEdition extends string | AccountMeta<string> = string,
   TAccountEditionMint extends string | AccountMeta<string> = string,
-  TAccountEditionTokenAccountOwner extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountEditionTokenAccountOwner extends string | AccountMeta<string> =
+    string,
   TAccountEditionTokenAccount extends string | AccountMeta<string> = string,
   TAccountEditionMintAuthority extends string | AccountMeta<string> = string,
   TAccountEditionTokenRecord extends string | AccountMeta<string> = string,
@@ -74,18 +75,14 @@ export type PrintV1Instruction<
   TAccountMasterTokenAccount extends string | AccountMeta<string> = string,
   TAccountMasterMetadata extends string | AccountMeta<string> = string,
   TAccountUpdateAuthority extends string | AccountMeta<string> = string,
-  TAccountSplTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountSplAtaProgram extends
-    | string
-    | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSplTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSplAtaProgram extends string | AccountMeta<string> =
+    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -386,7 +383,7 @@ export async function getPrintV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -395,60 +392,100 @@ export async function getPrintV1InstructionAsync<
   // Resolve default values.
   if (!accounts.editionMetadata.value) {
     accounts.editionMetadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.editionMint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'editionMint',
+        accounts.editionMint.value
+      ),
     });
   }
   if (!accounts.edition.value) {
     accounts.edition.value = await findMasterEditionPda({
-      mint: expectAddress(accounts.editionMint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'editionMint',
+        accounts.editionMint.value
+      ),
     });
   }
   if (!accounts.editionTokenAccount.value) {
     accounts.editionTokenAccount.value = await findAssociatedTokenPda({
-      mint: expectAddress(accounts.editionMint.value),
-      owner: expectAddress(accounts.editionTokenAccountOwner.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'editionMint',
+        accounts.editionMint.value
+      ),
+      owner: getAddressFromResolvedInstructionAccount(
+        'editionTokenAccountOwner',
+        accounts.editionTokenAccountOwner.value
+      ),
     });
   }
   if (!accounts.editionMintAuthority.value) {
-    accounts.editionMintAuthority.value = expectSome(
+    accounts.editionMintAuthority.value = getNonNullResolvedInstructionInput(
+      'masterTokenAccountOwner',
       accounts.masterTokenAccountOwner.value
     );
   }
   if (!accounts.editionTokenRecord.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.editionTokenRecord.value = await findTokenRecordPda({
-        mint: expectAddress(accounts.editionMint.value),
-        token: expectAddress(accounts.editionTokenAccount.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'editionMint',
+          accounts.editionMint.value
+        ),
+        token: getAddressFromResolvedInstructionAccount(
+          'editionTokenAccount',
+          accounts.editionTokenAccount.value
+        ),
       });
     }
   }
   if (!accounts.masterEdition.value) {
     accounts.masterEdition.value = await findMasterEditionPda({
-      mint: expectSome(args.masterEditionMint),
+      mint: getNonNullResolvedInstructionInput(
+        'masterEditionMint',
+        args.masterEditionMint
+      ),
     });
   }
   if (!accounts.editionMarkerPda.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.editionMarkerPda.value = await findEditionMarkerV2Pda({
-        mint: expectSome(args.masterEditionMint),
+        mint: getNonNullResolvedInstructionInput(
+          'masterEditionMint',
+          args.masterEditionMint
+        ),
       });
     } else {
       accounts.editionMarkerPda.value =
         await findEditionMarkerFromEditionNumberPda({
-          mint: expectSome(args.masterEditionMint),
-          editionNumber: expectSome(args.editionNumber),
+          mint: getNonNullResolvedInstructionInput(
+            'masterEditionMint',
+            args.masterEditionMint
+          ),
+          editionNumber: getNonNullResolvedInstructionInput(
+            'editionNumber',
+            args.editionNumber
+          ),
         });
     }
   }
   if (!accounts.masterTokenAccount.value) {
     accounts.masterTokenAccount.value = await findAssociatedTokenPda({
-      mint: expectSome(args.masterEditionMint),
-      owner: expectAddress(accounts.masterTokenAccountOwner.value),
+      mint: getNonNullResolvedInstructionInput(
+        'masterEditionMint',
+        args.masterEditionMint
+      ),
+      owner: getAddressFromResolvedInstructionAccount(
+        'masterTokenAccountOwner',
+        accounts.masterTokenAccountOwner.value
+      ),
     });
   }
   if (!accounts.masterMetadata.value) {
     accounts.masterMetadata.value = await findMetadataPda({
-      mint: expectSome(args.masterEditionMint),
+      mint: getNonNullResolvedInstructionInput(
+        'masterEditionMint',
+        args.masterEditionMint
+      ),
     });
   }
   if (!accounts.splTokenProgram.value) {
@@ -471,24 +508,30 @@ export async function getPrintV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.editionMetadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.editionMint),
-      getAccountMeta(accounts.editionTokenAccountOwner),
-      getAccountMeta(accounts.editionTokenAccount),
-      getAccountMeta(accounts.editionMintAuthority),
-      getAccountMeta(accounts.editionTokenRecord),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.editionMarkerPda),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.masterTokenAccountOwner),
-      getAccountMeta(accounts.masterTokenAccount),
-      getAccountMeta(accounts.masterMetadata),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.splAtaProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.systemProgram),
+      getAccountMeta('editionMetadata', accounts.editionMetadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('editionMint', accounts.editionMint),
+      getAccountMeta(
+        'editionTokenAccountOwner',
+        accounts.editionTokenAccountOwner
+      ),
+      getAccountMeta('editionTokenAccount', accounts.editionTokenAccount),
+      getAccountMeta('editionMintAuthority', accounts.editionMintAuthority),
+      getAccountMeta('editionTokenRecord', accounts.editionTokenRecord),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('editionMarkerPda', accounts.editionMarkerPda),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta(
+        'masterTokenAccountOwner',
+        accounts.masterTokenAccountOwner
+      ),
+      getAccountMeta('masterTokenAccount', accounts.masterTokenAccount),
+      getAccountMeta('masterMetadata', accounts.masterMetadata),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('splAtaProgram', accounts.splAtaProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('systemProgram', accounts.systemProgram),
     ],
     data: getPrintV1InstructionDataEncoder().encode(
       args as PrintV1InstructionDataArgs
@@ -706,7 +749,7 @@ export function getPrintV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -714,7 +757,8 @@ export function getPrintV1Instruction<
 
   // Resolve default values.
   if (!accounts.editionMintAuthority.value) {
-    accounts.editionMintAuthority.value = expectSome(
+    accounts.editionMintAuthority.value = getNonNullResolvedInstructionInput(
+      'masterTokenAccountOwner',
       accounts.masterTokenAccountOwner.value
     );
   }
@@ -738,24 +782,30 @@ export function getPrintV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.editionMetadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.editionMint),
-      getAccountMeta(accounts.editionTokenAccountOwner),
-      getAccountMeta(accounts.editionTokenAccount),
-      getAccountMeta(accounts.editionMintAuthority),
-      getAccountMeta(accounts.editionTokenRecord),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.editionMarkerPda),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.masterTokenAccountOwner),
-      getAccountMeta(accounts.masterTokenAccount),
-      getAccountMeta(accounts.masterMetadata),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.splAtaProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.systemProgram),
+      getAccountMeta('editionMetadata', accounts.editionMetadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('editionMint', accounts.editionMint),
+      getAccountMeta(
+        'editionTokenAccountOwner',
+        accounts.editionTokenAccountOwner
+      ),
+      getAccountMeta('editionTokenAccount', accounts.editionTokenAccount),
+      getAccountMeta('editionMintAuthority', accounts.editionMintAuthority),
+      getAccountMeta('editionTokenRecord', accounts.editionTokenRecord),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('editionMarkerPda', accounts.editionMarkerPda),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta(
+        'masterTokenAccountOwner',
+        accounts.masterTokenAccountOwner
+      ),
+      getAccountMeta('masterTokenAccount', accounts.masterTokenAccount),
+      getAccountMeta('masterMetadata', accounts.masterMetadata),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('splAtaProgram', accounts.splAtaProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('systemProgram', accounts.systemProgram),
     ],
     data: getPrintV1InstructionDataEncoder().encode(
       args as PrintV1InstructionDataArgs
@@ -842,8 +892,13 @@ export function parsePrintV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedPrintV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 18) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 18,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

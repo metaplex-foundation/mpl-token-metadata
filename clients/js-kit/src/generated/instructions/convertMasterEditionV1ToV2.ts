@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type Address,
@@ -24,8 +26,11 @@ import {
   type ReadonlyUint8Array,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const CONVERT_MASTER_EDITION_V1_TO_V2_DISCRIMINATOR = 12;
 
@@ -129,15 +134,15 @@ export function getConvertMasterEditionV1ToV2Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.oneTimeAuth),
-      getAccountMeta(accounts.printingMint),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('oneTimeAuth', accounts.oneTimeAuth),
+      getAccountMeta('printingMint', accounts.printingMint),
     ],
     data: getConvertMasterEditionV1ToV2InstructionDataEncoder().encode({}),
     programAddress,
@@ -174,8 +179,13 @@ export function parseConvertMasterEditionV1ToV2Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedConvertMasterEditionV1ToV2Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 3) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 3,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

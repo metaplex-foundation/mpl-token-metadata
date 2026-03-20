@@ -51,6 +51,7 @@ export type UseAuthorityRecordArgs = {
   bump: number;
 };
 
+/** Gets the encoder for {@link UseAuthorityRecordArgs} account data. */
 export function getUseAuthorityRecordEncoder(): FixedSizeEncoder<UseAuthorityRecordArgs> {
   return transformEncoder(
     getStructEncoder([
@@ -62,6 +63,7 @@ export function getUseAuthorityRecordEncoder(): FixedSizeEncoder<UseAuthorityRec
   );
 }
 
+/** Gets the decoder for {@link UseAuthorityRecord} account data. */
 export function getUseAuthorityRecordDecoder(): FixedSizeDecoder<UseAuthorityRecord> {
   return getStructDecoder([
     ['key', getKeyDecoder()],
@@ -70,6 +72,7 @@ export function getUseAuthorityRecordDecoder(): FixedSizeDecoder<UseAuthorityRec
   ]);
 }
 
+/** Gets the codec for {@link UseAuthorityRecord} account data. */
 export function getUseAuthorityRecordCodec(): FixedSizeCodec<
   UseAuthorityRecordArgs,
   UseAuthorityRecord

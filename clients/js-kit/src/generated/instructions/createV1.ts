@@ -29,6 +29,8 @@ import {
   getUtf8Decoder,
   getUtf8Encoder,
   none,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -49,6 +51,13 @@ import {
   type WritableSignerAccount,
 } from '@solana/kit';
 import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type InstructionWithByteDelta,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
+import {
   resolveCollectionDetails,
   resolveCreateV1Bytes,
   resolveCreators,
@@ -59,13 +68,6 @@ import {
 } from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type InstructionWithByteDelta,
-  type ResolvedAccount,
-} from '../shared';
 import {
   getCollectionDecoder,
   getCollectionDetailsDecoder,
@@ -107,12 +109,10 @@ export type CreateV1Instruction<
   TAccountAuthority extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
   TAccountUpdateAuthority extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
   TAccountSplTokenProgram extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -375,7 +375,7 @@ export async function getCreateV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -387,7 +387,10 @@ export async function getCreateV1InstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!args.tokenStandard) {
@@ -396,15 +399,24 @@ export async function getCreateV1InstructionAsync<
   if (!accounts.masterEdition.value) {
     if (resolveIsNonFungible(resolverScope)) {
       accounts.masterEdition.value = await findMasterEditionPda({
-        mint: expectAddress(accounts.mint.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
       });
     }
   }
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.updateAuthority.value) {
-    accounts.updateAuthority.value = expectSome(accounts.authority.value);
+    accounts.updateAuthority.value = getNonNullResolvedInstructionInput(
+      'authority',
+      accounts.authority.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -445,15 +457,15 @@ export async function getCreateV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
     ],
     byteDelta,
     data: getCreateV1InstructionDataEncoder().encode(
@@ -597,7 +609,7 @@ export function getCreateV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -611,10 +623,16 @@ export function getCreateV1Instruction<
     args.tokenStandard = TokenStandard.NonFungible;
   }
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.updateAuthority.value) {
-    accounts.updateAuthority.value = expectSome(accounts.authority.value);
+    accounts.updateAuthority.value = getNonNullResolvedInstructionInput(
+      'authority',
+      accounts.authority.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -655,15 +673,15 @@ export function getCreateV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
     ],
     byteDelta,
     data: getCreateV1InstructionDataEncoder().encode(
@@ -727,8 +745,13 @@ export function parseCreateV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedCreateV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 9) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 9,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

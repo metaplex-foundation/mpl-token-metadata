@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,8 +30,11 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const BURN_EDITION_NFT_DISCRIMINATOR = 37;
 
@@ -43,18 +48,15 @@ export type BurnEditionNftInstruction<
   TAccountOwner extends string | AccountMeta<string> = string,
   TAccountPrintEditionMint extends string | AccountMeta<string> = string,
   TAccountMasterEditionMint extends string | AccountMeta<string> = string,
-  TAccountPrintEditionTokenAccount extends
-    | string
-    | AccountMeta<string> = string,
-  TAccountMasterEditionTokenAccount extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountPrintEditionTokenAccount extends string | AccountMeta<string> =
+    string,
+  TAccountMasterEditionTokenAccount extends string | AccountMeta<string> =
+    string,
   TAccountMasterEditionAccount extends string | AccountMeta<string> = string,
   TAccountPrintEditionAccount extends string | AccountMeta<string> = string,
   TAccountEditionMarkerAccount extends string | AccountMeta<string> = string,
-  TAccountSplTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSplTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -236,7 +238,7 @@ export function getBurnEditionNftInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -248,16 +250,22 @@ export function getBurnEditionNftInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.printEditionMint),
-      getAccountMeta(accounts.masterEditionMint),
-      getAccountMeta(accounts.printEditionTokenAccount),
-      getAccountMeta(accounts.masterEditionTokenAccount),
-      getAccountMeta(accounts.masterEditionAccount),
-      getAccountMeta(accounts.printEditionAccount),
-      getAccountMeta(accounts.editionMarkerAccount),
-      getAccountMeta(accounts.splTokenProgram),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('printEditionMint', accounts.printEditionMint),
+      getAccountMeta('masterEditionMint', accounts.masterEditionMint),
+      getAccountMeta(
+        'printEditionTokenAccount',
+        accounts.printEditionTokenAccount
+      ),
+      getAccountMeta(
+        'masterEditionTokenAccount',
+        accounts.masterEditionTokenAccount
+      ),
+      getAccountMeta('masterEditionAccount', accounts.masterEditionAccount),
+      getAccountMeta('printEditionAccount', accounts.printEditionAccount),
+      getAccountMeta('editionMarkerAccount', accounts.editionMarkerAccount),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
     ],
     data: getBurnEditionNftInstructionDataEncoder().encode({}),
     programAddress,
@@ -315,8 +323,13 @@ export function parseBurnEditionNftInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedBurnEditionNftInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 10) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 10,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

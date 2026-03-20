@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,13 +30,13 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMasterEditionPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const CLOSE_ESCROW_ACCOUNT_DISCRIMINATOR = 39;
 
@@ -50,12 +52,10 @@ export type CloseEscrowAccountInstruction<
   TAccountTokenAccount extends string | AccountMeta<string> = string,
   TAccountEdition extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -198,18 +198,24 @@ export async function getCloseEscrowAccountInstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.edition.value) {
     accounts.edition.value = await findMasterEditionPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.systemProgram.value) {
@@ -224,14 +230,14 @@ export async function getCloseEscrowAccountInstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.escrow),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
+      getAccountMeta('escrow', accounts.escrow),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
     ],
     data: getCloseEscrowAccountInstructionDataEncoder().encode({}),
     programAddress,
@@ -329,7 +335,7 @@ export function getCloseEscrowAccountInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -345,14 +351,14 @@ export function getCloseEscrowAccountInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.escrow),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
+      getAccountMeta('escrow', accounts.escrow),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
     ],
     data: getCloseEscrowAccountInstructionDataEncoder().encode({}),
     programAddress,
@@ -404,8 +410,13 @@ export function parseCloseEscrowAccountInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedCloseEscrowAccountInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 8) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 8,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

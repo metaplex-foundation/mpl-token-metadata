@@ -19,6 +19,8 @@ import {
   getU8Decoder,
   getU8Encoder,
   none,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -36,8 +38,11 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 import {
   getDataV2Decoder,
   getDataV2Encoder,
@@ -169,7 +174,7 @@ export function getUpdateMetadataAccountV2Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -178,8 +183,8 @@ export function getUpdateMetadataAccountV2Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.updateAuthority),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
     ],
     data: getUpdateMetadataAccountV2InstructionDataEncoder().encode(
       args as UpdateMetadataAccountV2InstructionDataArgs
@@ -215,8 +220,13 @@ export function parseUpdateMetadataAccountV2Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUpdateMetadataAccountV2Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 2) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 2,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

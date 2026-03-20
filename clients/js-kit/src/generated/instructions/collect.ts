@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -27,8 +29,11 @@ import {
   type ReadonlyUint8Array,
   type TransactionSigner,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const COLLECT_DISCRIMINATOR = 54;
 
@@ -110,14 +115,14 @@ export function getCollectInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.recipient),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('recipient', accounts.recipient),
     ],
     data: getCollectInstructionDataEncoder().encode({}),
     programAddress,
@@ -151,8 +156,13 @@ export function parseCollectInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedCollectInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 2) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 2,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

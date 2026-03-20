@@ -52,6 +52,7 @@ export type HolderDelegateRecordArgs = {
   updateAuthority: Address;
 };
 
+/** Gets the encoder for {@link HolderDelegateRecordArgs} account data. */
 export function getHolderDelegateRecordEncoder(): FixedSizeEncoder<HolderDelegateRecordArgs> {
   return getStructEncoder([
     ['key', getKeyEncoder()],
@@ -62,6 +63,7 @@ export function getHolderDelegateRecordEncoder(): FixedSizeEncoder<HolderDelegat
   ]);
 }
 
+/** Gets the decoder for {@link HolderDelegateRecord} account data. */
 export function getHolderDelegateRecordDecoder(): FixedSizeDecoder<HolderDelegateRecord> {
   return getStructDecoder([
     ['key', getKeyDecoder()],
@@ -72,6 +74,7 @@ export function getHolderDelegateRecordDecoder(): FixedSizeDecoder<HolderDelegat
   ]);
 }
 
+/** Gets the codec for {@link HolderDelegateRecord} account data. */
 export function getHolderDelegateRecordCodec(): FixedSizeCodec<
   HolderDelegateRecordArgs,
   HolderDelegateRecord

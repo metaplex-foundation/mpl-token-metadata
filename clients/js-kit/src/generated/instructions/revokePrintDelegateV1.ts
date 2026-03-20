@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -29,15 +31,15 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { resolveIsNonFungible } from '../../hooked';
 import { findMasterEditionPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import { type TokenStandardArgs } from '../types';
 
 export const REVOKE_PRINT_DELEGATE_V1_DISCRIMINATOR = 45;
@@ -57,16 +59,13 @@ export type RevokePrintDelegateV1Instruction<
   TAccountToken extends string | AccountMeta<string> = string,
   TAccountAuthority extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
   TAccountSplTokenProgram extends string | AccountMeta<string> = string,
-  TAccountAuthorizationRulesProgram extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountAuthorizationRulesProgram extends string | AccountMeta<string> =
+    string,
   TAccountAuthorizationRules extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -298,7 +297,7 @@ export async function getRevokePrintDelegateV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -310,18 +309,27 @@ export async function getRevokePrintDelegateV1InstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.masterEdition.value) {
     if (resolveIsNonFungible(resolverScope)) {
       accounts.masterEdition.value = await findMasterEditionPda({
-        mint: expectAddress(accounts.mint.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
       });
     }
   }
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -341,20 +349,23 @@ export async function getRevokePrintDelegateV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.delegate),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('delegate', accounts.delegate),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getRevokePrintDelegateV1InstructionDataEncoder().encode({}),
     programAddress,
@@ -510,7 +521,7 @@ export function getRevokePrintDelegateV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -518,7 +529,10 @@ export function getRevokePrintDelegateV1Instruction<
 
   // Resolve default values.
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -538,20 +552,23 @@ export function getRevokePrintDelegateV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.delegate),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('delegate', accounts.delegate),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getRevokePrintDelegateV1InstructionDataEncoder().encode({}),
     programAddress,
@@ -621,8 +638,13 @@ export function parseRevokePrintDelegateV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedRevokePrintDelegateV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 14) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 14,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

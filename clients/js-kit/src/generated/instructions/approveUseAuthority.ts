@@ -14,6 +14,8 @@ import {
   getU64Encoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -30,13 +32,13 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const APPROVE_USE_AUTHORITY_DISCRIMINATOR = 20;
 
@@ -54,12 +56,10 @@ export type ApproveUseAuthorityInstruction<
   TAccountMetadata extends string | AccountMeta<string> = string,
   TAccountMint extends string | AccountMeta<string> = string,
   TAccountBurner extends string | AccountMeta<string> = string,
-  TAccountTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
   TAccountRent extends string | AccountMeta<string> | undefined = undefined,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -256,7 +256,7 @@ export async function getApproveUseAuthorityInstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -265,7 +265,10 @@ export async function getApproveUseAuthorityInstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.tokenProgram.value) {
@@ -280,18 +283,18 @@ export async function getApproveUseAuthorityInstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.useAuthorityRecord),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.user),
-      getAccountMeta(accounts.ownerTokenAccount),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.burner),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('useAuthorityRecord', accounts.useAuthorityRecord),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('user', accounts.user),
+      getAccountMeta('ownerTokenAccount', accounts.ownerTokenAccount),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('burner', accounts.burner),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getApproveUseAuthorityInstructionDataEncoder().encode(
       args as ApproveUseAuthorityInstructionDataArgs
     ),
@@ -418,7 +421,7 @@ export function getApproveUseAuthorityInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -437,18 +440,18 @@ export function getApproveUseAuthorityInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.useAuthorityRecord),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.user),
-      getAccountMeta(accounts.ownerTokenAccount),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.burner),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('useAuthorityRecord', accounts.useAuthorityRecord),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('user', accounts.user),
+      getAccountMeta('ownerTokenAccount', accounts.ownerTokenAccount),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('burner', accounts.burner),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getApproveUseAuthorityInstructionDataEncoder().encode(
       args as ApproveUseAuthorityInstructionDataArgs
     ),
@@ -510,8 +513,13 @@ export function parseApproveUseAuthorityInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedApproveUseAuthorityInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 10) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 10,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

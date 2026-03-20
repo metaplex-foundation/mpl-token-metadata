@@ -14,7 +14,7 @@
  */
 
 import test from 'ava';
-import { generateKeyPairSigner } from '@solana/signers';
+import { generateKeyPairSigner } from '@solana/kit';
 import { fetchMint, fetchToken } from '@solana-program/token';
 import { TokenStandard } from '../src/generated/types';
 import {

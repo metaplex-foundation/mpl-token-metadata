@@ -5,9 +5,7 @@
  * for common token creation patterns.
  */
 
-import type { Address } from '@solana/addresses';
-import type { Instruction } from '@solana/kit';
-import type { TransactionSigner } from '@solana/signers';
+import type { Address, Instruction, TransactionSigner } from '@solana/kit';
 import {
   getCreateV1InstructionAsync,
   getMintV1InstructionAsync,

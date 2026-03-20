@@ -53,6 +53,7 @@ export type MasterEditionArgs = {
   maxSupply: OptionOrNullable<number | bigint>;
 };
 
+/** Gets the encoder for {@link MasterEditionArgs} account data. */
 export function getMasterEditionEncoder(): Encoder<MasterEditionArgs> {
   return transformEncoder(
     getStructEncoder([
@@ -64,6 +65,7 @@ export function getMasterEditionEncoder(): Encoder<MasterEditionArgs> {
   );
 }
 
+/** Gets the decoder for {@link MasterEdition} account data. */
 export function getMasterEditionDecoder(): Decoder<MasterEdition> {
   return getStructDecoder([
     ['key', getKeyDecoder()],
@@ -72,6 +74,7 @@ export function getMasterEditionDecoder(): Decoder<MasterEdition> {
   ]);
 }
 
+/** Gets the codec for {@link MasterEdition} account data. */
 export function getMasterEditionCodec(): Codec<
   MasterEditionArgs,
   MasterEdition

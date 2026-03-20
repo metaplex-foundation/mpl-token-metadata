@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,13 +30,13 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMasterEditionPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const VERIFY_COLLECTION_V1_DISCRIMINATOR = 52;
 
@@ -50,12 +52,10 @@ export type VerifyCollectionV1Instruction<
   TAccountCollectionMint extends string | AccountMeta<string> = string,
   TAccountCollectionMetadata extends string | AccountMeta<string> = string,
   TAccountCollectionMasterEdition extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -217,18 +217,24 @@ export async function getVerifyCollectionV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
   if (!accounts.collectionMetadata.value) {
     accounts.collectionMetadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.collectionMint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'collectionMint',
+        accounts.collectionMint.value
+      ),
     });
   }
   if (!accounts.collectionMasterEdition.value) {
     accounts.collectionMasterEdition.value = await findMasterEditionPda({
-      mint: expectAddress(accounts.collectionMint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'collectionMint',
+        accounts.collectionMint.value
+      ),
     });
   }
   if (!accounts.systemProgram.value) {
@@ -243,14 +249,17 @@ export async function getVerifyCollectionV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.collectionMint),
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.collectionMasterEdition),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('collectionMint', accounts.collectionMint),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta(
+        'collectionMasterEdition',
+        accounts.collectionMasterEdition
+      ),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
     ],
     data: getVerifyCollectionV1InstructionDataEncoder().encode({}),
     programAddress,
@@ -354,7 +363,7 @@ export function getVerifyCollectionV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -370,14 +379,17 @@ export function getVerifyCollectionV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.collectionMint),
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.collectionMasterEdition),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('collectionMint', accounts.collectionMint),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta(
+        'collectionMasterEdition',
+        accounts.collectionMasterEdition
+      ),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
     ],
     data: getVerifyCollectionV1InstructionDataEncoder().encode({}),
     programAddress,
@@ -429,8 +441,13 @@ export function parseVerifyCollectionV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedVerifyCollectionV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 8) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 8,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

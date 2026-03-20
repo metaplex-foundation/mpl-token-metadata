@@ -17,6 +17,8 @@ import {
   getU8Decoder,
   getU8Encoder,
   none,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -36,6 +38,12 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findAssociatedTokenPda } from '../../hooked';
 import {
   findMasterEditionPda,
@@ -43,12 +51,6 @@ import {
   findTokenRecordPda,
 } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import {
   getAuthorizationDataDecoder,
   getAuthorizationDataEncoder,
@@ -77,21 +79,16 @@ export type TransferV1Instruction<
   TAccountDestinationTokenRecord extends string | AccountMeta<string> = string,
   TAccountAuthority extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
-  TAccountSplTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountSplAtaProgram extends
-    | string
-    | AccountMeta<string> = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
-  TAccountAuthorizationRulesProgram extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
+  TAccountSplTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSplAtaProgram extends string | AccountMeta<string> =
+    'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL',
+  TAccountAuthorizationRulesProgram extends string | AccountMeta<string> =
+    string,
   TAccountAuthorizationRules extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -375,7 +372,7 @@ export async function getTransferV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -384,46 +381,79 @@ export async function getTransferV1InstructionAsync<
   // Resolve default values.
   if (!accounts.token.value) {
     accounts.token.value = await findAssociatedTokenPda({
-      mint: expectAddress(accounts.mint.value),
-      owner: expectAddress(accounts.tokenOwner.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
+      owner: getAddressFromResolvedInstructionAccount(
+        'tokenOwner',
+        accounts.tokenOwner.value
+      ),
     });
   }
   if (!accounts.destinationToken.value) {
     accounts.destinationToken.value = await findAssociatedTokenPda({
-      mint: expectAddress(accounts.mint.value),
-      owner: expectAddress(accounts.destinationOwner.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
+      owner: getAddressFromResolvedInstructionAccount(
+        'destinationOwner',
+        accounts.destinationOwner.value
+      ),
     });
   }
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.edition.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.edition.value = await findMasterEditionPda({
-        mint: expectAddress(accounts.mint.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
       });
     }
   }
   if (!accounts.tokenRecord.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.tokenRecord.value = await findTokenRecordPda({
-        mint: expectAddress(accounts.mint.value),
-        token: expectAddress(accounts.token.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
+        token: getAddressFromResolvedInstructionAccount(
+          'token',
+          accounts.token.value
+        ),
       });
     }
   }
   if (!accounts.destinationTokenRecord.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.destinationTokenRecord.value = await findTokenRecordPda({
-        token: expectAddress(accounts.destinationToken.value),
-        mint: expectAddress(accounts.mint.value),
+        token: getAddressFromResolvedInstructionAccount(
+          'destinationToken',
+          accounts.destinationToken.value
+        ),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
       });
     }
   }
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -451,23 +481,26 @@ export async function getTransferV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.tokenOwner),
-      getAccountMeta(accounts.destinationToken),
-      getAccountMeta(accounts.destinationOwner),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.destinationTokenRecord),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.splAtaProgram),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('tokenOwner', accounts.tokenOwner),
+      getAccountMeta('destinationToken', accounts.destinationToken),
+      getAccountMeta('destinationOwner', accounts.destinationOwner),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('destinationTokenRecord', accounts.destinationTokenRecord),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('splAtaProgram', accounts.splAtaProgram),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getTransferV1InstructionDataEncoder().encode(
       args as TransferV1InstructionDataArgs
@@ -660,7 +693,7 @@ export function getTransferV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -668,7 +701,10 @@ export function getTransferV1Instruction<
 
   // Resolve default values.
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -696,23 +732,26 @@ export function getTransferV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.tokenOwner),
-      getAccountMeta(accounts.destinationToken),
-      getAccountMeta(accounts.destinationOwner),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.destinationTokenRecord),
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.splAtaProgram),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('tokenOwner', accounts.tokenOwner),
+      getAccountMeta('destinationToken', accounts.destinationToken),
+      getAccountMeta('destinationOwner', accounts.destinationOwner),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('destinationTokenRecord', accounts.destinationTokenRecord),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('splAtaProgram', accounts.splAtaProgram),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getTransferV1InstructionDataEncoder().encode(
       args as TransferV1InstructionDataArgs
@@ -793,8 +832,13 @@ export function parseTransferV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedTransferV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 17) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 17,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

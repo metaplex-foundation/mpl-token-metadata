@@ -2,12 +2,8 @@
  * Test setup utilities for js-kit client
  */
 
-import type { Address } from '@solana/addresses';
-import { createSolanaRpc, type Rpc } from '@solana/rpc';
-import type { SolanaRpcApi } from '@solana/rpc';
-import { createSolanaRpcSubscriptions, type RpcSubscriptions } from '@solana/rpc-subscriptions';
-import type { SolanaRpcSubscriptionsApi } from '@solana/rpc-subscriptions';
-import { airdropFactory, lamports } from '@solana/kit';
+import type { Address } from '@solana/kit';
+import { createSolanaRpc, createSolanaRpcSubscriptions, airdropFactory, lamports, type Rpc, type RpcSubscriptions, type SolanaRpcApi, type SolanaRpcSubscriptionsApi } from '@solana/kit';
 
 // Re-export transaction utilities
 export { sendAndConfirm, sendAndConfirmInstructions } from './_transaction';
@@ -21,7 +17,7 @@ export {
   SPL_ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
 } from '../src/hooked/pdas';
 // Re-export signer generation
-export { generateKeyPairSigner as createKeypair } from '@solana/signers';
+export { generateKeyPairSigner as createKeypair } from '@solana/kit';
 
 const LOCAL_VALIDATOR_URL = 'http://127.0.0.1:8899';
 const LOCAL_VALIDATOR_WS_URL = 'ws://127.0.0.1:8900';

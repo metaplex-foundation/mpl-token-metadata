@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,13 +30,13 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const BURN_NFT_DISCRIMINATOR = 29;
 
@@ -49,13 +51,10 @@ export type BurnNftInstruction<
   TAccountMint extends string | AccountMeta<string> = string,
   TAccountTokenAccount extends string | AccountMeta<string> = string,
   TAccountMasterEditionAccount extends string | AccountMeta<string> = string,
-  TAccountSplTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountCollectionMetadata extends
-    | string
-    | AccountMeta<string>
-    | undefined = undefined,
+  TAccountSplTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountCollectionMetadata extends string | AccountMeta<string> | undefined =
+    undefined,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -198,13 +197,16 @@ export async function getBurnNftInstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.splTokenProgram.value) {
@@ -215,14 +217,14 @@ export async function getBurnNftInstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.masterEditionAccount),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.collectionMetadata),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('masterEditionAccount', accounts.masterEditionAccount),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getBurnNftInstructionDataEncoder().encode({}),
     programAddress,
   } as BurnNftInstruction<
@@ -317,7 +319,7 @@ export function getBurnNftInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -329,14 +331,14 @@ export function getBurnNftInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.tokenAccount),
-      getAccountMeta(accounts.masterEditionAccount),
-      getAccountMeta(accounts.splTokenProgram),
-      getAccountMeta(accounts.collectionMetadata),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('tokenAccount', accounts.tokenAccount),
+      getAccountMeta('masterEditionAccount', accounts.masterEditionAccount),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getBurnNftInstructionDataEncoder().encode({}),
     programAddress,
   } as BurnNftInstruction<
@@ -384,8 +386,13 @@ export function parseBurnNftInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedBurnNftInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 6) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 6,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

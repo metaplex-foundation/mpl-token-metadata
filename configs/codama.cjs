@@ -1,6 +1,6 @@
 // @ts-check
 const { rootNodeFromAnchor } = require("@codama/nodes-from-anchor");
-const { renderJavaScriptVisitor } = require("@codama/renderers");
+const { renderVisitor } = require("@codama/renderers-js");
 const {
   constantPdaSeedNodeFromProgramId,
   constantPdaSeedNodeFromString,
@@ -250,7 +250,6 @@ function ataPdaDefault(mint = "mint", owner = "owner") {
 codama.update(
   updateInstructionsVisitor({
     create: {
-      // @ts-expect-error Fixed upstream: https://github.com/codama-idl/codama/pull/747
       byteDeltas: [
         instructionByteDeltaNode(
           numberValueNode(
@@ -268,24 +267,9 @@ codama.update(
           isSigner: "either",
           defaultValue: accountValueNode("authority"),
         },
-        splTokenProgram: {
-          defaultValue: conditionalValueNode({
-            condition: resolverValueNode("resolveIsNonFungibleOrIsMintSigner", {
-              dependsOn: [
-                accountValueNode("mint"),
-                argumentValueNode("tokenStandard"),
-              ],
-            }),
-            ifTrue: publicKeyValueNode(
-              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-              "splToken"
-            ),
-          }),
-        },
       },
     },
     mint: {
-      // @ts-expect-error Fixed upstream: https://github.com/codama-idl/codama/pull/747
       byteDeltas: [
         instructionByteDeltaNode(
           numberValueNode(
@@ -966,7 +950,6 @@ const tokenDelegateDefaults = {
 codama.update(
   updateInstructionsVisitor({
     createV1: {
-      // @ts-expect-error Fixed upstream: https://github.com/codama-idl/codama/pull/747
       byteDeltas: [
         instructionByteDeltaNode(resolverValueNode("resolveCreateV1Bytes")),
       ],
@@ -980,6 +963,20 @@ codama.update(
               dependsOn: [argumentValueNode("tokenStandard")],
             }),
             ifTrue: pdaValueNode("masterEdition"),
+          }),
+        },
+        splTokenProgram: {
+          defaultValue: conditionalValueNode({
+            condition: resolverValueNode("resolveIsNonFungibleOrIsMintSigner", {
+              dependsOn: [
+                accountValueNode("mint"),
+                argumentValueNode("tokenStandard"),
+              ],
+            }),
+            ifTrue: publicKeyValueNode(
+              "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+              "splToken"
+            ),
           }),
         },
       },
@@ -1165,11 +1162,20 @@ writeFileSync(
 
 
 // Render JavaScript.
-const jsDir = path.join(clientDir, "js-kit", "src", "generated");
+const jsKitDir = path.join(clientDir, "js-kit");
 const prettier = require(path.join(clientDir, "js", ".prettierrc.json"));
 codama.accept(
-  renderJavaScriptVisitor(jsDir, {
-    prettierOptions: prettier,
+  renderVisitor(jsKitDir, {
+    prettierOptions: {
+      semi: prettier.semi,
+      singleQuote: prettier.singleQuote,
+      trailingComma: prettier.trailingComma,
+      useTabs: prettier.useTabs,
+      tabWidth: prettier.tabWidth,
+      arrowParens: prettier.arrowParens,
+      printWidth: prettier.printWidth,
+    },
+    renderParentInstructions: true,
     linkOverrides: {
       // Redirect custom PDA seed types to the hooked folder
       // These provide custom string serialization matching the Rust program

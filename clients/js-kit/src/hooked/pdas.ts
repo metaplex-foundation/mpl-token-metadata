@@ -3,8 +3,8 @@
  * These are not auto-generated and supplement the Codama-generated PDAs
  */
 
-import type { Address, ProgramDerivedAddress } from '@solana/addresses';
-import { getAddressEncoder, getAddressDecoder, getProgramDerivedAddress } from '@solana/addresses';
+import type { Address, ProgramDerivedAddress } from '@solana/kit';
+import { getAddressEncoder, getAddressDecoder, getProgramDerivedAddress } from '@solana/kit';
 
 /**
  * SPL Token Program ID (original SPL Token program)

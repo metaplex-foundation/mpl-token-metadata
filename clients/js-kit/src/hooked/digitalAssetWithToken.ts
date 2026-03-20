@@ -6,8 +6,8 @@
  * about a specific token account holding the asset.
  */
 
-import type { Address } from '@solana/addresses';
 import type {
+  Address,
   EncodedAccount,
   FetchAccountConfig,
   Rpc,

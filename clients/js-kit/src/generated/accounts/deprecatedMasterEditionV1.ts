@@ -62,6 +62,7 @@ export type DeprecatedMasterEditionV1Args = {
   oneTimePrintingAuthorizationMint: Address;
 };
 
+/** Gets the encoder for {@link DeprecatedMasterEditionV1Args} account data. */
 export function getDeprecatedMasterEditionV1Encoder(): Encoder<DeprecatedMasterEditionV1Args> {
   return transformEncoder(
     getStructEncoder([
@@ -75,6 +76,7 @@ export function getDeprecatedMasterEditionV1Encoder(): Encoder<DeprecatedMasterE
   );
 }
 
+/** Gets the decoder for {@link DeprecatedMasterEditionV1} account data. */
 export function getDeprecatedMasterEditionV1Decoder(): Decoder<DeprecatedMasterEditionV1> {
   return getStructDecoder([
     ['key', getKeyDecoder()],
@@ -85,6 +87,7 @@ export function getDeprecatedMasterEditionV1Decoder(): Decoder<DeprecatedMasterE
   ]);
 }
 
+/** Gets the codec for {@link DeprecatedMasterEditionV1} account data. */
 export function getDeprecatedMasterEditionV1Codec(): Codec<
   DeprecatedMasterEditionV1Args,
   DeprecatedMasterEditionV1

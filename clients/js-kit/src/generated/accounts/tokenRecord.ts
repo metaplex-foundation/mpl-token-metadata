@@ -77,6 +77,7 @@ export type TokenRecordArgs = {
   lockedTransfer: OptionOrNullable<Address>;
 };
 
+/** Gets the encoder for {@link TokenRecordArgs} account data. */
 export function getTokenRecordEncoder(): Encoder<TokenRecordArgs> {
   return transformEncoder(
     getStructEncoder([
@@ -92,6 +93,7 @@ export function getTokenRecordEncoder(): Encoder<TokenRecordArgs> {
   );
 }
 
+/** Gets the decoder for {@link TokenRecord} account data. */
 export function getTokenRecordDecoder(): Decoder<TokenRecord> {
   return getStructDecoder([
     ['key', getKeyDecoder()],
@@ -104,6 +106,7 @@ export function getTokenRecordDecoder(): Decoder<TokenRecord> {
   ]);
 }
 
+/** Gets the codec for {@link TokenRecord} account data. */
 export function getTokenRecordCodec(): Codec<TokenRecordArgs, TokenRecord> {
   return combineCodec(getTokenRecordEncoder(), getTokenRecordDecoder());
 }

@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,8 +30,11 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const UNVERIFY_CREATOR_V1_DISCRIMINATOR = 53;
 
@@ -44,12 +49,10 @@ export type UnverifyCreatorV1Instruction<
   TAccountMetadata extends string | AccountMeta<string> = string,
   TAccountCollectionMint extends string | AccountMeta<string> = string,
   TAccountCollectionMetadata extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -196,7 +199,7 @@ export function getUnverifyCreatorV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -212,13 +215,13 @@ export function getUnverifyCreatorV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.collectionMint),
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('collectionMint', accounts.collectionMint),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
     ],
     data: getUnverifyCreatorV1InstructionDataEncoder().encode({}),
     programAddress,
@@ -267,8 +270,13 @@ export function parseUnverifyCreatorV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUnverifyCreatorV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 7) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 7,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,8 +30,11 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 
 export const UPDATE_PRIMARY_SALE_HAPPENED_VIA_TOKEN_DISCRIMINATOR = 4;
 
@@ -136,15 +141,15 @@ export function getUpdatePrimarySaleHappenedViaTokenInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.owner),
-      getAccountMeta(accounts.token),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('owner', accounts.owner),
+      getAccountMeta('token', accounts.token),
     ],
     data: getUpdatePrimarySaleHappenedViaTokenInstructionDataEncoder().encode(
       {}
@@ -183,8 +188,13 @@ export function parseUpdatePrimarySaleHappenedViaTokenInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUpdatePrimarySaleHappenedViaTokenInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 3) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 3,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

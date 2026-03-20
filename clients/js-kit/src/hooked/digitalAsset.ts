@@ -5,8 +5,8 @@
  * that combines mint, metadata, and edition account data into a single object.
  */
 
-import type { Address } from '@solana/addresses';
 import type {
+  Address,
   Account,
   EncodedAccount,
   FetchAccountConfig,

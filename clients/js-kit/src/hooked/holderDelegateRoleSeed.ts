@@ -1,5 +1,4 @@
-import { transformEncoder, type Encoder } from '@solana/kit';
-import { getUtf8Encoder } from '@solana/codecs-strings';
+import { transformEncoder, getUtf8Encoder, type Encoder } from '@solana/kit';
 import { HolderDelegateRole } from '../generated/types';
 
 export type HolderDelegateRoleSeed = 'print_delegate';

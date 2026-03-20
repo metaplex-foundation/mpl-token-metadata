@@ -15,6 +15,8 @@ import {
   getU8Decoder,
   getU8Encoder,
   none,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -34,14 +36,14 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataDelegateRecordPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import {
   collectionToggle,
   getAuthorizationDataDecoder,
@@ -72,15 +74,12 @@ export type UpdateAsCollectionItemDelegateV2Instruction<
   TAccountMetadata extends string | AccountMeta<string> = string,
   TAccountEdition extends string | AccountMeta<string> = string,
   TAccountPayer extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
-  TAccountAuthorizationRulesProgram extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
+  TAccountAuthorizationRulesProgram extends string | AccountMeta<string> =
+    string,
   TAccountAuthorizationRules extends string | AccountMeta<string> = string,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -292,7 +291,7 @@ export async function getUpdateAsCollectionItemDelegateV2InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -300,19 +299,34 @@ export async function getUpdateAsCollectionItemDelegateV2InstructionAsync<
 
   // Resolve default values.
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.delegateRecord.value) {
     accounts.delegateRecord.value = await findMetadataDelegateRecordPda({
       delegateRole: MetadataDelegateRole.CollectionItem,
-      updateAuthority: expectSome(args.updateAuthority),
-      delegate: expectAddress(accounts.authority.value),
-      mint: expectAddress(accounts.mint.value),
+      updateAuthority: getNonNullResolvedInstructionInput(
+        'updateAuthority',
+        args.updateAuthority
+      ),
+      delegate: getAddressFromResolvedInstructionAccount(
+        'authority',
+        accounts.authority.value
+      ),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.systemProgram.value) {
@@ -333,17 +347,20 @@ export async function getUpdateAsCollectionItemDelegateV2InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getUpdateAsCollectionItemDelegateV2InstructionDataEncoder().encode(
       args as UpdateAsCollectionItemDelegateV2InstructionDataArgs
@@ -476,7 +493,7 @@ export function getUpdateAsCollectionItemDelegateV2Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -484,7 +501,10 @@ export function getUpdateAsCollectionItemDelegateV2Instruction<
 
   // Resolve default values.
   if (!accounts.authority.value) {
-    accounts.authority.value = expectSome(accounts.payer.value);
+    accounts.authority.value = getNonNullResolvedInstructionInput(
+      'payer',
+      accounts.payer.value
+    );
   }
   if (!accounts.systemProgram.value) {
     accounts.systemProgram.value =
@@ -504,17 +524,20 @@ export function getUpdateAsCollectionItemDelegateV2Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.delegateRecord),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.authorizationRulesProgram),
-      getAccountMeta(accounts.authorizationRules),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('delegateRecord', accounts.delegateRecord),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta(
+        'authorizationRulesProgram',
+        accounts.authorizationRulesProgram
+      ),
+      getAccountMeta('authorizationRules', accounts.authorizationRules),
     ],
     data: getUpdateAsCollectionItemDelegateV2InstructionDataEncoder().encode(
       args as UpdateAsCollectionItemDelegateV2InstructionDataArgs
@@ -577,8 +600,13 @@ export function parseUpdateAsCollectionItemDelegateV2Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedUpdateAsCollectionItemDelegateV2Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 11) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 11,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

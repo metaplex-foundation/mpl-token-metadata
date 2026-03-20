@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,13 +30,13 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMasterEditionPda, findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const DEPRECATED_MINT_NEW_EDITION_FROM_MASTER_EDITION_VIA_PRINTING_TOKEN_DISCRIMINATOR = 3;
 
@@ -58,19 +60,14 @@ export type DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstruction
   TAccountPayer extends string | AccountMeta<string> = string,
   TAccountMasterUpdateAuthority extends string | AccountMeta<string> = string,
   TAccountMasterMetadata extends string | AccountMeta<string> = string,
-  TAccountTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountRent extends
-    | string
-    | AccountMeta<string> = 'SysvarRent111111111111111111111111111111111',
-  TAccountReservationList extends
-    | string
-    | AccountMeta<string>
-    | undefined = undefined,
+  TAccountTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountRent extends string | AccountMeta<string> =
+    'SysvarRent111111111111111111111111111111111',
+  TAccountReservationList extends string | AccountMeta<string> | undefined =
+    undefined,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -308,23 +305,32 @@ export async function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTok
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.edition.value) {
     accounts.edition.value = await findMasterEditionPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.masterEdition.value) {
     accounts.masterEdition.value = await findMasterEditionPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.tokenProgram.value) {
@@ -343,23 +349,23 @@ export async function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTok
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.mintAuthority),
-      getAccountMeta(accounts.printingMint),
-      getAccountMeta(accounts.masterTokenAccount),
-      getAccountMeta(accounts.editionMarker),
-      getAccountMeta(accounts.burnAuthority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.masterUpdateAuthority),
-      getAccountMeta(accounts.masterMetadata),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-      getAccountMeta(accounts.reservationList),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('mintAuthority', accounts.mintAuthority),
+      getAccountMeta('printingMint', accounts.printingMint),
+      getAccountMeta('masterTokenAccount', accounts.masterTokenAccount),
+      getAccountMeta('editionMarker', accounts.editionMarker),
+      getAccountMeta('burnAuthority', accounts.burnAuthority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('masterUpdateAuthority', accounts.masterUpdateAuthority),
+      getAccountMeta('masterMetadata', accounts.masterMetadata),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+      getAccountMeta('reservationList', accounts.reservationList),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataEncoder().encode(
       {}
     ),
@@ -525,7 +531,7 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
@@ -545,23 +551,23 @@ export function getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInst
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.mintAuthority),
-      getAccountMeta(accounts.printingMint),
-      getAccountMeta(accounts.masterTokenAccount),
-      getAccountMeta(accounts.editionMarker),
-      getAccountMeta(accounts.burnAuthority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.masterUpdateAuthority),
-      getAccountMeta(accounts.masterMetadata),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-      getAccountMeta(accounts.reservationList),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('mintAuthority', accounts.mintAuthority),
+      getAccountMeta('printingMint', accounts.printingMint),
+      getAccountMeta('masterTokenAccount', accounts.masterTokenAccount),
+      getAccountMeta('editionMarker', accounts.editionMarker),
+      getAccountMeta('burnAuthority', accounts.burnAuthority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('masterUpdateAuthority', accounts.masterUpdateAuthority),
+      getAccountMeta('masterMetadata', accounts.masterMetadata),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+      getAccountMeta('reservationList', accounts.reservationList),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionDataEncoder().encode(
       {}
     ),
@@ -641,8 +647,13 @@ export function parseDeprecatedMintNewEditionFromMasterEditionViaPrintingTokenIn
   TAccountMetas
 > {
   if (instruction.accounts.length < 15) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 15,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

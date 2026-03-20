@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -28,13 +30,13 @@ import {
   type TransactionSigner,
   type WritableAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findMetadataPda } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 
 export const SET_TOKEN_STANDARD_DISCRIMINATOR = 35;
 
@@ -154,24 +156,27 @@ export async function getSetTokenStandardInstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.edition),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('edition', accounts.edition),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getSetTokenStandardInstructionDataEncoder().encode({}),
     programAddress,
   } as SetTokenStandardInstruction<
@@ -236,17 +241,17 @@ export function getSetTokenStandardInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.updateAuthority),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.edition),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('updateAuthority', accounts.updateAuthority),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('edition', accounts.edition),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getSetTokenStandardInstructionDataEncoder().encode({}),
     programAddress,
   } as SetTokenStandardInstruction<
@@ -285,8 +290,13 @@ export function parseSetTokenStandardInstruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedSetTokenStandardInstruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 3) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 3,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

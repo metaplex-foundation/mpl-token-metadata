@@ -14,6 +14,8 @@ import {
   getU64Encoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -30,6 +32,12 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  getAddressFromResolvedInstructionAccount,
+  getNonNullResolvedInstructionInput,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { findAssociatedTokenPda, resolveIsNonFungible } from '../../hooked';
 import {
   findMasterEditionPda,
@@ -37,12 +45,6 @@ import {
   findTokenRecordPda,
 } from '../pdas';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import {
-  expectAddress,
-  expectSome,
-  getAccountMetaFactory,
-  type ResolvedAccount,
-} from '../shared';
 import { TokenStandard, type TokenStandardArgs } from '../types';
 
 export const BURN_V1_DISCRIMINATOR = 41;
@@ -64,15 +66,12 @@ export type BurnV1Instruction<
   TAccountMasterEditionToken extends string | AccountMeta<string> = string,
   TAccountEditionMarker extends string | AccountMeta<string> = string,
   TAccountTokenRecord extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
-  TAccountSysvarInstructions extends
-    | string
-    | AccountMeta<string> = 'Sysvar1nstructions1111111111111111111111111',
-  TAccountSplTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
+  TAccountSysvarInstructions extends string | AccountMeta<string> =
+    'Sysvar1nstructions1111111111111111111111111',
+  TAccountSplTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
   InstructionWithData<ReadonlyUint8Array> &
@@ -312,7 +311,7 @@ export async function getBurnV1InstructionAsync<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -324,34 +323,52 @@ export async function getBurnV1InstructionAsync<
   // Resolve default values.
   if (!accounts.metadata.value) {
     accounts.metadata.value = await findMetadataPda({
-      mint: expectAddress(accounts.mint.value),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
     });
   }
   if (!accounts.edition.value) {
     if (resolveIsNonFungible(resolverScope)) {
       accounts.edition.value = await findMasterEditionPda({
-        mint: expectAddress(accounts.mint.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
       });
     }
   }
   if (!accounts.token.value) {
     accounts.token.value = await findAssociatedTokenPda({
-      mint: expectAddress(accounts.mint.value),
-      owner: expectSome(args.tokenOwner),
+      mint: getAddressFromResolvedInstructionAccount(
+        'mint',
+        accounts.mint.value
+      ),
+      owner: getNonNullResolvedInstructionInput('tokenOwner', args.tokenOwner),
     });
   }
   if (!accounts.masterEdition.value) {
     if (accounts.masterEditionMint.value) {
       accounts.masterEdition.value = await findMasterEditionPda({
-        mint: expectAddress(accounts.masterEditionMint.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'masterEditionMint',
+          accounts.masterEditionMint.value
+        ),
       });
     }
   }
   if (!accounts.tokenRecord.value) {
     if (args.tokenStandard === TokenStandard.ProgrammableNonFungible) {
       accounts.tokenRecord.value = await findTokenRecordPda({
-        mint: expectAddress(accounts.mint.value),
-        token: expectAddress(accounts.token.value),
+        mint: getAddressFromResolvedInstructionAccount(
+          'mint',
+          accounts.mint.value
+        ),
+        token: getAddressFromResolvedInstructionAccount(
+          'token',
+          accounts.token.value
+        ),
       });
     }
   }
@@ -371,20 +388,20 @@ export async function getBurnV1InstructionAsync<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.masterEditionMint),
-      getAccountMeta(accounts.masterEditionToken),
-      getAccountMeta(accounts.editionMarker),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('masterEditionMint', accounts.masterEditionMint),
+      getAccountMeta('masterEditionToken', accounts.masterEditionToken),
+      getAccountMeta('editionMarker', accounts.editionMarker),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
     ],
     data: getBurnV1InstructionDataEncoder().encode(
       args as BurnV1InstructionDataArgs
@@ -547,7 +564,7 @@ export function getBurnV1Instruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -570,20 +587,20 @@ export function getBurnV1Instruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'programId');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.authority),
-      getAccountMeta(accounts.collectionMetadata),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.edition),
-      getAccountMeta(accounts.mint),
-      getAccountMeta(accounts.token),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.masterEditionMint),
-      getAccountMeta(accounts.masterEditionToken),
-      getAccountMeta(accounts.editionMarker),
-      getAccountMeta(accounts.tokenRecord),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.sysvarInstructions),
-      getAccountMeta(accounts.splTokenProgram),
+      getAccountMeta('authority', accounts.authority),
+      getAccountMeta('collectionMetadata', accounts.collectionMetadata),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('edition', accounts.edition),
+      getAccountMeta('mint', accounts.mint),
+      getAccountMeta('token', accounts.token),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('masterEditionMint', accounts.masterEditionMint),
+      getAccountMeta('masterEditionToken', accounts.masterEditionToken),
+      getAccountMeta('editionMarker', accounts.editionMarker),
+      getAccountMeta('tokenRecord', accounts.tokenRecord),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('sysvarInstructions', accounts.sysvarInstructions),
+      getAccountMeta('splTokenProgram', accounts.splTokenProgram),
     ],
     data: getBurnV1InstructionDataEncoder().encode(
       args as BurnV1InstructionDataArgs
@@ -655,8 +672,13 @@ export function parseBurnV1Instruction<
     InstructionWithData<ReadonlyUint8Array>
 ): ParsedBurnV1Instruction<TProgram, TAccountMetas> {
   if (instruction.accounts.length < 14) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 14,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {

@@ -12,6 +12,8 @@ import {
   getStructEncoder,
   getU8Decoder,
   getU8Encoder,
+  SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+  SolanaError,
   transformEncoder,
   type AccountMeta,
   type AccountSignerMeta,
@@ -29,8 +31,11 @@ import {
   type WritableAccount,
   type WritableSignerAccount,
 } from '@solana/kit';
+import {
+  getAccountMetaFactory,
+  type ResolvedInstructionAccount,
+} from '@solana/program-client-core';
 import { MPL_TOKEN_METADATA_PROGRAM_ADDRESS } from '../programs';
-import { getAccountMetaFactory, type ResolvedAccount } from '../shared';
 import {
   getMintNewEditionFromMasterEditionViaTokenArgsDecoder,
   getMintNewEditionFromMasterEditionViaTokenArgsEncoder,
@@ -59,17 +64,14 @@ export type MintNewEditionFromMasterEditionViaVaultProxyInstruction<
   TAccountSafetyDepositStore extends string | AccountMeta<string> = string,
   TAccountSafetyDepositBox extends string | AccountMeta<string> = string,
   TAccountVault extends string | AccountMeta<string> = string,
-  TAccountNewMetadataUpdateAuthority extends
-    | string
-    | AccountMeta<string> = string,
+  TAccountNewMetadataUpdateAuthority extends string | AccountMeta<string> =
+    string,
   TAccountMetadata extends string | AccountMeta<string> = string,
-  TAccountTokenProgram extends
-    | string
-    | AccountMeta<string> = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+  TAccountTokenProgram extends string | AccountMeta<string> =
+    'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
   TAccountTokenVaultProgram extends string | AccountMeta<string> = string,
-  TAccountSystemProgram extends
-    | string
-    | AccountMeta<string> = '11111111111111111111111111111111',
+  TAccountSystemProgram extends string | AccountMeta<string> =
+    '11111111111111111111111111111111',
   TAccountRent extends string | AccountMeta<string> | undefined = undefined,
   TRemainingAccounts extends readonly AccountMeta<string>[] = [],
 > = Instruction<TProgram> &
@@ -341,7 +343,7 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstruction<
   };
   const accounts = originalAccounts as Record<
     keyof typeof originalAccounts,
-    ResolvedAccount
+    ResolvedInstructionAccount
   >;
 
   // Original args.
@@ -360,24 +362,27 @@ export function getMintNewEditionFromMasterEditionViaVaultProxyInstruction<
   const getAccountMeta = getAccountMetaFactory(programAddress, 'omitted');
   return Object.freeze({
     accounts: [
-      getAccountMeta(accounts.newMetadata),
-      getAccountMeta(accounts.newEdition),
-      getAccountMeta(accounts.masterEdition),
-      getAccountMeta(accounts.newMint),
-      getAccountMeta(accounts.editionMarkPda),
-      getAccountMeta(accounts.newMintAuthority),
-      getAccountMeta(accounts.payer),
-      getAccountMeta(accounts.vaultAuthority),
-      getAccountMeta(accounts.safetyDepositStore),
-      getAccountMeta(accounts.safetyDepositBox),
-      getAccountMeta(accounts.vault),
-      getAccountMeta(accounts.newMetadataUpdateAuthority),
-      getAccountMeta(accounts.metadata),
-      getAccountMeta(accounts.tokenProgram),
-      getAccountMeta(accounts.tokenVaultProgram),
-      getAccountMeta(accounts.systemProgram),
-      getAccountMeta(accounts.rent),
-    ].filter(<T,>(x: T | undefined): x is T => x !== undefined),
+      getAccountMeta('newMetadata', accounts.newMetadata),
+      getAccountMeta('newEdition', accounts.newEdition),
+      getAccountMeta('masterEdition', accounts.masterEdition),
+      getAccountMeta('newMint', accounts.newMint),
+      getAccountMeta('editionMarkPda', accounts.editionMarkPda),
+      getAccountMeta('newMintAuthority', accounts.newMintAuthority),
+      getAccountMeta('payer', accounts.payer),
+      getAccountMeta('vaultAuthority', accounts.vaultAuthority),
+      getAccountMeta('safetyDepositStore', accounts.safetyDepositStore),
+      getAccountMeta('safetyDepositBox', accounts.safetyDepositBox),
+      getAccountMeta('vault', accounts.vault),
+      getAccountMeta(
+        'newMetadataUpdateAuthority',
+        accounts.newMetadataUpdateAuthority
+      ),
+      getAccountMeta('metadata', accounts.metadata),
+      getAccountMeta('tokenProgram', accounts.tokenProgram),
+      getAccountMeta('tokenVaultProgram', accounts.tokenVaultProgram),
+      getAccountMeta('systemProgram', accounts.systemProgram),
+      getAccountMeta('rent', accounts.rent),
+    ].filter(<T>(x: T | undefined): x is T => x !== undefined),
     data: getMintNewEditionFromMasterEditionViaVaultProxyInstructionDataEncoder().encode(
       args as MintNewEditionFromMasterEditionViaVaultProxyInstructionDataArgs
     ),
@@ -460,8 +465,13 @@ export function parseMintNewEditionFromMasterEditionViaVaultProxyInstruction<
   TAccountMetas
 > {
   if (instruction.accounts.length < 16) {
-    // TODO: Coded error.
-    throw new Error('Not enough accounts');
+    throw new SolanaError(
+      SOLANA_ERROR__PROGRAM_CLIENTS__INSUFFICIENT_ACCOUNT_METAS,
+      {
+        actualAccountMetas: instruction.accounts.length,
+        expectedAccountMetas: 16,
+      }
+    );
   }
   let accountIndex = 0;
   const getNextAccount = () => {
