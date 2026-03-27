@@ -44,8 +44,10 @@ jobs:
     steps:
       - name: Check tag
         id: set_type
+        env:
+          GIT_REF: ${{ inputs.git_ref }}
         run: |
-          if [[ "${{ inputs.git_ref }}" =~ ^release/mpl-token-metadata@* ]]; then
+          if [[ "$GIT_REF" =~ ^release/mpl-token-metadata@.+ ]]; then
             echo type="release" >> $GITHUB_OUTPUT
           else
             echo type="ref" >> $GITHUB_OUTPUT
@@ -63,7 +65,7 @@ jobs:
   test_js_kit:
     name: JS Kit client
     needs: [build_programs, check_tag]
-    uses: ./.github/workflows/test-js-kit-client.yml
+    uses: ./.github/workflows/test-js-client.yml
     secrets: inherit
     if: needs.check_tag.outputs.type == 'ref'
     with:
@@ -75,6 +77,7 @@ jobs:
     needs: [check_tag, test_js_kit]
     if: |
       always()
+      && needs.check_tag.result == 'success'
       && (needs.test_js_kit.result == 'success' || needs.test_js_kit.result == 'skipped')
     permissions:
       contents: write
@@ -119,17 +122,23 @@ jobs:
       - name: Bump
         id: bump
         working-directory: ./clients/js-kit
+        env:
+          BUMP: ${{ inputs.bump }}
+          TAG: ${{ inputs.tag }}
+          IS_PRE: ${{ startsWith(inputs.bump, 'pre') }}
         run: |
-          if [ "${{ startsWith(inputs.bump, 'pre') }}" == "true" ]; then
-            pnpm version ${{ inputs.bump }} --preid ${{ inputs.tag }} --no-git-tag-version
+          if [ "$IS_PRE" == "true" ]; then
+            pnpm version "$BUMP" --preid "$TAG" --no-git-tag-version
           else
-            pnpm version ${{ inputs.bump }} --no-git-tag-version
+            pnpm version "$BUMP" --no-git-tag-version
           fi
           echo "new_version=$(pnpm pkg get version | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Publish
         working-directory: ./clients/js-kit
-        run: npm publish --access public --tag ${{ inputs.tag }}
+        env:
+          TAG: ${{ inputs.tag }}
+        run: npm publish --access public --tag "$TAG" --provenance
 
       - name: Create release pull request
         if: ${{ github.event.inputs.create_release == 'true' }}

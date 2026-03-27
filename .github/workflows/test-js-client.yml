@@ -2,6 +2,9 @@ name: Test JS client
 
 on:
   workflow_call:
+    inputs:
+      git_ref:
+        type: string
 
 env:
   CACHE: true
@@ -17,6 +20,7 @@ jobs:
       - name: Git checkout
         uses: actions/checkout@v3
         with:
+          ref: ${{ inputs.git_ref || github.ref }}
           submodules: recursive
 
       - name: Load environment variables
@@ -65,6 +69,8 @@ jobs:
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
