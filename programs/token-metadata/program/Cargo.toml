@@ -7,6 +7,7 @@ name = "token_metadata"
 readme = "README.md"
 repository = "https://github.com/metaplex-foundation/mpl-token-metadata"
 version = "1.14.0"
+include = ["src/**/*", "README.md"]
 
 [features]
 no-entrypoint = []
