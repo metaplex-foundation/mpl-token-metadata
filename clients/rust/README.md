@@ -230,6 +230,42 @@ let cpi_transfer = TransferV1CpiBuilder::new(metadata_program_info)
 cpi_transfer.invoke_signed(&[&signer_seeds])
 ```
 
+For example, inside an Anchor instruction, `CreateMetadataAccountV3CpiBuilder` can create a mint's metadata account via CPI. Bind each account info before passing references into the builder:
+
+```rust
+use mpl_token_metadata::{
+    instructions::CreateMetadataAccountV3CpiBuilder,
+    types::DataV2,
+};
+
+let token_metadata_program = ctx.accounts.token_metadata_program.to_account_info();
+let metadata = ctx.accounts.metadata.to_account_info();
+let mint = ctx.accounts.mint.to_account_info();
+let mint_authority = ctx.accounts.mint_authority.to_account_info();
+let payer = ctx.accounts.payer.to_account_info();
+let update_authority = ctx.accounts.update_authority.to_account_info();
+let system_program = ctx.accounts.system_program.to_account_info();
+
+CreateMetadataAccountV3CpiBuilder::new(&token_metadata_program)
+    .metadata(&metadata)
+    .mint(&mint)
+    .mint_authority(&mint_authority)
+    .payer(&payer)
+    .update_authority(&update_authority, true)
+    .system_program(&system_program)
+    .data(DataV2 {
+        name,
+        symbol,
+        uri,
+        seller_fee_basis_points,
+        creators: None,
+        collection: None,
+        uses: None,
+    })
+    .is_mutable(true)
+    .invoke_signed(&[signer_seeds])?;
+```
+
 > **Note** > `*Builder` provide a simplified way to create the required structs, since they take advantage of any default value set on the Kinobi config and do not require to set a `None` value to optional fields.
 
 ## PDA helpers
