@@ -173,7 +173,9 @@ export async function fetchAllMetadata(
 export async function safeFetchAllMetadata(
   context: Pick<Context, 'rpc'>,
   publicKeys: Array<PublicKey | Pda>,
-  options?: RpcGetAccountsOptions
+  options?: RpcGetAccountsOptions & {
+    skipCorruptedMetadata?: boolean
+  }
 ): Promise<Metadata[]> {
   const maybeAccounts = await context.rpc.getAccounts(
     publicKeys.map((key) => toPublicKey(key, false)),
@@ -181,7 +183,19 @@ export async function safeFetchAllMetadata(
   );
   return maybeAccounts
     .filter((maybeAccount) => maybeAccount.exists)
-    .map((maybeAccount) => deserializeMetadata(maybeAccount as RpcAccount));
+    .map((maybeAccount) => {
+      if (!options?.skipCorruptedMetadata) {
+        return deserializeMetadata(maybeAccount as RpcAccount);
+      }
+      try {
+        // This can fail if the metadata is unexpectedly broken in very rare cases, e.g.
+        // UnexpectedAccountError: The account at the provided address ['...'] is not of the expected type [MetadataAccountData]
+        return deserializeMetadata(maybeAccount as RpcAccount);
+      } catch {
+        return null;
+      }
+    })
+    .filter((metadata) => metadata !== null)
 }
 
 export function getMetadataGpaBuilder(
