@@ -56,5 +56,10 @@
   "dependencies": {
     "@solana/kit": "^6.5.0",
     "@solana/program-client-core": "^6.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "body-parser@<1.20.9": "^1.20.9"
+    }
   }
 }
