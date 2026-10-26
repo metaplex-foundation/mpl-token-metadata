@@ -32,7 +32,25 @@ import {
   getSkipMessage,
   airdrop,
   sendAndConfirm,
+  sendAndConfirmInstructions,
 } from './_setup';
+import { address, type Instruction } from '@solana/kit';
+
+/**
+ * ComputeBudget SetComputeUnitLimit instruction. Printing a pNFT edition runs
+ * close to the default 200k CU budget, so request more (the umi printV2 test
+ * does the same with 400k).
+ */
+function setComputeUnitLimit(units: number): Instruction {
+  const data = new Uint8Array(5);
+  data[0] = 2;
+  new DataView(data.buffer).setUint32(1, units, true);
+  return {
+    programAddress: address('ComputeBudget111111111111111111111111111111'),
+    accounts: [],
+    data,
+  };
+}
 
 /**
  * Test: Print a new edition from a NonFungible master edition using printV2
@@ -194,7 +212,12 @@ test('it can print a new edition from a ProgrammableNonFungible', async (t) => {
     updateAuthority: masterOwner.address,
   });
 
-  await sendAndConfirm(rpc, rpcSubscriptions, printIx, [editionMint, editionOwner, masterOwner]);
+  await sendAndConfirmInstructions(
+    rpc,
+    rpcSubscriptions,
+    [setComputeUnitLimit(400_000), printIx],
+    [editionMint, editionOwner, masterOwner]
+  );
 
   // Verify the master edition supply was incremented
   const [masterEditionAddress] = await findMasterEditionPda({

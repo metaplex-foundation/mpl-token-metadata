@@ -18,7 +18,7 @@ jobs:
         program: ${{ fromJson(inputs.program_matrix) }}
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
