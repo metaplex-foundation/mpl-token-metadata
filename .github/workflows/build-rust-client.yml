@@ -11,12 +11,12 @@ on:
     inputs:
       rust:
         description: Rust version
-        default: 1.68.0
+        default: 1.85.1
         required: true
         type: string
       solana:
         description: Solana version
-        default: 1.16.8
+        default: 3.0.0
         required: true
         type: string
 
@@ -29,13 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Git checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Load environment variables
         run: cat .github/.env >> $GITHUB_ENV
 
       - name: Install Protobuf Compiler
-        run: sudo apt-get install protobuf-compiler
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
 
       - name: Install Rust
         uses: metaplex-foundation/actions/install-rust@v1
