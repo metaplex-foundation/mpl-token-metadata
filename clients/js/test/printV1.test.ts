@@ -23,7 +23,7 @@ import {
   printSupply,
   printV1,
   thawDelegatedAccount,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
 test('it can print a new edition from a NonFungible', async (t) => {

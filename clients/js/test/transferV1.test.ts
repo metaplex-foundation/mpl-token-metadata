@@ -7,7 +7,7 @@ import {
   TokenState,
   fetchDigitalAssetWithAssociatedToken,
   transferV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
   NON_EDITION_NON_FUNGIBLE_STANDARDS,

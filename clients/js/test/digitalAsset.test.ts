@@ -22,7 +22,7 @@ import {
   findMetadataPda,
   TokenStandard,
   verifyCollectionV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   createDigitalAsset,
   createDigitalAssetWithToken,

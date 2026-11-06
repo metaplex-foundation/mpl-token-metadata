@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./dist/types",
     "baseUrl": ".",
-    "rootDir": ".",
+    "rootDir": "./src",
     "target": "ES2020",
     "module": "commonjs",
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
     "declarationMap": false,
     "removeComments": false,
     "moduleResolution": "node",
     "noEmit": false,
     "preserveWatchOutput": true,
-    "emitDeclarationOnly": false,
+    "emitDeclarationOnly": true,
     "importHelpers": false,
     "strict": true,
     "noUnusedLocals": true,
@@ -25,6 +25,6 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false
   },
-  "include": ["src", "test"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist", "build", "lib"]
 }

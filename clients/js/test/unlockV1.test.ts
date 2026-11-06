@@ -19,7 +19,7 @@ import {
   printSupply,
   printV2,
   unlockV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

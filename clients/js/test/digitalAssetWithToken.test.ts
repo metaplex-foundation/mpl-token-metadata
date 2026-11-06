@@ -21,7 +21,7 @@ import {
   findMetadataPda,
   mintV1,
   TokenStandard,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import { createDigitalAssetWithToken, createUmi } from './_setup';
 
 test('it can fetch a DigitalAssetWithToken from its mint and token accounts', async (t) => {

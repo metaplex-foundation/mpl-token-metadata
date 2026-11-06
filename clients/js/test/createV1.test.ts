@@ -27,7 +27,7 @@ import {
   Metadata,
   programmableConfig,
   TokenStandard,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   collectionV2Padding,
   createUmi,

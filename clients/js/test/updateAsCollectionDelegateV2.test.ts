@@ -7,7 +7,7 @@ import {
   delegateCollectionV1,
   fetchMetadataFromSeeds,
   updateAsCollectionDelegateV2,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   NON_EDITION_TOKEN_STANDARDS,
   createDigitalAsset,

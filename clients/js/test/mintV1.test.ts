@@ -11,7 +11,11 @@ import {
   publicKey,
 } from '@metaplex-foundation/umi';
 import test from 'ava';
-import { TokenStandard, createV1, mintV1 } from '../src';
+import {
+  TokenStandard,
+  createV1,
+  mintV1,
+} from '@metaplex-foundation/mpl-token-metadata';
 import { SPL_TOKEN_2022_PROGRAM_ID, createUmi } from './_setup';
 
 test('it can mint only one token after a NonFungible is created', async (t) => {

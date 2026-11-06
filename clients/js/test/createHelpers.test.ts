@@ -20,7 +20,7 @@ import {
   Metadata,
   programmableConfig,
   TokenStandard,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import { createUmi } from './_setup';
 
 test('it can create a new NonFungible', async (t) => {

@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./test",
+    "outDir": "./dist/test",
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@metaplex-foundation/mpl-token-metadata": [
+        "./dist/types/index.d.ts"
+      ]
+    }
+  },
+  "include": [
+    "test"
+  ],
+  "exclude": [
+    "test/exports"
+  ]
+}

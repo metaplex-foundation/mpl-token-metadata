@@ -8,7 +8,7 @@ import {
   fetchMetadataFromSeeds,
   ruleSetToggle,
   updateAsProgrammableConfigItemDelegateV2,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   OG_TOKEN_STANDARDS,
   createDigitalAssetWithToken,
