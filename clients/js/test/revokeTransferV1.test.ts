@@ -17,7 +17,7 @@ import {
   delegateTransferV1,
   fetchDigitalAssetWithAssociatedToken,
   revokeTransferV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   OG_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

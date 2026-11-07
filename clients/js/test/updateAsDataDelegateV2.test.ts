@@ -6,7 +6,7 @@ import {
   Metadata,
   TokenStandard,
   updateAsDataDelegateV2,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   createDigitalAsset,
   createUmi,

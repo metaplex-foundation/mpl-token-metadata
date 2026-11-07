@@ -1,0 +1,16 @@
+{
+  // Type-checks test/exports/*.mts and *.cts as a consumer would: with
+  // node16 resolution, @metaplex-foundation/mpl-token-metadata resolves
+  // through package.json `exports` (index.d.mts for import, index.d.ts for
+  // require), and so do umi and mpl-toolbox inside its declarations.
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "types": []
+  },
+  "include": ["test/exports"]
+}

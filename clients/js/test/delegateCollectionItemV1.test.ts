@@ -7,7 +7,7 @@ import {
   delegateCollectionItemV1,
   fetchMetadataDelegateRecord,
   findMetadataDelegateRecordPda,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   NON_EDITION_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

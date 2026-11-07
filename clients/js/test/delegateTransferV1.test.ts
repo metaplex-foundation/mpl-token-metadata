@@ -12,7 +12,7 @@ import {
   TokenState,
   delegateTransferV1,
   fetchDigitalAssetWithAssociatedToken,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   OG_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

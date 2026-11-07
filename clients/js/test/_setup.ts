@@ -16,7 +16,7 @@ import {
   mplTokenMetadata,
   TokenStandard,
   verifyCreatorV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 
 export type TokenStandardKeys = keyof typeof TokenStandard;
 

@@ -8,7 +8,7 @@ import {
   TokenStandard,
   burnV1,
   fetchDigitalAssetWithAssociatedToken,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   FUNGIBLE_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

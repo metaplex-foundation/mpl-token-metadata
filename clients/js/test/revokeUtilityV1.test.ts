@@ -17,7 +17,7 @@ import {
   delegateUtilityV1,
   fetchDigitalAssetWithAssociatedToken,
   revokeUtilityV1,
-} from '../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 import {
   OG_TOKEN_STANDARDS,
   createDigitalAssetWithToken,

@@ -17,7 +17,7 @@ import {
   printSupply,
   printV1,
   TokenStandard,
-} from '../../src';
+} from '@metaplex-foundation/mpl-token-metadata';
 
 const closeDestination = publicKey(
   'GxCXYtrnaU6JXeAza8Ugn4EE6QiFinpfn8t3Lo4UkBDX'
