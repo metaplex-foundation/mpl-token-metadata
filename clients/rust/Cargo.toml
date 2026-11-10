@@ -7,6 +7,7 @@ name = "mpl-token-metadata"
 readme = "README.md"
 repository = "https://github.com/metaplex-foundation/mpl-token-metadata"
 version = "5.1.2-alpha.2"
+include = ["src/**/*", "README.md"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
