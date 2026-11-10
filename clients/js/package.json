@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/mpl-token-metadata",
-  "version": "3.4.0",
+  "version": "4.0.0",
   "description": "JavaScript client for Token Metadata",
   "main": "dist/cjs/index.cjs",
   "module": "dist/esm/index.mjs",
